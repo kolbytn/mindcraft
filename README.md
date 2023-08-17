@@ -19,4 +19,4 @@ Start minecraft server on localhost port `55916`
 
 Add `OPENAI_API_KEY` (and optionally `OPENAI_ORG_ID`) to your environment variables.
 
-run `npm main.py`
+run `npm main.js`

@@ -1,4 +1,4 @@
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, OpenAIApi } from 'openai';
 
 
 var openAiConfig = null;
@@ -15,28 +15,29 @@ if (process.env.OPENAI_ORG_ID) {
 const openai = new OpenAIApi(openAiConfig);
 
 
-export async function sendRequest(turns, systemMessage) {
+export async function sendRequest(turns, systemMessage, stop_seq) {
 
-    let messages = [{"role": "system", "content": systemMessage}];
+    let messages = [{'role': 'system', 'content': systemMessage}];
     for (let i = 0; i < turns.length; i++) {
         if (i % 2 == 0) {
-            messages.push({"role": "user", "content": turns[i]});
+            messages.push({'role': 'user', 'content': turns[i]});
         } else {
-            messages.push({"role": "assistant", "content": turns[i]});
+            messages.push({'role': 'assistant', 'content': turns[i]});
         }
     }
 
     let res = null;
     try {
         let completion = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: 'gpt-3.5-turbo',
             messages: messages,
+            stop: stop_seq,
         });
         res = completion.data.choices[0].message.content;
     }
     catch (err) {
         console.log(err);
-        res = "I'm sorry, I don't know how to respond to that.";
+        res = 'I amm sorry, I do not know how to respond to that.';
     }
     return res;
 }

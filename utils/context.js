@@ -1,55 +1,72 @@
-import { getDocstrings } from './skills.js';
+import { readFileSync } from 'fs';
+
+import { getNearbyBlocks } from './world.js';
 
 
 export function getStats(bot) {
-    return "";
+    return null;
 }
 
 
 export function getInventory(bot) {
-    return "";
+    return null;
 }
 
 
-export function getNearbyBlocks(bot) {
-    return "";
+export function getBlocks(bot) {
+    let res = 'NEARBY_BLOCKS\n';
+    let blocks = getNearbyBlocks(bot);
+    for (let i = 0; i < blocks.length; i++) {
+        res += `- ${blocks[i]}\n`;
+    }
+    return res.trim();
 }
 
 
 export function getNearbyEntities(bot) {
-    return "";
+    return null;
 }
 
 
 export function getNearbyPlayers(bot) {
-    return "";
+    return null;
 }
 
 
 export function getCraftable(bot) {
-    return "";
-}
-
-
-export function getSkills() {
-    let res = '';
-    let docs = getDocstrings();
-    let lines = null;
-    for (let i = 0; i < docs.length; i++) {
-        lines = docs[i].trim().split('\n');
-        res += lines[lines.length - 1] + '\n';
-    }
-    res = res.slice(0, res.length - 1);
-    return res;
+    return null;
 }
 
 
 export function getDetailedSkills() {
     let res = 'namespace skills {';
-    let docs = getDocstrings();
-    for (let i = 0; i < docs.length; i++) {
-        res += '\t' + docs[i] + '\n\n';
+    let contents = readFileSync("./utils/skills.js", "utf-8").split('\n');
+    for (let i = 0; i < contents.length; i++) {
+        if (contents[i].slice(0, 3) == '/**') {
+            res += '\t' + contents[i];
+        } else if (contents[i].slice(0, 2) == ' *') {
+            res += '\t' + contents[i];
+        } else if (contents[i].slice(0, 4) == ' **/') {
+            res += '\t' + contents[i] + '\n\n';
+        }
     }
-    res += '}';
+    res = res.trim() + '\n}'
+    return res;
+}
+
+
+export function getWorldFunctions() {
+    let res = 'namespace world {';
+    let contents = readFileSync("./utils/world.js", "utf-8").split('\n');
+    for (let i = 0; i < contents.length; i++) {
+        if (contents[i].slice(0, 3) == '/**') {
+            res += '\t' + contents[i];
+        } else if (contents[i].slice(0, 2) == ' *') {
+            res += '\t' + contents[i];
+        } else if (contents[i].slice(0, 4) == ' **/') {
+            res += '\t' + contents[i] + '\n\n';
+        }
+    }
+    res = res.trim() + '\n}'
     return res;
 }

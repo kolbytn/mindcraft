@@ -1,32 +1,13 @@
 import { writeFile } from 'fs';
 
-import { getStats, getInventory, getNearbyBlocks, getNearbyPlayers, getNearbyEntities, getCraftable, getDetailedSkills } from './utils/context.js';
+import { getDetailedSkills, getWorldFunctions } from './utils/context.js';
 import { sendRequest } from './utils/gpt.js';
 
 
 function buildSystemMessage(bot) {
-    let message = 'You are a helpful Minecraft bot. Given the dialogue and currently running program, reflect on what you are doing and generate javascript code to accomplish that goal. If your new code is empty, no change will be made to your currently running program. Use only functions listed below to write your code.';
-    let stats = getStats(bot);
-    if (stats)
-        message += "\n\n" + stats;
-    let inventory = getInventory(bot);
-    if (inventory)
-        message += "\n\n" + inventory;
-    let nearbyBlocks = getNearbyBlocks(bot);
-    if (nearbyBlocks)
-        message += "\n\n" + nearbyBlocks;
-    let nearbyPlayers = getNearbyPlayers(bot);
-    if (nearbyPlayers)
-        message += "\n\n" + nearbyPlayers;
-    let nearbyEntities = getNearbyEntities(bot);
-    if (nearbyEntities)
-        message += "\n\n" + nearbyEntities;
-    let craftable = getCraftable(bot);
-    if (craftable)
-        message += "\n\n" + craftable;
-    let skills = getDetailedSkills();
-    if (skills)
-        message += "\n\n" + skills;
+    let message = 'You are a helpful Minecraft bot. Given the dialogue, reflect on what you are doing and generate javascript code to accomplish that goal. Use only functions listed below to write your code.';
+    message += "\n\n" + getDetailedSkills();
+    message += "\n\n" + getWorldFunctions();
     return message;
 }
 
@@ -34,38 +15,64 @@ function buildSystemMessage(bot) {
 function buildExamples() {
     return[
 `mr_steve2: Will you help me collect wood?
-You: I'd be glad to help you collect wood.
-Current code:
+
+!blocks
 \`\`\`
-await skills.ExploreToFind(bot, 'iron_ore');
-\`\`\``,
-`I'm going to help mr_steve2 collect wood rather than look for iron ore. The type of wood block nearby is 'oak_log'. I'll adjust my code to collect 'oak_log' for mr_steve2 until told to stop.
+NEARBY_BLOCKS
+- oak_log
+- dirt
+- cobblestone
 \`\`\`
-while (true) {
-    await skills.CollectBlock(bot, 'oak_log', 1);
-    await skills.GoToPlayer(bot, 'mr_steve2');
-    await skills.DropItem(bot, 'oak_log', 1);
-}
+
+Me: I'd be glad to help you collect wood.`,
+`I'm going to help mr_steve2 collect wood. The type of wood block nearby is 'oak_log'. I'll adjust my code to collect 10 'oak_log' for mr_steve2.
+\`\`\`
+await skills.CollectBlock(bot, 'oak_log', 10);
+await skills.GoToPlayer(bot, 'mr_steve2');
+await skills.DropItem(bot, 'oak_log', 10);
 \`\`\``,
 `sally32: What are you doing?
-You: I'm looking for coal. Have you seen any?
-Current code:
+
+!action
 \`\`\`
 await skills.ExploreToFind(bot, 'coal_ore');
 await skills.EquipItem(bot, 'wooden_pickaxe');
 await skills.CollectBlock(bot, 'coal_ore', 10);
-\`\`\``,
-`I responded to a question. I do not need to change my code.
 \`\`\`
+
+Me: I'm looking for coal. Have you seen any?
+
+sally32: Yes, there's some in this cave, follow me.`,
+`I'm going to follow sally32 to the cave and collect coal. I'll adjust my code to follow sally32 until I find coal_ore and then I'll mine it.
+\`\`\`
+while (true) {
+    await skills.GoToPlayer(bot, 'sally32');
+    if (world.getNearbyBlocks(bot).includes('coal_ore')) {
+        break;
+    }
+}
+await skills.EquipItem(bot, 'wooden_pickaxe');
+await skills.CollectBlock(bot, 'coal_ore', 10);
+\`\`\``,
+`user42: come here
+
+Me: Sure! I'm on my way.`,
+`I'm going to navigate to user42.
+\`\`\`
+await skills.GoToPlayer(bot, 'user42');
 \`\`\``,
     ]
 }
 
 
-async function executeCode(bot, code) {
-    let src = `import * as skills from './utils/skills.js';\n\n`;
-    src += `export async function main(bot) {\n`;
-    for (let line of code.split('\n')) {
+export var currentCode = '';
+
+
+export async function executeCode(bot) {
+    let src = "import * as skills from './utils/skills.js';";
+    src += "\nimport * as world from './utils/world.js';"
+    src += `\n\nexport async function main(bot) {\n`;
+    for (let line of currentCode.split('\n')) {
         src += `    ${line}\n`;
     }
     src += `}\n`;
@@ -73,14 +80,38 @@ async function executeCode(bot, code) {
     writeFile('./temp.js', src, (err) => {
         if (err) throw err;
     });
-    await (await import('./temp.js')).main(bot);
+
+    console.log('executing code...\n' + currentCode);
+    try {
+        await (await import('./temp.js')).main(bot);
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+    
+    return true;
 }
 
 
-var currentCode = '';
-export async function actIfNeeded(bot, username, message, res) {
+export async function writeCode(bot, username, messages) {
     let turns = buildExamples();
-    turns.push(`${username}: ${message}\nYou: ${res}\nCurrent Code:\`\`\`\n${currentCode}\n\`\`\``);
+
+    // For now, get rid of the first 6 example messages
+    messages = messages.slice(6);
+
+    let startIndex = messages.length - 6;
+    if (startIndex < 0)
+        startIndex = 0;
+
+    turns.push('');
+    for (let i = startIndex; i < messages.length; i++) {
+        if (i % 2 == 0) {
+            turns[turns.length - 1] += `\n\n${username}: ${messages[i]}`;
+        } else {
+            turns[turns.length - 1] += `\n\nMe: ${messages[i]}`;
+        }
+    }
+    turns[turns.length - 1] = turns[turns.length - 1].trim();
     let systemMessage = buildSystemMessage(bot);
     let actResponse = await sendRequest(turns, systemMessage);
     console.log(actResponse);
@@ -95,6 +126,5 @@ export async function actIfNeeded(bot, username, message, res) {
     if (currentCode.slice(0, 10) == 'javascript')
         currentCode = currentCode.slice(10).trim();
 
-    await executeCode(bot, currentCode);
     return true;
 }
