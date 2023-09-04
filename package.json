@@ -1,8 +1,9 @@
 {
     "type": "module",
     "dependencies": {
-        "mineflayer": "^4.11.0",
+        "mineflayer": "^4.14.0",
         "mineflayer-collectblock": "^1.4.1",
-        "mineflayer-pathfinder": "^2.4.4"
+        "mineflayer-pathfinder": "^2.4.4",
+        "openai": "^4.4.0"
     }
 }
