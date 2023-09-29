@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-import { getNearbyBlocks, getNearbyBlockTypes } from './world.js';
+import { getCraftingTable, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from './world.js';
 import { getAllItems } from './mcdata.js';
 
 
@@ -20,22 +20,14 @@ export function getStats(bot) {
 
 
 export function getInventory(bot) {
+    let inventory = getInventoryCounts(bot);
     let res = 'INVENTORY';
-    let allItems = new Map();
-    for (const item of bot.inventory.slots.values()) {
-        if (item != null) {
-            if (allItems.has(item.name)) {
-                allItems.set(item.name, allItems.get(item.name) + item.count);
-            } else {
-                allItems.set(item.name, item.count);
-            }
-        }
+    for (const item in inventory) {
+        if (inventory[item] > 0)
+            res += `\n- ${item}: ${inventory[item]}`;
     }
-    for (const [item, count] of allItems.entries()) {
-        res += `\n- ${item}: ${count}`;
-    }
-    if (allItems.size == 0) {
-        res += ': empty';
+    if (res == 'INVENTORY') {
+        res += ': none';
     }
     return res;
 }
@@ -56,14 +48,11 @@ export function getBlocks(bot) {
 
 export function getNearbyEntities(bot) {
     let res = 'NEARBY_ENTITIES';
-    for (const entity of Object.values(bot.entities)) {
-        const distance = entity.position.distanceTo(bot.entity.position);
-        if (distance > 50) continue;
-        if (entity.type == 'mob') {
-            res += `\n- mob: ${entity.mobType}`;
-        } else if (entity.type == 'player' && entity.username != bot.username) {
-            res += `\n- player: ${entity.username}`;
-        }
+    for (const entity of getNearbyPlayerNames(bot)) {
+        res += `\n- player: ${entity}`;
+    }
+    for (const entity of getNearbyMobTypes(bot)) {
+        res += `\n- mob: ${entity}`;
     }
     if (res == 'NEARBY_ENTITIES') {
         res += ': none';
@@ -73,14 +62,7 @@ export function getNearbyEntities(bot) {
 
 
 export function getCraftable(bot) {
-    const blocks = getNearbyBlocks(bot, 50);
-    let table = null;
-    for (const block of blocks) {
-        if (block.name == 'crafting_table') {
-            table = block;
-            break;
-        }
-    }
+    const table = getCraftingTable(bot);
     let res = 'CRAFTABLE_ITEMS';
     for (const item of getAllItems()) {
         let recipes = bot.recipesFor(item.id, null, 1, table);

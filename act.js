@@ -13,7 +13,7 @@ function buildSystemMessage(bot) {
 
 
 function buildExamples() {
-    return[
+    return [
 `mr_steve2: Will you help me collect wood?
 
 !blocks
@@ -25,19 +25,19 @@ NEARBY_BLOCKS
 \`\`\`
 
 Me: I'd be glad to help you collect wood.`,
-`I'm going to help mr_steve2 collect wood. The type of wood block nearby is 'oak_log'. I'll adjust my code to collect 10 'oak_log' for mr_steve2.
+`I'm going to help mr_steve2 collect wood. The type of wood block nearby is 'oak_log'. I'll adjust my code to collect an 'oak_log' for mr_steve2.
 \`\`\`
-await skills.CollectBlock(bot, 'oak_log', 10);
-await skills.GoToPlayer(bot, 'mr_steve2');
-await skills.DropItem(bot, 'oak_log', 10);
+await skills.collectBlock(bot, 'oak_log');
+await skills.giveToPlayer(bot, 'oak_log', 'mr_steve2');
 \`\`\``,
 `sally32: What are you doing?
 
 !action
 \`\`\`
-await skills.ExploreToFind(bot, 'coal_ore');
-await skills.EquipItem(bot, 'wooden_pickaxe');
-await skills.CollectBlock(bot, 'coal_ore', 10);
+await skills.equipItem(bot, 'wooden_pickaxe');
+while (world.getInventory(bot).coal_ore < 10) {
+    await skills.collectBlock(bot, 'coal_ore');
+}
 \`\`\`
 
 Me: I'm looking for coal. Have you seen any?
@@ -46,20 +46,22 @@ sally32: Yes, there's some in this cave, follow me.`,
 `I'm going to follow sally32 to the cave and collect coal. I'll adjust my code to follow sally32 until I find coal_ore and then I'll mine it.
 \`\`\`
 while (true) {
-    await skills.GoToPlayer(bot, 'sally32');
+    await skills.goToPlayer(bot, 'sally32');
     if (world.getNearbyBlocks(bot).includes('coal_ore')) {
         break;
     }
 }
-await skills.EquipItem(bot, 'wooden_pickaxe');
-await skills.CollectBlock(bot, 'coal_ore', 10);
+await skills.equipItem(bot, 'wooden_pickaxe');
+while (world.getInventory(bot).coal_ore < 10) {
+    await skills.collectBlock(bot, 'coal_ore');
+}
 \`\`\``,
 `user42: come here
 
 Me: Sure! I'm on my way.`,
 `I'm going to navigate to user42.
 \`\`\`
-await skills.GoToPlayer(bot, 'user42');
+await skills.goToPlayer(bot, 'user42');
 \`\`\``,
     ]
 }

@@ -26,7 +26,7 @@ Sure, do you want oak or birch?`},
 \`\`\`
 while (true) {
     await skills.CollectBlock(bot, 'oak_log', 1);
-    await skills.GoToPlayer(bot, 'username');
+    await skills.goToPlayer(bot, 'username');
     await skills.DropItem(bot, 'oak_log', 1);
 }
 \`\`\``}

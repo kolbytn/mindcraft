@@ -1,12 +1,164 @@
-import { getAllBlockIds } from './mcdata.js';
+import { getAllBlockIds, getAllBlocks, getAllItems } from './mcdata.js';
 
 
-export function getNearbyBlocks(bot, distance) {
-    let positions = bot.findBlocks({matching: getAllBlockIds(['air']), maxDistance: distance, count: 10000});
-    let found = [];
+export function getCraftingTable(bot) {
+    const blocks = getNearbyBlocks(bot, 50);
+    let table = null;
+    for (const block of blocks) {
+        if (block.name == 'crafting_table') {
+            table = block;
+            break;
+        }
+    }
+    return table;
+}
+
+
+export function getNearbyBlocks(bot, maxDistance) {
+    if (maxDistance == null) maxDistance = 16;
+    let positions = bot.findBlocks({matching: getAllBlockIds(['air']), maxDistance: maxDistance, count: 10000});
+    let blocks = [];
     for (let i = 0; i < positions.length; i++) {
         let block = bot.blockAt(positions[i]);
-        found.push(block);
+        let distance = positions[i].distanceTo(bot.entity.position);
+        blocks.push({ block: block, distance: distance });
+    }
+    blocks.sort((a, b) => a.distance - b.distance);
+    let res = [];
+    for (let i = 0; i < blocks.length; i++) {
+        res.push(blocks[i].block);
+    }
+    return res;
+}
+
+
+export function getNearbyMobs(bot, maxDistance) {
+    if (maxDistance == null) maxDistance = 16;
+    let entities = [];
+    for (const entity of Object.values(bot.entities)) {
+        const distance = entity.position.distanceTo(bot.entity.position);
+        if (distance > maxDistance) continue;
+        if (entity.type == 'mob') {
+            entities.push({ entity: entity, distance: distance });
+        } 
+    }
+    entities.sort((a, b) => a.distance - b.distance);
+    let res = [];
+    for (let i = 0; i < entities.length; i++) {
+        res.push(entities[i].entity);
+    }
+    return res;
+}
+
+
+export function getNearbyPlayers(bot, maxDistance) {
+    if (maxDistance == null) maxDistance = 16;
+    let players = [];
+    for (const entity of Object.values(bot.entities)) {
+        const distance = entity.position.distanceTo(bot.entity.position);
+        if (distance > maxDistance) continue;
+        if (entity.type == 'player' && entity.username != bot.username) {
+            players.push({ entity: entity, distance: distance });
+        } 
+    }
+    players.sort((a, b) => a.distance - b.distance);
+    let res = [];
+    for (let i = 0; i < players.length; i++) {
+        res.push(players[i].entity);
+    }
+    return res;
+}
+
+
+export function getInventoryStacks(bot) {
+    let inventory = [];
+    for (const item of bot.inventory.slots.values()) {
+        if (item != null) {
+            inventory.push(item);
+        }
+    }
+    return inventory;
+}
+
+
+/**
+ * Get an object representing the bot's inventory.
+ * @param {Bot} bot - The bot to get the inventory for.
+ * @returns {object} - An object with item names as keys and counts as values.
+ * @example
+ * let inventory = world.getInventoryCounts(bot);
+ * let oakLogCount = inventory['oak_log'];
+ * let hasWoodenPickaxe = inventory['wooden_pickaxe'] > 0;
+ **/
+export function getInventoryCounts(bot) {
+    let inventory = {};
+    for (const item of getInventoryStacks(bot)) {
+        if (inventory.hasOwnProperty(item.name)) {
+            inventory[item.name] = inventory[item.name] + item.count;
+        } else {
+            inventory[item.name] = item.count;
+        }
+    }
+    for (const item of getAllItems()) {
+        if (!inventory.hasOwnProperty(item.name)) {
+            inventory[item.name] = 0;
+        }
+    }
+    for (const item of getAllBlocks()) {
+        if (!inventory.hasOwnProperty(item.name)) {
+            inventory[item.name] = 0;
+        }
+    }
+    return inventory;
+}
+
+
+/**
+ * Get your position in the world (Note that y is vertical).
+ * @param {Bot} bot - The bot to get the position for.
+ * @returns {Vec3} - An object with x, y, and x attributes representing the position of the bot.
+ * @example
+ * let position = world.getPosition(bot);
+ * let x = position.x;
+ **/
+export function getPosition(bot) {
+    return bot.entity.position;
+}
+
+
+/**
+ * Get a list of all nearby mob types.
+ * @param {Bot} bot - The bot to get nearby mobs for.
+ * @returns {string[]} - A list of all nearby mobs.
+ * @example
+ * let mobs = world.getNearbyMobTypes(bot);
+ **/
+export function getNearbyMobTypes(bot) {
+    let mobs = getNearbyMobs(bot, 16);
+    let found = [];
+    for (let i = 0; i < mobs.length; i++) {
+        if (!found.includes(mobs[i].mobType)) {
+            found.push(mobs[i].mobType);
+        }
+    }
+    return found;
+}
+
+
+/**
+ * Get a list of all nearby player names.
+ * @param {Bot} bot - The bot to get nearby players for.
+ * @returns {string[]} - A list of all nearby players.
+ * @example
+ * let players = world.getNearbyPlayerNames(bot);
+ **/
+export function getNearbyPlayerNames(bot) {
+    let players = getNearbyPlayers(bot, 16);
+    let found = [];
+    for (let i = 0; i < players.length; i++) {
+        if (!found.includes(players[i].username) && players[i].username != bot.username) {
+            found.push(players[i].username);
+        }
     }
     return found;
 }

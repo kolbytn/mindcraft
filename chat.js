@@ -10,7 +10,7 @@ function buildSystemMessage() {
     message += ' Do not give instructions unless asked, and always be brief in your responses.';
     message += '\n\nYou can use the following commands followed by to query for information about the world.';
     message += ' The query response will be returned between sets of "\`\`\`":';
-    message += '\n!stats - get player and world stats (e.g. current health and time of day)';
+    message += '\n!stats - get player and world stats (current health, time of day, etc.)';
     message += '\n!inventory - get your current inventory';
     message += '\n!blocks - get a list of nearby blocks';
     message += '\n!craftable - get a list of craftable items with your current inventory';
