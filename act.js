@@ -86,9 +86,11 @@ export async function executeCode(bot) {
         await (await import('./temp.js')).main(bot);
     } catch (err) {
         console.log(err);
+        currentCode = '';
         return false;
     }
-    
+
+    currentCode = '';
     return true;
 }
 
@@ -118,13 +120,13 @@ export async function writeCode(bot, username, messages) {
 
     let code = actResponse.split('\`\`\`');
     if (code.length <= 1)
-        return false;
+        return code;
     if (!code[1].trim())
-        return false;
+        return code;
 
     currentCode = code[1].trim();
     if (currentCode.slice(0, 10) == 'javascript')
         currentCode = currentCode.slice(10).trim();
 
-    return true;
+    return currentCode;
 }

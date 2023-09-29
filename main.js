@@ -3,13 +3,13 @@ import { pathfinder } from 'mineflayer-pathfinder';
 import { plugin } from 'mineflayer-collectblock';
 
 import { getChatResponse } from './chat.js';
-import { executeCode, writeCode } from './act.js';
+import { executeCode } from './act.js';
 
 
 async function handleMessage(username, message) {
     if (username === bot.username) return;
     console.log('received message from', username, ':', message);
-    
+
     let chat = await getChatResponse(bot, username, message);
     bot.chat(chat);
 
@@ -23,13 +23,11 @@ async function handleMessage(username, message) {
 const bot = createBot({
     host: '127.0.0.1',
     port: 55916,
-    username: 'andy'
+    username: 'andi'
 })
 bot.loadPlugin(pathfinder)
 bot.loadPlugin(plugin)
 
-// await writeCode(bot, 'all', ['all: Now, you should set your own personal goal.']);
-// executeCode(bot);
 console.log('bot created')
 
 bot.on('chat', handleMessage);
