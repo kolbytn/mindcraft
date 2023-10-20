@@ -6,6 +6,7 @@ import { getChatResponse } from './chat.js';
 import { executeCode } from './act.js';
 
 
+
 async function handleMessage(username, message) {
     if (username === bot.username) return;
     console.log('received message from', username, ':', message);
@@ -23,7 +24,7 @@ async function handleMessage(username, message) {
 const bot = createBot({
     host: '127.0.0.1',
     port: 55916,
-    username: 'andi'
+    username: 'andy'
 })
 bot.loadPlugin(pathfinder)
 bot.loadPlugin(plugin)
@@ -32,3 +33,7 @@ console.log('bot created')
 
 bot.on('chat', handleMessage);
 bot.on('whisper', handleMessage);
+
+bot.once("login", () => {
+    bot.chat('hello world!')
+});
