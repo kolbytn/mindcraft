@@ -179,5 +179,5 @@ export function getNearbyBlockTypes(bot) {
             found.push(blocks[i].name);
         }
     }
-    return Array.from(blockNames);
+    return found;
 }

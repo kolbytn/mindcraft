@@ -1,4 +1,4 @@
-import { getStats, getInventory, getBlocks, getNearbyPlayers, getNearbyEntities, getCraftable } from './context.js';
+import { getStats, getInventory, getBlocks, getNearbyEntities, getCraftable } from './context.js';
 import { currentCode, executeCode, writeCode } from '../act.js';
 
 const pad = (str) => {
@@ -38,7 +38,7 @@ const commandsList = [
         name: "!entities",
         description: "Get the nearby players and entities.",
         perform: function (bot) {
-            return pad(getNearbyPlayers(bot) + '\n' + getNearbyEntities(bot));
+            return pad(getNearbyEntities(bot));
         }
     },
     {

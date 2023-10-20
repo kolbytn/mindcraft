@@ -1,7 +1,5 @@
 import { sendRequest } from './utils/gpt.js';
 import { getHistory, addEvent } from './utils/history.js';
-import { getStats, getInventory, getBlocks, getNearbyPlayers, getNearbyEntities, getCraftable } from './utils/context.js';
-import { currentCode, executeCode, writeCode } from './act.js';
 import { getCommand, getCommandDocs } from './utils/commands.js';
 
 
