@@ -1,6 +1,6 @@
 import { sendRequest } from './utils/gpt.js';
 import { getHistory, addEvent } from './utils/history.js';
-import { getCommand, getCommandDocs } from './utils/commands.js';
+import { containsCommand, getCommand, getCommandDocs } from './utils/commands.js';
 
 
 function buildSystemMessage(bot) {
@@ -22,23 +22,24 @@ export async function getChatResponse(bot, user, message) {
     let botFinalRes = '';
     let botEvent = '';
     let botRes = null;
-    console.log("*recieved chat:", message)
+    console.log("*recieved chat:", message);
     for (let i = 0; i < MAX_TURNS; i++) {
         botRes = await sendRequest(turns, systemMessage, '\`\`\`');
-        console.log(`bot response ${i}:`, botRes);
-
-        let commandRes = null;
-        let firstword = botRes.trim().split(/\s+/)[0];
-        let command = getCommand(firstword);
-        if (command) {
-            console.log('Executing command:', command.name)
-            commandRes = await command.perform(bot);
+        console.log(`bot response ${i}: "${botRes}"`);
+        let command_name = containsCommand(botRes)
+        if (command_name) {
+            let command = getCommand(command_name);
+            let commandRes = await command.perform(bot, user, turns.concat(botRes));
             
             botEvent += `/n${command.name}/n${commandRes}`;
             if (i == 0)
                 turns.push(botEvent);
             else
                 turns[turns.length - 1] += botEvent;
+            if (command_name == '!execute') {
+                botFinalRes = "Executing Code";
+                break;
+            }
         } else {
             botFinalRes = botRes;
             break;
@@ -47,6 +48,6 @@ export async function getChatResponse(bot, user, message) {
 
     console.log('*bot response', botFinalRes);
     console.log('*bot event', botEvent);
-    addEvent('bot', botEvent);
+    addEvent('bot', turns[turns.length - 1]);
     return botFinalRes.trim();
 }

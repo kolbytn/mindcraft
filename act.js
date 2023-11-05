@@ -63,7 +63,15 @@ Me: Sure! I'm on my way.`,
 \`\`\`
 await skills.goToPlayer(bot, 'user42');
 \`\`\``,
-    ]
+
+`user42: execute some code that says "hello world"
+
+Me: Okay, I'll do that now.`,
+`I'm going to log "hello world" to the console.
+\`\`\`
+console.log('hello world');
+\`\`\``,
+]
 }
 
 
@@ -85,13 +93,13 @@ export async function executeCode(bot) {
 
     console.log('executing code...\n' + currentCode);
     try {
-        await (await import('./temp.js')).main(bot);
+        let ouput = await (await import('./temp.js')).main(bot);
+        console.log(`Code output: *\n${ouput}\n*`);
     } catch (err) {
         console.log(err);
         currentCode = '';
         return false;
     }
-
     currentCode = '';
     return true;
 }
@@ -101,26 +109,32 @@ export async function writeCode(bot, username, messages) {
     let turns = buildExamples();
 
     // For now, get rid of the first 6 example messages
-    messages = messages.slice(6);
+    messages = messages.slice(8); // TODO: fix this, very spaghetti
 
     let startIndex = messages.length - 6;
     if (startIndex < 0)
         startIndex = 0;
 
-    turns.push('');
+    let nextTurn = '';
     for (let i = startIndex; i < messages.length; i++) {
         if (i % 2 == 0) {
-            turns[turns.length - 1] += `\n\n${username}: ${messages[i]}`;
+            nextTurn += `${username}: ${messages[i]}\n\n`;
         } else {
-            turns[turns.length - 1] += `\n\nMe: ${messages[i]}`;
+            nextTurn += `Me: ${messages[i]}\n\n`;
+            turns.push(nextTurn);
+            nextTurn = '';
         }
     }
+    if (nextTurn)
+        turns.push(nextTurn);
     turns[turns.length - 1] = turns[turns.length - 1].trim();
+    console.log("Action request input:", turns);
     let systemMessage = buildSystemMessage(bot);
     let actResponse = await sendRequest(turns, systemMessage);
-    console.log(actResponse);
+    console.log("Action response:", actResponse);
 
     let code = actResponse.split('\`\`\`');
+    console.log(code);
     if (code.length <= 1)
         return code;
     if (!code[1].trim())

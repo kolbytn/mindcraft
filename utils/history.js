@@ -29,7 +29,14 @@ while (true) {
     await skills.goToPlayer(bot, 'username');
     await skills.DropItem(bot, 'oak_log', 1);
 }
-\`\`\``}
+\`\`\``},
+{'source': 'all', 'message': 'come here'},
+{'source': 'bot', 'message': `Sure! I'm on my way.
+
+!execute
+\`\`\`
+await skills.goToPlayer(bot, 'user42');
+\`\`\``},
 ];
 
 
