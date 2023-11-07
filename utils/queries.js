@@ -8,43 +8,43 @@ const queryList = [
     {
         name: "!stats",
         description: "Get your bot's stats", 
-        perform: function (bot) {
-            return pad(getStats(bot));
+        perform: function (agent) {
+            return pad(getStats(agent.bot));
         }
     },
     {
         name: "!inventory",
         description: "Get your bot's inventory.",
-        perform: function (bot) {
-            return pad(getInventory(bot));
+        perform: function (agent) {
+            return pad(getInventory(agent.bot));
         }
     },
     {
         name: "!blocks",
         description: "Get the blocks near the bot.",
-        perform: function (bot) {
-            return pad(getBlocks(bot));
+        perform: function (agent) {
+            return pad(getBlocks(agent.bot));
         }
     },
     {
         name: "!craftable",
         description: "Get the craftable items with the bot's inventory.",
-        perform: function (bot) {
-            return pad(getCraftable(bot));
+        perform: function (agent) {
+            return pad(getCraftable(agent.bot));
         }
     },
     {
         name: "!entities",
         description: "Get the nearby players and entities.",
-        perform: function (bot) {
-            return pad(getNearbyEntities(bot));
+        perform: function (agent) {
+            return pad(getNearbyEntities(agent.bot));
         }
     },
     {
         name: "!action",
         description: "Get the currently executing code.",
-        perform: function (bot) {
-            return pad(currentCode(bot));
+        perform: function (agent) {
+            return pad("Current code:\n`" + agent.coder.current_code +"`");
         }
     },
 ];
