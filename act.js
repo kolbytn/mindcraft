@@ -1,4 +1,4 @@
-import { writeFile } from 'fs';
+import { writeFileSync } from 'fs';
 
 import { getDetailedSkills, getWorldFunctions } from './utils/context.js';
 import { sendRequest } from './utils/gpt.js';
@@ -78,8 +78,8 @@ export async function executeCode(bot) {
         src += `    ${line}\n`;
     }
     src += `}\n`;
-    
-    writeFile('./temp.js', src, (err) => {
+
+    writeFileSync('./temp.js', src, (err) => {
         if (err) throw err;
     });
 
@@ -109,9 +109,9 @@ export async function writeCode(bot, username, messages) {
 
     turns.push('');
     for (let i = startIndex; i < messages.length; i++) {
-        if (i % 2 == 0) {
+        if (i % 2 == 0 && messages[i] != '') {
             turns[turns.length - 1] += `\n\n${username}: ${messages[i]}`;
-        } else {
+        } else if (messages[i] != '') {
             turns[turns.length - 1] += `\n\nMe: ${messages[i]}`;
         }
     }
