@@ -3,6 +3,5 @@ node_modules/
 package-lock.json
 temp.js
 scratch.js
-# ignore eveything in agent_code except for 0.js
 agent_code/**
 !agent_code/template.js

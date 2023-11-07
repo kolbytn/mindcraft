@@ -3,7 +3,7 @@ import { createBot } from 'mineflayer';
 import { pathfinder } from 'mineflayer-pathfinder';
 import { plugin } from 'mineflayer-collectblock';
 
-const mc_version = '1.20.1'
+const mc_version = '1.19.3'
 let mcdata = minecraftData(mc_version);
 
 
