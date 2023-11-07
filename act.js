@@ -1,4 +1,4 @@
-import { writeFile } from 'fs';
+import { writeFileSync } from 'fs';
 
 import { getDetailedSkills, getWorldFunctions } from './utils/context.js';
 import { sendRequest } from './utils/gpt.js';
@@ -86,8 +86,8 @@ export async function executeCode(bot) {
         src += `    ${line}\n`;
     }
     src += `}\n`;
-    
-    writeFile('./temp.js', src, (err) => {
+
+    writeFileSync('./temp.js', src, (err) => {
         if (err) throw err;
     });
 
