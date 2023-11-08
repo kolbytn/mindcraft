@@ -57,23 +57,19 @@ export class Agent {
                 if (code) {
                     console.log('Queuing code: ' + code);
                     this.coder.queueCode(code);
+                    let code_return = await this.coder.execute();
+                    if (code_return.success)
+                        break;
+                    else {
+                        let message = "Code execution failed: " + code_return.message;
+                        message += "\n Write code to fix the problem and try again.";
+                        this.history.add(this.name, message);
+                    }
                 }
-                break;
             }
             else { // conversation response
                 this.bot.chat(res);
                 break;
-            }
-        }
-
-        if (this.coder.hasCode()) {
-            let code_return = await this.coder.execute();
-            if (!code_return.success) {
-                let message = "Code execution failed: " + code_return.message;
-                this.history.add(this.name, message);
-                let res = await sendRequest(this.history.getHistory(), this.system_message);
-                this.history.add(this.name, res);
-                this.bot.chat(res);
             }
         }
     }
