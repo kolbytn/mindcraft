@@ -2,7 +2,7 @@ let history_examples = [
     {'role': 'user', 'content': 'miner_32: Hey! What are you up to?'},
     {'role': 'assistant', 'content': 'Nothing much miner_32, what do you need?'},
 
-    {'role': 'user', 'content': '(grombo_Xx: What do you see?'},
+    {'role': 'user', 'content': 'grombo_Xx: What do you see?'},
     {'role': 'assistant', 'content': 'Let me see... !blocks'},
     {'role': 'assistant', 'content': 'NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone'},
     {'role': 'assistant', 'content': 'I see some oak logs, dirt, and cobblestone.'},
@@ -20,6 +20,9 @@ let history_examples = [
     {'role': 'user', 'content': 'hanky: kill that zombie!'},
     {'role': 'assistant', 'content': "I'm attacking! ```//I'm going to attack the nearest zombie.\n\
     return await skills.attackMob(bot, 'zombie');```"},
+
+    {'role': 'user', 'content': 'billybob: stop what you are doing'},
+    {'role': 'assistant', 'content': '```// I am going to write nothing to clear my code\n return true;```'},
 ]
 
 export class History {

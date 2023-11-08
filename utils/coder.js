@@ -61,14 +61,18 @@ export class Coder {
         try {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
-
+            this.clear();
             let success = await execution_file.main(this.agent.bot);
-            this.current_code = '';
             return {success, message: ""};
         } catch (err) {
             console.error("Problem executing code:" + err);
-            this.current_code = '';
+            this.clear();
             return {success: false, message: err};
         }
+    }
+
+    clear() {
+        this.current_code = '';
+        this.agent.bot.pathfinder.setGoal(null);
     }
 }
