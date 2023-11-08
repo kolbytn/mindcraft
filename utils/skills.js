@@ -68,7 +68,7 @@ export async function breakBlockAt(bot, x, y, z) {
      * @param {number} z, the z coordinate of the block to break.
      * @returns {Promise<boolean>} true if the block was broken, false otherwise.
      * @example
-     * let position = getPosition(bot);
+     * let position = world.getPosition(bot);
      * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
      **/
     let current = bot.blockAt({ x: x, y: y, z: z });
@@ -88,7 +88,7 @@ export async function placeBlock(bot, blockType, x, y, z) {
      * @param {number} z, the z coordinate to place the block at.
      * @returns {Promise<boolean>} true if the block was placed, false otherwise.
      * @example
-     * let position = getPosition(bot);
+     * let position = world.getPosition(bot);
      * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y, position.x);
      **/
     let referenceBlock = null;
@@ -164,7 +164,7 @@ export async function goToPosition(bot, x, y, z) {
      * @param {number} z, the z coordinate to navigate to. If null, the bot's current z coordinate will be used.
      * @returns {Promise<boolean>} true if the position was reached, false otherwise.
      * @example
-     * let position = getPosition(bot);
+     * let position = world.getPosition(bot);
      * await skills.goToPosition(bot, position.x, position.y, position.x + 20);
      **/
     if (x == null) x = bot.entity.position.x;

@@ -9,6 +9,8 @@ export class Coder {
     }
 
     queueCode(code) {
+        if (code.startsWith('javascript'))
+            code = code.slice(10);
         this.current_code = code;
     }
 
