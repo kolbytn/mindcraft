@@ -1,6 +1,7 @@
 {
     "type": "module",
     "dependencies": {
+        "minecraft-data": "^3.46.2",
         "mineflayer": "^4.14.0",
         "mineflayer-collectblock": "^1.4.1",
         "mineflayer-pathfinder": "^2.4.4",

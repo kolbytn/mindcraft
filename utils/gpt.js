@@ -15,21 +15,14 @@ if (process.env.OPENAI_ORG_ID) {
 const openai = new OpenAIApi(openAiConfig);
 
 
-export async function sendRequest(turns, systemMessage, stop_seq) {
+export async function sendRequest(turns, systemMessage, stop_seq='***') {
 
-    let messages = [{'role': 'system', 'content': systemMessage}];
-    for (let i = 0; i < turns.length; i++) {
-        if (i % 2 == 0) {
-            messages.push({'role': 'user', 'content': turns[i]});
-        } else {
-            messages.push({'role': 'assistant', 'content': turns[i]});
-        }
-    }
+    let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
     let res = null;
     try {
         let completion = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4',
             messages: messages,
             stop: stop_seq,
         });
@@ -37,7 +30,7 @@ export async function sendRequest(turns, systemMessage, stop_seq) {
     }
     catch (err) {
         console.log(err);
-        res = 'I am sorry, I do not know how to respond to that.';
+        res = 'My brain disconnected, try again.';
     }
     return res;
 }

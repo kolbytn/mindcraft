@@ -1,6 +1,23 @@
 import minecraftData from 'minecraft-data';
-var mcdata = minecraftData('1.19.3');
+import { createBot } from 'mineflayer';
+import { pathfinder } from 'mineflayer-pathfinder';
+import { plugin } from 'mineflayer-collectblock';
 
+const mc_version = '1.19.3'
+let mcdata = minecraftData(mc_version);
+
+
+export function initBot(username) {
+    let bot = createBot({
+        host: 'localhost',
+        port: 55916,
+        username: username,
+        version: mc_version,
+    });
+    bot.loadPlugin(pathfinder)
+    bot.loadPlugin(plugin)
+    return bot;
+}
 
 export function getItemId(item) {
     return mcdata.itemsByName[item].id;

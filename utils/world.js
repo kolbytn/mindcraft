@@ -81,16 +81,16 @@ export function getInventoryStacks(bot) {
 }
 
 
-/**
- * Get an object representing the bot's inventory.
- * @param {Bot} bot - The bot to get the inventory for.
- * @returns {object} - An object with item names as keys and counts as values.
- * @example
- * let inventory = world.getInventoryCounts(bot);
- * let oakLogCount = inventory['oak_log'];
- * let hasWoodenPickaxe = inventory['wooden_pickaxe'] > 0;
- **/
 export function getInventoryCounts(bot) {
+    /**
+     * Get an object representing the bot's inventory.
+     * @param {Bot} bot - The bot to get the inventory for.
+     * @returns {object} - An object with item names as keys and counts as values.
+     * @example
+     * let inventory = world.getInventoryCounts(bot);
+     * let oakLogCount = inventory['oak_log'];
+     * let hasWoodenPickaxe = inventory['wooden_pickaxe'] > 0;
+     **/
     let inventory = {};
     for (const item of getInventoryStacks(bot)) {
         if (inventory.hasOwnProperty(item.name)) {
@@ -113,27 +113,27 @@ export function getInventoryCounts(bot) {
 }
 
 
-/**
- * Get your position in the world (Note that y is vertical).
- * @param {Bot} bot - The bot to get the position for.
- * @returns {Vec3} - An object with x, y, and x attributes representing the position of the bot.
- * @example
- * let position = world.getPosition(bot);
- * let x = position.x;
- **/
 export function getPosition(bot) {
+    /**
+     * Get your position in the world (Note that y is vertical).
+     * @param {Bot} bot - The bot to get the position for.
+     * @returns {Vec3} - An object with x, y, and x attributes representing the position of the bot.
+     * @example
+     * let position = world.getPosition(bot);
+     * let x = position.x;
+     **/
     return bot.entity.position;
 }
 
 
-/**
- * Get a list of all nearby mob types.
- * @param {Bot} bot - The bot to get nearby mobs for.
- * @returns {string[]} - A list of all nearby mobs.
- * @example
- * let mobs = world.getNearbyMobTypes(bot);
- **/
 export function getNearbyMobTypes(bot) {
+    /**
+     * Get a list of all nearby mob types.
+     * @param {Bot} bot - The bot to get nearby mobs for.
+     * @returns {string[]} - A list of all nearby mobs.
+     * @example
+     * let mobs = world.getNearbyMobTypes(bot);
+     **/
     let mobs = getNearbyMobs(bot, 16);
     let found = [];
     for (let i = 0; i < mobs.length; i++) {
@@ -145,14 +145,14 @@ export function getNearbyMobTypes(bot) {
 }
 
 
-/**
- * Get a list of all nearby player names.
- * @param {Bot} bot - The bot to get nearby players for.
- * @returns {string[]} - A list of all nearby players.
- * @example
- * let players = world.getNearbyPlayerNames(bot);
- **/
 export function getNearbyPlayerNames(bot) {
+    /**
+     * Get a list of all nearby player names.
+     * @param {Bot} bot - The bot to get nearby players for.
+     * @returns {string[]} - A list of all nearby players.
+     * @example
+     * let players = world.getNearbyPlayerNames(bot);
+     **/
     let players = getNearbyPlayers(bot, 16);
     let found = [];
     for (let i = 0; i < players.length; i++) {
@@ -164,14 +164,14 @@ export function getNearbyPlayerNames(bot) {
 }
 
 
-/**
- * Get a list of all nearby block names.
- * @param {Bot} bot - The bot to get nearby blocks for.
- * @returns {string[]} - A list of all nearby blocks.
- * @example
- * let blocks = world.getNearbyBlockTypes(bot);
- **/
 export function getNearbyBlockTypes(bot) {
+    /**
+     * Get a list of all nearby block names.
+     * @param {Bot} bot - The bot to get nearby blocks for.
+     * @returns {string[]} - A list of all nearby blocks.
+     * @example
+     * let blocks = world.getNearbyBlockTypes(bot);
+     **/
     let blocks = getNearbyBlocks(bot, 16);
     let found = [];
     for (let i = 0; i < blocks.length; i++) {

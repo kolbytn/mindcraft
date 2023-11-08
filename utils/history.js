@@ -1,60 +1,46 @@
-var messages = [
-{'source': 'all', 'message': 'Hey! What are you up to?'},
-{'source': 'bot', 'message': `!action
-\`\`\`
-await skills.ExploreToFind(bot, 'coal_ore');
-await skills.EquipItem(bot, 'wooden_pickaxe');
-await skills.CollectBlock(bot, 'coal_ore', 10);
-\`\`\`
+let history_examples = [
+    {'role': 'user', 'content': 'miner_32: Hey! What are you up to?'},
+    {'role': 'assistant', 'content': 'Nothing much miner_32, what do you need?'},
 
-I'm looking for coal. Have you seen any?`},
-{'source': 'all', 'message': 'No, but can you help me collect wood?'},
-{'source': 'bot', 'message': `!blocks
-\`\`\`
-NEARBY_BLOCKS
-- oak_log
-- dirt
-- cobblestone
-- birch_log
-\`\`\`
+    {'role': 'user', 'content': 'grombo_Xx: What do you see?'},
+    {'role': 'assistant', 'content': 'Let me see... !blocks'},
+    {'role': 'assistant', 'content': 'NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone'},
+    {'role': 'assistant', 'content': 'I see some oak logs, dirt, and cobblestone.'},
 
-Sure, do you want oak or birch?`},
-{'source': 'all', 'message': 'Thanks! Either is fine.'},
-{'source': 'bot', 'message': `I'll do that now.
+    {'role': 'user', 'content': 'zZZn98: come here'},
+    {'role': 'assistant', 'content': '```// I am going to navigate to zZZn98.\nreturn await skills.goToPlayer(bot, "zZZn98");```'},
 
-!execute
-\`\`\`
-while (true) {
-    await skills.CollectBlock(bot, 'oak_log', 1);
-    await skills.goToPlayer(bot, 'username');
-    await skills.DropItem(bot, 'oak_log', 1);
-}
-\`\`\``}
-];
+    {'role': 'user', 'content': 'hanky: collect some sand for me please'},
+    {'role': 'assistant', 'content': 'Collecting sand...```// I am going to collect 3 sand and give to hanky.\n\
+    await skills.collectBlock(bot, "sand");\nreturn await skills.giveToPlayer(bot, "sand", "hanky");```'},
 
+    {'role': 'user', 'content': 'sarah_O.o: can you do a dance for me?'},
+    {'role': 'assistant', 'content': "I don't know how to do that."},
 
-export function addEvent(source, message) {
-    messages.push({source, message});
-}
+    {'role': 'user', 'content': 'hanky: kill that zombie!'},
+    {'role': 'assistant', 'content': "I'm attacking! ```//I'm going to attack the nearest zombie.\n\
+    return await skills.attackMob(bot, 'zombie');```"},
 
+    {'role': 'user', 'content': 'billybob: stop what you are doing'},
+    {'role': 'assistant', 'content': '```// I am going to write nothing to clear my code\n return true;```'},
+]
 
-export function getHistory(source) {
-    let res = [];
-    let lastSource = null;
-    for (let i = 0; i < messages.length; i++) {
-        if (lastSource != source && (messages[i].source == source || messages[i].source == 'all')) {
-            res.push(messages[i].message);
-            lastSource = source;
-        } else if (lastSource == source && (messages[i].source == source || messages[i].source == 'all')) {
-            res[-1] += '\n\n' + messages[i].message;
-        } else if (lastSource == source && messages[i].source == 'bot') {
-            res.push(messages[i].message);
-            lastSource = 'bot';
-        } else if (lastSource == 'bot' && messages[i].source == 'bot') {
-            res[-1] += '\n\n' + messages[i].message;
-        } else {
-            lastSource = null;
-        }
+export class History {
+    constructor(agent) {
+        this.agent = agent;
+        this.turns = history_examples;
     }
-    return res;
+
+    getHistory() {
+        return this.turns;
+    }
+
+    add(name, content) {
+        let role = 'assistant';
+        if (name !== this.agent.name) {
+            role = 'user';
+            content = `${name}: ${content}`;
+        }
+        this.turns.push({role, content});
+    }
 }
