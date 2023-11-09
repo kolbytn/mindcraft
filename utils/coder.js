@@ -9,9 +9,18 @@ export class Coder {
     }
 
     queueCode(code) {
-        if (code.startsWith('javascript'))
-            code = code.slice(10);
-        this.current_code = code;
+        this.current_code = this.santitizeCode(code);
+    }
+
+    santitizeCode(code) {
+        const remove_strs = ['javascript', 'js']
+        for (let r of remove_strs) {
+            if (code.startsWith(r)) {
+                code = code.slice(r.length);
+                return code;
+            }
+        }
+        return code;
     }
 
     hasCode() {
@@ -35,6 +44,7 @@ export class Coder {
         if (!this.current_code) return {success: false, message: "No code to execute."};
         let src = "import * as skills from '../utils/skills.js';";
         src += "\nimport * as world from '../utils/world.js';"
+        src += "\nimport Vec3 from 'vec3';"
         src += `\n\nexport async function main(bot) {\n`;
         for (let line of this.current_code.split('\n')) {
             src += `    ${line}\n`;
@@ -44,18 +54,18 @@ export class Coder {
         console.log("writing to file...", src)
 
         let filename = this.fp + this.file_counter + '.js';
-        if (this.file_counter > 0) {
-            let prev_filename = this.fp + (this.file_counter-1) + '.js';
-            unlink(prev_filename, (err) => {
-                console.log("deleted file " + prev_filename);
-                if (err) console.error(err);
-            });
-        }
+        // if (this.file_counter > 0) {
+        //     let prev_filename = this.fp + (this.file_counter-1) + '.js';
+        //     unlink(prev_filename, (err) => {
+        //         console.log("deleted file " + prev_filename);
+        //         if (err) console.error(err);
+        //     });
+        // } commented for now, useful to keep files for debugging
         this.file_counter++;
 
-        let result = await this.writeFilePromise(filename, src);
+        let write_result = await this.writeFilePromise(filename, src);
         
-        if (result) {
+        if (write_result) {
             console.error('Error writing code execution file: ' + result);
             return {success: false, message: result};
         }
@@ -64,10 +74,12 @@ export class Coder {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
             this.clear();
-            let success = await execution_file.main(this.agent.bot);
-            return {success, message: ""};
+            await execution_file.main(this.agent.bot);
+            let msg = 'Code executed successfully.';
+            console.log(msg)
+            return {success: true, message: msg};
         } catch (err) {
-            console.error("Problem executing code:" + err);
+            console.error("Code execution triggered catch:" + err);
             this.clear();
             return {success: false, message: err};
         }
