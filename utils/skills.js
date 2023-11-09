@@ -1,6 +1,7 @@
 import { getItemId } from "./mcdata.js";
 import { getCraftingTable, getInventoryCounts, getInventoryStacks, getNearbyMobs, getNearbyBlocks } from "./world.js";
 import pf from 'mineflayer-pathfinder';
+import Vec3 from 'vec3';
 
 
 export async function craftItem(bot, itemName) {
@@ -71,64 +72,39 @@ export async function breakBlockAt(bot, x, y, z) {
      * let position = world.getPosition(bot);
      * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
      **/
-    let current = bot.blockAt({ x: x, y: y, z: z });
+    let current = bot.blockAt(Vec3(x, y, z));
     if (current.name != 'air')
         await bot.dig(current, true);
     return true;
 }
 
 
-export async function placeBlock(bot, blockType, x, y, z) {
+export async function placeBlock(bot, blockType, x, y, z, faceVec=new Vec3(0, 1, 0)) {
     /**
      * Place the given block type at the given position.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} blockType, the type of block to place.
-     * @param {number} x, the x coordinate to place the block at.
-     * @param {number} y, the y coordinate to place the block at.
-     * @param {number} z, the z coordinate to place the block at.
+     * @param {number} x, the x coordinate of the block to place.
+     * @param {number} y, the y coordinate of the block to place.
+     * @param {number} z, the z coordinate of the block to place.
+     * @param {Vec3} faceVec, the face of the block to place against. Defaults to the top face.
      * @returns {Promise<boolean>} true if the block was placed, false otherwise.
      * @example
      * let position = world.getPosition(bot);
-     * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y, position.x);
+     * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y, position.x, new Vec3(1, 0, 0));
      **/
-    let referenceBlock = null;
-    let refVec = null;
-    if (bot.blockAt({ x: x + 1, y: y, z: z }).name != "air") {
-        referenceBlock = bot.blockAt({ x: x + 1, y: y, z: z });
-        refVec = { x: x - 1, y: y, z: z };
-    } else if (bot.blockAt({ x: x - 1, y: y, z: z }).name != "air") {
-        referenceBlock = bot.blockAt({ x: x - 1, y: y, z: z });
-        refVec = { x: x + 1, y: y, z: z };
-    } else if (bot.blockAt({ x: x, y: y + 1, z: z }).name != "air") {
-        referenceBlock = bot.blockAt({ x: x, y: y + 1, z: z });
-        refVec = { x: x, y: y - 1, z: z };
-    } else if (bot.blockAt({ x: x, y: y - 1, z: z }).name != "air") {
-        referenceBlock = bot.blockAt({ x: x, y: y - 1, z: z });
-        refVec = { x: x, y: y + 1, z: z };
-    } else if (bot.blockAt({ x: x, y: y, z: z + 1 }).name != "air") {
-        referenceBlock = bot.blockAt({ x: x, y: y, z: z + 1 });
-        refVec = { x: x, y: y, z: z - 1 };
-    } else if (bot.blockAt({ x: x, y: y, z: z - 1 }).name != "air") {
-        referenceBlock = bot.blockAt({ x: x, y: y, z: z - 1 });
-        refVec = { x: x, y: y, z: z + 1 };
-    } else {
+    let referenceBlock = bot.blockAt(new Vec3(x, y, z));
+    if (referenceBlock.name != 'air')
         return false;
-    }
-
-    let block = null;
-    for (let stack of getInventoryStacks(bot)) {
-        if (stack.name == blockType) {
-            block = stack;
-            break;
-        }
-    }
-    if (block == null)
+    let block = bot.inventory.items().find(item => item.name === blockType);
+    if (!block)
         return false;
-
-    breakBlockAt(bot, x, y, z);
     await bot.equip(block, 'hand');
-    await bot.placeBlock(referenceBlock, refVec);
-    return true;
+    bot.placeBlock(referenceBlock, faceVec).then(() => {
+        return true;
+    }).catch((err) => {
+        return false;
+    });
 }
 
 
@@ -164,7 +140,7 @@ export async function goToPosition(bot, x, y, z) {
      * @param {number} z, the z coordinate to navigate to. If null, the bot's current z coordinate will be used.
      * @returns {Promise<boolean>} true if the position was reached, false otherwise.
      * @example
-     * let position = world.getPosition(bot);
+     * let position = getPosition(bot);
      * await skills.goToPosition(bot, position.x, position.y, position.x + 20);
      **/
     if (x == null) x = bot.entity.position.x;
