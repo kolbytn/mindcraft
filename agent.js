@@ -30,6 +30,14 @@ export class Agent {
 
             this.respond(username, message);
         });
+
+        this.bot.on('finished_executing', () => {
+            setTimeout(() => {
+                if (!this.coder.executing) {
+                    // return to default behavior
+                }
+            }, 10000);
+        })
     }
 
     async respond(username, message) {
