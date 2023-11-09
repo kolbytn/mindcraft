@@ -140,7 +140,7 @@ export async function goToPosition(bot, x, y, z) {
      * @param {number} z, the z coordinate to navigate to. If null, the bot's current z coordinate will be used.
      * @returns {Promise<boolean>} true if the position was reached, false otherwise.
      * @example
-     * let position = getPosition(bot);
+     * let position = world.getPosition(bot);
      * await skills.goToPosition(bot, position.x, position.y, position.x + 20);
      **/
     if (x == null) x = bot.entity.position.x;
