@@ -74,13 +74,10 @@ export class Coder {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
             this.clear();
-            let success = await execution_file.main(this.agent.bot);
-            let message = success ? 'Code await returned successfully.' : 'Code await return failed!';
-            if (success)
-                console.log(message)
-            else
-                console.error(message);
-            return {success, message};
+            await execution_file.main(this.agent.bot);
+            let msg = 'Code executed successfully.';
+            console.log(msg)
+            return {success: true, message: msg};
         } catch (err) {
             console.error("Code execution triggered catch:" + err);
             this.clear();
