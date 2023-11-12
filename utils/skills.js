@@ -198,7 +198,7 @@ export async function goToPlayer(bot, username) {
 
 export async function followPlayer(bot, username) {
     /**
-     * Follow the given player endlessly.
+     * Follow the given player endlessly. Will not return until the code is manually stopped.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} username, the username of the player to follow.
      * @returns {Promise<boolean>} true if the player was found, false otherwise.
@@ -210,10 +210,11 @@ export async function followPlayer(bot, username) {
         return false;
 
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    while (!bot.abort) {
+    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 2), true);
+
+    while (!bot.abort_code) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        let pos = player.position;
-        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 3));
     }
+
     return true;
 }
