@@ -6,6 +6,8 @@ export class Coder {
         this.current_code = '';
         this.file_counter = 0;
         this.fp = './agent_code/';
+        this.executing = false;
+        this.agent.bot.abort_code = false;
     }
 
     queueCode(code) {
@@ -20,6 +22,7 @@ export class Coder {
                 return code;
             }
         }
+        code = code.replace(';', '; if(bot.abort_code) return false;')
         return code;
     }
 
@@ -73,20 +76,35 @@ export class Coder {
         try {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
-            this.clear();
+
+            await this.clear();
+            this.executing = true;
             await execution_file.main(this.agent.bot);
+            this.executing = false;
+            this.agent.bot.emit('finished_executing');
+
             let msg = 'Code executed successfully.';
             console.log(msg)
             return {success: true, message: msg};
+
         } catch (err) {
+            this.executing = false;
+            this.agent.bot.emit('finished_executing');
+            await this.clear();
+
             console.error("Code execution triggered catch:" + err);
-            this.clear();
             return {success: false, message: err};
         }
     }
 
-    clear() {
+    async clear() {
+        while (this.executing) {
+            this.agent.bot.abort_code = true;
+            this.agent.bot.collectBlock.cancelTask();
+            this.agent.bot.pathfinder.stop();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
         this.current_code = '';
-        this.agent.bot.pathfinder.setGoal(null);
+        this.abort_code = false;
     }
 }

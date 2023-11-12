@@ -100,7 +100,7 @@ export async function placeBlock(bot, blockType, x, y, z, faceVec=new Vec3(0, 1,
     if (!block)
         return false;
     await bot.equip(block, 'hand');
-    bot.placeBlock(referenceBlock, faceVec).then(() => {
+    await bot.placeBlock(referenceBlock, faceVec).then(() => {
         return true;
     }).catch((err) => {
         return false;
@@ -148,7 +148,7 @@ export async function goToPosition(bot, x, y, z) {
     if (z == null) z = bot.entity.position.z;
     bot.pathfinder.setMovements(new pf.Movements(bot));
     let pos = { x: x, y: y, z: z };
-    bot.pathfinder.setGoal(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 1));
+    await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 1));
     return true;
 }
 
@@ -168,7 +168,7 @@ export async function giveToPlayer(bot, itemType, username) {
         return false;
     if (getInventoryCounts(bot)[itemType] == 0)
         return false;
-    goToPlayer(bot, username);
+    await goToPlayer(bot, username);
     let pos = player.position;
     await bot.lookAt(pos);
     await bot.toss(getItemId(itemType), null, 1);
@@ -191,7 +191,7 @@ export async function goToPlayer(bot, username) {
 
     bot.pathfinder.setMovements(new pf.Movements(bot));
     let pos = player.position;
-    bot.pathfinder.setGoal(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 3));
+    await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 3));
     return true;
 }
 
@@ -210,8 +210,10 @@ export async function followPlayer(bot, username) {
         return false;
 
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    let pos = player.position;
-    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 3), true);
+    while (!bot.abort) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        let pos = player.position;
+        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 3));
+    }
     return true;
-    
 }
