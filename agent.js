@@ -45,26 +45,22 @@ export class Agent {
                 console.log('Agent used query:', query_cmd);
                 let query = getQuery(query_cmd);
                 let query_res = query.perform(this);
-                this.history.add(this.name, query_res);
+                this.history.add('system', query_res);
             }
             else if (containsCodeBlock(res)) { // contains code block
                 let message = res.substring(0, res.indexOf('```')).trim();
                 if (message) 
                     this.bot.chat(message);
-                else
-                    this.bot.chat("Executing code...");
                 let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
                 if (code) {
-                    console.log('Queuing code: ' + code);
                     this.coder.queueCode(code);
                     let code_return = await this.coder.execute();
-                    if (code_return.success)
-                        break;
-                    else {
-                        let message = "Code execution failed: " + code_return.message;
+                    let message = code_return.message;
+                    if (!code_return.success) {
                         message += "\n Write code to fix the problem and try again.";
-                        this.history.add(this.name, message);
                     }
+                    console.log('code return:', message);
+                    this.history.add('system', message);
                 }
             }
             else { // conversation response

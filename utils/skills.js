@@ -3,6 +3,13 @@ import { getCraftingTable, getInventoryCounts, getInventoryStacks, getNearbyMobs
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 
+function log(bot, message) {
+    bot.output += message + '\n';
+}
+
+function f(x) {
+    return Math.floor(x);
+}
 
 export async function craftItem(bot, itemName) {
     /**
@@ -93,17 +100,58 @@ export async function placeBlock(bot, blockType, x, y, z, faceVec=new Vec3(0, 1,
      * let position = world.getPosition(bot);
      * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y, position.x, new Vec3(1, 0, 0));
      **/
+
+    // top face: new Vec3(0, 1, 0)
+    // bottom face: new Vec3(0, -1, 0)
+    // north face: new Vec3(0, 0, -1)
+    // south face: new Vec3(0, 0, 1)
+    // east face: new Vec3(1, 0, 0)
+    // west face: new Vec3(-1, 0, 0)
+
     let referenceBlock = bot.blockAt(new Vec3(x, y, z));
-    if (referenceBlock.name != 'air')
+    console.log("reference block", referenceBlock.name)
+
+    // check if bot is blocking the block to place
+    // if (bot.entity.position.distanceTo(referenceBlock.position) < 2) {
+    //     console.log("bot is blocking block to place")
+    //     // move out of the way
+    //     let pos = bot.entity.position;
+    //     let dx = pos.x - referenceBlock.position.x;
+    //     let dz = pos.z - referenceBlock.position.z;
+    //     let moveVec = new Vec3(dx, 0, dz);
+    //     await bot.pathfinder.setMovements(new pf.Movements(bot));
+    //     bot.pathfinder.setGoal(new pf.goals.GoalBlock(referenceBlock.position.x + moveVec.x, referenceBlock.position.y, referenceBlock.position.z + moveVec.z));
+    // }
+    // all blocks that can be replaced by another block:
+    let blocks_to_allow = ['air', 'water', 'lava', 'grass', 'tall_grass'];
+    if (!blocks_to_allow.includes(referenceBlock.name)) {
+        log(bot, `Block at ${f(x)}, ${f(y)}, ${f(z)} is ${referenceBlock.name} and cannot be replaced.`);
         return false;
+    }
     let block = bot.inventory.items().find(item => item.name === blockType);
-    if (!block)
+    if (!block) {
+        log(bot, `Don't have any ${blockType} to place.`);
         return false;
+    }
     await bot.equip(block, 'hand');
-    bot.placeBlock(referenceBlock, faceVec).then(() => {
-        return true;
-    }).catch((err) => {
-        return false;
+
+    // placeblock's callback is broken (always returns error)
+    bot.placeBlock(referenceBlock, faceVec).catch(err => {});
+
+    // await to check if block was actually placed
+    return await new Promise((resolve) => {
+        setTimeout(() => {
+            let current = bot.blockAt(new Vec3(x, y, z));
+            console.log("Checking current block", current.name);
+            if (current.name !== blockType) {
+                console.log('Failed to place block')
+                log(bot, `Failed to place block ${blockType} at ${f(x)}, ${f(y)}, ${f(z)}, which is ${current.name}.`);
+                resolve(false);
+            } else {
+                console.log('Successfully placed block')
+                resolve(true);
+            }
+        }, 1000);
     });
 }
 
@@ -191,7 +239,13 @@ export async function goToPlayer(bot, username) {
 
     bot.pathfinder.setMovements(new pf.Movements(bot));
     let pos = player.position;
-    bot.pathfinder.setGoal(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 3));
+    let distance = 2;
+    await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, distance));
+    if (bot.entity.position.distanceTo(pos) > distance+1) {
+        log(bot, `Failed to reach player ${username} (${bot.entity.position.distanceTo(pos)}m away)`);
+        return false;
+    }
+    log(bot, `You have reached player ${username}.`);
     return true;
 }
 
@@ -212,6 +266,7 @@ export async function followPlayer(bot, username) {
     bot.pathfinder.setMovements(new pf.Movements(bot));
     let pos = player.position;
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 3), true);
+    log(bot, `You are now actively following player ${username}.`);
     return true;
     
 }

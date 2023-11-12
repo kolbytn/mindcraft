@@ -1,4 +1,4 @@
-import { writeFile, unlink } from 'fs';
+import { writeFile, readFile, unlink } from 'fs';
 
 export class Coder {
     constructor(agent) {
@@ -6,6 +6,14 @@ export class Coder {
         this.current_code = '';
         this.file_counter = 0;
         this.fp = './agent_code/';
+        this.agent.bot.output = '';
+        this.code_template = '';
+
+        readFile(this.fp+'template.js', 'utf8', (err, data) => {
+            if (err) throw err;
+            console.log('Template str:', data);
+            this.code_template = data;
+        });
     }
 
     queueCode(code) {
@@ -42,14 +50,12 @@ export class Coder {
 
     async execute() {
         if (!this.current_code) return {success: false, message: "No code to execute."};
-        let src = "import * as skills from '../utils/skills.js';";
-        src += "\nimport * as world from '../utils/world.js';"
-        src += "\nimport Vec3 from 'vec3';"
-        src += `\n\nexport async function main(bot) {\n`;
+        if (!this.code_template) return {success: false, message: "Code template not loaded."};
+        let src = '';
         for (let line of this.current_code.split('\n')) {
             src += `    ${line}\n`;
         }
-        src += `    return true;\n}\n`; // potentially redundant return statement, in case agent doesn't return anything
+        src = this.code_template.replace('/* CODE HERE */', src);
 
         console.log("writing to file...", src)
 
@@ -73,20 +79,34 @@ export class Coder {
         try {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
+            this.stop();
+            let success = await execution_file.main(this.agent.bot);
+            console.log('code execution finished.', success)
+            let output = this.agent.bot.output ? 'Code output: \n' + this.agent.bot.output : ''; 
+            // if there is output, add it to the message
+            if (success)
+                output += 'Code execution finished successfully.';
+            else
+                output += 'Code execution failed!';
+            console.log(output)
             this.clear();
-            await execution_file.main(this.agent.bot);
-            let msg = 'Code executed successfully.';
-            console.log(msg)
-            return {success: true, message: msg};
+            return {success, message: output};
         } catch (err) {
             console.error("Code execution triggered catch:" + err);
-            this.clear();
-            return {success: false, message: err};
+            let message = 'Code output: \n' + this.agent.bot.output + '\n';
+            message += '!!Code threw exception!!  Error: ' + err;
+            this.stop();
+            return {success: false, message};
         }
     }
 
     clear() {
         this.current_code = '';
+        this.agent.bot.output = '';
+    }
+
+    stop() {
+        this.clear();
         this.agent.bot.pathfinder.setGoal(null);
     }
 }
