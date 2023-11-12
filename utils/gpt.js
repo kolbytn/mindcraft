@@ -29,8 +29,13 @@ export async function sendRequest(turns, systemMessage, stop_seq='***') {
         res = completion.choices[0].message.content;
     }
     catch (err) {
-        console.log(err);
-        res = 'My brain disconnected, try again.';
+        if (err.code == 'context_length_exceeded' && turns.length > 1) {
+            console.log('Context length exceeded, trying again with shorter context.');
+            return await sendRequest(turns.slice(1), systemMessage, stop_seq);
+        } else {
+            console.log(err);
+            res = 'My brain disconnected, try again.';
+        }
     }
     return res;
 }
