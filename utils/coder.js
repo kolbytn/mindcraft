@@ -22,7 +22,7 @@ export class Coder {
                 return code;
             }
         }
-        code = code.replace(';', '; if(bot.abort_code) return false;')
+        code = code.replaceAll(';\n', '; if(bot.abort_code) return false;\n')
         return code;
     }
 
