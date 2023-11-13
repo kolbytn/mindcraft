@@ -27,8 +27,8 @@ let history_examples = [
     {'role': 'system', 'content': 'Code Output:\nNo zombie nearby\nCode execution failed!'},
     {'role': 'assistant', 'content': 'I could not find a zombie nearby.'},
 
-    {'role': 'user', 'content': 'billybob: stop what you are doing'},
-    {'role': 'assistant', 'content': '```// I am going to write nothing to clear my code\n```'},
+    {'role': 'user', 'content': 'billybob: stop'},
+    {'role': 'assistant', 'content': '```// I am going to write empty code to stop whatever I am doing\n```'},
 
     
 ]

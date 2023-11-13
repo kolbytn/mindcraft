@@ -137,6 +137,9 @@ export async function placeBlock(bot, blockType, x, y, z) {
     }
     await bot.equip(block, 'hand');
 
+    // turn to face the block
+    await bot.lookAt(buildOffBlock.position.plus(faceVec));
+
     // can still throw error if blocked by a bot player or mob, but takes a long time to timeout
     bot.placeBlock(buildOffBlock, faceVec).catch(err => {console.log('placeBlock threw error, ignoring')});
     console.log("placing block...")
@@ -195,7 +198,7 @@ export async function goToPosition(bot, x, y, z) {
     if (z == null) z = bot.entity.position.z;
     bot.pathfinder.setMovements(new pf.Movements(bot));
     let pos = { x: x, y: y, z: z };
-    bot.pathfinder.setGoal(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 1));
+    await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 1));
     return true;
 }
 
@@ -215,7 +218,7 @@ export async function giveToPlayer(bot, itemType, username) {
         return false;
     if (getInventoryCounts(bot)[itemType] == 0)
         return false;
-    goToPlayer(bot, username);
+    await goToPlayer(bot, username);
     let pos = player.position;
     await bot.lookAt(pos);
     await bot.toss(getItemId(itemType), null, 1);
@@ -247,7 +250,7 @@ export async function goToPlayer(bot, username) {
 
 export async function followPlayer(bot, username) {
     /**
-     * Follow the given player endlessly.
+     * Follow the given player endlessly. Will not return until the code is manually stopped.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} username, the username of the player to follow.
      * @returns {Promise<boolean>} true if the player was found, false otherwise.
@@ -259,9 +262,13 @@ export async function followPlayer(bot, username) {
         return false;
 
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    let pos = player.position;
-    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 3), true);
+    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 2), true);
     log(bot, `You are now actively following player ${username}.`);
+
+    while (!bot.abort_code) {
+        console.log('Waiting for abort...', bot.abort_code);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
     return true;
-    
 }

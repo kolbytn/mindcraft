@@ -6,6 +6,8 @@ export class Coder {
         this.current_code = '';
         this.file_counter = 0;
         this.fp = './agent_code/';
+        this.agent.bot.abort_code = false;
+        this.executing = false;
         this.agent.bot.output = '';
         this.code_template = '';
 
@@ -28,6 +30,7 @@ export class Coder {
                 return code;
             }
         }
+        code = code.replaceAll(';\n', '; if(bot.abort_code) {log(bot, "Code aborted.");return;}\n');
         return code;
     }
 
@@ -47,6 +50,8 @@ export class Coder {
             });
         });
     }
+
+
 
     async execute() {
         if (!this.current_code) return {success: false, message: "No code to execute."};
@@ -79,36 +84,59 @@ export class Coder {
         try {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
-            this.stop();
+            await this.stop();
+            
+            this.executing = true;
             await execution_file.main(this.agent.bot);
-            let output = this.agent.bot.output; 
-            const MAX_OUT = 1000;
-            if (output.length > MAX_OUT) {
-                // get the first and last part of the output and combine them with a message in between that says the output was truncated
-                output = `Code output is very long (${output.length} chars) and has been shortened.\n
-                    First outputs:\n${output.substring(0, MAX_OUT/2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT/2)}`;
-            }
-            else {
-                output = 'Code output:\n' + output;
-            }
+            this.executing = false;
+
+            this.agent.bot.emit('finished_executing');
+            let output = this.formatOutput(this.agent.bot);
+            let aborted = this.agent.bot.abort_code;
             this.clear();
-            return {success:true, message: output};
+            return {success:true, message: output, aborted};
         } catch (err) {
+            this.executing = false;
+            this.agent.bot.emit('finished_executing');
             console.error("Code execution triggered catch:" + err);
-            let message = 'Code output: \n' + this.agent.bot.output + '\n';
+            let message = this.formatOutput(this.agent.bot);
             message += '!!Code threw exception!!  Error: ' + err;
-            this.stop();
-            return {success: false, message};
+            let aborted = this.agent.bot.abort_code;
+            await this.stop();
+            return {success: false, message, aborted};
         }
+    }
+
+    formatOutput(bot) {
+        let output = bot.output;
+        const MAX_OUT = 1000;
+        if (output.length > MAX_OUT) {
+            output = `Code output is very long (${output.length} chars) and has been shortened.\n
+                First outputs:\n${output.substring(0, MAX_OUT/2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT/2)}`;
+        }
+        else {
+            output = 'Code output:\n' + output;
+        }
+        if (bot.abort_code) {
+            output = 'Code was aborted.\n' + output;
+        }
+        return output;
+    }
+
+    async stop() {
+        while (this.executing) {
+            console.log('waiting for code to finish executing... Abort:', this.agent.abort_code);
+            this.agent.bot.abort_code = true;
+            this.agent.bot.collectBlock.cancelTask();
+            this.agent.bot.pathfinder.stop();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        this.clear();
     }
 
     clear() {
         this.current_code = '';
         this.agent.bot.output = '';
-    }
-
-    stop() {
-        this.clear();
-        this.agent.bot.pathfinder.setGoal(null);
+        this.agent.bot.abort_code = false;
     }
 }

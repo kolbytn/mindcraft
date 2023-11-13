@@ -30,6 +30,14 @@ export class Agent {
 
             this.respond(username, message);
         });
+
+        this.bot.on('finished_executing', () => {
+            setTimeout(() => {
+                if (!this.coder.executing) {
+                    // return to default behavior
+                }
+            }, 10000);
+        })
     }
 
     async respond(username, message) {
@@ -42,12 +50,14 @@ export class Agent {
                 let message = res.substring(0, res.indexOf(query_cmd)).trim();
                 if (message) 
                     this.bot.chat(message);
-                console.log('Agent used query:', query_cmd);
                 let query = getQuery(query_cmd);
                 let query_res = query.perform(this);
+                console.log('Agent used query:', query_cmd, 'and got:', query_res)
                 this.history.add('system', query_res);
             }
             else if (containsCodeBlock(res)) { // contains code block
+                console.log('Agent is executing code:', res)
+
                 let message = res.substring(0, res.indexOf('```')).trim();
                 if (message) 
                     this.bot.chat(message);
@@ -56,6 +66,8 @@ export class Agent {
                     this.coder.queueCode(code);
                     let code_return = await this.coder.execute();
                     let message = code_return.message;
+                    if (code_return.aborted)
+                        break;
                     if (!code_return.success) {
                         message += "\n Write code to fix the problem and try again.";
                     }
@@ -65,6 +77,7 @@ export class Agent {
             }
             else { // conversation response
                 this.bot.chat(res);
+                console.log('Purely conversational response:', res)
                 break;
             }
         }
