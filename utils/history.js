@@ -8,13 +8,13 @@ let history_examples = [
     {'role': 'assistant', 'content': 'I see some oak logs, dirt, and cobblestone.'},
 
     {'role': 'user', 'content': 'zZZn98: come here'},
-    {'role': 'assistant', 'content': '```// I am going to navigate to zZZn98.\nreturn await skills.goToPlayer(bot, "zZZn98");```'},
+    {'role': 'assistant', 'content': '```// I am going to navigate to zZZn98.\nawait skills.goToPlayer(bot, "zZZn98");```'},
     {'role': 'system', 'content': 'Code execution finished successfully.'},
     {'role': 'assistant', 'content': 'Here!'},
 
     {'role': 'user', 'content': 'hanky: collect some sand for me please'},
     {'role': 'assistant', 'content': 'Collecting sand...```// I am going to collect 3 sand and give to hanky.\n\
-    await skills.collectBlock(bot, "sand");\nreturn await skills.giveToPlayer(bot, "sand", "hanky");```'},
+    await skills.collectBlock(bot, "sand");\nawait skills.giveToPlayer(bot, "sand", "hanky");```'},
     {'role': 'system', 'content': 'Code Output:\nYou have reached player hanky.\nCode execution finished successfully.'},
     {'role': 'assistant', 'content': 'Here!'},
 
@@ -23,12 +23,12 @@ let history_examples = [
 
     {'role': 'user', 'content': 'hanky: kill that zombie!'},
     {'role': 'assistant', 'content': "I'm attacking! ```//I'm going to attack the nearest zombie.\n\
-    return await skills.attackMob(bot, 'zombie');```"},
+    await skills.attackMob(bot, 'zombie');```"},
     {'role': 'system', 'content': 'Code Output:\nNo zombie nearby\nCode execution failed!'},
     {'role': 'assistant', 'content': 'I could not find a zombie nearby.'},
 
     {'role': 'user', 'content': 'billybob: stop what you are doing'},
-    {'role': 'assistant', 'content': '```// I am going to write nothing to clear my code\n return true;```'},
+    {'role': 'assistant', 'content': '```// I am going to write nothing to clear my code\n```'},
 
     
 ]
