@@ -265,8 +265,8 @@ export async function followPlayer(bot, username) {
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 2), true);
     log(bot, `You are now actively following player ${username}.`);
 
-    while (!bot.abort_code) {
-        console.log('Waiting for abort...', bot.abort_code);
+    while (!bot.interrupt_code) {
+        console.log('followPlayer waiting for interrupt...', bot.interrupt_code);
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
