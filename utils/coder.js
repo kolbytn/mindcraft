@@ -102,7 +102,7 @@ export class Coder {
             this.agent.bot.abort_code = true;
             this.agent.bot.collectBlock.cancelTask();
             this.agent.bot.pathfinder.stop();
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
         this.current_code = '';
         this.abort_code = false;
