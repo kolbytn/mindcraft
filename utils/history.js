@@ -1,4 +1,6 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
+import { getQueryDocs } from './queries.js';
+import { getSkillDocs } from './skill_library.js';
 import { sendRequest } from './gpt.js';
 
 
@@ -43,9 +45,8 @@ export class History {
         this.turns = history_examples;
 
         // These define an agent's long term memory
-        this.bio = 'Your personality is friendly. Your goal is to help.';
+        this.bio = '';
         this.memory = '';
-        this.knowledge = '';
         this.num_saved_turns = 0;
 
         // Variables for controlling how often we summarize the agent's memory and knowledge
@@ -58,30 +59,34 @@ export class History {
         return this.turns;
     }
 
+    getSystemMessage() {
+        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code.
+        Act human-like as if you were a typical Minecraft player, rather than an AI. Be brief in your responses, omit needless words, and do not give instructions unless asked.`;
+        system_message += getQueryDocs();
+        system_message += getSkillDocs();
+        if (this.bio != '') {
+            system_message = system_message + '\n\nBio:\n' + this.bio;
+        }
+        if (this.memory != '') {
+            system_message = system_message + '\n\nMemory:\n' + this.memory;
+        }
+        return system_message;
+    }
+
     async storeMemories(turns) {
-        const memory_message = 'You are a minecraft bot. ' + this.bio + '\n\nCurrent Memory:\n' + this.memory;
-        let memory_prompt = 'Update your memory with the following conversation. Include only conversational details about other players that you may need to remember for later. Your output should be a short paragraph summarizing what you have experienced.\n';
+        let memory_prompt = 'Update your "Memory" with the following conversation. Your "Memory" is for storing information that will help you improve as a Minecraft bot. Include details about your interactions with other players that you may need to remember for later. Also include things that you have learned through player feedback or by executing code. Do not include information found in your Docs or that you got right on the first try. Your output should be a short paragraph summarizing what you have learned.';
+        if (this.memory != '') {
+            memory_prompt += ' Include information from your current memory as well as your output will replace it.';
+        }
         for (let turn of turns) {
-            if (turn.role === 'user') {
-                memory_prompt += `\n${turn.content}`;
+            if (turn.role === 'assistant') {
+                memory_prompt += `\n\nYou: ${turn.content}`;
             } else {
-                memory_prompt += `\nYou: ${turn.content}`;
+                memory_prompt += `\n\n${turn.content}`;
             }
         }
         let memory_turns = [{'role': 'user', 'content': memory_prompt}]
-        this.memory = await sendRequest(memory_turns, memory_message);
-
-        const knowledge_message = 'You are a minecraft bot. ' + this.bio + '\n\nCurrent Knowledge: ' + this.knowledge;
-        let knowledge_prompt = 'Update your current knowledge with the following conversation. Include only knowledge you have gained about how to interact with the world and execute actions that you may need to remember for later. Your output should be a short paragraph summarizing what you have learned.\n';
-        for (let turn of turns) {
-            if (turn.role === 'user') {
-                knowledge_prompt += `\n${turn.content}`;
-            } else {
-                knowledge_prompt += `\nYou: ${turn.content}`;
-            }
-        }
-        let knowledge_turns = [{'role': 'user', 'content': knowledge_prompt}]
-        this.knowledge = await sendRequest(knowledge_turns, knowledge_message);
+        this.memory = await sendRequest(memory_turns, this.getSystemMessage());
     }
 
     async add(name, content) {
@@ -89,7 +94,7 @@ export class History {
         if (name === 'system') {
             role = 'system';
         }
-        else if (name !== this.agent.name) {
+        else if (name !== this.name) {
             role = 'user';
             content = `${name}: ${content}`;
         }
@@ -131,7 +136,6 @@ export class History {
             this.turns = obj.turns;
             this.bio = obj.bio;
             this.memory = obj.memory;
-            this.knowledge = obj.knowledge;
             this.num_saved_turns = obj.num_saved_turns;
         } catch (err) {
             console.log('No history file found for ' + this.name + '.');

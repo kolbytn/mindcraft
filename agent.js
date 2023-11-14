@@ -2,25 +2,17 @@ import { initBot } from './utils/mcdata.js';
 import { sendRequest } from './utils/gpt.js';
 import { History } from './utils/history.js';
 import { Coder } from './utils/coder.js';
-import { getQuery, containsQuery, getQueryDocs } from './utils/queries.js';
-import { getSkillDocs, containsCodeBlock } from './utils/skill_library.js';
+import { getQuery, containsQuery } from './utils/queries.js';
+import { containsCodeBlock } from './utils/skill_library.js';
 
 
 export class Agent {
     constructor(name) {
         this.name = name;
-
-        this.system_message = `You are a playful Minecraft bot named '${name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code.
-        Act human-like as if you were a typical Minecraft player, rather than an AI. Be brief in your responses, omit needless words, and do not give instructions unless asked.`;
-        this.system_message += getQueryDocs();
-        this.system_message += getSkillDocs();
-        this.current_system_message = this.system_message;
-
         this.bot = initBot(name);
         this.history = new History(this);
         this.coder = new Coder(this);
         this.history.load();
-        this.updateSystemMessage();
 
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
@@ -33,7 +25,6 @@ export class Agent {
 
             this.respond(username, message);
             this.history.save();
-            this.updateSystemMessage();
         });
 
         this.bot.on('finished_executing', () => {
@@ -45,22 +36,10 @@ export class Agent {
         })
     }
 
-    updateSystemMessage() {
-        if (this.history.bio != '') {
-            this.current_system_message = this.system_message + '\n\nBio:\n' + this.history.bio;
-        }
-        if (this.history.memory != '') {
-            this.current_system_message = this.current_system_message + '\n\nMemories:\n' + this.history.memory;
-        }
-        if (this.history.knowledge != '') {
-            this.current_system_message = this.current_system_message + '\n\nKnowledge:\n' + this.history.knowledge;
-        }
-    }
-
     async respond(username, message) {
         this.history.add(username, message);
         for (let i=0; i<5; i++) {
-            let res = await sendRequest(this.history.getHistory(), this.current_system_message);
+            let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
             this.history.add(this.name, res);
             let query_cmd = containsQuery(res);
             if (query_cmd) { // contains query
