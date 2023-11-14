@@ -1,6 +1,10 @@
 import * as skills from '../utils/skills.js';
 import * as world from '../utils/world.js';
-// this file is currently unused
+import Vec3 from 'vec3';
+
+const log = skills.log;
+
 export async function main(bot) {
-    // agent's code goes here
+    /* CODE HERE */
+    log(bot, 'Code finished.');
 }
