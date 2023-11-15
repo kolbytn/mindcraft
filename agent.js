@@ -7,12 +7,13 @@ import { containsCodeBlock } from './utils/skill_library.js';
 
 
 export class Agent {
-    constructor(name) {
+    constructor(name, save_path) {
         this.name = name;
         this.bot = initBot(name);
         this.history = new History(this);
         this.coder = new Coder(this);
-        this.history.load();
+        if (save_path != null)
+            this.history.load(save_path);
 
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
@@ -24,7 +25,8 @@ export class Agent {
             console.log('received message from', username, ':', message);
 
             this.respond(username, message);
-            this.history.save();
+            if (save_path != null)
+                this.history.save(save_path);
         });
 
         this.bot.on('finished_executing', () => {

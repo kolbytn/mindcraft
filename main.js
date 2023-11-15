@@ -1,3 +1,3 @@
 import { Agent } from './agent.js';
 
-new Agent('andy');
+new Agent('andy', 'bots/andy.json');

@@ -34,9 +34,7 @@ let history_examples = [
     {'role': 'assistant', 'content': 'I could not find a zombie nearby.'},
 
     {'role': 'user', 'content': 'billybob: stop'},
-    {'role': 'assistant', 'content': '```// I am going to write empty code to stop whatever I am doing\n```'},
-
-    
+    {'role': 'assistant', 'content': '```// I am going to write empty code to stop whatever I am doing\n```'}
 ]
 
 export class History {
@@ -47,12 +45,9 @@ export class History {
         // These define an agent's long term memory
         this.bio = '';
         this.memory = '';
-        this.num_saved_turns = 0;
 
         // Variables for controlling how often we summarize the agent's memory and knowledge
         this.max_messages = 20;
-        this.save_size = 10;
-        this.save_step = 7;
     }
 
     getHistory() {
@@ -74,10 +69,14 @@ export class History {
     }
 
     async storeMemories(turns) {
-        let memory_prompt = 'Update your "Memory" with the following conversation. Your "Memory" is for storing information that will help you improve as a Minecraft bot. Include details about your interactions with other players that you may need to remember for later. Also include things that you have learned through player feedback or by executing code. Do not include information found in your Docs or that you got right on the first try. Your output should be a short paragraph summarizing what you have learned.';
+        let memory_prompt = 'Update your "Memory" with the following conversation. Your "Memory" is for storing information that will help you improve as a Minecraft bot. Include details about your interactions with other players that you may need to remember for later. Also include things that you have learned through player feedback or by executing code. Do not include information found in your Docs or that you got right on the first try.';
         if (this.memory != '') {
-            memory_prompt += ' Include information from your current memory as well as your output will replace it.';
+            memory_prompt += ' Include information from your previous memory if it is still relevant. Your output will replace your previous memory.';
         }
+        memory_prompt += ' Your output should use one of the following formats:\n';
+        memory_prompt += '- When the player... output...\n';
+        memory_prompt += '- I learned that player [name]...\n';
+
         for (let turn of turns) {
             if (turn.role === 'assistant') {
                 memory_prompt += `\n\nYou: ${turn.content}`;
@@ -102,25 +101,18 @@ export class History {
 
         // Summarize older turns into memory
         if (this.turns.length >= this.max_messages) {
-            // Don't summarize the examples
-            if (this.num_saved_turns + this.save_step >= history_examples.length && 
-                    this.num_saved_turns < history_examples.length) {
-                await this.storeMemories(
-                    this.turns.slice(history_examples.length - this.num_saved_turns, this.save_size)
-                );
-            } else if (this.num_saved_turns >= history_examples.length) {
-                await this.storeMemories(this.turns.slice(0, this.save_size));
-            }
-            this.turns = this.turns.slice(this.save_step);
-            this.num_saved_turns += this.save_step;
+            let to_summarize = [this.turns.shift()];
+            while (this.turns[0].role != 'user' && this.turns.length > 0)
+                to_summarize.push(this.turns.shift());
+            await this.storeMemories(to_summarize);
         }
     }
 
-    save() {
+    save(save_path) {
         // save history object to json file
         mkdirSync('bots', { recursive: true });
         const data = JSON.stringify(this, null, 4);
-        writeFileSync('bots/' + this.name + '.json', data, (err) => {
+        writeFileSync(save_path, data, (err) => {
             if (err) {
                 throw err;
             }
@@ -128,10 +120,10 @@ export class History {
         });
     }
 
-    load() {
+    load(save_path) {
         try {
             // load history object from json file
-            const data = readFileSync('bots/' + this.name + '.json', 'utf8');
+            const data = readFileSync(save_path, 'utf8');
             const obj = JSON.parse(data);
             this.turns = obj.turns;
             this.bio = obj.bio;
