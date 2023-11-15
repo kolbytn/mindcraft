@@ -1,16 +1,18 @@
 import { getAllBlockIds, getAllBlocks, getAllItems } from './mcdata.js';
 
 
-export function getCraftingTable(bot) {
-    const blocks = getNearbyBlocks(bot, 50);
-    let table = null;
-    for (const block of blocks) {
-        if (block.name == 'crafting_table') {
-            table = block;
-            break;
-        }
+export function getNearestBlock(bot, block_type) {
+    let block_locs = bot.findBlocks({
+        matching: (block) => {
+            return block && block.type === bot.registry.blocksByName[block_type].id
+        },
+        maxDistance: 6,
+        count: 1
+    });
+    if (block_locs.length > 0) {
+        return bot.blockAt(block_locs[0]);
     }
-    return table;
+    return null;
 }
 
 
@@ -97,16 +99,6 @@ export function getInventoryCounts(bot) {
             inventory[item.name] = inventory[item.name] + item.count;
         } else {
             inventory[item.name] = item.count;
-        }
-    }
-    for (const item of getAllItems()) {
-        if (!inventory.hasOwnProperty(item.name)) {
-            inventory[item.name] = 0;
-        }
-    }
-    for (const item of getAllBlocks()) {
-        if (!inventory.hasOwnProperty(item.name)) {
-            inventory[item.name] = 0;
         }
     }
     return inventory;
