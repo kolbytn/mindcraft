@@ -10,23 +10,25 @@ export class Agent {
     constructor(name, save_path) {
         this.name = name;
         this.bot = initBot(name);
-        this.history = new History(this);
+        this.history = new History(this, save_path);
         this.coder = new Coder(this);
-        if (save_path != null)
-            this.history.load(save_path);
-
+        this.history.load();
+    
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
         });
+    }
+
+    async start() {
+        await this.history.loadExamples();
 
         this.bot.on('chat', (username, message) => {
             if (username === this.name) return;
             console.log('received message from', username, ':', message);
 
             this.respond(username, message);
-            if (save_path != null)
-                this.history.save(save_path);
+            this.history.save();
         });
 
         this.bot.on('finished_executing', () => {
@@ -39,7 +41,7 @@ export class Agent {
     }
 
     async respond(username, message) {
-        this.history.add(username, message);
+        await this.history.add(username, message);
         for (let i=0; i<5; i++) {
             let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
             this.history.add(this.name, res);

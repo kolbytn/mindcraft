@@ -39,3 +39,13 @@ export async function sendRequest(turns, systemMessage, stop_seq='***') {
     }
     return res;
 }
+
+
+export async function embed(text) {
+    const embedding = await openai.embeddings.create({
+        model: "text-embedding-ada-002",
+        input: text,
+        encoding_format: "float",
+    });
+    return embedding.data[0].embedding;
+}
