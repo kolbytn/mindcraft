@@ -1,3 +1,4 @@
 import { Agent } from './agent.js';
 
-new Agent('andy');
+let agent = new Agent('andy', 'bots/andy.json');
+agent.start();
