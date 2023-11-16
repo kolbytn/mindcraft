@@ -1,12 +1,21 @@
 import { getAllBlockIds, getAllBlocks, getAllItems } from './mcdata.js';
 
 
-export function getNearestBlock(bot, block_type) {
+export function getNearestBlock(bot, block_type, distance=16) {
+     /**
+     * Get the position of the nearest block of the given type.
+     * @param {Bot} bot - The bot to get the nearest block for.
+     * @param {string} block_type - The name of the block to search for.
+     * @param {number} distance - The maximum distance to search.
+     * @returns {Block} - The nearest block of the given type.
+     * @example
+     * let coalBlock = world.getNearestBlock(bot, 'coal_ore', 16);
+     **/
     let block_locs = bot.findBlocks({
         matching: (block) => {
             return block && block.type === bot.registry.blocksByName[block_type].id
         },
-        maxDistance: 6,
+        maxDistance: distance,
         count: 1
     });
     if (block_locs.length > 0) {
@@ -172,23 +181,4 @@ export function getNearbyBlockTypes(bot) {
         }
     }
     return found;
-}
-
-
-export function getNearestBlockPosition(bot, blockType) {
-    /**
-     * Get the position of the nearest block of the given type.
-     * @param {Bot} bot - The bot to get the nearest block for.
-     * @param {string} blockType - The type of the block to search for.
-     * @returns {Vec3} - The position of the nearest block of the given type if found else null.
-     * @example
-     * let position = world.getNearestBlockPosition(bot, 'coal_ore');
-     **/
-    let blocks = getNearbyBlocks(bot, 16);
-    for (let i = 0; i < blocks.length; i++) {
-        if (blocks[i].name == blockType) {
-            return blocks[i].position;
-        }
-    }
-    return null;
 }

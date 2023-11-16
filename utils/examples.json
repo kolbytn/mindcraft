@@ -26,11 +26,6 @@
     ],
 
     [
-        {"role": "user", "content": "sarah_O.o: can you fly up in the air?"},
-        {"role": "assistant", "content": "I can't do that."}
-    ],
-
-    [
         {"role": "user", "content": "joe: Follow me!"},
         {"role": "assistant", "content": "Sure!\n```\n// I am going to follow joe.\nawait skills.followPlayer(bot, 'joe');\n```"}
     ],

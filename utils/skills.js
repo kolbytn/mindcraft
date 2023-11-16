@@ -22,7 +22,7 @@ export async function craftItem(bot, itemName, num=1) {
     let recipes = bot.recipesFor(getItemId(itemName), null, num, null); // get recipes that don't require a crafting table
     let craftingTable = undefined;
     if (!recipes || recipes.length === 0) {
-        craftingTable = getNearestBlock(bot, 'crafting_table');
+        craftingTable = getNearestBlock(bot, 'crafting_table', 6);
         if (craftingTable === null){
             log(bot, `${itemName} requires crafting table, but there is none nearby.`)
             return false;
