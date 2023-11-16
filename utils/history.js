@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { getQueryDocs } from './queries.js';
 import { getSkillDocs } from './skill_library.js';
-import { sendRequest, embed } from './gpt.js';
+import { sendRequest, embed, cosineSimilarity } from './gpt.js';
 
 
 export class History {
@@ -25,7 +25,7 @@ export class History {
         return this.turns;
     }
 
-    getSystemMessage() {
+    getSystemMessage(include_examples=true) {
         let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code.
         Act human-like as if you were a typical Minecraft player, rather than an AI. Be brief in your responses, omit needless words, and do not give instructions unless asked.`;
         system_message += getQueryDocs();
@@ -34,7 +34,7 @@ export class History {
             system_message += '\n\nBio:\n' + this.bio;
         if (this.memory != '')
             system_message += '\n\nMemory:\n' + this.memory;
-        if (this.selected_examples.length > 0) {
+        if (include_examples && this.selected_examples.length > 0) {
             for (let i = 0; i < this.selected_examples.length; i++) {
                 system_message += '\n\nExample ' + (i+1) + ':\n\n';
                 system_message += this.stringifyTurns(this.selected_examples[i].turns);
@@ -69,21 +69,7 @@ export class History {
 
         memory_prompt += this.stringifyTurns(turns);
         let memory_turns = [{'role': 'user', 'content': memory_prompt}]
-        this.memory = await sendRequest(memory_turns, this.getSystemMessage());
-    }
-
-    cosineSimilarity(a, b) {
-        let dotProduct = 0;
-        let magnitudeA = 0;
-        let magnitudeB = 0;
-        for (let i = 0; i < a.length; i++) {
-            dotProduct += a[i] * b[i];  // calculate dot product
-            magnitudeA += Math.pow(a[i], 2);  // calculate magnitude of a
-            magnitudeB += Math.pow(b[i], 2);  // calculate magnitude of b
-        }
-        magnitudeA = Math.sqrt(magnitudeA);
-        magnitudeB = Math.sqrt(magnitudeB);
-        return dotProduct / (magnitudeA * magnitudeB);  // calculate cosine similarity
+        this.memory = await sendRequest(memory_turns, this.getSystemMessage(false));
     }
 
     async loadExamples() {
@@ -117,7 +103,7 @@ export class History {
         messages = messages.trim();
         const embedding = await embed(messages);
         this.examples.sort((a, b) => {
-            return this.cosineSimilarity(a.embedding, embedding) - this.cosineSimilarity(b.embedding, embedding);
+            return cosineSimilarity(a.embedding, embedding) - cosineSimilarity(b.embedding, embedding);
         });
         this.selected_examples = this.examples.slice(-this.fewshot);
         for (let example of this.selected_examples) {
@@ -138,6 +124,7 @@ export class History {
 
         // Summarize older turns into memory
         if (this.turns.length >= this.max_messages) {
+            console.log('summarizing memory')
             let to_summarize = [this.turns.shift()];
             while (this.turns[0].role != 'user' && this.turns.length > 0)
                 to_summarize.push(this.turns.shift());
