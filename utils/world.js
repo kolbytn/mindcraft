@@ -173,3 +173,22 @@ export function getNearbyBlockTypes(bot) {
     }
     return found;
 }
+
+
+export function getNearestBlockPosition(bot, blockType) {
+    /**
+     * Get the position of the nearest block of the given type.
+     * @param {Bot} bot - The bot to get the nearest block for.
+     * @param {string} blockType - The type of the block to search for.
+     * @returns {Vec3} - The position of the nearest block of the given type if found else null.
+     * @example
+     * let position = world.getNearestBlockPosition(bot, 'coal_ore');
+     **/
+    let blocks = getNearbyBlocks(bot, 16);
+    for (let i = 0; i < blocks.length; i++) {
+        if (blocks[i].name == blockType) {
+            return blocks[i].position;
+        }
+    }
+    return null;
+}
