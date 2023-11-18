@@ -1,4 +1,4 @@
-import { getItemId, getItemName } from "./mcdata.js";
+import { getItemId } from "./mcdata.js";
 import { getNearestBlock, getInventoryCounts, getInventoryStacks, getNearbyMobs, getNearbyBlocks } from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
@@ -24,7 +24,7 @@ export async function craftItem(bot, itemName, num=1) {
     if (!recipes || recipes.length === 0) {
         craftingTable = getNearestBlock(bot, 'crafting_table', 6);
         if (craftingTable === null){
-            log(bot, `${itemName} requires crafting table, but there is none nearby.`)
+            log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table, but there is none nearby.`)
             return false;
         }
         recipes = bot.recipesFor(getItemId(itemName), null, num, craftingTable);
