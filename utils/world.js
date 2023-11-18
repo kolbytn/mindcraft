@@ -1,4 +1,4 @@
-import { getAllBlockIds, getAllBlocks, getAllItems } from './mcdata.js';
+import { getAllBlockIds } from './mcdata.js';
 
 
 export function getNearestBlock(bot, block_type, distance=16) {
@@ -6,7 +6,7 @@ export function getNearestBlock(bot, block_type, distance=16) {
      * Get the position of the nearest block of the given type.
      * @param {Bot} bot - The bot to get the nearest block for.
      * @param {string} block_type - The name of the block to search for.
-     * @param {number} distance - The maximum distance to search.
+     * @param {number} distance - The maximum distance to search, default 16.
      * @returns {Block} - The nearest block of the given type.
      * @example
      * let coalBlock = world.getNearestBlock(bot, 'coal_ore', 16);
