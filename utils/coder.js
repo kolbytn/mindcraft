@@ -14,7 +14,6 @@ export class Coder {
 
         readFile(this.fp+'template.js', 'utf8', (err, data) => {
             if (err) throw err;
-            console.log('Template str:', data);
             this.code_template = data;
         });
     }

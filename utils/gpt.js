@@ -21,11 +21,13 @@ export async function sendRequest(turns, systemMessage, stop_seq='***') {
 
     let res = null;
     try {
+        console.log('Awaiting openai api response...')
         let completion = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo-1106',
+            model: 'gpt-3.5-turbo',
             messages: messages,
             stop: stop_seq,
         });
+        console.log('Received.')
         res = completion.choices[0].message.content;
     }
     catch (err) {

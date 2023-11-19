@@ -21,25 +21,28 @@ export class History {
         this.selected_examples = [];
     }
 
-    getHistory() {
-        return this.turns;
+    getHistory(include_examples=true) {
+        let history = [];
+        if (include_examples && this.selected_examples.length > 0) {
+            for (let example of this.selected_examples) {
+                history = history.concat(example.turns);
+            }
+        }
+        history = history.concat(this.turns);
+
+        return history;
     }
 
-    getSystemMessage(include_examples=true) {
+    getSystemMessage() {
         let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code.
-        Act human-like as if you were a typical Minecraft player, rather than an AI. Be brief in your responses, omit needless words, and do not give instructions unless asked.`;
+        Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, omit needless words, and do not give instructions unless asked.`;
         system_message += getQueryDocs();
         system_message += getSkillDocs();
         if (this.bio != '')
             system_message += '\n\nBio:\n' + this.bio;
         if (this.memory != '')
             system_message += '\n\nMemory:\n' + this.memory;
-        if (include_examples && this.selected_examples.length > 0) {
-            for (let i = 0; i < this.selected_examples.length; i++) {
-                system_message += '\n\nExample ' + (i+1) + ':\n\n';
-                system_message += this.stringifyTurns(this.selected_examples[i].turns);
-            }
-        }
+
         return system_message;
     }
 
@@ -47,11 +50,11 @@ export class History {
         let res = '';
         for (let turn of turns) {
             if (turn.role === 'assistant') {
-                res += `\n\nYour output:\n${turn.content}`;
+                res += `\nYour output:\n${turn.content}`;
             } else if (turn.role === 'system') {
-                res += `\n\nSystem output: ${turn.content}`;
+                res += `\nSystem output: ${turn.content}`;
             } else {
-                res += `\n\nUser input: ${turn.content}`;
+                res += `\nUser input: ${turn.content}`;
             
             }
         }
@@ -59,17 +62,23 @@ export class History {
     }
 
     async storeMemories(turns) {
-        let memory_prompt = 'Update your "Memory" with the following conversation. Your "Memory" is for storing information that will help you improve as a Minecraft bot. Include details about your interactions with other players that you may need to remember for later. Also include things that you have learned through player feedback or by executing code. Do not include information found in your Docs or that you got right on the first try.';
+        console.log("To summarize:", turns)
+        let memory_prompt = 'Update your "Memory" by summarizing the following conversation. Your "Memory" is for storing information that will help you improve as a Minecraft bot. Include details about your interactions with other players that you may need to remember for later. Also include things that you have learned through player feedback or by executing code. Do not include information found in your Docs or that you got right on the first try. Be extremely brief and clear.';
         if (this.memory != '') {
-            memory_prompt += ' Include information from your previous memory if it is still relevant. Your output will replace your previous memory.';
+            memory_prompt += `This is your previous memory: "${this.memory}"\n Include and summarize any relevant information from this previous memory. Your output will replace your previous memory.`;
         }
-        memory_prompt += ' Your output should be a brief list of things you have learned using the following formats:\n';
+        memory_prompt += '\n';
+        memory_prompt += ' Your output should use one of the following formats:\n';
         memory_prompt += '- When the player... output...\n';
         memory_prompt += '- I learned that player [name]...\n';
-
+        
+        memory_prompt += 'This is the conversation to summarize:\n';
         memory_prompt += this.stringifyTurns(turns);
-        let memory_turns = [{'role': 'user', 'content': memory_prompt}]
-        this.memory = await sendRequest(memory_turns, this.getSystemMessage(false));
+
+        memory_prompt += 'Summarize relevant information from your previous memory and this conversation:\n';
+
+        let memory_turns = [{'role': 'system', 'content': memory_prompt}]
+        this.memory = await sendRequest(memory_turns, this.getSystemMessage());
     }
 
     async loadExamples() {
