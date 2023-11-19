@@ -1,6 +1,7 @@
 import minecraftData from 'minecraft-data';
 import { createBot } from 'mineflayer';
 import { pathfinder } from 'mineflayer-pathfinder';
+import pvp from 'mineflayer-pvp';
 import { plugin } from 'mineflayer-collectblock';
 
 const mc_version = '1.19.3'
@@ -15,6 +16,7 @@ export function initBot(username) {
         version: mc_version,
     });
     bot.loadPlugin(pathfinder)
+    bot.loadPlugin(pvp.plugin)
     bot.loadPlugin(plugin)
     return bot;
 }

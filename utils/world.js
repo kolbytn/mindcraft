@@ -49,9 +49,7 @@ export function getNearbyMobs(bot, maxDistance) {
     for (const entity of Object.values(bot.entities)) {
         const distance = entity.position.distanceTo(bot.entity.position);
         if (distance > maxDistance) continue;
-        if (entity.type == 'mob') {
-            entities.push({ entity: entity, distance: distance });
-        } 
+        entities.push({ entity: entity, distance: distance });
     }
     entities.sort((a, b) => a.distance - b.distance);
     let res = [];
@@ -138,8 +136,8 @@ export function getNearbyMobTypes(bot) {
     let mobs = getNearbyMobs(bot, 16);
     let found = [];
     for (let i = 0; i < mobs.length; i++) {
-        if (!found.includes(mobs[i].mobType)) {
-            found.push(mobs[i].mobType);
+        if (!found.includes(mobs[i].name)) {
+            found.push(mobs[i].name);
         }
     }
     return found;

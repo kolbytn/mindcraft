@@ -42,22 +42,45 @@ export async function craftItem(bot, itemName, num=1) {
 }
 
 
-export async function attackMob(bot, mobType) {
+export async function attackMob(bot, mobType, kill=true) {
     /**
      * Attack mob of the given type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} mobType, the type of mob to attack.
+     * @param {boolean} kill, whether or not to continue attacking until the mob is dead. Defaults to true.
      * @returns {Promise<boolean>} true if the mob was attacked, false if the mob type was not found.
      * @example
-     * await skills.attackMob(bot, "zombie");
+     * await skills.attackMob(bot, "zombie", true);
      **/
-    const mobs = getNearbyMobs(bot);
-    for (let i = 0; i < mobs.length; i++) {
-        if (mobs[i].mobType == mobType) {
-            bot.attack(mobs[i]);
+    const mob = bot.nearestEntity(entity => entity.name.toLowerCase() === mobType.toLowerCase());
+    const attackable = ['animal', 'monster', 'mob'];
+    if (mob && attackable.includes(mob.type)) {
+        let pos = mob.position;
+        console.log(bot.entity.position.distanceTo(pos))
+
+        if (!kill) {
+            if (bot.entity.position.distanceTo(pos) > 5) {
+                console.log('moving to mob...')
+                bot.pathfinder.setMovements(new pf.Movements(bot));
+                await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 5));
+            }
+            console.log('attacking mob...')
+            await bot.attack(mob);
+        }
+        else {
+            bot.pvp.attack(mob);
+            while (getNearbyMobs(bot, 16).includes(mob)) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (bot.interrupt_code) {
+                    bot.pvp.stop();
+                    return false;
+                }
+            }
             return true;
         }
+
     }
+    log(bot, 'Could not find any '+mobType+' to attack.');
     return false;
 }
 
@@ -71,13 +94,12 @@ export async function collectBlock(bot, blockType) {
      * @example
      * await skills.collectBlock(bot, "oak_log");
      **/
-    const blocks = getNearbyBlocks(bot);
-    for (let i = 0; i < blocks.length; i++) {
-        if (blocks[i].name == blockType) {
-            await bot.collectBlock.collect(blocks[i]);
-            return true;
-        }
+    const block = getNearestBlock(bot, blockType);
+    if (block) {
+        await bot.collectBlock.collect(block);
+        return true;
     }
+    log(bot, `Could not find ${blockType} to collect.`);
     return false;
 }
 
@@ -137,15 +159,6 @@ export async function placeBlock(bot, blockType, x, y, z) {
         log(bot, `Cannot place block at ${targetBlock.position} because there is nothing to build off of.`);
         return false;
     }
-    console.log("buildOffBlock: ", buildOffBlock.position, buildOffBlock.name, "faceVec: ", faceVec)
-
-    // check if bot is in the way
-    console.log("bot position: ", bot.entity.position, "buildOffBlock.position: ", buildOffBlock.position.plus(faceVec), "distance: ", bot.entity.position.distanceTo(buildOffBlock.position.plus(faceVec)))
-    if (bot.entity.position.distanceTo(buildOffBlock.position.plus(faceVec)) < 0.5) {
-        log(bot, `Cannot place block at ${buildOffBlock.position} because you are in the way.`);
-        return false;
-    }
-
     console.log("Placing on: ", buildOffBlock.position, buildOffBlock.name)
 
     let block = bot.inventory.items().find(item => item.name === blockType);
@@ -155,6 +168,40 @@ export async function placeBlock(bot, blockType, x, y, z) {
     }
     await bot.equip(block, 'hand');
 
+
+    // too close
+    let blockAbove = bot.blockAt(targetBlock.position.plus(Vec3(0,1,0)))
+    if (bot.entity.position.distanceTo(targetBlock.position) < 1 || bot.entity.position.distanceTo(blockAbove.position) < 1) {
+        console.log('moving away from block...')
+        let found = false;
+        for(let i = 0; i < 10; i++) {
+            console.log('looking for block...')
+            const randomDirection = new Vec3((Math.random() > 0.5 ? 1 : -1), 0, (Math.random() > 0.5 ? 1 : -1));
+            const pos = targetBlock.position.add(randomDirection.scale(1.2));
+            if (bot.blockAt(pos).name === 'air') {
+                console.log('found good position')
+                bot.pathfinder.setMovements(new pf.Movements(bot));
+                await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 1.2));
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            console.log('could not find good position')
+            log(bot, `Was too close to place ${blockType} at ${targetBlock.position}.`)
+            return false;
+        }
+    }
+    // too far
+    if (bot.entity.position.distanceTo(targetBlock.position) > 4.5) {
+        // move close until it is within 6 blocks
+        console.log('moving closer to block...')
+        let pos = targetBlock.position;
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+    }
+    // too close
+
     // turn to face the block
     await bot.lookAt(buildOffBlock.position.plus(faceVec));
 
@@ -163,7 +210,7 @@ export async function placeBlock(bot, blockType, x, y, z) {
     console.log("placing block...")
 
     // wait and then check if the block was placed
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 200));
     const newBlock = bot.blockAt(buildOffBlock.position.plus(faceVec));
     if (!newBlock) return false;
     if (newBlock.name !== blockType) {
