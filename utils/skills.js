@@ -1,5 +1,5 @@
 import { getItemId } from "./mcdata.js";
-import { getCraftingTable, getInventoryCounts, getInventoryStacks, getNearbyMobs, getNearbyBlocks } from "./world.js";
+import { getNearestBlock, getInventoryCounts, getInventoryStacks, getNearbyMobs, getNearbyBlocks } from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 
@@ -8,18 +8,36 @@ export function log(bot, message) {
 }
 
 
-export async function craftItem(bot, itemName) {
+export async function craftItem(bot, itemName, num=1) {
     /**
      * Attempt to craft the given item.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} item_name, the item name to craft.
+     * @param {number} num, the number of items to craft. Defaults to 1.
      * @returns {Promise<boolean>} true if the item was crafted, false otherwise.
      * @example
-     * await skills.craftItem(bot, "wooden_pickaxe");
+     * await skills.craftItem(bot, "wooden_pickaxe", 2);
      **/
-    const table = getCraftingTable(bot);
-    let recipes = bot.recipesFor(getItemId(itemName), null, 1, table);
-    await bot.craft(recipes[0], 1, null);
+
+    let recipes = bot.recipesFor(getItemId(itemName), null, num, null); // get recipes that don't require a crafting table
+    let craftingTable = undefined;
+    if (!recipes || recipes.length === 0) {
+        craftingTable = getNearestBlock(bot, 'crafting_table', 6);
+        if (craftingTable === null){
+            log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table, but there is none nearby.`)
+            return false;
+        }
+        recipes = bot.recipesFor(getItemId(itemName), null, num, craftingTable);
+    }
+    if (!recipes || recipes.length === 0) {
+        log(bot, `You do not have the resources to craft ${num} ${itemName}(s).`);
+        return false;
+    }
+    const recipe = recipes[0];
+
+    console.log('crafting...');
+    await bot.craft(recipe, num, craftingTable);
+    console.log('crafted');
     return true;
 }
 
@@ -216,7 +234,7 @@ export async function giveToPlayer(bot, itemType, username) {
     let player = bot.players[username].entity
     if (!player)
         return false;
-    if (getInventoryCounts(bot)[itemType] == 0)
+    if (!getInventoryCounts(bot)[itemType])
         return false;
     await goToPlayer(bot, username);
     let pos = player.position;

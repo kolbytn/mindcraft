@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-import { getCraftingTable, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from './world.js';
+import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from './world.js';
 import { getAllItems } from './mcdata.js';
 
 
@@ -23,7 +23,7 @@ export function getInventory(bot) {
     let inventory = getInventoryCounts(bot);
     let res = 'INVENTORY';
     for (const item in inventory) {
-        if (inventory[item] > 0)
+        if (inventory[item] && inventory[item] > 0)
             res += `\n- ${item}: ${inventory[item]}`;
     }
     if (res == 'INVENTORY') {
@@ -62,7 +62,7 @@ export function getNearbyEntities(bot) {
 
 
 export function getCraftable(bot) {
-    const table = getCraftingTable(bot);
+    const table = getNearestBlock(bot, 'crafting_table');
     let res = 'CRAFTABLE_ITEMS';
     for (const item of getAllItems()) {
         let recipes = bot.recipesFor(item.id, null, 1, table);

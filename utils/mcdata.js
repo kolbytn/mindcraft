@@ -23,6 +23,9 @@ export function getItemId(item) {
     return mcdata.itemsByName[item].id;
 }
 
+export function getItemName(itemId) {
+    return mcdata.items[itemId].name;
+}
 
 export function getAllItems(ignore) {
     if (!ignore) {

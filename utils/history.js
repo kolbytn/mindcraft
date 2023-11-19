@@ -63,7 +63,7 @@ export class History {
         if (this.memory != '') {
             memory_prompt += ' Include information from your previous memory if it is still relevant. Your output will replace your previous memory.';
         }
-        memory_prompt += ' Your output should use one of the following formats:\n';
+        memory_prompt += ' Your output should be a brief list of things you have learned using the following formats:\n';
         memory_prompt += '- When the player... output...\n';
         memory_prompt += '- I learned that player [name]...\n';
 
@@ -85,7 +85,7 @@ export class History {
         for (let example of examples) {
             let messages = '';
             for (let turn of example) {
-                if (turn.role == 'user')
+                if (turn.role != 'assistant')
                     messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
             }
             messages = messages.trim();
@@ -97,7 +97,7 @@ export class History {
     async setExamples() {
         let messages = '';
         for (let turn of this.turns) {
-            if (turn.role == 'user')
+            if (turn.role != 'assistant')
                 messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
         }
         messages = messages.trim();

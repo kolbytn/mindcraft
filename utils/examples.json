@@ -26,11 +26,6 @@
     ],
 
     [
-        {"role": "user", "content": "sarah_O.o: can you fly up in the air?"},
-        {"role": "assistant", "content": "I can't do that."}
-    ],
-
-    [
         {"role": "user", "content": "joe: Follow me!"},
         {"role": "assistant", "content": "Sure!\n```\n// I am going to follow joe.\nawait skills.followPlayer(bot, 'joe');\n```"}
     ],
@@ -45,5 +40,12 @@
     [
         {"role": "user", "content": "billybob: stop"},
         {"role": "assistant", "content": "```\n// I am going to write empty code to stop whatever I am doing\n```"}
+    ],
+
+    [
+        {"role": "user", "content": "maya: go to the nearest oak log"},
+        {"role": "assistant", "content": "```\n// I am navigating to the nearest oak log.\nawait skills.goToPosition(bot, nearestOakLog.x, nearestOakLog.y, nearestOakLog.z);\n```"},
+        {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
+        {"role": "assistant", "content": "Apologies, I made an error. Let me try that again.```\n// I am navigating to the nearest oak log.\nlet position = world.getNearestBlock(bot, 'oak_log', 20);\nawait skills.goToPosition(bot, position.x, position.y, position.z);\n```"}
     ]
 ]

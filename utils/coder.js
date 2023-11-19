@@ -3,6 +3,7 @@ import { writeFile, readFile, unlink } from 'fs';
 export class Coder {
     constructor(agent) {
         this.agent = agent;
+        this.queued_code = '';
         this.current_code = '';
         this.file_counter = 0;
         this.fp = './agent_code/';
@@ -19,7 +20,7 @@ export class Coder {
     }
 
     queueCode(code) {
-        this.current_code = this.santitizeCode(code);
+        this.queued_code = this.santitizeCode(code);
     }
 
     santitizeCode(code) {
@@ -30,13 +31,7 @@ export class Coder {
                 return code;
             }
         }
-        // this may cause problems in callback functions
-        code = code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
         return code;
-    }
-
-    hasCode() {
-        return this.current_code.length > 0;
     }
 
     writeFilePromise(filename, src) {
@@ -55,10 +50,12 @@ export class Coder {
 
     // returns {success: bool, message: string, interrupted: bool}
     async execute() {
-        if (!this.current_code) return {success: false, message: "No code to execute.", interrupted: false};
+        if (!this.queued_code) return {success: false, message: "No code to execute.", interrupted: false};
         if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false};
         let src = '';
-        for (let line of this.current_code.split('\n')) {
+        // this may cause problems in callback functions
+        let code = this.queued_code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
+        for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
         src = this.code_template.replace('/* CODE HERE */', src);
@@ -86,7 +83,8 @@ export class Coder {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
             await this.stop();
-            
+            this.current_code = this.queued_code;
+
             this.executing = true;
             await execution_file.main(this.agent.bot);
             this.executing = false;
