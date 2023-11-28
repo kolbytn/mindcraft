@@ -8,18 +8,16 @@ export function log(bot, message) {
 }
 
 
-export async function craftItem(bot, itemName, num=1) {
+export async function craftRecipe(bot, itemName) {
     /**
-     * Attempt to craft the given item.
+     * Attempt to craft the given item name from a recipe. May craft many items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} item_name, the item name to craft.
-     * @param {number} num, the number of items to craft. Defaults to 1.
+     * @param {string} itemName, the item name to craft.
      * @returns {Promise<boolean>} true if the item was crafted, false otherwise.
      * @example
-     * await skills.craftItem(bot, "wooden_pickaxe", 2);
+     * await skills.craftRecipe(bot, "stick");
      **/
-
-    let recipes = bot.recipesFor(getItemId(itemName), null, num, null); // get recipes that don't require a crafting table
+    let recipes = bot.recipesFor(getItemId(itemName), null, 1, null); // get recipes that don't require a crafting table
     let craftingTable = undefined;
     if (!recipes || recipes.length === 0) {
         craftingTable = getNearestBlock(bot, 'crafting_table', 6);
@@ -27,16 +25,16 @@ export async function craftItem(bot, itemName, num=1) {
             log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table, but there is none nearby.`)
             return false;
         }
-        recipes = bot.recipesFor(getItemId(itemName), null, num, craftingTable);
+        recipes = bot.recipesFor(getItemId(itemName), null, 1, craftingTable);
     }
     if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft ${num} ${itemName}(s).`);
+        log(bot, `You do not have the resources to craft a ${itemName}.`);
         return false;
     }
     const recipe = recipes[0];
 
     console.log('crafting...');
-    await bot.craft(recipe, num, craftingTable);
+    await bot.craft(recipe, 1, craftingTable);
     console.log('crafted');
     return true;
 }
@@ -52,7 +50,7 @@ export async function attackMob(bot, mobType, kill=true) {
      * @example
      * await skills.attackMob(bot, "zombie", true);
      **/
-    const mob = bot.nearestEntity(entity => entity.name.toLowerCase() === mobType.toLowerCase());
+    const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
     const attackable = ['animal', 'monster', 'mob'];
     if (mob && attackable.includes(mob.type)) {
         let pos = mob.position;
@@ -94,8 +92,16 @@ export async function collectBlock(bot, blockType) {
      * @example
      * await skills.collectBlock(bot, "oak_log");
      **/
-    const block = getNearestBlock(bot, blockType);
+    const block = getNearestBlock(bot, blockType, 64);
     if (block) {
+        // check if block is collectable
+        await bot.tool.equipForBlock(block);
+
+        const itemId = bot.heldItem ? bot.heldItem.type : null
+        if (!block.canHarvest(itemId)) {
+            log(bot, `Don't have right tools to harvest ${blockType}.`);
+            return false;
+        }
         await bot.collectBlock.collect(block);
         return true;
     }
@@ -137,7 +143,7 @@ export async function placeBlock(bot, blockType, x, y, z) {
      * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y - 1, position.x);
      **/
 
-    const empty_blocks = ['air', 'water', 'lava'];
+    const empty_blocks = ['air', 'water', 'lava', 'grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
     const targetBlock = bot.blockAt(new Vec3(x, y, z));
     if (!empty_blocks.includes(targetBlock.name)) {
         log(bot, `Cannot place block at ${targetBlock.position} because ${targetBlock.name} is in the way.`);

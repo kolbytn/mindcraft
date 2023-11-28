@@ -33,7 +33,7 @@
     [
         {"role": "user", "content": "hanky: kill that zombie!"},
         {"role": "assistant", "content": "I'm attacking!\n```\n//I'm going to attack the nearest zombie.\nawait skills.attackMob(bot, 'zombie');\n```"},
-        {"role": "system", "content": "Code Output:\nNo zombie nearby\nCode execution failed!"},
+        {"role": "system", "content": "Code Output:\nNo zombie nearby"},
         {"role": "assistant", "content": "I could not find a zombie nearby."}
     ],
 
@@ -47,5 +47,10 @@
         {"role": "assistant", "content": "```\n// I am navigating to the nearest oak log.\nawait skills.goToPosition(bot, nearestOakLog.x, nearestOakLog.y, nearestOakLog.z);\n```"},
         {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
         {"role": "assistant", "content": "Apologies, I made an error. Let me try that again.```\n// I am navigating to the nearest oak log.\nlet position = world.getNearestBlock(bot, 'oak_log', 20);\nawait skills.goToPosition(bot, position.x, position.y, position.z);\n```"}
+    ],
+
+    [
+        {"role": "user", "content": "trixy88: craft some sticks"},
+        {"role": "assistant", "content": "```\n// I am going to craft 8 sticks\nawait skills.craftRecipe(bot, 'stick');\nawait skills.craftRecipe(bot, 'stick');```"}
     ]
 ]
