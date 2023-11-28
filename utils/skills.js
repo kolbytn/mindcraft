@@ -285,10 +285,14 @@ export async function giveToPlayer(bot, itemType, username) {
      * await skills.giveToPlayer(bot, "oak_log", "player1");
      **/
     let player = bot.players[username].entity
-    if (!player)
+    if (!player){
+        log(bot, `Could not find ${username}.`);
         return false;
-    if (!getInventoryCounts(bot)[itemType])
+    }
+    if (!getInventoryCounts(bot)[itemType]) {
+        log(bot, `You do not have any ${itemType} to give.`);
         return false;
+    }
     await goToPlayer(bot, username);
     let pos = player.position;
     await bot.lookAt(pos);

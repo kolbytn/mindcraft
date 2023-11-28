@@ -19,7 +19,7 @@
     ],
 
     [
-        {"role": "user", "content": "hanky: collect some sand for me please"},
+        {"role": "user", "content": "hanky: collect some sand and give it to me please"},
         {"role": "assistant", "content": "Collecting sand...\n```\n// I am going to collect 3 sand and give to hanky.\nawait skills.collectBlock(bot, 'sand');\nawait skills.giveToPlayer(bot, 'sand', 'hanky');\n```"},
         {"role": "system", "content": "Code Output:\nYou have reached player hanky.\nCode execution finished successfully."},
         {"role": "assistant", "content": "Here!"}
