@@ -14,7 +14,6 @@ export class Coder {
 
         readFile(this.fp+'template.js', 'utf8', (err, data) => {
             if (err) throw err;
-            console.log('Template str:', data);
             this.code_template = data;
         });
     }
@@ -125,6 +124,7 @@ export class Coder {
             this.agent.bot.interrupt_code = true;
             this.agent.bot.collectBlock.cancelTask();
             this.agent.bot.pathfinder.stop();
+            this.agent.bot.pvp.stop();
             console.log('waiting for code to finish executing... interrupt:', this.agent.bot.interrupt_code);
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
