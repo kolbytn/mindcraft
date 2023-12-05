@@ -51,6 +51,6 @@
 
     [
         {"role": "user", "content": "trixy88: craft some sticks"},
-        {"role": "assistant", "content": "```\n// I am going to craft 8 sticks\nawait skills.craftRecipe(bot, 'stick');\nawait skills.craftRecipe(bot, 'stick');```"}
+        {"role": "assistant", "content": "```\n// I am going to craft 8 sticks\nawait skills.craftRecipe(bot, 'stick');\nlog(bot, crafted)\nawait skills.craftRecipe(bot, 'stick');```"}
     ]
 ]

@@ -1,9 +1,35 @@
 import { getAllBlockIds } from './mcdata.js';
 
 
+export function getNearestBlocks(bot, block_types, distance=16, count=1) {
+    /**
+     * Get a list of the nearest blocks of the given types.
+     * @param {Bot} bot - The bot to get the nearest block for.
+     * @param {string[]} block_types - The names of the blocks to search for.
+     * @param {number} distance - The maximum distance to search, default 16.
+     * @param {number} count - The maximum number of blocks to find, default 1.
+     * @returns {Block[]} - The nearest blocks of the given type.
+     * @example
+     * let woodBlocks = world.getNearestBlocks(bot, ['oak_log', 'birch_log'], 16, 1);
+     **/
+    let block_locs = bot.findBlocks({
+        matching: (block) => {
+            return block && block_types.includes(block.name);
+        },
+        maxDistance: distance,
+        count: count
+    });
+    let blocks = [];
+    for (let i = 0; i < block_locs.length; i++) {
+        blocks.push(bot.blockAt(block_locs[i]));
+    }
+    return blocks;
+}
+
+
 export function getNearestBlock(bot, block_type, distance=16) {
      /**
-     * Get the position of the nearest block of the given type.
+     * Get the nearest block of the given type.
      * @param {Bot} bot - The bot to get the nearest block for.
      * @param {string} block_type - The name of the block to search for.
      * @param {number} distance - The maximum distance to search, default 16.
@@ -11,15 +37,9 @@ export function getNearestBlock(bot, block_type, distance=16) {
      * @example
      * let coalBlock = world.getNearestBlock(bot, 'coal_ore', 16);
      **/
-    let block_locs = bot.findBlocks({
-        matching: (block) => {
-            return block && block.type === bot.registry.blocksByName[block_type].id
-        },
-        maxDistance: distance,
-        count: 1
-    });
-    if (block_locs.length > 0) {
-        return bot.blockAt(block_locs[0]);
+    let blocks = getNearestBlocks(bot, [block_type], distance, 1);
+    if (blocks.length > 0) {
+        return blocks[0];
     }
     return null;
 }
@@ -81,7 +101,7 @@ export function getNearbyPlayers(bot, maxDistance) {
 
 export function getInventoryStacks(bot) {
     let inventory = [];
-    for (const item of bot.inventory.slots.values()) {
+    for (const item of bot.inventory.items()) {
         if (item != null) {
             inventory.push(item);
         }
