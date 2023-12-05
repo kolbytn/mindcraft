@@ -14,6 +14,10 @@ export class History {
         this.bio = '';
         this.memory = '';
 
+        // The bot's default behaviors
+        this.default = '';
+        this.events = [];
+
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
         this.fewshot = 5;
@@ -135,7 +139,7 @@ export class History {
         if (this.turns.length >= this.max_messages) {
             console.log('summarizing memory')
             let to_summarize = [this.turns.shift()];
-            while (this.turns[0].role != 'user' && this.turns.length > 0)
+            while (this.turns[0].role != 'user' && this.turns.length > 1)
                 to_summarize.push(this.turns.shift());
             await this.storeMemories(to_summarize);
         }
@@ -152,6 +156,8 @@ export class History {
             'name': this.name,
             'bio': this.bio,
             'memory': this.memory,
+            'default': this.default,
+            'events': this.events,
             'turns': this.turns
         };
         const json_data = JSON.stringify(data, null, 4);
@@ -169,10 +175,11 @@ export class History {
             // load history object from json file
             const data = readFileSync(this.save_path, 'utf8');
             const obj = JSON.parse(data);
-            this.turns = obj.turns;
             this.bio = obj.bio;
             this.memory = obj.memory;
-            this.num_saved_turns = obj.num_saved_turns;
+            this.default = obj.default;
+            this.events = obj.events;
+            this.turns = obj.turns;
         } catch (err) {
             console.log('No history file found for ' + this.name + '.');
         }
