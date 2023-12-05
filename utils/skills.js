@@ -44,12 +44,17 @@ export async function smeltItem(bot, itemName, num=1) {
     /**
      * Puts 1 coal in furnace and smelts the given item name, waits until the furnace runs out of fuel or input items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} itemName, the item name to smelt.
+     * @param {string} itemName, the item name to smelt. Must contain "raw"
      * @param {number} num, the number of items to smelt. Defaults to 1.
      * @returns {Promise<boolean>} true if the item was smelted, false otherwise. Fail
      * @example
      * await skills.smeltItem(bot, "raw_iron");
      **/
+    if (!itemName.includes('raw')) {
+        log(bot, `Cannot smelt ${itemName}, must be a "raw" item, like "raw_iron".`);
+        return false;
+    } // TODO: allow cobblestone, sand, clay, etc.
+
     let furnaceBlock = undefined;
     furnaceBlock = getNearestBlock(bot, 'furnace', 6);
     if (furnaceBlock === null){
@@ -94,6 +99,7 @@ export async function smeltItem(bot, itemName, num=1) {
     let total = 0;
     let collected_last = true;
     let smelted_item = null;
+    await new Promise(resolve => setTimeout(resolve, 200));
     while (total < num) {
         await new Promise(resolve => setTimeout(resolve, 10000));
         console.log('checking...');
@@ -312,7 +318,6 @@ export async function placeBlock(bot, blockType, x, y, z) {
     const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
     const empty_blocks = ['air', 'water', 'lava', 'grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
     const targetBlock = bot.blockAt(target_dest);
-    console.log('targetBlock:', x, y, z)
     if (!empty_blocks.includes(targetBlock.name)) {
         log(bot, `Cannot place block at ${targetBlock.position} because ${targetBlock.name} is in the way.`);
         return false;
