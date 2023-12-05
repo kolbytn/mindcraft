@@ -16,7 +16,6 @@ Add `OPENAI_API_KEY` (and optionally `OPENAI_ORG_ID`) to your environment variab
 
 run `node main.js`
 
-## Node Module Patches
+## Patches
 
-Some of the node modules that we depend on have bugs in them. PRs have been submitted but currently you must manually implement these fixes in some node modules:
-- In `mineflayer-collectblock/lib/CollectBlock.js`, replace `!block.canHarvest(bot.heldItem)` with `bot.heldItem !== null && !block.canHarvest(bot.heldItem.type)` (line 80?)
+Some of the node modules that we depend on have bugs in them. To add a patch, change your local node module file and run `npx patch-package [package-name]`

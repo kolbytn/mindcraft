@@ -1,0 +1,13 @@
+diff --git a/node_modules/mineflayer-collectblock/lib/CollectBlock.js b/node_modules/mineflayer-collectblock/lib/CollectBlock.js
+index 2c11e8c..bc47dc7 100644
+--- a/node_modules/mineflayer-collectblock/lib/CollectBlock.js
++++ b/node_modules/mineflayer-collectblock/lib/CollectBlock.js
+@@ -77,7 +77,7 @@ function mineBlock(bot, block, options) {
+         }
+         yield bot.tool.equipForBlock(block, equipToolOptions);
+         // @ts-expect-error
+-        if (!block.canHarvest(bot.heldItem)) {
++        if (bot.heldItem !== null && !block.canHarvest(bot.heldItem.type)) {
+             options.targets.removeTarget(block);
+             return;
+         }

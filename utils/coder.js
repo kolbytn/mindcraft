@@ -52,8 +52,13 @@ export class Coder {
         if (!this.queued_code) return {success: false, message: "No code to execute.", interrupted: false};
         if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false};
         let src = '';
+
+        let code = this.queued_code;
+        code = code.replaceAll('console.log(', 'log(bot,');
+        code = code.replaceAll('log("', 'log(bot,"');
+
         // this may cause problems in callback functions
-        let code = this.queued_code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
+        code = code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }

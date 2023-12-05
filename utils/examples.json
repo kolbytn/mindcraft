@@ -15,7 +15,7 @@
         {"role": "user", "content": "greg: Collect 10 wood"},
         {"role": "assistant", "content": "Let me see what's nearby... !blocks"},
         {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
-        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs.\n```\n// I am going to collect 10 oak_log.\nfor (let i=0; i<10; i++) {\n    await skills.collectBlock(bot, 'oak_log');\n}\n```"}
+        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs.\n```\n// I am going to collect 10 oak_log.\nawait skills.collectBlock(bot, 'oak_log', 10);\n```"}
     ],
 
     [
@@ -34,7 +34,7 @@
 
     [
         {"role": "user", "content": "hanky: collect some sand and give it to me please"},
-        {"role": "assistant", "content": "Collecting sand...\n```\n// I am going to collect 3 sand and give to hanky.\nawait skills.collectBlock(bot, 'sand');\nawait skills.giveToPlayer(bot, 'sand', 'hanky');\n```"},
+        {"role": "assistant", "content": "Collecting sand...\n```\n// I am going to collect 3 sand and give to hanky.\nawait skills.collectBlock(bot, 'sand', 3);\nawait skills.giveToPlayer(bot, 'sand', 'hanky');\n```"},
         {"role": "system", "content": "Code Output:\nYou have reached player hanky.\nCode execution finished successfully."},
         {"role": "assistant", "content": "Here!"}
     ],
@@ -65,6 +65,6 @@
 
     [
         {"role": "user", "content": "trixy88: craft some sticks"},
-        {"role": "assistant", "content": "```\n// I am going to craft 8 sticks\nawait skills.craftRecipe(bot, 'stick');\nawait skills.craftRecipe(bot, 'stick');```"}
+        {"role": "assistant", "content": "```\n// I am going to craft 8 sticks\nawait skills.craftRecipe(bot, 'stick');\nlog(bot, crafted)\nawait skills.craftRecipe(bot, 'stick');```"}
     ]
 ]
