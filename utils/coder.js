@@ -11,6 +11,7 @@ export class Coder {
         this.executing = false;
         this.agent.bot.output = '';
         this.code_template = '';
+        this.timedout = false;
 
         readFile(this.fp+'template.js', 'utf8', (err, data) => {
             if (err) throw err;
@@ -49,8 +50,8 @@ export class Coder {
 
     // returns {success: bool, message: string, interrupted: bool}
     async execute() {
-        if (!this.queued_code) return {success: false, message: "No code to execute.", interrupted: false};
-        if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false};
+        if (!this.queued_code) return {success: false, message: "No code to execute.", interrupted: false, timedout: false};
+        if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false, timedout: false};
         let src = '';
 
         let code = this.queued_code;
@@ -80,7 +81,7 @@ export class Coder {
         
         if (write_result) {
             console.error('Error writing code execution file: ' + result);
-            return {success: false, message: result, interrupted: false};
+            return {success: false, message: result, interrupted: false, timedout: false};
         }
 
         try {
@@ -90,14 +91,16 @@ export class Coder {
             this.current_code = this.queued_code;
 
             this.executing = true;
-            await execution_file.main(this.agent.bot);
+            const TIMEOUT = this._startTimeout(10);
+            await execution_file.main(this.agent.bot); // open fire
+            clearTimeout(TIMEOUT);
             this.executing = false;
-
             this.agent.bot.emit('finished_executing');
             let output = this.formatOutput(this.agent.bot);
             let interrupted = this.agent.bot.interrupt_code;
+            let timedout = this.timedout;
             this.clear();
-            return {success:true, message: output, interrupted};
+            return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             this.executing = false;
             this.agent.bot.emit('finished_executing');
@@ -106,7 +109,7 @@ export class Coder {
             message += '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             await this.stop();
-            return {success: false, message, interrupted};
+            return {success: false, message, interrupted, timedout: false};
         }
     }
 
@@ -125,6 +128,7 @@ export class Coder {
     }
 
     async stop() {
+        if (!this.executing) return;
         while (this.executing) {
             this.agent.bot.interrupt_code = true;
             this.agent.bot.collectBlock.cancelTask();
@@ -140,5 +144,21 @@ export class Coder {
         this.current_code = '';
         this.agent.bot.output = '';
         this.agent.bot.interrupt_code = false;
+        this.timedout = false;
+    }
+
+    _startTimeout(TIMEOUT_MINS=10) {
+        return setTimeout(async () => {
+            console.warn(`Code execution timed out after ${TIMEOUT_MINS} minutes. Attempting force stop.`);
+            this.timedout = true;
+            this.stop(); // last attempt to stop
+            await new Promise(resolve => setTimeout(resolve, 5 * 1000));
+            if (this.executing) {
+                console.error(`Failed to stop. Killing process. Goodbye.`);
+                // TODO: force save memories
+                process.exit(1); // force exit program
+            }
+            console.log('Code execution stopped successfully.');
+        }, TIMEOUT_MINS*60*1000);
     }
 }

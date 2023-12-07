@@ -227,6 +227,10 @@ export async function collectBlock(bot, blockType, num=1) {
      * @example
      * await skills.collectBlock(bot, "oak_log");
      **/
+    if (num < 1) {
+        log(bot, `Invalid number of blocks to collect: ${num}.`);
+        return false;
+    }
     let collected = 0;
     const blocks = getNearestBlocks(bot, blockType, 64, num);
     if (blocks.length === 0) {
