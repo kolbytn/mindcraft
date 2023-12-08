@@ -259,7 +259,9 @@ export async function collectBlock(bot, blockType, num=1) {
                 log(bot, `Failed to collect ${blockType}: ${err}.`);
                 continue;
             }
-        }   
+        }
+        if (bot.interrupt_code)
+            break;  
     }
     log(bot, `Collected ${collected} ${blockType}.`);
     return true;
@@ -569,7 +571,6 @@ export async function followPlayer(bot, username) {
     log(bot, `You are now actively following player ${username}.`);
 
     while (!bot.interrupt_code) {
-        console.log('followPlayer waiting for interrupt...', bot.interrupt_code);
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 

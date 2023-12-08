@@ -48,7 +48,7 @@ export class Coder {
     }
 
 
-    // returns {success: bool, message: string, interrupted: bool}
+    // returns {success: bool, message: string, interrupted: bool, timedout: false}
     async execute() {
         if (!this.queued_code) return {success: false, message: "No code to execute.", interrupted: false, timedout: false};
         if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false, timedout: false};
@@ -114,7 +114,7 @@ export class Coder {
     }
 
     formatOutput(bot) {
-        if (bot.interrupt_code) return '';
+        if (bot.interrupt_code && !this.timedout) return '';
         let output = bot.output;
         const MAX_OUT = 1000;
         if (output.length > MAX_OUT) {
@@ -151,11 +151,15 @@ export class Coder {
         return setTimeout(async () => {
             console.warn(`Code execution timed out after ${TIMEOUT_MINS} minutes. Attempting force stop.`);
             this.timedout = true;
+            this.agent.bot.output += `\nAction performed for ${TIMEOUT_MINS} minutes and then timed out and stopped. You may want to continue or do something else.`;
             this.stop(); // last attempt to stop
-            await new Promise(resolve => setTimeout(resolve, 5 * 1000));
+            await new Promise(resolve => setTimeout(resolve, 5 * 1000)); // wait 5 seconds
             if (this.executing) {
                 console.error(`Failed to stop. Killing process. Goodbye.`);
-                // TODO: force save memories
+                this.agent.bot.output += `\nForce stop failed! Killing bot.`;
+                let output = this.formatOutput(this.agent.bot);
+                this.agent.history.add('system', output);
+                this.agent.history.save();
                 process.exit(1); // force exit program
             }
             console.log('Code execution stopped successfully.');

@@ -69,12 +69,10 @@ export class Agent {
                     this.coder.queueCode(code);
                     let code_return = await this.coder.execute();
                     let message = code_return.message;
-                    if (code_return.timedout)
-                        message += "\n Code ran for a while and was stopped.";
-                    else if (code_return.interrupted)
+                    if (code_return.interrupted && !code_return.timedout)
                         break; // when interupted but not timed out, we were interupted by another conversation. end this one.
                     if (!code_return.success) {
-                        message += "\n Write code to fix the problem and try again.";
+                        message += "\nWrite code to fix the problem and try again.";
                     }
                     console.log('code return:', message);
                     this.history.add('system', message);
