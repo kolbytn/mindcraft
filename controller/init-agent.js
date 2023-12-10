@@ -1,4 +1,4 @@
-import { Agent } from './agent.js';
+import { Agent } from '../agent.js';
 import yargs from 'yargs';
 
 const args = process.argv.slice(2);

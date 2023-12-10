@@ -3,7 +3,7 @@ import { sendRequest } from './utils/gpt.js';
 import { History } from './utils/history.js';
 import { Coder } from './utils/coder.js';
 import { getQuery, containsQuery } from './utils/queries.js';
-import { containsCodeBlock } from './utils/skill_library.js';
+import { containsCodeBlock } from './utils/skill-library.js';
 
 
 export class Agent {
@@ -20,6 +20,9 @@ export class Agent {
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
+            if (!restart_memory) {
+                this.respond('system', 'Agent process restarted. Notify the user and decide what to do.');
+            }
         });
     }
 

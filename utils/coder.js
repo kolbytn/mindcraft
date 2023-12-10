@@ -95,6 +95,7 @@ export class Coder {
             await execution_file.main(this.agent.bot); // open fire
             clearTimeout(TIMEOUT);
             this.executing = false;
+
             this.agent.bot.emit('finished_executing');
             let output = this.formatOutput(this.agent.bot);
             let interrupted = this.agent.bot.interrupt_code;
@@ -156,7 +157,8 @@ export class Coder {
             await new Promise(resolve => setTimeout(resolve, 5 * 1000)); // wait 5 seconds
             if (this.executing) {
                 console.error(`Failed to stop. Killing process. Goodbye.`);
-                this.agent.bot.output += `\nForce stop failed! Killing bot.`;
+                this.agent.bot.output += `\nForce stop failed! Process was killed and will be restarted. Goodbye world.`;
+                this.bot.chat('Goodbye world.');
                 let output = this.formatOutput(this.agent.bot);
                 this.agent.history.add('system', output);
                 this.agent.history.save();
