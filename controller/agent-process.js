@@ -1,13 +1,12 @@
 import { spawn } from 'child_process';
 
-export class AgentController {
-    constructor(name) {
-        this.name = name;
-    }
-    async start(restart_memory=true) {
-        let args = ['controller/init-agent.js', this.name];
-        if (restart_memory)
-            args.push('-r');
+export class AgentProcess {
+    constructor(name, clear_memory=false, autostart=false) {
+        let args = ['controller/init-agent.js', name];
+        if (clear_memory)
+            args.push('-c');
+        if (autostart)
+            args.push('-a');
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
@@ -25,7 +24,7 @@ export class AgentController {
                     process.exit(1);
                 }
                 console.log('Restarting agent...');
-                this.start(false);
+                this.start(false, true);
                 last_restart = Date.now();
             }
         });

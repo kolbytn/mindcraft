@@ -3,20 +3,25 @@ import yargs from 'yargs';
 
 const args = process.argv.slice(2);
 if (args.length < 1) {
-    console.log('Usage: node init_agent.js <agent_name> [options]');
+    console.log('Usage: node init_agent.js <agent_name> [-c] [-a]');
     process.exit(1);
 }
 
 const argv = yargs(args)
-    .option('restart_memory', {
-        alias: 'r',
+    .option('clear_memory', {
+        alias: 'c',
         type: 'boolean',
         description: 'restart memory from scratch'
-    }).argv;
+    })
+    .option('autostart', {
+        alias: 'a',
+        type: 'boolean',
+        description: 'automatically prompt the agent on startup'
+    }).argv
 
 const name = argv._[0];
-const restart_memory = !!argv.restart_memory;
+const clear_memory = !!argv.clear_memory;
+const autostart = !!argv.autostart;
 const save_path = './bots/'+name+'.json';
 
-let agent = new Agent(name, save_path, restart_memory);
-agent.start();
+new Agent(name, save_path, clear_memory, autostart);

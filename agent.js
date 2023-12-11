@@ -7,43 +7,41 @@ import { containsCodeBlock } from './utils/skill-library.js';
 
 
 export class Agent {
-    constructor(name, save_path, restart_memory=false) {
+    constructor(name, save_path, clear_memory=false, autostart=false) {
         this.name = name;
         this.bot = initBot(name);
         this.history = new History(this, save_path);
+        this.history.loadExamples();
         this.coder = new Coder(this);
 
-        if (!restart_memory) {
+        if (!clear_memory) {
             this.history.load();
         }
-    
+
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
-            if (!restart_memory) {
+
+            this.bot.on('chat', (username, message) => {
+                if (username === this.name) return;
+                console.log('received message from', username, ':', message);
+    
+                this.respond(username, message);
+                this.history.save();
+            });
+    
+            this.bot.on('finished_executing', () => {
+                setTimeout(() => {
+                    if (!this.coder.executing) {
+                        // return to default behavior
+                    }
+                }, 10000);
+            });
+
+            if (autostart)
                 this.respond('system', 'Agent process restarted. Notify the user and decide what to do.');
-            }
+            
         });
-    }
-
-    async start() {
-        await this.history.loadExamples();
-
-        this.bot.on('chat', (username, message) => {
-            if (username === this.name) return;
-            console.log('received message from', username, ':', message);
-
-            this.respond(username, message);
-            this.history.save();
-        });
-
-        this.bot.on('finished_executing', () => {
-            setTimeout(() => {
-                if (!this.coder.executing) {
-                    // return to default behavior
-                }
-            }, 10000);
-        })
     }
 
     async respond(username, message) {

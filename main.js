@@ -1,3 +1,3 @@
-import { AgentController } from './controller/agent-controller.js';
+import { AgentProcess } from './controller/agent-process.js';
 
-new AgentController('andy').start();
+new AgentProcess('andy', true, false);
