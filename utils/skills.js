@@ -57,12 +57,11 @@ export async function smeltItem(bot, itemName, num=1) {
 
     let furnaceBlock = undefined;
     furnaceBlock = getNearestBlock(bot, 'furnace', 6);
-    if (furnaceBlock === null){
+    if (!furnaceBlock){
         log(bot, `There is no furnace nearby.`)
         return false;
     }
     await bot.lookAt(furnaceBlock.position);
-
 
     console.log('smelting...');
     const furnace = await bot.openFurnace(furnaceBlock);

@@ -83,7 +83,7 @@ export class Coder {
             console.error('Error writing code execution file: ' + result);
             return {success: false, message: result, interrupted: false, timedout: false};
         }
-
+        let TIMEOUT;
         try {
             console.log('executing code...\n');
             let execution_file = await import('.'+filename);
@@ -91,10 +91,10 @@ export class Coder {
             this.current_code = this.queued_code;
 
             this.executing = true;
-            const TIMEOUT = this._startTimeout(10);
+            TIMEOUT = this._startTimeout(1);
             await execution_file.main(this.agent.bot); // open fire
-            clearTimeout(TIMEOUT);
             this.executing = false;
+            clearTimeout(TIMEOUT);
 
             this.agent.bot.emit('finished_executing');
             let output = this.formatOutput(this.agent.bot);
@@ -104,8 +104,10 @@ export class Coder {
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             this.executing = false;
+            clearTimeout(TIMEOUT);
+
             this.agent.bot.emit('finished_executing');
-            console.error("Code execution triggered catch:" + err);
+            console.error("Code execution triggered catch: " + err);
             let message = this.formatOutput(this.agent.bot);
             message += '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
