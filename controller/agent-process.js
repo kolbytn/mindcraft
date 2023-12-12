@@ -1,8 +1,11 @@
 import { spawn } from 'child_process';
 
 export class AgentProcess {
-    constructor(name, clear_memory=false, autostart=false) {
-        let args = ['controller/init-agent.js', name];
+    constructor(name) {
+        this.name = name;
+    }
+    start(clear_memory=false, autostart=false) {
+        let args = ['controller/init-agent.js', this.name];
         if (clear_memory)
             args.push('-c');
         if (autostart)

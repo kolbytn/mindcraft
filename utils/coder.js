@@ -91,7 +91,7 @@ export class Coder {
             this.current_code = this.queued_code;
 
             this.executing = true;
-            TIMEOUT = this._startTimeout(1);
+            TIMEOUT = this._startTimeout(10);
             await execution_file.main(this.agent.bot); // open fire
             this.executing = false;
             clearTimeout(TIMEOUT);
@@ -160,7 +160,7 @@ export class Coder {
             if (this.executing) {
                 console.error(`Failed to stop. Killing process. Goodbye.`);
                 this.agent.bot.output += `\nForce stop failed! Process was killed and will be restarted. Goodbye world.`;
-                this.bot.chat('Goodbye world.');
+                this.agent.bot.chat('Goodbye world.');
                 let output = this.formatOutput(this.agent.bot);
                 this.agent.history.add('system', output);
                 this.agent.history.save();
