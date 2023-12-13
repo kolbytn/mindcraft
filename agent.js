@@ -4,6 +4,7 @@ import { History } from './utils/history.js';
 import { Coder } from './utils/coder.js';
 import { getQuery, containsQuery } from './utils/queries.js';
 import { containsCodeBlock } from './utils/skill_library.js';
+import { Events } from './utils/events.js';
 
 
 export class Agent {
@@ -16,35 +17,13 @@ export class Agent {
         if (!restart_memory) {
             this.history.load();
         }
-        // Add the default behaviors and events
-        else {
-            this.history.default = `let blocks = world.getNearbyBlockTypes(bot, 4);
-                let block_type = blocks[Math.floor(Math.random() * blocks.length)];
-                await skills.collectBlock(bot, block_type);
-                await new Promise(r => setTimeout(r, 1000));
 
-                let players = world.getNearbyPlayerNames(bot);
-                let player_name = players[Math.floor(Math.random() * players.length)];
-                await skills.goToPlayer(bot, player_name);
-                await new Promise(r => setTimeout(r, 1000));`;
-            this.history.events.push(['finished_executing', this.executeCode, 'default']);
-            // this.history.events.push(['finished_executing', this.sendThought, 'What should I do next? I will make a plan and execute it.']);
-            this.history.events.push(['health', this.sendThought, 'I may be under attack or need to eat! I will stop what I am doing to check my health and take action.']);
-            this.history.events.push(['sunrise', null, null]);
-            this.history.events.push(['noon', null, null]);
-            this.history.events.push(['sunset', null, null]);
-            this.history.events.push(['midnight', null, null]);
-        }
+        this.events = Events(this, this.history.events)
 
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
         });
-
-        for (let [event, callback, params] of this.history.events) {
-            if (callback != null)
-                this.bot.on(event, callback.bind(this, params));
-        }
     }
 
     async start() {
@@ -58,25 +37,9 @@ export class Agent {
             this.handleMessage();
         });
 
-        this.bot.on('time', () => {
-            if (this.bot.time.timeOfDay == 0)
-                this.bot.emit('sunrise');
-            else if (this.bot.time.timeOfDay == 6000)
-                this.bot.emit('noon');
-            else if (this.bot.time.timeOfDay == 12000)
-                this.bot.emit('sunset');
-            else if (this.bot.time.timeOfDay == 18000)
-                this.bot.emit('midnight');
-        });
-
         if (this.history.default) {
             this.executeCode(this.history.default);
         }
-    }
-
-    async sendThought(message) {
-        this.history.add(this.name, message);
-        await this.handleMessage();
     }
 
     async executeCode(code, triesRemaining=5) {

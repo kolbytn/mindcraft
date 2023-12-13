@@ -14,8 +14,7 @@ export class History {
         this.bio = '';
         this.memory = '';
 
-        // The bot's default behaviors
-        this.default = '';
+        // The bot's events
         this.events = [];
 
         // Variables for controlling the agent's memory and knowledge
@@ -156,7 +155,6 @@ export class History {
             'name': this.name,
             'bio': this.bio,
             'memory': this.memory,
-            'default': this.default,
             'events': this.events,
             'turns': this.turns
         };
@@ -177,7 +175,6 @@ export class History {
             const obj = JSON.parse(data);
             this.bio = obj.bio;
             this.memory = obj.memory;
-            this.default = obj.default;
             this.events = obj.events;
             this.turns = obj.turns;
         } catch (err) {
