@@ -46,17 +46,6 @@ const queryList = [
         perform: function (agent) {
             return pad("Current code:\n`" + agent.coder.current_code +"`");
         }
-    },
-    {
-        name: "!events",
-        description: "Get the bot's events and callbacks.",
-        perform: function (agent) {
-            let res = "Events:";
-            for (let [event, callback, params] of agent.history.events) {
-                res += `\n- ${event} -> ${callback.name}(${params})`;
-            }
-            return pad(res);
-        }
     }
 ];
 
