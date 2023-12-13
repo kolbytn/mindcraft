@@ -57,12 +57,11 @@ export async function smeltItem(bot, itemName, num=1) {
 
     let furnaceBlock = undefined;
     furnaceBlock = getNearestBlock(bot, 'furnace', 6);
-    if (furnaceBlock === null){
+    if (!furnaceBlock){
         log(bot, `There is no furnace nearby.`)
         return false;
     }
     await bot.lookAt(furnaceBlock.position);
-
 
     console.log('smelting...');
     const furnace = await bot.openFurnace(furnaceBlock);
@@ -227,6 +226,10 @@ export async function collectBlock(bot, blockType, num=1) {
      * @example
      * await skills.collectBlock(bot, "oak_log");
      **/
+    if (num < 1) {
+        log(bot, `Invalid number of blocks to collect: ${num}.`);
+        return false;
+    }
     let collected = 0;
     const blocks = getNearestBlocks(bot, blockType, 64, num);
     if (blocks.length === 0) {
@@ -255,7 +258,9 @@ export async function collectBlock(bot, blockType, num=1) {
                 log(bot, `Failed to collect ${blockType}: ${err}.`);
                 continue;
             }
-        }   
+        }
+        if (bot.interrupt_code)
+            break;  
     }
     log(bot, `Collected ${collected} ${blockType}.`);
     return true;
@@ -565,7 +570,6 @@ export async function followPlayer(bot, username) {
     log(bot, `You are now actively following player ${username}.`);
 
     while (!bot.interrupt_code) {
-        console.log('followPlayer waiting for interrupt...', bot.interrupt_code);
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 

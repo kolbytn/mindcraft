@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { getQueryDocs } from './queries.js';
-import { getSkillDocs } from './skill_library.js';
+import { getSkillDocs } from './skill-library.js';
 import { sendRequest, embed, cosineSimilarity } from './gpt.js';
 
 

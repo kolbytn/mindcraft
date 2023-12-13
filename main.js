@@ -1,4 +1,3 @@
-import { Agent } from './agent.js';
+import { AgentProcess } from './controller/agent-process.js';
 
-let agent = new Agent('andy', './bots/andy.json', true);
-agent.start();
+new AgentProcess('andy').start(true, false);
