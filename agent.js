@@ -3,18 +3,19 @@ import { sendRequest } from './utils/gpt.js';
 import { History } from './utils/history.js';
 import { Coder } from './utils/coder.js';
 import { getQuery, containsQuery } from './utils/queries.js';
-import { containsCodeBlock } from './utils/skill_library.js';
+import { containsCodeBlock } from './utils/skill-library.js';
 import { Events } from './utils/events.js';
 
 
 export class Agent {
-    constructor(name, save_path, restart_memory=false) {
+    constructor(name, save_path, clear_memory=false, autostart=false) {
         this.name = name;
         this.bot = initBot(name);
         this.history = new History(this, save_path);
+        this.history.loadExamples();
         this.coder = new Coder(this);
 
-        if (!restart_memory) {
+        if (!clear_memory) {
             this.history.load();
         }
 
@@ -23,23 +24,19 @@ export class Agent {
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
+
+            this.bot.on('chat', (username, message) => {
+                    if (username === this.name) return;
+                    console.log('received message from', username, ':', message);
+        
+                    this.history.add(username, message);
+                    this.handleMessage();
+                });
+    
+            if (autostart)
+                this.respond('system', 'Agent process restarted. Notify the user and decide what to do.');
+            
         });
-    }
-
-    async start() {
-        await this.history.loadExamples();
-
-        this.bot.on('chat', (username, message) => {
-            if (username === this.name) return;
-            console.log('received message from', username, ':', message);
-
-            this.history.add(username, message);
-            this.handleMessage();
-        });
-
-        if (this.history.default) {
-            this.executeCode(this.history.default);
-        }
     }
 
     async executeCode(code, triesRemaining=5) {
