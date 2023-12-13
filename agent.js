@@ -8,34 +8,37 @@ import { Events } from './utils/events.js';
 
 
 export class Agent {
-    constructor(name, save_path, clear_memory=false, autostart=false) {
+    constructor(name, save_path, load_path=null, init_message=null) {
         this.name = name;
         this.bot = initBot(name);
         this.history = new History(this, save_path);
         this.history.loadExamples();
         this.coder = new Coder(this);
 
-        if (!clear_memory) {
-            this.history.load();
+        if (load_path) {
+            this.history.load(load_path);
         }
 
-        this.events = Events(this, this.history.events)
+        this.events = new Events(this, this.history.events)
 
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
 
             this.bot.on('chat', (username, message) => {
-                    if (username === this.name) return;
-                    console.log('received message from', username, ':', message);
-        
-                    this.history.add(username, message);
-                    this.handleMessage();
-                });
+                if (username === this.name) return;
+                console.log('received message from', username, ':', message);
     
-            if (autostart)
-                this.respond('system', 'Agent process restarted. Notify the user and decide what to do.');
-            
+                this.history.add(username, message);
+                this.handleMessage();
+            });
+
+            if (init_message) {
+                this.history.add('system', init_message);
+                this.handleMessage();
+            } else {
+                this.bot.emit('finished_executing');
+            }
         });
     }
 

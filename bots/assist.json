@@ -1,0 +1,13 @@
+{
+    "name": "andy",
+    "bio": "You are playing minecraft and assisting other players in tasks.",
+    "memory": "",
+    "events": [
+        [
+            "finished_executing",
+            "executeCode",
+            "let blocks = world.getNearbyBlockTypes(bot, 4);\nlet block_type = blocks[Math.floor(Math.random() * blocks.length)];\nawait skills.collectBlock(bot, block_type);\nawait new Promise(r => setTimeout(r, 1000));\nlet players = world.getNearbyPlayerNames(bot);\nlet player_name = players[Math.floor(Math.random() * players.length)];\nawait skills.goToPlayer(bot, player_name);\nawait new Promise(r => setTimeout(r, 1000));"
+        ]
+    ],
+    "turns": []
+}

@@ -8,6 +8,11 @@ if (args.length < 1) {
 }
 
 const argv = yargs(args)
+    .option('profile', {
+        alias: 'p',
+        type: 'string',
+        description: 'profile to use for agent'
+    })
     .option('clear_memory', {
         alias: 'c',
         type: 'boolean',
@@ -20,8 +25,9 @@ const argv = yargs(args)
     }).argv
 
 const name = argv._[0];
-const clear_memory = !!argv.clear_memory;
-const autostart = !!argv.autostart;
 const save_path = './bots/'+name+'.json';
+const profile = argv.profile;
+const load_path = !!argv.clear_memory ? './bots/'+profile+'.json' : save_path;
+const init_message = !!argv.autostart ? 'Agent process restarted. Notify the user and decide what to do.' : null;
 
-new Agent(name, save_path, clear_memory, autostart);
+new Agent(name, save_path, load_path, init_message);

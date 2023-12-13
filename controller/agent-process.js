@@ -4,8 +4,9 @@ export class AgentProcess {
     constructor(name) {
         this.name = name;
     }
-    start(clear_memory=false, autostart=false) {
+    start(clear_memory=false, autostart=false, profile='survive') {
         let args = ['controller/init-agent.js', this.name];
+        args.push('-p', profile);
         if (clear_memory)
             args.push('-c');
         if (autostart)

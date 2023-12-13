@@ -2,8 +2,7 @@ import * as skills from './skills.js';
 import * as world from './world.js';
 
 export function getSkillDocs() {
-    let docstring = "\n*SKILL DOCS\nThese skills are javascript functions that can be called with a js function by writing a code block. Ex: '```// write description comment and code here```' \n\
-                        Your code block should return a bool indicating if the task was completed successfully. It will return true if you don't write a return statement.\n";
+    let docstring = "\n*SKILL DOCS\nThese skills are javascript functions that can be called with a js function by writing a code block. Ex: '```// write description comment and code here```' \nYour code block should return a bool indicating if the task was completed successfully. It will return true if you don't write a return statement.\n";
     docstring += docHelper(Object.values(skills), 'skills');
     docstring += docHelper(Object.values(world), 'world');
     return docstring + '*\n';

@@ -79,8 +79,7 @@ export function containsQuery(message) {
 }
 
 export function getQueryDocs() {
-    let docs = `\n*QUERY DOCS\n You can use the following commands to query for information about the world.
-                Use the query name in your response and the next input will have the requested information.\n`;
+    let docs = `\n*QUERY DOCS\n You can use the following commands to query for information about the world. Use the query name in your response and the next input will have the requested information.\n`;
     for (let query of queryList) {
         docs += query.name + ': ' + query.description + '\n';
     }
