@@ -96,7 +96,6 @@ export class Coder {
             this.executing = false;
             clearTimeout(TIMEOUT);
 
-            this.agent.bot.emit('finished_executing');
             let output = this.formatOutput(this.agent.bot);
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
@@ -106,7 +105,6 @@ export class Coder {
             this.executing = false;
             clearTimeout(TIMEOUT);
 
-            this.agent.bot.emit('finished_executing');
             console.error("Code execution triggered catch: " + err);
             let message = this.formatOutput(this.agent.bot);
             message += '!!Code threw exception!!  Error: ' + err;

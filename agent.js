@@ -94,5 +94,6 @@ export class Agent {
             console.log('Purely conversational response:', res)
         }
         this.history.save();
+        this.bot.emit('finished_executing');
     }
 }
