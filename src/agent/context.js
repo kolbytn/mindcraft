@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 
 import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from './world.js';
-import { getAllItems } from './mcdata.js';
+import { getAllItems } from '../utils/mcdata.js';
 
 
 export function getStats(bot) {

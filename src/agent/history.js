@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { getQueryDocs } from './queries.js';
 import { getSkillDocs } from './skill-library.js';
-import { sendRequest, embed, cosineSimilarity } from './gpt.js';
+import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
 
 
 export class History {
@@ -86,7 +86,7 @@ export class History {
     async loadExamples() {
         let examples = [];
         try {
-            const data = readFileSync('utils/examples.json', 'utf8');
+            const data = readFileSync('./src/examples.json', 'utf8');
             examples = JSON.parse(data);
         } catch (err) {
             console.log('No history examples found.');
