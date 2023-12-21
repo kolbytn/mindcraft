@@ -14,6 +14,9 @@ export class History {
         this.bio = '';
         this.memory = '';
 
+        // The bot's events
+        this.events = [];
+
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
         this.fewshot = 5;
@@ -34,8 +37,7 @@ export class History {
     }
 
     getSystemMessage() {
-        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code.
-        Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, omit needless words, and do not give instructions unless asked.`;
+        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code. Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, omit needless words, and do not give instructions unless asked.`;
         system_message += getQueryDocs();
         system_message += getSkillDocs();
         if (this.bio != '')
@@ -101,6 +103,8 @@ export class History {
             const embedding = await embed(messages);
             this.examples.push({'embedding': embedding, 'turns': example});
         }
+
+        await this.setExamples();
     }
 
     async setExamples() {
@@ -135,27 +139,30 @@ export class History {
         if (this.turns.length >= this.max_messages) {
             console.log('summarizing memory')
             let to_summarize = [this.turns.shift()];
-            while (this.turns[0].role != 'user' && this.turns.length > 0)
+            while (this.turns[0].role != 'user' && this.turns.length > 1)
                 to_summarize.push(this.turns.shift());
             await this.storeMemories(to_summarize);
         }
 
-        if (role === 'user')
+        if (role != 'assistant')
             await this.setExamples();
     }
 
-    save() {
-        if (this.save_path === '' || this.save_path == null) return;
+    save(save_path=null) {
+        if (save_path == null)
+            save_path = this.save_path;
+        if (save_path === '' || save_path == null) return;
         // save history object to json file
         mkdirSync('bots', { recursive: true });
         let data = {
             'name': this.name,
             'bio': this.bio,
             'memory': this.memory,
+            'events': this.events,
             'turns': this.turns
         };
         const json_data = JSON.stringify(data, null, 4);
-        writeFileSync(this.save_path, json_data, (err) => {
+        writeFileSync(save_path, json_data, (err) => {
             if (err) {
                 throw err;
             }
@@ -163,18 +170,21 @@ export class History {
         });
     }
 
-    load() {
-        if (this.save_path === '' || this.save_path == null) return;
+    load(load_path=null) {
+        if (load_path == null)
+            load_path = this.save_path;
+        if (load_path === '' || load_path == null) return;
         try {
             // load history object from json file
-            const data = readFileSync(this.save_path, 'utf8');
+            const data = readFileSync(load_path, 'utf8');
             const obj = JSON.parse(data);
-            this.turns = obj.turns;
             this.bio = obj.bio;
             this.memory = obj.memory;
-            this.num_saved_turns = obj.num_saved_turns;
+            this.events = obj.events;
+            this.turns = obj.turns;
         } catch (err) {
             console.log('No history file found for ' + this.name + '.');
+            console.log(load_path);
         }
     }
 }

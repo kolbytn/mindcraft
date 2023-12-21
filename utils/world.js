@@ -183,15 +183,16 @@ export function getNearbyPlayerNames(bot) {
 }
 
 
-export function getNearbyBlockTypes(bot) {
+export function getNearbyBlockTypes(bot, distance=16) {
     /**
      * Get a list of all nearby block names.
      * @param {Bot} bot - The bot to get nearby blocks for.
+     * @param {number} distance - The maximum distance to search, default 16.
      * @returns {string[]} - A list of all nearby blocks.
      * @example
      * let blocks = world.getNearbyBlockTypes(bot);
      **/
-    let blocks = getNearbyBlocks(bot, 16);
+    let blocks = getNearbyBlocks(bot, distance);
     let found = [];
     for (let i = 0; i < blocks.length; i++) {
         if (!found.includes(blocks[i].name)) {

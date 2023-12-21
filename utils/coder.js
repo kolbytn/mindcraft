@@ -96,22 +96,22 @@ export class Coder {
             this.executing = false;
             clearTimeout(TIMEOUT);
 
-            this.agent.bot.emit('finished_executing');
             let output = this.formatOutput(this.agent.bot);
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.clear();
+            this.agent.bot.emit("code_terminated");
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             this.executing = false;
             clearTimeout(TIMEOUT);
 
-            this.agent.bot.emit('finished_executing');
             console.error("Code execution triggered catch: " + err);
             let message = this.formatOutput(this.agent.bot);
             message += '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             await this.stop();
+            this.agent.bot.emit("code_terminated");
             return {success: false, message, interrupted, timedout: false};
         }
     }

@@ -1,6 +1,5 @@
 .vscode/
 node_modules/
-bots/
 package-lock.json
 temp.js
 scratch.js

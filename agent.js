@@ -4,19 +4,22 @@ import { History } from './utils/history.js';
 import { Coder } from './utils/coder.js';
 import { getQuery, containsQuery } from './utils/queries.js';
 import { containsCodeBlock } from './utils/skill-library.js';
+import { Events } from './utils/events.js';
 
 
 export class Agent {
-    constructor(name, save_path, clear_memory=false, autostart=false) {
+    constructor(name, save_path, load_path=null, init_message=null) {
         this.name = name;
         this.bot = initBot(name);
         this.history = new History(this, save_path);
         this.history.loadExamples();
         this.coder = new Coder(this);
 
-        if (!clear_memory) {
-            this.history.load();
+        if (load_path) {
+            this.history.load(load_path);
         }
+
+        this.events = new Events(this, this.history.events)
 
         this.bot.on('login', () => {
             this.bot.chat('Hello world! I am ' + this.name);
@@ -26,26 +29,20 @@ export class Agent {
                 if (username === this.name) return;
                 console.log('received message from', username, ':', message);
     
-                this.respond(username, message);
-                this.history.save();
-            });
-    
-            this.bot.on('finished_executing', () => {
-                setTimeout(() => {
-                    if (!this.coder.executing) {
-                        // return to default behavior
-                    }
-                }, 10000);
+                this.handleMessage(username, message);
             });
 
-            if (autostart)
-                this.respond('system', 'Agent process restarted. Notify the user and decide what to do.');
-            
+            if (init_message) {
+                this.handleMessage('system', init_message);
+            } else {
+                this.bot.emit('finished_executing');
+            }
         });
     }
 
-    async respond(username, message) {
-        await this.history.add(username, message);
+    async handleMessage(source, message) {
+        await this.history.add(source, message);
+
         for (let i=0; i<5; i++) {
             let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
             this.history.add(this.name, res);
@@ -66,12 +63,13 @@ export class Agent {
                 if (message) 
                     this.bot.chat(message);
                 let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+
                 if (code) {
                     this.coder.queueCode(code);
                     let code_return = await this.coder.execute();
                     let message = code_return.message;
                     if (code_return.interrupted && !code_return.timedout)
-                        break; // when interupted but not timed out, we were interupted by another conversation. end this one.
+                        break;
                     if (!code_return.success) {
                         message += "\nWrite code to fix the problem and try again.";
                     }
@@ -81,9 +79,12 @@ export class Agent {
             }
             else { // conversation response
                 this.bot.chat(res);
-                console.log('Purely conversational response:', res)
+                console.log('Purely conversational response:', res);
                 break;
             }
         }
+
+        this.history.save();
+        this.bot.emit('finished_executing');
     }
 }
