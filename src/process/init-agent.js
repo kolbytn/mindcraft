@@ -1,4 +1,4 @@
-import { Agent } from '../agent.js';
+import { Agent } from '../agent/agent.js';
 import yargs from 'yargs';
 
 const args = process.argv.slice(2);
@@ -25,8 +25,8 @@ const argv = yargs(args)
     }).argv
 
 const name = argv._[0];
-const save_path = './bots/'+name+'.json';
-const load_path = !!argv.clear_memory ? './bots/'+argv.profile+'.json' : save_path;
+const save_path = `./bots/${name}/memories.json`;
+const load_path = !!argv.clear_memory ? `./bots/${name}/${argv.profile}.json` : save_path;
 const init_message = !!argv.autostart ? 'Agent process restarted. Notify the user and decide what to do.' : null;
 
 new Agent(name, save_path, load_path, init_message);

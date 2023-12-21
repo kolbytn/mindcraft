@@ -1,5 +1,5 @@
-import * as skills from '../utils/skills.js';
-import * as world from '../utils/world.js';
+import * as skills from '../../../src/agent/skills.js';
+import * as world from '../../../src/agent/world.js';
 import Vec3 from 'vec3';
 
 const log = skills.log;

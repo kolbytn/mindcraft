@@ -5,7 +5,7 @@ export class AgentProcess {
         this.name = name;
     }
     start(clear_memory=false, autostart=false, profile='assist') {
-        let args = ['controller/init-agent.js', this.name];
+        let args = ['src/process/init-agent.js', this.name];
         args.push('-p', profile);
         if (clear_memory)
             args.push('-c');
