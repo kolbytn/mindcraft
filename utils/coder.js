@@ -100,6 +100,7 @@ export class Coder {
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.clear();
+            this.agent.bot.emit("code_terminated");
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             this.executing = false;
@@ -110,6 +111,7 @@ export class Coder {
             message += '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             await this.stop();
+            this.agent.bot.emit("code_terminated");
             return {success: false, message, interrupted, timedout: false};
         }
     }

@@ -29,8 +29,12 @@ export class Events {
         });
     }
 
-    executeCode(agent, code) {
-        agent.executeCode(code);
+    async executeCode(agent, code) {
+        console.log('responding to event with code.');
+        agent.coder.queueCode(code);
+        let code_return = await agent.coder.execute();
+        console.log('code return:', code_return.message);
+        agent.history.add('system', code_return.message);
     }
 
     sendThought(agent, message) {
@@ -38,4 +42,7 @@ export class Events {
         agent.handleMessage();
     }
 
+    sendChat(agent, message) {
+        agent.bot.chat(message);
+    }
 }

@@ -26,8 +26,7 @@ const argv = yargs(args)
 
 const name = argv._[0];
 const save_path = './bots/'+name+'.json';
-const profile = argv.profile;
-const load_path = !!argv.clear_memory ? './bots/'+profile+'.json' : save_path;
+const load_path = !!argv.clear_memory ? './bots/'+argv.profile+'.json' : save_path;
 const init_message = !!argv.autostart ? 'Agent process restarted. Notify the user and decide what to do.' : null;
 
 new Agent(name, save_path, load_path, init_message);
