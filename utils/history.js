@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { getQueryDocs } from './queries.js';
-import { getSkillDocs } from './skill-library.js';
+import { getCommandDocs } from './commands.js';
 import { sendRequest, embed, cosineSimilarity } from './gpt.js';
 
 
@@ -39,7 +39,7 @@ export class History {
     getSystemMessage() {
         let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code. Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, omit needless words, and do not give instructions unless asked.`;
         system_message += getQueryDocs();
-        system_message += getSkillDocs();
+        system_message += getCommandDocs();
         if (this.bio != '')
             system_message += '\n\nBio:\n' + this.bio;
         if (this.memory != '')

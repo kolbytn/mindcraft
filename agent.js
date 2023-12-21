@@ -3,7 +3,7 @@ import { sendRequest } from './utils/gpt.js';
 import { History } from './utils/history.js';
 import { Coder } from './utils/coder.js';
 import { getQuery, containsQuery } from './utils/queries.js';
-import { containsCodeBlock } from './utils/skill-library.js';
+import { getCommand, containsCommand } from './utils/commands.js';
 import { Events } from './utils/events.js';
 
 
@@ -46,36 +46,27 @@ export class Agent {
         for (let i=0; i<5; i++) {
             let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
             this.history.add(this.name, res);
-            let query_cmd = containsQuery(res);
-            if (query_cmd) { // contains query
-                let message = res.substring(0, res.indexOf(query_cmd)).trim();
-                if (message) 
-                    this.bot.chat(message);
-                let query = getQuery(query_cmd);
-                let query_res = query.perform(this);
-                console.log('Agent used query:', query_cmd, 'and got:', query_res)
-                this.history.add('system', query_res);
-            }
-            else if (containsCodeBlock(res)) { // contains code block
-                console.log('Agent is executing code:', res)
 
-                let message = res.substring(0, res.indexOf('```')).trim();
-                if (message) 
-                    this.bot.chat(message);
-                let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+            let query_name = containsQuery(res);
+            let command_name = containsCommand(res);
 
-                if (code) {
-                    this.coder.queueCode(code);
-                    let code_return = await this.coder.execute();
-                    let message = code_return.message;
-                    if (code_return.interrupted && !code_return.timedout)
-                        break;
-                    if (!code_return.success) {
-                        message += "\nWrite code to fix the problem and try again.";
-                    }
-                    console.log('code return:', message);
-                    this.history.add('system', message);
-                }
+            if (query_name || command_name) { // contains query or command
+                console.log('Query/Command response:', res);
+
+                let execute_name = query_name ? query_name : command_name;
+                let message = res.substring(0, res.indexOf(execute_name)).trim();
+                if (message)
+                    this.bot.chat(message);
+
+                let execute_func = query_name ? getQuery(query_name) : getCommand(command_name);
+                let execute_res = await execute_func.perform(this);
+
+                console.log('Agent executed:', execute_name, 'and got:', execute_res);
+
+                if (execute_res)
+                    this.history.add('system', execute_res);
+                else
+                    break;
             }
             else { // conversation response
                 this.bot.chat(res);

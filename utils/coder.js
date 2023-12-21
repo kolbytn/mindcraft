@@ -1,4 +1,7 @@
-import { writeFile, readFile, unlink } from 'fs';
+import { writeFile, readFile } from 'fs';
+import { getSkillDocs } from './skill-library.js';
+import { sendRequest } from './gpt.js';
+
 
 export class Coder {
     constructor(agent) {
@@ -47,6 +50,31 @@ export class Coder {
         });
     }
 
+    async generateCode(agent_history, code_history) {
+        let system_message = "You are a minecraft bot that plays minecraft by writing javascript. Given the conversation between you and the user, use the below skills and world queries to write your code.";
+        system_message += getSkillDocs();
+
+        // TODO add examples
+        let messages = [
+            {
+                role: 'user',
+                content: agent_history.stringifyTurns(agent_history.turns),
+            }
+        ]
+        for (let code of code_history) {
+            messages.push({
+                role: 'assistant',
+                content: code.code,
+            });
+            messages.push({
+                role: 'user',
+                content: code.message + "\nRewrite your code to fix the problem and try again."
+            });
+        }
+
+        let res = await sendRequest(messages, system_message);
+        return res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+    }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
     async execute() {

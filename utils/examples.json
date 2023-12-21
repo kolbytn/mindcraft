@@ -12,59 +12,59 @@
     ],
 
     [
-        {"role": "user", "content": "greg: Collect 10 wood"},
-        {"role": "assistant", "content": "Let me see what's nearby... !blocks"},
-        {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
-        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs.\n```\n// I am going to collect 10 oak_log.\nawait skills.collectBlock(bot, 'oak_log', 10);\n```"}
+        {"role": "user", "content": "greg: Collect 5 wood"},
+        {"role": "assistant", "content": "Sure happy to help! !collectwood"},
+        {"role": "system", "content": "Collected 3 oak_log"},
+        {"role": "assistant", "content": "!collectwood"},
+        {"role": "system", "content": "Collected 3 oak_log"},
+        {"role": "assistant", "content": "I have collected 6 oak logs."}
+    ],
+
+    [
+        {"role": "user", "content": "greg: Collect 7 iron ore and 2 dirt"},
+        {"role": "assistant", "content": "!blocks"},
+        {"role": "system", "content": "NEARBY_BLOCKS\n- dirt\n- oak_log\n- iron_ore"},
+        {"role": "assistant", "content": "Sure happy to help! !custom"},
+        {"role": "system", "content": "Code Output:\nYou have collected 7 iron_ore and 2 dirt"},
+        {"role": "assistant", "content": "I have collected 7 iron ore and 2 dirt."}
     ],
 
     [
         {"role": "user", "content": "bobby: Craft a plank"},
-        {"role": "assistant", "content": "Okay! !craftable"},
+        {"role": "assistant", "content": "!craftable"},
         {"role": "system", "content": "CRAFTABLE_ITEMS\n- spruce_planks\n- spruce_wood\n- ladder"},
-        {"role": "assistant", "content": "```\n// I am going to craft a spruce_planks.\nawait skills.craftRecipe(bot, 'spruce_planks');\n```"}
+        {"role": "assistant", "content": "It appears that I can craft spruce planks. I'll do that now. !custom"},
+        {"role": "system", "content": "Code Output:\nCrafted 4 spruce_planks"},
+        {"role": "assistant", "content": "I have crafted 4 spruce planks."}
     ],
 
     [
         {"role": "user", "content": "zZZn98: come here"},
-        {"role": "assistant", "content": "```\n// I am going to navigate to zZZn98.\nawait skills.goToPlayer(bot, 'zZZn98');\n```"},
-        {"role": "system", "content": "Code execution finished successfully."},
+        {"role": "assistant", "content": "On my way! !gotoplayer"},
+        {"role": "system", "content": "Code Output:\nYou have reached the player at position (x, y, z)"},
         {"role": "assistant", "content": "Here!"}
+    ],
+
+    [
+        {"role": "user", "content": "zZZn98: build a dirt tower"},
+        {"role": "assistant", "content": "Sure! !custom"},
+        {"role": "system", "content": "Code Output:\nPlaced dirt block at (x, y, z)"},
+        {"role": "assistant", "content": "I have built a dirt tower."}
     ],
 
     [
         {"role": "user", "content": "hanky: collect some sand and give it to me please"},
-        {"role": "assistant", "content": "Collecting sand...\n```\n// I am going to collect 3 sand and give to hanky.\nawait skills.collectBlock(bot, 'sand', 3);\nawait skills.giveToPlayer(bot, 'sand', 'hanky');\n```"},
-        {"role": "system", "content": "Code Output:\nYou have reached player hanky.\nCode execution finished successfully."},
-        {"role": "assistant", "content": "Here!"}
+        {"role": "assistant", "content": "!blocks"},
+        {"role": "system", "content": "NEARBY_BLOCKS\n- dirt\n- oak_log\n- sand"},
+        {"role": "assistant", "content": "Sure! I see some nearby. !custom"},
+        {"role": "system", "content": "Code Output:\nCollected 3 sand"},
+        {"role": "assistant", "content": "I have collected 3 sand. Here you go!"}
     ],
 
     [
-        {"role": "user", "content": "joe: Follow me!"},
-        {"role": "assistant", "content": "Sure!\n```\n// I am going to follow joe.\nawait skills.followPlayer(bot, 'joe');\n```"}
-    ],
-
-    [
-        {"role": "user", "content": "hanky: kill that zombie!"},
-        {"role": "assistant", "content": "I'm attacking!\n```\n//I'm going to attack the nearest zombie.\nawait skills.attackMob(bot, 'zombie');\n```"},
-        {"role": "system", "content": "Code Output:\nNo zombie nearby"},
-        {"role": "assistant", "content": "I could not find a zombie nearby."}
-    ],
-
-    [
-        {"role": "user", "content": "billybob: stop"},
-        {"role": "assistant", "content": "```\n// I am going to write empty code to stop whatever I am doing\n```"}
-    ],
-
-    [
-        {"role": "user", "content": "maya: go to the nearest oak log"},
-        {"role": "assistant", "content": "```\n// I am navigating to the nearest oak log.\nawait skills.goToPosition(bot, nearestOakLog.x, nearestOakLog.y, nearestOakLog.z);\n```"},
-        {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
-        {"role": "assistant", "content": "Apologies, I made an error. Let me try that again.```\n// I am navigating to the nearest oak log.\nlet position = world.getNearestBlock(bot, 'oak_log', 20);\nawait skills.goToPosition(bot, position.x, position.y, position.z);\n```"}
-    ],
-
-    [
-        {"role": "user", "content": "trixy88: craft some sticks"},
-        {"role": "assistant", "content": "```\n// I am going to craft 8 sticks\nawait skills.craftRecipe(bot, 'stick');\nlog(bot, crafted)\nawait skills.craftRecipe(bot, 'stick');```"}
+        {"role": "user", "content": "billybob: stop what you're doing."},
+        {"role": "assistant", "content": "!abort"},
+        {"role": "system", "content": "Execution stopped."},
+        {"role": "assistant", "content": "Okay I stopped."}
     ]
 ]
