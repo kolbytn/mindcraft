@@ -38,8 +38,7 @@ export class Events {
     }
 
     sendThought(agent, message) {
-        agent.history.add(agent.name, message);
-        agent.handleMessage();
+        agent.handleMessage(agent.name, message);
     }
 
     sendChat(agent, message) {

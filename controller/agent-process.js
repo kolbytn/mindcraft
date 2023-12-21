@@ -22,8 +22,8 @@ export class AgentProcess {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);
             
             if (code !== 0) {
-                // agent must run for at least 30 seconds before restarting
-                if (Date.now() - last_restart < 30 * 1000) {
+                // agent must run for at least 10 seconds before restarting
+                if (Date.now() - last_restart < 10000) {
                     console.error('Agent process exited too quickly. Killing entire process. Goodbye.');
                     process.exit(1);
                 }
