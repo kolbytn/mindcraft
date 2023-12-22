@@ -1,4 +1,4 @@
-import { getAllBlockIds } from '../utils/mcdata.js';
+import { getAllBlockIds } from './mcdata.js';
 
 
 export function getNearestBlocks(bot, block_types, distance=16, count=1) {

@@ -1,10 +1,10 @@
-import { initBot } from '../utils/mcdata.js';
-import { sendRequest } from '../utils/gpt.js';
-import { History } from './history.js';
-import { Coder } from './coder.js';
-import { getQuery, containsQuery } from './queries.js';
-import { containsCodeBlock } from './skill-library.js';
-import { Events } from './events.js';
+import { initBot } from './utils/mcdata.js';
+import { sendRequest } from './utils/gpt.js';
+import { History } from './utils/history.js';
+import { Coder } from './utils/coder.js';
+import { getQuery, containsQuery } from './utils/queries.js';
+import { containsCodeBlock } from './utils/skill-library.js';
+import { Events } from './utils/events.js';
 
 
 export class Agent {

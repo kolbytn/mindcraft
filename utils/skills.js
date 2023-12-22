@@ -1,4 +1,4 @@
-import { getItemId, getItemName } from "../utils/mcdata.js";
+import { getItemId, getItemName } from "./mcdata.js";
 import { getNearestBlocks, getNearestBlock, getInventoryCounts, getInventoryStacks, getNearbyMobs, getNearbyBlocks } from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';

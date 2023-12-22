@@ -6,14 +6,14 @@ export class Coder {
         this.queued_code = '';
         this.current_code = '';
         this.file_counter = 0;
-        this.fp = '/bots/'+agent.name+'/action-code/';
+        this.fp = './agent_code/';
         this.agent.bot.interrupt_code = false;
         this.executing = false;
         this.agent.bot.output = '';
         this.code_template = '';
         this.timedout = false;
 
-        readFile('./bots/template.js', 'utf8', (err, data) => {
+        readFile(this.fp+'template.js', 'utf8', (err, data) => {
             if (err) throw err;
             this.code_template = data;
         });
@@ -67,7 +67,7 @@ export class Coder {
 
         console.log("writing to file...", src)
 
-        let filename = this.file_counter + '.js';
+        let filename = this.fp + this.file_counter + '.js';
         // if (this.file_counter > 0) {
         //     let prev_filename = this.fp + (this.file_counter-1) + '.js';
         //     unlink(prev_filename, (err) => {
@@ -77,7 +77,7 @@ export class Coder {
         // } commented for now, useful to keep files for debugging
         this.file_counter++;
 
-        let write_result = await this.writeFilePromise('.' + this.fp + filename, src)
+        let write_result = await this.writeFilePromise(filename, src);
         
         if (write_result) {
             console.error('Error writing code execution file: ' + result);
@@ -86,7 +86,7 @@ export class Coder {
         let TIMEOUT;
         try {
             console.log('executing code...\n');
-            let execution_file = await import('../..' + this.fp + filename);
+            let execution_file = await import('.'+filename);
             await this.stop();
             this.current_code = this.queued_code;
 
