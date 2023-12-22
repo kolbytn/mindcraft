@@ -4,3 +4,4 @@ package-lock.json
 scratch.js
 !agent_code/template.js
 bots/**/action-code/**
+bots/**/save.json

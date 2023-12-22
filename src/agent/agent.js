@@ -8,16 +8,14 @@ import { Events } from './events.js';
 
 
 export class Agent {
-    constructor(name, save_path, load_path=null, init_message=null) {
+    constructor(name, profile=null, init_message=null) {
         this.name = name;
         this.bot = initBot(name);
-        this.history = new History(this, save_path);
+        this.history = new History(this);
         this.history.loadExamples();
         this.coder = new Coder(this);
 
-        if (load_path) {
-            this.history.load(load_path);
-        }
+        this.history.load(profile);
 
         this.events = new Events(this, this.history.events)
 

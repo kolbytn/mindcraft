@@ -1,4 +1,4 @@
-import { writeFile, readFile, unlink } from 'fs';
+import { writeFile, readFile, unlink, mkdirSync } from 'fs';
 
 export class Coder {
     constructor(agent) {
@@ -17,6 +17,8 @@ export class Coder {
             if (err) throw err;
             this.code_template = data;
         });
+
+        mkdirSync('.' + this.fp, { recursive: true });
     }
 
     queueCode(code) {
