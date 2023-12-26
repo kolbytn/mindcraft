@@ -12,23 +12,35 @@ export class Agent {
         this.name = name;
         this.bot = initBot(name);
         this.history = new History(this);
-        this.history.loadExamples();
         this.coder = new Coder(this);
 
         this.history.load(profile);
 
         this.events = new Events(this, this.history.events)
 
-        this.bot.on('login', () => {
+        this.bot.on('login', async () => {
             this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
-
+            
+            const ignore_messages = [
+                "Set own game mode to",
+                "Set the time to",
+                "Set the difficulty to",
+                "Teleported ",
+                "Set the weather to",
+                "Gamerule "
+            ];
             this.bot.on('chat', (username, message) => {
                 if (username === this.name) return;
+                
+                if (ignore_messages.some((m) => message.startsWith(m))) return;
+
                 console.log('received message from', username, ':', message);
     
                 this.handleMessage(username, message);
             });
+
+            await this.history.loadExamples();
 
             if (init_message) {
                 this.handleMessage('system', init_message);
@@ -39,7 +51,8 @@ export class Agent {
     }
 
     async handleMessage(source, message) {
-        await this.history.add(source, message);
+        if (!!source && !!message)
+            await this.history.add(source, message);
 
         for (let i=0; i<5; i++) {
             let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
