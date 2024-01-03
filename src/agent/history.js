@@ -1,13 +1,13 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { getQueryDocs } from './queries.js';
 import { getSkillDocs } from './skill-library.js';
-import { sendRequest, embed, cosineSimilarity } from './gpt.js';
+import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
 
 
 export class History {
-    constructor(agent, save_path) {
+    constructor(agent) {
         this.name = agent.name;
-        this.save_path = save_path;
+        this.save_path = `./bots/${this.name}/save.json`;
         this.turns = [];
 
         // These define an agent's long term memory
@@ -86,7 +86,7 @@ export class History {
     async loadExamples() {
         let examples = [];
         try {
-            const data = readFileSync('utils/examples.json', 'utf8');
+            const data = readFileSync('./src/examples.json', 'utf8');
             examples = JSON.parse(data);
         } catch (err) {
             console.log('No history examples found.');
@@ -148,12 +148,9 @@ export class History {
             await this.setExamples();
     }
 
-    save(save_path=null) {
-        if (save_path == null)
-            save_path = this.save_path;
-        if (save_path === '' || save_path == null) return;
+    save() {
         // save history object to json file
-        mkdirSync('bots', { recursive: true });
+        mkdirSync(`./bots/${this.name}`, { recursive: true });
         let data = {
             'name': this.name,
             'bio': this.bio,
@@ -162,7 +159,7 @@ export class History {
             'turns': this.turns
         };
         const json_data = JSON.stringify(data, null, 4);
-        writeFileSync(save_path, json_data, (err) => {
+        writeFileSync(this.save_path, json_data, (err) => {
             if (err) {
                 throw err;
             }
@@ -170,10 +167,8 @@ export class History {
         });
     }
 
-    load(load_path=null) {
-        if (load_path == null)
-            load_path = this.save_path;
-        if (load_path === '' || load_path == null) return;
+    load(profile) {
+        const load_path = profile? `./bots/${this.name}/${profile}.json` : this.save_path;
         try {
             // load history object from json file
             const data = readFileSync(load_path, 'utf8');
@@ -183,8 +178,7 @@ export class History {
             this.events = obj.events;
             this.turns = obj.turns;
         } catch (err) {
-            console.log('No history file found for ' + this.name + '.');
-            console.log(load_path);
+            console.error(`No file for profile '${load_path}' for agent ${this.name}.`);
         }
     }
 }

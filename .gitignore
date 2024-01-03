@@ -1,7 +1,7 @@
 .vscode/
 node_modules/
 package-lock.json
-temp.js
 scratch.js
-agent_code/**
 !agent_code/template.js
+bots/**/action-code/**
+bots/**/save.json

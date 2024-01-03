@@ -4,13 +4,12 @@ export class AgentProcess {
     constructor(name) {
         this.name = name;
     }
-    start(clear_memory=false, autostart=false, profile='assist') {
-        let args = ['controller/init-agent.js', this.name];
-        args.push('-p', profile);
-        if (clear_memory)
-            args.push('-c');
-        if (autostart)
-            args.push('-a');
+    start(profile='assist', init_message=null) {
+        let args = ['src/process/init-agent.js', this.name];
+        if (profile)
+            args.push('-p', profile);
+        if (init_message)
+            args.push('-m', init_message);
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
@@ -28,7 +27,7 @@ export class AgentProcess {
                     process.exit(1);
                 }
                 console.log('Restarting agent...');
-                this.start(false, true);
+                this.start('save', 'Agent process restarted. Notify the user and decide what to do.');
                 last_restart = Date.now();
             }
         });
