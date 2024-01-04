@@ -1,4 +1,7 @@
-import { writeFile, readFile, unlink, mkdirSync } from 'fs';
+import { writeFile, readFile, mkdirSync } from 'fs';
+import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
+import { stringifyTurns } from '../utils/text.js';
+
 
 export class Coder {
     constructor(agent) {
@@ -12,6 +15,8 @@ export class Coder {
         this.agent.bot.output = '';
         this.code_template = '';
         this.timedout = false;
+        this.fewshot = 3;
+        this.examples = [];
 
         readFile('./bots/template.js', 'utf8', (err, data) => {
             if (err) throw err;
@@ -49,6 +54,92 @@ export class Coder {
         });
     }
 
+    async loadExamples() {
+        let examples = [];
+        try {
+            const data = readFileSync('./src/examples.json', 'utf8');
+            examples = JSON.parse(data);
+        } catch (err) {
+            console.log('No history examples found.');
+        }
+
+        this.examples = [];
+        for (let example of examples) {
+            let context = '';
+            for (let turn of example.conversation) {
+                context += turn.content + '\n';
+            }
+            context = context.trim();
+            const embedding = await embed(context);
+            this.examples.push({'embedding': embedding, 'turns': example});
+        }
+
+        await this.setExamples();
+    }
+
+    async sortExamples(messages) {
+        let context = '';
+        for (let turn of messages) {
+            context += turn.content + '\n';
+        }
+        context = context.trim();
+        const embedding = await embed(context);
+        this.examples.sort((a, b) => {
+            return cosineSimilarity(a.embedding, embedding) - cosineSimilarity(b.embedding, embedding);
+        });
+    }
+
+    async generateCode(agent_history) {
+        let system_message = "You are a minecraft bot that plays minecraft by writing javascript. Given the conversation between you and the user, use the provided skills and world queries to write your code. You will then be given a response to your code. If you are satisfied with the response, return output without writing any additional code. If you want to try again, output the code you want to try.";
+        system_message += getSkillDocs();
+
+        let messages = [];
+        this.sortExamples(agent_history.turns);
+        for (let example of this.examples.slice(-this.fewshot)) {
+            messages.push({
+                role: 'user',
+                content: stringifyTurns(example.conversation)
+            });
+            for (let i = 0; i < example.coder.length; i++) {
+                messages.push({
+                    role: i % 2 == 0 ? 'assistant' : 'user',
+                    content: example.coder[i]
+                });
+            }
+        }
+        messages.push({
+            role: 'user',
+            content: stringifyTurns(agent_history.turns),
+        });
+
+        let final_message = 'No code generated.';
+        for (let i=0; i<5; i++) {
+
+            let res = await sendRequest(messages, system_message);
+            let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+
+            if (!code)
+                break;
+
+            agent.coder.queueCode(code);
+            let code_return = await agent.coder.execute();
+
+            if (code_return.interrupted && !custom_return.timedout)
+                break;
+
+            messages.push({
+                role: 'assistant',
+                content: res
+            });
+            messages.push({
+                role: 'user',
+                content: code_return.message
+            });
+            final_message = code_return.message;
+        }
+
+        return final_message;
+    }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
     async execute() {

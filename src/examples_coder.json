@@ -1,0 +1,52 @@
+[
+    {
+        "conversation": [
+            {"role": "user", "content": "greg: Collect 10 wood"},
+            {"role": "assistant", "content": "Let me see what's nearby... !blocks"},
+            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"}
+        ],
+        "coder": [
+            {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs.\n```\n// I am going to collect 10 oak_log.\nawait skills.collectBlock(bot, 'oak_log', 10);\n```"},
+            {"role": "user", "content": "Code execution finished successfully."},        
+            {"role": "assistant", "content": "DONE"}
+        ]
+    },
+
+    {
+        "conversation": [
+            {"role": "user", "content": "bobby: Craft a plank"},
+            {"role": "assistant", "content": "Okay! !craftable"},
+            {"role": "system", "content": "CRAFTABLE_ITEMS\n- spruce_planks\n- spruce_wood\n- ladder"}
+        ],
+        "coder": [
+            {"role": "assistant", "content": "```\n// I am going to craft a spruce_planks.\nawait skills.craftRecipe(bot, 'spruce_planks');\n```"},
+            {"role": "user", "content": "Code execution finished successfully."},        
+            {"role": "assistant", "content": "DONE"}
+        ]
+    },
+
+    {
+        "conversation": [
+            {"role": "user", "content": "zZZn98: come here"}
+        ],
+        "coder": [
+            {"role": "assistant", "content": "```\n// I am going to navigate to zZZn98.\nawait skills.goToPlayer(bot, 'zZZn98');\n```"},
+            {"role": "user", "content": "Code execution finished successfully."},
+            {"role": "assistant", "content": "DONE"}
+        ]
+    },
+
+    {
+        "conversation": [
+            {"role": "user", "content": "maya: go to the nearest oak log"}
+        ],
+        "coder": [
+            {"role": "assistant", "content": "```\n// I am navigating to the nearest oak log.\nawait skills.goToPosition(bot, nearestOakLog.x, nearestOakLog.y, nearestOakLog.z);\n```"},
+            {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
+            {"role": "assistant", "content": "Apologies, I made an error. Let me try that again.```\n// I am navigating to the nearest oak log.\nlet position = world.getNearestBlock(bot, 'oak_log', 20);\nawait skills.goToPosition(bot, position.x, position.y, position.z);\n```"},
+            {"role": "user", "content": "Code execution finished successfully."},
+            {"role": "assistant", "content": "DONE"}
+        ]
+    }
+
+]

@@ -547,7 +547,7 @@ export async function goToPlayer(bot, username) {
         log(bot, `Failed to reach ${username}.`);
         return false;
     }
-    log(bot, `Player is now at ${player.position}.`);
+    log(bot, `You have reached the player at position ${player.position}.`);
     return true;
 }
 
