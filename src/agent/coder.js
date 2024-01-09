@@ -1,6 +1,7 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
 import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
 import { stringifyTurns } from '../utils/text.js';
+import { getSkillDocs } from './skill-library.js';
 
 
 export class Coder {
@@ -54,91 +55,59 @@ export class Coder {
         });
     }
 
-    async loadExamples() {
-        let examples = [];
-        try {
-            const data = readFileSync('./src/examples.json', 'utf8');
-            examples = JSON.parse(data);
-        } catch (err) {
-            console.log('No history examples found.');
-        }
-
-        this.examples = [];
-        for (let example of examples) {
-            let context = '';
-            for (let turn of example.conversation) {
-                context += turn.content + '\n';
-            }
-            context = context.trim();
-            const embedding = await embed(context);
-            this.examples.push({'embedding': embedding, 'turns': example});
-        }
-
-        await this.setExamples();
-    }
-
-    async sortExamples(messages) {
-        let context = '';
-        for (let turn of messages) {
-            context += turn.content + '\n';
-        }
-        context = context.trim();
-        const embedding = await embed(context);
-        this.examples.sort((a, b) => {
-            return cosineSimilarity(a.embedding, embedding) - cosineSimilarity(b.embedding, embedding);
-        });
-    }
 
     async generateCode(agent_history) {
-        let system_message = "You are a minecraft bot that plays minecraft by writing javascript. Given the conversation between you and the user, use the provided skills and world queries to write your code. You will then be given a response to your code. If you are satisfied with the response, return output without writing any additional code. If you want to try again, output the code you want to try.";
+        let system_message = "You are a minecraft bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world queries to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
         system_message += getSkillDocs();
 
-        let messages = [];
-        this.sortExamples(agent_history.turns);
-        for (let example of this.examples.slice(-this.fewshot)) {
-            messages.push({
-                role: 'user',
-                content: stringifyTurns(example.conversation)
-            });
-            for (let i = 0; i < example.coder.length; i++) {
-                messages.push({
-                    role: i % 2 == 0 ? 'assistant' : 'user',
-                    content: example.coder[i]
-                });
-            }
-        }
-        messages.push({
-            role: 'user',
-            content: stringifyTurns(agent_history.turns),
-        });
+        system_message += "\n\nExamples:\nUser zZZn98: come here \nAssistant: I am going to navigate to zZZn98. ```\nawait skills.goToPlayer(bot, 'zZZn98');```\nSystem: Code execution finished successfully.\nAssistant: Done.";
 
-        let final_message = 'No code generated.';
+        let messages = agent_history.getHistory(false);
+
+        let code_return = null;
+        let failures = 0;
         for (let i=0; i<5; i++) {
-
+            console.log(messages)
             let res = await sendRequest(messages, system_message);
+            console.log('Code generation response:', res)
+            let contains_code = res.indexOf('```') !== -1;
+            if (!contains_code) {
+                if (code_return) {
+                    agent_history.add('system', code_return.message);
+                    agent_history.add(this.agent.name, res);
+                    this.agent.bot.chat(res);
+                    return;
+                }
+                if (failures >= 1) {
+                    agent_history.add('system', 'Action failed, agent would not write code.');
+                    return;
+                }
+                messages.push({
+                    role: 'system', 
+                    content: 'Error: no code provided. Write code in codeblock in your response. ``` // example ```'}
+                );
+                failures++;
+                continue;
+            }
             let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
-            if (!code)
-                break;
+            this.queueCode(code);
+            code_return = await this.execute();
 
-            agent.coder.queueCode(code);
-            let code_return = await agent.coder.execute();
-
-            if (code_return.interrupted && !custom_return.timedout)
-                break;
+            if (code_return.interrupted && !code_return.timedout)
+                return;
 
             messages.push({
                 role: 'assistant',
                 content: res
             });
             messages.push({
-                role: 'user',
+                role: 'system',
                 content: code_return.message
             });
-            final_message = code_return.message;
         }
-
-        return final_message;
+        
+        return 
     }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
