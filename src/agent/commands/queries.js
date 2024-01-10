@@ -1,15 +1,15 @@
-import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from './world.js';
-import { getAllItems } from '../utils/mcdata.js';
-
+import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from '../world.js';
+import { getAllItems } from '../../utils/mcdata.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
 }
 
-const queryList = [
+// queries are commands that just return strings and don't affect anything in the world
+export const queryList = [
     {
         name: "!stats",
-        description: "Get your bot's stats", 
+        description: "Get your bot's location, health, and time of day.", 
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'STATS';
@@ -103,29 +103,3 @@ const queryList = [
         }
     }
 ];
-
-const queryMap = {};
-for (let query of queryList) {
-    queryMap[query.name] = query;
-}
-
-export function getQuery(name) {
-    return queryMap[name];
-}
-
-export function containsQuery(message) {
-    for (let query of queryList) {
-        if (message.includes(query.name)) {
-            return query.name;
-        }
-    }
-    return null;
-}
-
-export function getQueryDocs() {
-    let docs = `\n*QUERY DOCS\n You can use the following commands to query for information about the world. Use the query name in your response and the next input will have the requested information.\n`;
-    for (let query of queryList) {
-        docs += query.name + ': ' + query.description + '\n';
-    }
-    return docs + '*\n';
-}

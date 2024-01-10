@@ -2,7 +2,6 @@ import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { getQuery, containsQuery } from './queries.js';
 import { getCommand, containsCommand } from './commands.js';
 import { Events } from './events.js';
 
@@ -54,25 +53,32 @@ export class Agent {
         if (!!source && !!message)
             await this.history.add(source, message);
 
+        const user_command_name = containsCommand(message);
+        if (user_command_name) {
+            this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
+            let execute_res = await getCommand(user_command_name).perform(this);
+            if (execute_res)
+                this.bot.chat(execute_res);
+            else
+                this.bot.chat('Finished command.');
+            return;
+        }
+
         for (let i=0; i<5; i++) {
             let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
             this.history.add(this.name, res);
 
-            let query_name = containsQuery(res);
             let command_name = containsCommand(res);
 
-            if (query_name || command_name) { // contains query or command
+            if (command_name) { // contains query or command
                 console.log('Query/Command response:', res);
 
-                let execute_name = query_name ? query_name : command_name;
-                let message = res.substring(0, res.indexOf(execute_name)).trim();
-                if (message)
-                    this.bot.chat(message);
+                let message = res.substring(0, res.indexOf(command_name)).trim();
 
-                let execute_func = query_name ? getQuery(query_name) : getCommand(command_name);
-                let execute_res = await execute_func.perform(this);
+                this.bot.chat(`${message}  *used ${command_name.substring(1)}*`);
+                let execute_res = await getCommand(command_name).perform(this);
 
-                console.log('Agent executed:', execute_name, 'and got:', execute_res);
+                console.log('Agent executed:', command_name, 'and got:', execute_res);
 
                 if (execute_res)
                     this.history.add('system', execute_res);
