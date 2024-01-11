@@ -2,10 +2,10 @@ import * as skills from '../skills.js';
 import * as world from '../world.js';
 
 function wrapExecution(func) {
-    return async function (agent) {
+    return async function (agent, ...args) {
         agent.bot.output = '';
         agent.coder.executing = true;
-        let res = await func(agent);
+        let res = await func(agent, ...args);
         if (res)
             agent.bot.output += '\n' + res;
         agent.coder.executing = false;
@@ -16,8 +16,8 @@ function wrapExecution(func) {
 // const actionsList = [
 export const actionsList = [
     {
-        name: '!execute_action',
-        description: 'Write and execute code to perform custom behaviors not available as a command.', 
+        name: '!newAction',
+        description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
         perform: async function (agent) {
             let res = await agent.coder.generateCode(agent.history);
             if (res)
@@ -32,24 +32,19 @@ export const actionsList = [
             return 'Agent stopped.';
         }
     },
+    {
+        name: '!goToPlayer',
+        description: 'Go to the nearest player. Ex: !goToPlayer("steve")',
+        params: {'player_name': '(string) The name of the player to go to.'},
+        perform: wrapExecution(async (agent, player_name) => {
+            return await skills.goToPlayer(agent.bot, player_name);
+        })
+    },
     // {
-    //     name: '!gotoplayer',
-    //     description: 'Go to the nearest player.',
-    //     perform: wrapExecution(async (agent) => {
-    //         let player_name = world.getNearbyPlayerNames(agent.bot);
-    //         if (player_name.length == 0)
-    //             return 'No players nearby.';
-    //         await skills.goToPlayer(agent.bot, player_name[0]);
-    //     })
-    // },
-    // {
-    //     name: '!followplayer',
+    //     name: '!followPlayer',
     //     description: 'Follow the nearest player.',
-    //     perform: wrapExecution(async (agent) => {
-    //         let player_name = world.getNearbyPlayerNames(agent.bot);
-    //         if (player_name.length == 0)
-    //             return 'No players nearby.';
-    //         await skills.followPlayer(agent.bot, player_name[0]);
+    //     perform: wrapExecution(async (agent, player_name) => {
+    //         await skills.followPlayer(agent.bot, player_name);
     //     })
     // },
     // {

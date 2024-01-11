@@ -15,56 +15,56 @@
         {"role": "user", "content": "greg: Collect 10 wood"},
         {"role": "assistant", "content": "Let me see what's nearby... !blocks"},
         {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
-        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !execute_action"}
+        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !newAction"}
     ],
 
     [
         {"role": "user", "content": "bobby: Craft a plank"},
         {"role": "assistant", "content": "Okay! !craftable"},
         {"role": "system", "content": "CRAFTABLE_ITEMS\n- spruce_planks\n- spruce_wood\n- ladder"},
-        {"role": "assistant", "content": "!execute_action"}
+        {"role": "assistant", "content": "!newAction"}
     ],
 
     [
         {"role": "user", "content": "zZZn98: come here"},
-        {"role": "assistant", "content": "!execute_action"},
+        {"role": "assistant", "content": "!goToPlayer('sumixam0')"},
         {"role": "system", "content": "Code execution finished successfully."},
         {"role": "assistant", "content": "Here!"}
     ],
 
     [
         {"role": "user", "content": "hanky: collect some sand and give it to me please"},
-        {"role": "assistant", "content": "Collecting sand... !execute_action"},
+        {"role": "assistant", "content": "Collecting sand... !newAction"},
         {"role": "system", "content": "Code Output:\nYou have reached player hanky.\nCode execution finished successfully."},
         {"role": "assistant", "content": "Here!"}
     ],
 
     [
         {"role": "user", "content": "joe: Follow me!"},
-        {"role": "assistant", "content": "Sure! !execute_action"}
+        {"role": "assistant", "content": "Sure! !newAction"}
     ],
 
     [
         {"role": "user", "content": "hanky: kill that zombie!"},
-        {"role": "assistant", "content": "I'm attacking! !execute_action"},
+        {"role": "assistant", "content": "I'm attacking! !newAction"},
         {"role": "system", "content": "Code Output:\nNo zombie nearby"},
         {"role": "assistant", "content": "I could not find a zombie nearby."}
     ],
 
     [
         {"role": "user", "content": "billybob: stop"},
-        {"role": "assistant", "content": "!execute_action"}
+        {"role": "assistant", "content": "!newAction"}
     ],
 
     [
         {"role": "user", "content": "maya: go to the nearest oak log"},
-        {"role": "assistant", "content": "!execute_action`"},
+        {"role": "assistant", "content": "!newAction`"},
         {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
         {"role": "assistant", "content": "Apologies, I made an error. Would you like me to try again?"}
     ],
 
     [
         {"role": "user", "content": "trixy88: craft some sticks"},
-        {"role": "assistant", "content": "!execute_action"}
+        {"role": "assistant", "content": "!newAction"}
     ]
 ]

@@ -2,7 +2,7 @@ import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { getCommand, containsCommand } from './commands.js';
+import { containsCommand, executeCommand } from './commands.js';
 import { Events } from './events.js';
 
 
@@ -56,7 +56,7 @@ export class Agent {
         const user_command_name = containsCommand(message);
         if (user_command_name) {
             this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
-            let execute_res = await getCommand(user_command_name).perform(this);
+            let execute_res = await executeCommand(this, message);
             if (execute_res)
                 this.bot.chat(execute_res);
             else
@@ -73,10 +73,10 @@ export class Agent {
             if (command_name) { // contains query or command
                 console.log('Query/Command response:', res);
 
-                let message = res.substring(0, res.indexOf(command_name)).trim();
+                let pre_message = res.substring(0, res.indexOf(command_name)).trim();
 
-                this.bot.chat(`${message}  *used ${command_name.substring(1)}*`);
-                let execute_res = await getCommand(command_name).perform(this);
+                this.bot.chat(`${pre_message}  *used ${command_name.substring(1)}*`);
+                let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
 
