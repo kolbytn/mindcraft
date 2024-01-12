@@ -15,7 +15,7 @@
         {"role": "user", "content": "greg: Collect 10 wood"},
         {"role": "assistant", "content": "Let me see what's nearby... !blocks"},
         {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
-        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !newAction"}
+        {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !collectBlocks('oak_log', 10)"}
     ],
 
     [
@@ -27,7 +27,7 @@
 
     [
         {"role": "user", "content": "zZZn98: come here"},
-        {"role": "assistant", "content": "!goToPlayer('sumixam0')"},
+        {"role": "assistant", "content": "On my way! !goToPlayer('zZZn98')"},
         {"role": "system", "content": "Code execution finished successfully."},
         {"role": "assistant", "content": "Here!"}
     ],
@@ -41,19 +41,19 @@
 
     [
         {"role": "user", "content": "joe: Follow me!"},
-        {"role": "assistant", "content": "Sure! !newAction"}
+        {"role": "assistant", "content": "Sure! !followPlayer('joe')"}
     ],
 
     [
         {"role": "user", "content": "hanky: kill that zombie!"},
-        {"role": "assistant", "content": "I'm attacking! !newAction"},
+        {"role": "assistant", "content": "I'm attacking! !attack('zombie')"},
         {"role": "system", "content": "Code Output:\nNo zombie nearby"},
         {"role": "assistant", "content": "I could not find a zombie nearby."}
     ],
 
     [
         {"role": "user", "content": "billybob: stop"},
-        {"role": "assistant", "content": "!newAction"}
+        {"role": "assistant", "content": "Sure. !stop"}
     ],
 
     [

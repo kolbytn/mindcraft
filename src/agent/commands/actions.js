@@ -40,50 +40,31 @@ export const actionsList = [
             return await skills.goToPlayer(agent.bot, player_name);
         })
     },
-    // {
-    //     name: '!followPlayer',
-    //     description: 'Follow the nearest player.',
-    //     perform: wrapExecution(async (agent, player_name) => {
-    //         await skills.followPlayer(agent.bot, player_name);
-    //     })
-    // },
-    // {
-    //     name: '!collectwood',
-    //     description: 'Collect 3 wood logs of any type.',
-    //     perform: wrapExecution(async (agent) => {
-    //         let blocks = world.getNearbyBlockTypes(agent.bot);
-    //         for (let block of blocks) {
-    //             if (block.includes('log')) {
-    //                 await skills.collectBlock(agent.bot, block, 3);
-    //                 return;
-    //             }
-    //         }
-    //         return 'No wood nearby.';
-    //     })
-    // },
-    // {
-    //     name: '!collectstone',
-    //     description: 'Collect 3 cobblestone blocks.',
-    //     perform: wrapExecution(async (agent) => {
-    //         let inventory = world.getInventoryCounts(agent.bot);
-    //         for (const item in inventory) {
-    //             if (inventory[item] && inventory[item] > 0 && item.includes('pickaxe')) {
-    //                 if (await skills.equip(agent.bot, 'pickaxe'))
-    //                     await skills.collectBlock(agent.bot, 'stone', 3);
-    //                 return;
-    //             }
-    //         }
-    //         return 'No pickaxe in inventory.';
-    //     })
-    // },
-    // {
-    //     name: '!fightmob',
-    //     description: 'Fight the nearest mob.',
-    //     perform: wrapExecution(async (agent) => {
-    //         let mobs = world.getNearbyMobTypes(agent.bot);
-    //         if (mobs.length == 0)
-    //             return 'No mobs nearby.';
-    //         await skills.attackMob(agent.bot, mobs[0], true);
-    //     })
-    // }
+    {
+        name: '!followPlayer',
+        description: 'Endlessly follow the nearest player. Ex: !followPlayer("stevie")',
+        params: {'player_name': '(string) The name of the player to follow.'},
+        perform: wrapExecution(async (agent, player_name) => {
+            await skills.followPlayer(agent.bot, player_name);
+        })
+    },
+    {
+        name: '!collectBlocks',
+        description: 'Collect the nearest blocks of a given type.',
+        params: {
+            'type': '(string) The block type to collect. Ex: !collectBlocks("stone", 10)',
+            'num': '(number) The number of blocks to collect.'
+        },
+        perform: wrapExecution(async (agent, type, num) => {
+            await skills.collectBlock(agent.bot, type, num);
+        })
+    },
+    {
+        name: '!attack',
+        description: 'Attack and kill the nearest entity of a given type.',
+        params: {'type': '(string) The type of entity to attack.'},
+        perform: wrapExecution(async (agent, type) => {
+            await skills.attackMob(agent.bot, type, true);
+        })
+    }
 ];

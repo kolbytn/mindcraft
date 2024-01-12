@@ -81,7 +81,7 @@ export async function executeCommand(agent, message) {
 export function getCommandDocs() {
     let docs = `\n*COMMAND DOCS\n You can use the following commands to perform actions and get information about the world. 
     Use the commands with the syntax: !commandName or !commandName("arg1", 1.2, ...) if the command takes arguments.\n
-    Do not use codeblocks. Only use one command in each response, trailing commands will be ignored. Use these commands frequently in your responses!\n`;
+    Do not use codeblocks. Only use one command in each response, trailing commands and comments will be ignored. Use these commands frequently in your responses!\n`;
     for (let command of commandList) {
         docs += command.name + ': ' + command.description + '\n';
         if (command.params) {
