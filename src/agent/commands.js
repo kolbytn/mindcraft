@@ -25,6 +25,7 @@ export function containsCommand(message) {
     return null;
 }
 
+// todo: handle arrays?
 function parseCommandMessage(message) {
     const commandMatch = message.match(commandRegex);
     if (commandMatch) {
@@ -43,6 +44,8 @@ function parseCommandMessage(message) {
                     args[i] = arg.substring(1, arg.length-1);
                 } else if (!isNaN(arg)) {
                     args[i] = Number(arg);
+                } else if (arg === 'true' || arg === 'false') {
+                    args[i] = arg === 'true';
                 }
             }
         }
@@ -70,7 +73,7 @@ export async function executeCommand(agent, message) {
         }
         console.log('parsed command:', parsed);
         if (numArgs !== numParams(command))
-            return `Command ${command.name} was given incorrect number of arguments`;
+            return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
         else
             return await command.perform(agent, ...parsed.args);
     }
