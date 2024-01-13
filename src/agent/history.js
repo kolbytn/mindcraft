@@ -25,19 +25,21 @@ export class History {
     }
 
     getHistory(include_examples=true) {
-        let history = [];
+        // return deep copy of history
+        let turns = JSON.parse(JSON.stringify(this.turns));
         if (include_examples && this.selected_examples.length > 0) {
+            let example_messages = 'Here are some examples of how to respond:\n';
             for (let example of this.selected_examples) {
-                history = history.concat(example.turns);
+                example_messages += 'Example:\n' + stringifyTurns(example.turns) + '\n';
             }
+            return [{'role': 'system', 'content': example_messages}].concat(turns);
         }
-        history = history.concat(this.turns);
-
-        return history;
+        return turns;
     }
 
     getSystemMessage() {
-        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code. Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, use actions often, and do not give instructions unless asked.`;
+        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by using commands. Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, use commands often, and do not give instructions unless asked.
+        Don't pretend to act, use commands immediately when requested. Do NOT do this: "Sure, I'll follow you! *follows you*", instead do this: "Sure I'll follow you! !followPlayer('steve')". Have fun :) \n`;
         system_message += getCommandDocs();
         if (this.bio != '')
             system_message += '\n\nBio:\n' + this.bio;

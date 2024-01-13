@@ -18,7 +18,10 @@ export class Agent {
         this.events = new Events(this, this.history.events)
 
         this.bot.on('login', async () => {
-            this.bot.chat('Hello world! I am ' + this.name);
+            await this.history.loadExamples();
+
+            if (!init_message)
+                this.bot.chat('Hello world! I am ' + this.name);
             console.log(`${this.name} logged in.`);
             
             const ignore_messages = [
@@ -39,7 +42,6 @@ export class Agent {
                 this.handleMessage(username, message);
             });
 
-            await this.history.loadExamples();
 
             if (init_message) {
                 this.handleMessage('system', init_message);
@@ -57,10 +59,14 @@ export class Agent {
         if (user_command_name) {
             this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
             let execute_res = await executeCommand(this, message);
+            if (user_command_name === '!newAction') {
+                // all user initiated commands are ignored by the bot except for this one
+                // add the preceding message to the history to give context for newAction
+                let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
+                this.history.add(source, truncated_msg);
+            }
             if (execute_res)
                 this.bot.chat(execute_res);
-            else
-                this.bot.chat('Finished command.');
             return;
         }
 

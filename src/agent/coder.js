@@ -96,6 +96,7 @@ export class Coder {
 
             if (code_return.interrupted && !code_return.timedout)
                 return;
+            console.log(code_return.message);
 
             messages.push({
                 role: 'assistant',
