@@ -3,6 +3,7 @@ import * as world from '../world.js';
 
 function wrapExecution(func) {
     return async function (agent, ...args) {
+        await agent.coder.stop();
         agent.bot.output = '';
         agent.coder.executing = true;
         let res = await func(agent, ...args);
@@ -13,7 +14,6 @@ function wrapExecution(func) {
     }
 }
 
-// const actionsList = [
 export const actionsList = [
     {
         name: '!newAction',
@@ -34,7 +34,7 @@ export const actionsList = [
     },
     {
         name: '!goToPlayer',
-        description: 'Go to the nearest player. Ex: !goToPlayer("steve")',
+        description: 'Go to the given player. Ex: !goToPlayer("steve")',
         params: {'player_name': '(string) The name of the player to go to.'},
         perform: wrapExecution(async (agent, player_name) => {
             return await skills.goToPlayer(agent.bot, player_name);
@@ -42,7 +42,7 @@ export const actionsList = [
     },
     {
         name: '!followPlayer',
-        description: 'Endlessly follow the nearest player. Ex: !followPlayer("stevie")',
+        description: 'Endlessly follow the given player. Ex: !followPlayer("stevie")',
         params: {'player_name': '(string) The name of the player to follow.'},
         perform: wrapExecution(async (agent, player_name) => {
             await skills.followPlayer(agent.bot, player_name);
@@ -65,6 +65,14 @@ export const actionsList = [
         params: {'type': '(string) The type of entity to attack.'},
         perform: wrapExecution(async (agent, type) => {
             await skills.attackMob(agent.bot, type, true);
+        })
+    },
+    {
+        name: '!defend',
+        description: 'Follow the given player and attack any nearby monsters.',
+        params: {'player_name': '(string) The name of the player to defend.'},
+        perform: wrapExecution(async (agent, player_name) => {
+            await skills.defendPlayer(agent.bot, player_name);
         })
     }
 ];
