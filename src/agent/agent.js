@@ -2,7 +2,7 @@ import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { containsCommand, executeCommand } from './commands.js';
+import { containsCommand, commandExists, executeCommand } from './commands.js';
 import { Events } from './events.js';
 
 
@@ -19,9 +19,7 @@ export class Agent {
 
         this.bot.on('login', async () => {
             await this.history.loadExamples();
-
-            if (!init_message)
-                this.bot.chat('Hello world! I am ' + this.name);
+                
             console.log(`${this.name} logged in.`);
             
             const ignore_messages = [
@@ -42,10 +40,17 @@ export class Agent {
                 this.handleMessage(username, message);
             });
 
+            // set the bot to automatically eat food when hungry
+            this.bot.autoEat.options = {
+                priority: 'foodPoints',
+                startAt: 14,
+                bannedFood: []
+            };
 
             if (init_message) {
                 this.handleMessage('system', init_message);
             } else {
+                this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
             }
         });
@@ -77,7 +82,11 @@ export class Agent {
             let command_name = containsCommand(res);
 
             if (command_name) { // contains query or command
-                console.log('Query/Command response:', res);
+                console.log('Command message:', res);
+                if (!commandExists(command_name)) {
+                    this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
+                    continue;
+                }
 
                 let pre_message = res.substring(0, res.indexOf(command_name)).trim();
 

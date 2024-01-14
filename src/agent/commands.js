@@ -17,12 +17,15 @@ const argRegex = /(?:"[^"]*"|'[^']*'|[^,])+/g;
 
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);
-    if (commandMatch) {
-        const commandName = "!"+commandMatch[1];
-        if (commandList.some((command) => command.name === commandName))
-            return commandName;
-    }
+    if (commandMatch)
+        return commandName;
     return null;
+}
+
+export function commandExists(commandName) {
+    if (!commandName.startsWith("!"))
+        commandName = "!" + commandName;
+    return commandMap[commandName] !== undefined;
 }
 
 // todo: handle arrays?

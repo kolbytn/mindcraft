@@ -3,6 +3,8 @@ import { createBot } from 'mineflayer';
 import { pathfinder } from 'mineflayer-pathfinder';
 import { plugin as pvp } from 'mineflayer-pvp';
 import { plugin as collectblock } from 'mineflayer-collectblock';
+import { plugin as autoEat } from 'mineflayer-auto-eat';
+
 
 const mc_version = '1.19.3'
 const mcdata = minecraftData(mc_version);
@@ -18,6 +20,8 @@ export function initBot(username) {
     bot.loadPlugin(pathfinder);
     bot.loadPlugin(pvp);
     bot.loadPlugin(collectblock);
+    bot.loadPlugin(autoEat);
+
     return bot;
 }
 
@@ -76,4 +80,9 @@ export function getAllBlockIds(ignore) {
         blockIds.push(block.id);
     }
     return blockIds;
+}
+
+export function getBiomeName(bot) {
+    const biomeId = bot.world.getBiome(bot.entity.position);
+    return mcdata.biomes[biomeId].name;
 }
