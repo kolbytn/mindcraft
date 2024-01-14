@@ -1,5 +1,5 @@
 import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from '../world.js';
-import { getAllItems } from '../../utils/mcdata.js';
+import { getAllItems, getBiomeName } from '../../utils/mcdata.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
@@ -9,18 +9,27 @@ const pad = (str) => {
 export const queryList = [
     {
         name: "!stats",
-        description: "Get your bot's location, health, and time of day.", 
+        description: "Get your bot's location, health, hunger, and time of day.", 
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'STATS';
-            res += `\n- position: x:${bot.entity.position.x}, y:${bot.entity.position.y}, z:${bot.entity.position.z}`;
-            res += `\n- health: ${bot.health} / 20`;
+            let pos = bot.entity.position;
+            // display position to 2 decimal places
+            res += `\n- Position: x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`;
+            res += `\n- Health: ${Math.round(bot.health)} / 20`;
+            res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
+            res += `\n- Biome: ${getBiomeName(bot)}`;
+            // let block = bot.blockAt(pos);
+            // res += `\n- Artficial light: ${block.skyLight}`;
+            // res += `\n- Sky light: ${block.light}`;
+            // light properties are bugged, they are not accurate
+
             if (bot.time.timeOfDay < 6000) {
-                res += '\n- time: Morning';
+                res += '\n- Time: Morning';
             } else if (bot.time.timeOfDay < 12000) {
-                res += '\n- time: Afternoon';
+                res += '\n- Time: Afternoon';
             } else {
-                res += '\n- time: Night';
+                res += '\n- Time: Night';
             }
             return pad(res);
         }
