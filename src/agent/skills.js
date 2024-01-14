@@ -590,13 +590,17 @@ export async function defendPlayer(bot, username) {
     if (!player)
         return false;
 
+    const follow_distance = 3;
+    const attack_distance = 12;
+    const return_distance = 16;
+
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 5), true);
+    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
     log(bot, `Actively defending player ${username}.`);
 
     while (!bot.interrupt_code) {
-        if (bot.entity.position.distanceTo(player.position) < 10) {
-            const mobs = getNearbyMobs(bot, 8).filter(mob => mob.type === 'mob' || mob.type === 'hostile');
+        if (bot.entity.position.distanceTo(player.position) < return_distance) {
+            const mobs = getNearbyMobs(bot, attack_distance).filter(mob => mob.type === 'mob' || mob.type === 'hostile');
             const mob = mobs.sort((a, b) => a.position.distanceTo(player.position) - b.position.distanceTo(player.position))[0]; // get closest to player
             if (mob) {
                 bot.pathfinder.stop();
@@ -604,10 +608,12 @@ export async function defendPlayer(bot, username) {
                 bot.chat(`Found ${mob.name}, attacking!`);
                 equipHighestAttack(bot);
                 bot.pvp.attack(mob);
-                while (getNearbyMobs(bot, 8).includes(mob)) {
+                while (getNearbyMobs(bot, attack_distance).includes(mob)) {
                     await new Promise(resolve => setTimeout(resolve, 500));
                     console.log('attacking...')
-                    if (bot.interrupt_code || bot.entity.position.distanceTo(player.position) > 16) {
+                    if (bot.interrupt_code)
+                        return;
+                    if (bot.entity.position.distanceTo(player.position) > return_distance) {
                         console.log('stopping pvp...');
                         bot.pvp.stop();
                         break;
@@ -616,6 +622,7 @@ export async function defendPlayer(bot, username) {
                 console.log('resuming pathfinder...')
                 bot.pathfinder.setMovements(new pf.Movements(bot));
                 bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 5), true);
+                await new Promise(resolve => setTimeout(resolve, 3000));
             }
         }
         await new Promise(resolve => setTimeout(resolve, 500));
