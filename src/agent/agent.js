@@ -1,26 +1,31 @@
 import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
 import { History } from './history.js';
+import { Examples } from './examples.js';
 import { Coder } from './coder.js';
 import { containsCommand, commandExists, executeCommand } from './commands.js';
 import { Events } from './events.js';
 
 
 export class Agent {
-    constructor(name, profile=null, init_message=null) {
+    async start(name, profile=null, init_message=null) {
         this.name = name;
-        this.bot = initBot(name);
+        this.examples = new Examples();
         this.history = new History(this);
         this.coder = new Coder(this);
 
         this.history.load(profile);
+        await this.examples.load('./src/examples.json');
+        await this.coder.load();
+
+        this.bot = initBot(name);
 
         this.events = new Events(this, this.history.events)
 
         this.bot.on('login', async () => {
-            await this.history.loadExamples();
                 
             console.log(`${this.name} logged in.`);
+            this.coder.clear();
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -76,7 +81,8 @@ export class Agent {
         }
 
         for (let i=0; i<5; i++) {
-            let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
+            let history = await this.history.getHistory(this.examples);
+            let res = await sendRequest(history, this.history.getSystemMessage());
             this.history.add(this.name, res);
 
             let command_name = containsCommand(res);
@@ -85,6 +91,7 @@ export class Agent {
                 console.log('Command message:', res);
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
+                    console.log('Agent hallucinated command:', command_name)
                     continue;
                 }
 

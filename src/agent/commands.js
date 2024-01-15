@@ -18,7 +18,7 @@ const argRegex = /(?:"[^"]*"|'[^']*'|[^,])+/g;
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);
     if (commandMatch)
-        return commandName;
+        return "!" + commandMatch[1];
     return null;
 }
 

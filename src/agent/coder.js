@@ -1,7 +1,7 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
-import { stringifyTurns } from '../utils/text.js';
+import { sendRequest } from '../utils/gpt.js';
 import { getSkillDocs } from './skill-library.js';
+import { Examples } from './examples.js';
 
 
 export class Coder {
@@ -11,13 +11,14 @@ export class Coder {
         this.current_code = '';
         this.file_counter = 0;
         this.fp = '/bots/'+agent.name+'/action-code/';
-        this.agent.bot.interrupt_code = false;
         this.executing = false;
-        this.agent.bot.output = '';
         this.code_template = '';
         this.timedout = false;
-        this.fewshot = 3;
-        this.examples = [];
+    }
+
+    async load() {
+        this.examples = new Examples();
+        await this.examples.load('./src/examples_coder.json');
 
         readFile('./bots/template.js', 'utf8', (err, data) => {
             if (err) throw err;
@@ -62,7 +63,7 @@ export class Coder {
 
         system_message += "\n\nExamples:\nUser zZZn98: come here \nAssistant: I am going to navigate to zZZn98. ```\nawait skills.goToPlayer(bot, 'zZZn98');```\nSystem: Code execution finished successfully.\nAssistant: Done.";
 
-        let messages = agent_history.getHistory(false);
+        let messages = await agent_history.getHistory(this.examples);
 
         let code_return = null;
         let failures = 0;

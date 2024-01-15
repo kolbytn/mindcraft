@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { getCommandDocs } from './commands.js';
-import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
+import { sendRequest } from '../utils/gpt.js';
 import { stringifyTurns } from '../utils/text.js';
 
 
@@ -19,21 +19,15 @@ export class History {
 
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
-        this.fewshot = 5;
-        this.examples = [];
-        this.selected_examples = [];
     }
 
-    getHistory(include_examples=true) {
-        // return deep copy of history
+    async getHistory(examples=null) { // expects an Examples object
         let turns = JSON.parse(JSON.stringify(this.turns));
-        if (include_examples && this.selected_examples.length > 0) {
-            let example_messages = 'Here are some examples of how to respond:\n';
-            for (let example of this.selected_examples) {
-                example_messages += 'Example:\n' + stringifyTurns(example.turns) + '\n';
-            }
-            return [{'role': 'system', 'content': example_messages}].concat(turns);
+        if (examples) {
+            let examples_msg = await examples.createExampleMessage(turns);
+            turns = examples_msg.concat(turns);
         }
+        
         return turns;
     }
 
@@ -69,47 +63,6 @@ export class History {
         this.memory = await sendRequest(memory_turns, this.getSystemMessage());
     }
 
-    async loadExamples() {
-        let examples = [];
-        try {
-            const data = readFileSync('./src/examples.json', 'utf8');
-            examples = JSON.parse(data);
-        } catch (err) {
-            console.log('No history examples found.');
-        }
-
-        this.examples = [];
-        for (let example of examples) {
-            let messages = '';
-            for (let turn of example) {
-                if (turn.role != 'assistant')
-                    messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
-            }
-            messages = messages.trim();
-            const embedding = await embed(messages);
-            this.examples.push({'embedding': embedding, 'turns': example});
-        }
-
-        await this.setExamples();
-    }
-
-    async setExamples() {
-        let messages = '';
-        for (let turn of this.turns) {
-            if (turn.role != 'assistant')
-                messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
-        }
-        messages = messages.trim();
-        const embedding = await embed(messages);
-        this.examples.sort((a, b) => {
-            return cosineSimilarity(a.embedding, embedding) - cosineSimilarity(b.embedding, embedding);
-        });
-        this.selected_examples = this.examples.slice(-this.fewshot);
-        for (let example of this.selected_examples) {
-            console.log('selected example: ', example.turns[0].content);
-        }
-    }
-
     async add(name, content) {
         let role = 'assistant';
         if (name === 'system') {
@@ -129,9 +82,6 @@ export class History {
                 to_summarize.push(this.turns.shift());
             await this.storeMemories(to_summarize);
         }
-
-        if (role != 'assistant')
-            await this.setExamples();
     }
 
     save() {

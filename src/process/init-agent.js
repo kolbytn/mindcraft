@@ -20,4 +20,4 @@ const argv = yargs(args)
     }).argv
 
 const name = args[0];
-new Agent(name, argv.profile, argv.init_message);
+new Agent().start(name, argv.profile, argv.init_message);
