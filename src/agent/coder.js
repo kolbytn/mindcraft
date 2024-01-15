@@ -7,7 +7,6 @@ import { Examples } from './examples.js';
 export class Coder {
     constructor(agent) {
         this.agent = agent;
-        this.queued_code = '';
         this.current_code = '';
         this.file_counter = 0;
         this.fp = '/bots/'+agent.name+'/action-code/';
@@ -28,8 +27,40 @@ export class Coder {
         mkdirSync('.' + this.fp, { recursive: true });
     }
 
-    queueCode(code) {
-        this.queued_code = this.santitizeCode(code);
+    // write custom code to file and import it
+    async stageCode(code) {
+        code = this.santitizeCode(code);
+        let src = '';
+        code = code.replaceAll('console.log(', 'log(bot,');
+        code = code.replaceAll('log("', 'log(bot,"');
+
+        // this may cause problems in callback functions
+        code = code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
+        for (let line of code.split('\n')) {
+            src += `    ${line}\n`;
+        }
+        src = this.code_template.replace('/* CODE HERE */', src);
+
+        console.log("writing to file...", src)
+
+        let filename = this.file_counter + '.js';
+        // if (this.file_counter > 0) {
+        //     let prev_filename = this.fp + (this.file_counter-1) + '.js';
+        //     unlink(prev_filename, (err) => {
+        //         console.log("deleted file " + prev_filename);
+        //         if (err) console.error(err);
+        //     });
+        // } commented for now, useful to keep files for debugging
+        this.file_counter++;
+
+        let write_result = await this.writeFilePromise('.' + this.fp + filename, src)
+        
+        if (write_result) {
+            console.error('Error writing code execution file: ' + result);
+            return null;
+        }
+        this.current_code = code;
+        return await import('../..' + this.fp + filename);
     }
 
     santitizeCode(code) {
@@ -92,8 +123,14 @@ export class Coder {
             }
             let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
-            this.queueCode(code);
-            code_return = await this.execute();
+            const execution_file = await this.stageCode(code);
+            if (!execution_file) {
+                agent_history.add('system', 'Failed to stage code, something is wrong.');
+                return;
+            }
+            code_return = await this.execute(async ()=>{
+                return await execution_file.main(this.agent.bot);
+            });
 
             if (code_return.interrupted && !code_return.timedout)
                 return;
@@ -113,50 +150,19 @@ export class Coder {
     }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
-    async execute() {
-        if (!this.queued_code) return {success: false, message: "No code to execute.", interrupted: false, timedout: false};
+    async execute(func, timeout=1) {
         if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false, timedout: false};
-        let src = '';
 
-        let code = this.queued_code;
-        code = code.replaceAll('console.log(', 'log(bot,');
-        code = code.replaceAll('log("', 'log(bot,"');
-
-        // this may cause problems in callback functions
-        code = code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
-        for (let line of code.split('\n')) {
-            src += `    ${line}\n`;
-        }
-        src = this.code_template.replace('/* CODE HERE */', src);
-
-        console.log("writing to file...", src)
-
-        let filename = this.file_counter + '.js';
-        // if (this.file_counter > 0) {
-        //     let prev_filename = this.fp + (this.file_counter-1) + '.js';
-        //     unlink(prev_filename, (err) => {
-        //         console.log("deleted file " + prev_filename);
-        //         if (err) console.error(err);
-        //     });
-        // } commented for now, useful to keep files for debugging
-        this.file_counter++;
-
-        let write_result = await this.writeFilePromise('.' + this.fp + filename, src)
-        
-        if (write_result) {
-            console.error('Error writing code execution file: ' + result);
-            return {success: false, message: result, interrupted: false, timedout: false};
-        }
         let TIMEOUT;
         try {
             console.log('executing code...\n');
-            let execution_file = await import('../..' + this.fp + filename);
             await this.stop();
-            this.current_code = this.queued_code;
+            this.clear();
 
             this.executing = true;
-            TIMEOUT = this._startTimeout(10);
-            await execution_file.main(this.agent.bot); // open fire
+            if (timeout > 0)
+                TIMEOUT = this._startTimeout(timeout);
+            await func(); // open fire
             this.executing = false;
             clearTimeout(TIMEOUT);
 
@@ -171,10 +177,11 @@ export class Coder {
             clearTimeout(TIMEOUT);
 
             console.error("Code execution triggered catch: " + err);
+            await this.stop();
             let message = this.formatOutput(this.agent.bot);
             message += '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
-            await this.stop();
+            this.clear();
             this.agent.bot.emit("code_terminated");
             return {success: false, message, interrupted, timedout: false};
         }
@@ -204,7 +211,6 @@ export class Coder {
             console.log('waiting for code to finish executing... interrupt:', this.agent.bot.interrupt_code);
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        this.clear();
     }
 
     clear() {

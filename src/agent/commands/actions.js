@@ -3,14 +3,12 @@ import * as world from '../world.js';
 
 function wrapExecution(func) {
     return async function (agent, ...args) {
-        await agent.coder.stop();
-        agent.bot.output = '';
-        agent.coder.executing = true;
-        let res = await func(agent, ...args);
-        if (res)
-            agent.bot.output += '\n' + res;
-        agent.coder.executing = false;
-        return '\n' + agent.bot.output + '\n';
+        let code_return = await agent.coder.execute(async () => {
+            await func(agent, ...args);
+        }, -1); // no timeout
+        if (code_return.interrupted && !code_return.timedout)
+            return;
+        return code_return.message;
     }
 }
 

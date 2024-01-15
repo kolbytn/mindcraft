@@ -51,7 +51,7 @@ export class Examples {
 
         console.log('selected examples:');
         for (let example of selected_examples) {
-            console.log(example.turns[0])
+            console.log(example.turns[0].content)
         }
 
         let msg = 'Here are some examples of how to respond:\n';
