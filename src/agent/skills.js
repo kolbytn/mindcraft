@@ -13,7 +13,7 @@ export async function craftRecipe(bot, itemName) {
      * Attempt to craft the given item name from a recipe. May craft many items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item name to craft.
-     * @returns {Promise<boolean>} true if the item was crafted, false otherwise.
+     * @returns {Promise<boolean>} true if the recipe was crafted, false otherwise.
      * @example
      * await skills.craftRecipe(bot, "stick");
      **/
@@ -628,5 +628,36 @@ export async function defendPlayer(bot, username) {
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    return true;
+}
+
+export async function goToBed(bot) {
+    /**
+     * Sleep in the nearest bed.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if the bed was found, false otherwise.
+     * @example
+     * await skills.goToBed(bot);
+     **/
+    const beds = bot.findBlocks({
+        matching: (block) => {
+            return block.name.includes('bed');
+        },
+        maxDistance: 32,
+        count: 1
+    });
+    if (beds.length === 0) {
+        log(bot, `Could not find a bed to sleep in.`);
+        return false;
+    }
+    let loc = beds[0];
+    await goToPosition(bot, loc.x, loc.y, loc.z);
+    const bed = bot.blockAt(loc);
+    await bot.sleep(bed);
+    log(bot, `You are in bed.`);
+    while (bot.isSleeping) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    log(bot, `You have woken up.`);
     return true;
 }

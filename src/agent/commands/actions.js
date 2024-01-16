@@ -58,6 +58,28 @@ export const actionsList = [
         })
     },
     {
+        name: '!craftRecipe',
+        description: 'Craft the given recipe a given number of times. Ex: I will craft 8 sticks !craftRecipe("stick", 2)',
+        params: {
+            'recipe_name': '(string) The name of the output item to craft.',
+            'num': '(number) The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.'
+        },
+        perform: wrapExecution(async (agent, recipe_name, num) => {
+            for (let i=0; i<num; i++) {
+                await skills.craftRecipe(agent.bot, recipe_name);
+            }
+        })
+    },
+    {
+        name: '!placeHere',
+        description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches. Ex: !placeBlockHere("crafting_table")',
+        params: {'type': '(string) The block type to place.'},
+        perform: wrapExecution(async (agent, type) => {
+            let pos = agent.bot.entity.position;
+            await skills.placeBlock(agent.bot, type, pos.x, pos.y, pos.z);
+        })
+    },
+    {
         name: '!attack',
         description: 'Attack and kill the nearest entity of a given type.',
         params: {'type': '(string) The type of entity to attack.'},
@@ -71,6 +93,13 @@ export const actionsList = [
         params: {'player_name': '(string) The name of the player to defend.'},
         perform: wrapExecution(async (agent, player_name) => {
             await skills.defendPlayer(agent.bot, player_name);
+        })
+    },
+    {
+        name: '!goToBed',
+        description: 'Go to the nearest bed and sleep.',
+        perform: wrapExecution(async (agent) => {
+            await skills.goToBed(agent.bot);
         })
     }
 ];

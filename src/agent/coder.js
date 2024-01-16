@@ -150,7 +150,7 @@ export class Coder {
     }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
-    async execute(func, timeout=1) {
+    async execute(func, timeout=10) {
         if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false, timedout: false};
 
         let TIMEOUT;

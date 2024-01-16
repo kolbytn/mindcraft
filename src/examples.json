@@ -22,7 +22,9 @@
         {"role": "user", "content": "bobby: Craft a plank"},
         {"role": "assistant", "content": "Okay! !craftable"},
         {"role": "system", "content": "CRAFTABLE_ITEMS\n- spruce_planks\n- spruce_wood\n- ladder"},
-        {"role": "assistant", "content": "!newAction"}
+        {"role": "assistant", "content": "!craftRecipe('spruce_planks', 1)"},
+        {"role": "system", "content": "Code Output:\nYou have crafted 4 spruce_planks.\nCode execution finished successfully."},
+        {"role": "assistant", "content": "I've crafted 4 spruce planks!"}
     ],
 
     [
@@ -65,6 +67,8 @@
 
     [
         {"role": "user", "content": "trixy88: craft some sticks"},
-        {"role": "assistant", "content": "!newAction"}
+        {"role": "assistant", "content": "!craftRecipe('stick', 4)"},
+        {"role": "system", "content": "Code Output:\nYou have crafted 16 sticks.\nCode execution finished successfully."},
+        {"role": "assistant", "content": "I've crafted 16 sticks!"}
     ]
 ]
