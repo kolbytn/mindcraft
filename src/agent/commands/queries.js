@@ -1,26 +1,35 @@
-import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from './world.js';
-import { getAllItems } from '../utils/mcdata.js';
-
+import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from '../world.js';
+import { getAllItems, getBiomeName } from '../../utils/mcdata.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
 }
 
-const queryList = [
+// queries are commands that just return strings and don't affect anything in the world
+export const queryList = [
     {
         name: "!stats",
-        description: "Get your bot's stats", 
+        description: "Get your bot's location, health, hunger, and time of day.", 
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'STATS';
-            res += `\n- position: x:${bot.entity.position.x}, y:${bot.entity.position.y}, z:${bot.entity.position.z}`;
-            res += `\n- health: ${bot.health} / 20`;
+            let pos = bot.entity.position;
+            // display position to 2 decimal places
+            res += `\n- Position: x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`;
+            res += `\n- Health: ${Math.round(bot.health)} / 20`;
+            res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
+            res += `\n- Biome: ${getBiomeName(bot)}`;
+            // let block = bot.blockAt(pos);
+            // res += `\n- Artficial light: ${block.skyLight}`;
+            // res += `\n- Sky light: ${block.light}`;
+            // light properties are bugged, they are not accurate
+
             if (bot.time.timeOfDay < 6000) {
-                res += '\n- time: Morning';
+                res += '\n- Time: Morning';
             } else if (bot.time.timeOfDay < 12000) {
-                res += '\n- time: Afternoon';
+                res += '\n- Time: Afternoon';
             } else {
-                res += '\n- time: Night';
+                res += '\n- Time: Night';
             }
             return pad(res);
         }
@@ -96,36 +105,10 @@ const queryList = [
         }
     },
     {
-        name: "!action",
+        name: "!currentAction",
         description: "Get the currently executing code.",
         perform: function (agent) {
             return pad("Current code:\n`" + agent.coder.current_code +"`");
         }
     }
 ];
-
-const queryMap = {};
-for (let query of queryList) {
-    queryMap[query.name] = query;
-}
-
-export function getQuery(name) {
-    return queryMap[name];
-}
-
-export function containsQuery(message) {
-    for (let query of queryList) {
-        if (message.includes(query.name)) {
-            return query.name;
-        }
-    }
-    return null;
-}
-
-export function getQueryDocs() {
-    let docs = `\n*QUERY DOCS\n You can use the following commands to query for information about the world. Use the query name in your response and the next input will have the requested information.\n`;
-    for (let query of queryList) {
-        docs += query.name + ': ' + query.description + '\n';
-    }
-    return docs + '*\n';
-}

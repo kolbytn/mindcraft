@@ -1,0 +1,34 @@
+[
+    [
+        {"role": "user", "content": "greg: Collect 10 wood"},
+        {"role": "assistant", "content": "```await skills.collectBlock(bot, 'oak_log', 10);\n```"},
+        {"role": "system", "content": "Successfully collected 9 wood."},
+        {"role": "assistant", "content": "I collected 9 oak logs, what next?"}
+    ],
+    [
+        {"role": "user", "content": "bobby: Craft a plank"},
+        {"role": "assistant", "content": "```\nawait skills.craftRecipe(bot, 'spruce_planks');\n```"},
+        {"role": "system", "content": "Successfully crafted 4 spruce_planks."},        
+        {"role": "assistant", "content": "I crafted 4 spruce planks!"}
+    ],
+    [
+        {"role": "user", "content": "zZZn98: come here"},
+        {"role": "assistant", "content": "```await skills.goToPlayer(bot, 'zZZn98');\n```"},
+        {"role": "system", "content": "Code execution finished successfully."},
+        {"role": "assistant", "content": "Here!"}
+    ],
+    [
+        {"role": "user", "content": "maya: go to the nearest oak log"},
+        {"role": "assistant", "content": "```await skills.goToPosition(bot, nearestOakLog.x, nearestOakLog.y, nearestOakLog.z);\n```"},
+        {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
+        {"role": "assistant", "content": "Apologies, I made an error. Let me try that again.```\n// I am navigating to the nearest oak log.\nlet position = world.getNearestBlock(bot, 'oak_log', 20);\nawait skills.goToPosition(bot, position.x, position.y, position.z);\n```"},
+        {"role": "system", "content": "Arrived at location."},
+        {"role": "assistant", "content": "I found an oak log and I am now standing next to it. What next?"}
+    ],
+    [
+        {"role": "user", "content": "234jeb: build a little tower"},
+        {"role": "assistant", "content": "```let pos = bot.entity.position;\nfor (let i = 0; i < 5; i++) {\n    await skills.placeBlock(bot, 'dirt', pos.x, pos.y + i, pos.z);\n}\n```"},
+        {"role": "system", "content": "Successfully placed 5 dirt."},
+        {"role": "assistant", "content": "I built a little tower!"}
+    ]
+]

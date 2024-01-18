@@ -13,7 +13,7 @@ export async function craftRecipe(bot, itemName) {
      * Attempt to craft the given item name from a recipe. May craft many items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item name to craft.
-     * @returns {Promise<boolean>} true if the item was crafted, false otherwise.
+     * @returns {Promise<boolean>} true if the recipe was crafted, false otherwise.
      * @example
      * await skills.craftRecipe(bot, "stick");
      **/
@@ -44,13 +44,15 @@ export async function smeltItem(bot, itemName, num=1) {
     /**
      * Puts 1 coal in furnace and smelts the given item name, waits until the furnace runs out of fuel or input items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} itemName, the item name to smelt. Must contain "raw"
+     * @param {string} itemName, the item name to smelt. Ores must contain "raw" like raw_iron.
      * @param {number} num, the number of items to smelt. Defaults to 1.
      * @returns {Promise<boolean>} true if the item was smelted, false otherwise. Fail
      * @example
      * await skills.smeltItem(bot, "raw_iron");
+     * await skills.smeltItem(bot, "beef");
      **/
-    if (!itemName.includes('raw')) {
+    const foods = ['beef', 'chicken', 'cod', 'mutton', 'porkchop', 'rabbit', 'salmon', 'tropical_fish'];
+    if (!itemName.includes('raw') && !foods.includes(itemName)) {
         log(bot, `Cannot smelt ${itemName}, must be a "raw" item, like "raw_iron".`);
         return false;
     } // TODO: allow cobblestone, sand, clay, etc.
@@ -166,6 +168,13 @@ export async function clearNearestFurnace(bot) {
 }
 
 
+function equipHighestAttack(bot) {
+    let weapons = bot.inventory.items().filter(item => item.name.includes('sword') || item.name.includes('axe') || item.name.includes('pickaxe') || item.name.includes('shovel'));
+    let weapon = weapons.sort((a, b) => b.attackDamage - a.attackDamage)[0];
+    if (weapon)
+        bot.equip(weapon, 'hand');
+}
+
 export async function attackMob(bot, mobType, kill=true) {
     /**
      * Attack mob of the given type.
@@ -177,16 +186,11 @@ export async function attackMob(bot, mobType, kill=true) {
      * await skills.attackMob(bot, "zombie", true);
      **/
     const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
-    const attackable = ['animal', 'monster', 'mob'];
-    if (mob && attackable.includes(mob.type)) {
+    if (mob) {
         let pos = mob.position;
         console.log(bot.entity.position.distanceTo(pos))
 
-        // equip highest damage weapon
-        let weapons = bot.inventory.items().filter(item => item.name.includes('sword') || item.name.includes('axe') || item.name.includes('pickaxe') || item.name.includes('shovel'));
-        let weapon = weapons.sort((a, b) => b.attackDamage - a.attackDamage)[0];
-        if (weapon)
-            await bot.equip(weapon, 'hand');
+        equipHighestAttack(bot)
 
         if (!kill) {
             if (bot.entity.position.distanceTo(pos) > 5) {
@@ -542,13 +546,10 @@ export async function goToPlayer(bot, username) {
         return false;
     }
     
-    let arrived = await goToPosition(bot, player.position.x, player.position.y, player.position.z);
-    if (!arrived) {
-        log(bot, `Failed to reach ${username}.`);
-        return false;
-    }
-    log(bot, `Player is now at ${player.position}.`);
-    return true;
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    await bot.pathfinder.goto(new pf.goals.GoalFollow(player, 2), true);
+
+    log(bot, `You have reached ${username}.`);
 }
 
 
@@ -573,5 +574,90 @@ export async function followPlayer(bot, username) {
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
+    return true;
+}
+
+export async function defendPlayer(bot, username) {
+    /**
+     * Defend the given player endlessly, attacking any nearby monsters. Will not return until the code is manually stopped.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} username, the username of the player to defend.
+     * @returns {Promise<boolean>} true if the player was found, false otherwise.
+     * @example
+     * await skills.defendPlayer(bot, "bob");
+     **/
+    let player = bot.players[username].entity
+    if (!player)
+        return false;
+
+    const follow_distance = 3;
+    const attack_distance = 12;
+    const return_distance = 16;
+
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
+    log(bot, `Actively defending player ${username}.`);
+
+    while (!bot.interrupt_code) {
+        if (bot.entity.position.distanceTo(player.position) < return_distance) {
+            const mobs = getNearbyMobs(bot, attack_distance).filter(mob => mob.type === 'mob' || mob.type === 'hostile');
+            const mob = mobs.sort((a, b) => a.position.distanceTo(player.position) - b.position.distanceTo(player.position))[0]; // get closest to player
+            if (mob) {
+                bot.pathfinder.stop();
+                log(bot, `Found ${mob.name}, attacking!`);
+                bot.chat(`Found ${mob.name}, attacking!`);
+                equipHighestAttack(bot);
+                bot.pvp.attack(mob);
+                while (getNearbyMobs(bot, attack_distance).includes(mob)) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    console.log('attacking...')
+                    if (bot.interrupt_code)
+                        return;
+                    if (bot.entity.position.distanceTo(player.position) > return_distance) {
+                        console.log('stopping pvp...');
+                        bot.pvp.stop();
+                        break;
+                    }
+                }
+                console.log('resuming pathfinder...')
+                bot.pathfinder.setMovements(new pf.Movements(bot));
+                bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 5), true);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+        }
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    return true;
+}
+
+export async function goToBed(bot) {
+    /**
+     * Sleep in the nearest bed.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if the bed was found, false otherwise.
+     * @example
+     * await skills.goToBed(bot);
+     **/
+    const beds = bot.findBlocks({
+        matching: (block) => {
+            return block.name.includes('bed');
+        },
+        maxDistance: 32,
+        count: 1
+    });
+    if (beds.length === 0) {
+        log(bot, `Could not find a bed to sleep in.`);
+        return false;
+    }
+    let loc = beds[0];
+    await goToPosition(bot, loc.x, loc.y, loc.z);
+    const bed = bot.blockAt(loc);
+    await bot.sleep(bed);
+    log(bot, `You are in bed.`);
+    while (bot.isSleeping) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    log(bot, `You have woken up.`);
     return true;
 }

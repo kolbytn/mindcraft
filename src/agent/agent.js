@@ -1,26 +1,31 @@
 import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
 import { History } from './history.js';
+import { Examples } from './examples.js';
 import { Coder } from './coder.js';
-import { getQuery, containsQuery } from './queries.js';
-import { containsCodeBlock } from './skill-library.js';
+import { containsCommand, commandExists, executeCommand } from './commands.js';
 import { Events } from './events.js';
 
 
 export class Agent {
-    constructor(name, profile=null, init_message=null) {
+    async start(name, profile=null, init_message=null) {
         this.name = name;
-        this.bot = initBot(name);
+        this.examples = new Examples();
         this.history = new History(this);
         this.coder = new Coder(this);
 
         this.history.load(profile);
+        await this.examples.load('./src/examples.json');
+        await this.coder.load();
+
+        this.bot = initBot(name);
 
         this.events = new Events(this, this.history.events)
 
         this.bot.on('login', async () => {
-            this.bot.chat('Hello world! I am ' + this.name);
+                
             console.log(`${this.name} logged in.`);
+            this.coder.clear();
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -40,11 +45,17 @@ export class Agent {
                 this.handleMessage(username, message);
             });
 
-            await this.history.loadExamples();
+            // set the bot to automatically eat food when hungry
+            this.bot.autoEat.options = {
+                priority: 'foodPoints',
+                startAt: 14,
+                bannedFood: []
+            };
 
             if (init_message) {
                 this.handleMessage('system', init_message);
             } else {
+                this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
             }
         });
@@ -54,39 +65,47 @@ export class Agent {
         if (!!source && !!message)
             await this.history.add(source, message);
 
-        for (let i=0; i<5; i++) {
-            let res = await sendRequest(this.history.getHistory(), this.history.getSystemMessage());
-            this.history.add(this.name, res);
-            let query_cmd = containsQuery(res);
-            if (query_cmd) { // contains query
-                let message = res.substring(0, res.indexOf(query_cmd)).trim();
-                if (message) 
-                    this.bot.chat(message);
-                let query = getQuery(query_cmd);
-                let query_res = query.perform(this);
-                console.log('Agent used query:', query_cmd, 'and got:', query_res)
-                this.history.add('system', query_res);
+        const user_command_name = containsCommand(message);
+        if (user_command_name) {
+            this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
+            let execute_res = await executeCommand(this, message);
+            if (user_command_name === '!newAction') {
+                // all user initiated commands are ignored by the bot except for this one
+                // add the preceding message to the history to give context for newAction
+                let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
+                this.history.add(source, truncated_msg);
             }
-            else if (containsCodeBlock(res)) { // contains code block
-                console.log('Agent is executing code:', res)
+            if (execute_res)
+                this.bot.chat(execute_res);
+            return;
+        }
 
-                let message = res.substring(0, res.indexOf('```')).trim();
-                if (message) 
-                    this.bot.chat(message);
-                let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+        for (let i=0; i<5; i++) {
+            let history = await this.history.getHistory(this.examples);
+            let res = await sendRequest(history, this.history.getSystemMessage());
+            this.history.add(this.name, res);
 
-                if (code) {
-                    this.coder.queueCode(code);
-                    let code_return = await this.coder.execute();
-                    let message = code_return.message;
-                    if (code_return.interrupted && !code_return.timedout)
-                        break;
-                    if (!code_return.success) {
-                        message += "\nWrite code to fix the problem and try again.";
-                    }
-                    console.log('code return:', message);
-                    this.history.add('system', message);
+            let command_name = containsCommand(res);
+
+            if (command_name) { // contains query or command
+                console.log('Command message:', res);
+                if (!commandExists(command_name)) {
+                    this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
+                    console.log('Agent hallucinated command:', command_name)
+                    continue;
                 }
+
+                let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+
+                this.bot.chat(`${pre_message}  *used ${command_name.substring(1)}*`);
+                let execute_res = await executeCommand(this, res);
+
+                console.log('Agent executed:', command_name, 'and got:', execute_res);
+
+                if (execute_res)
+                    this.history.add('system', execute_res);
+                else
+                    break;
             }
             else { // conversation response
                 this.bot.chat(res);

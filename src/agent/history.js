@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
-import { getQueryDocs } from './queries.js';
-import { getSkillDocs } from './skill-library.js';
-import { sendRequest, embed, cosineSimilarity } from '../utils/gpt.js';
+import { getCommandDocs } from './commands.js';
+import { sendRequest } from '../utils/gpt.js';
+import { stringifyTurns } from '../utils/text.js';
 
 
 export class History {
@@ -19,48 +19,28 @@ export class History {
 
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
-        this.fewshot = 5;
-        this.examples = [];
-        this.selected_examples = [];
     }
 
-    getHistory(include_examples=true) {
-        let history = [];
-        if (include_examples && this.selected_examples.length > 0) {
-            for (let example of this.selected_examples) {
-                history = history.concat(example.turns);
-            }
+    async getHistory(examples=null) { // expects an Examples object
+        let turns = JSON.parse(JSON.stringify(this.turns));
+        if (examples) {
+            let examples_msg = await examples.createExampleMessage(turns);
+            turns = examples_msg.concat(turns);
         }
-        history = history.concat(this.turns);
-
-        return history;
+        
+        return turns;
     }
 
     getSystemMessage() {
-        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by writing and executing code. Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, omit needless words, and do not give instructions unless asked.`;
-        system_message += getQueryDocs();
-        system_message += getSkillDocs();
+        let system_message = `You are a playful Minecraft bot named '${this.name}' that can communicate with players, see, move, mine, build, and interact with the world by using commands. Act human-like as if you were a typical Minecraft player, rather than an AI. Be very brief in your responses, use commands often, and do not give instructions unless asked.
+        Don't pretend to act, use commands immediately when requested. Do NOT do this: "Sure, I'll follow you! *follows you*", instead do this: "Sure I'll follow you! !followPlayer('steve')". Have fun :) \n`;
+        system_message += getCommandDocs();
         if (this.bio != '')
             system_message += '\n\nBio:\n' + this.bio;
         if (this.memory != '')
             system_message += '\n\nMemory:\n' + this.memory;
 
         return system_message;
-    }
-
-    stringifyTurns(turns) {
-        let res = '';
-        for (let turn of turns) {
-            if (turn.role === 'assistant') {
-                res += `\nYour output:\n${turn.content}`;
-            } else if (turn.role === 'system') {
-                res += `\nSystem output: ${turn.content}`;
-            } else {
-                res += `\nUser input: ${turn.content}`;
-            
-            }
-        }
-        return res.trim();
     }
 
     async storeMemories(turns) {
@@ -75,53 +55,12 @@ export class History {
         memory_prompt += '- I learned that player [name]...\n';
         
         memory_prompt += 'This is the conversation to summarize:\n';
-        memory_prompt += this.stringifyTurns(turns);
+        memory_prompt += stringifyTurns(turns);
 
         memory_prompt += 'Summarize relevant information from your previous memory and this conversation:\n';
 
         let memory_turns = [{'role': 'system', 'content': memory_prompt}]
         this.memory = await sendRequest(memory_turns, this.getSystemMessage());
-    }
-
-    async loadExamples() {
-        let examples = [];
-        try {
-            const data = readFileSync('./src/examples.json', 'utf8');
-            examples = JSON.parse(data);
-        } catch (err) {
-            console.log('No history examples found.');
-        }
-
-        this.examples = [];
-        for (let example of examples) {
-            let messages = '';
-            for (let turn of example) {
-                if (turn.role != 'assistant')
-                    messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
-            }
-            messages = messages.trim();
-            const embedding = await embed(messages);
-            this.examples.push({'embedding': embedding, 'turns': example});
-        }
-
-        await this.setExamples();
-    }
-
-    async setExamples() {
-        let messages = '';
-        for (let turn of this.turns) {
-            if (turn.role != 'assistant')
-                messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
-        }
-        messages = messages.trim();
-        const embedding = await embed(messages);
-        this.examples.sort((a, b) => {
-            return cosineSimilarity(a.embedding, embedding) - cosineSimilarity(b.embedding, embedding);
-        });
-        this.selected_examples = this.examples.slice(-this.fewshot);
-        for (let example of this.selected_examples) {
-            console.log('selected example: ', example.turns[0].content);
-        }
     }
 
     async add(name, content) {
@@ -143,9 +82,6 @@ export class History {
                 to_summarize.push(this.turns.shift());
             await this.storeMemories(to_summarize);
         }
-
-        if (role != 'assistant')
-            await this.setExamples();
     }
 
     save() {
