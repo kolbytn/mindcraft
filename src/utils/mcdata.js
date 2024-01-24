@@ -7,15 +7,21 @@ import { plugin as autoEat } from 'mineflayer-auto-eat';
 import plugin from 'mineflayer-armor-manager';
 const armorManager = plugin;
 
-const mc_version = '1.19.3'
+const mc_version = '1.20.1'
 const mcdata = minecraftData(mc_version);
 
 
 export function initBot(username) {
     let bot = createBot({
+        username: username,
+
         host: 'localhost',
         port: 55916,
-        username: username,
+        
+        // host: '000.111.222.333', 
+        // port: 55920,
+        // auth: 'microsoft',
+
         version: mc_version,
     });
     bot.loadPlugin(pathfinder);

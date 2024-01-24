@@ -1,13 +1,15 @@
 import * as skills from '../skills.js';
 import * as world from '../world.js';
 
-function wrapExecution(func) {
+function wrapExecution(func, timeout=-1) {
     return async function (agent, ...args) {
+        agent.idle = false;
         let code_return = await agent.coder.execute(async () => {
             await func(agent, ...args);
-        }, -1); // no timeout
+        }, timeout);
         if (code_return.interrupted && !code_return.timedout)
             return;
+        agent.idle = true;
         return code_return.message;
     }
 }
@@ -17,7 +19,9 @@ export const actionsList = [
         name: '!newAction',
         description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
         perform: async function (agent) {
+            agent.idle = false;
             let res = await agent.coder.generateCode(agent.history);
+            agent.idle = true;
             if (res)
                 return '\n' + res + '\n';
         }
@@ -27,7 +31,26 @@ export const actionsList = [
         description: 'Force stop all actions and commands that are currently executing.',
         perform: async function (agent) {
             await agent.coder.stop();
+            agent.coder.clear();
+            agent.idle = true;
             return 'Agent stopped.';
+        }
+    },
+    {
+        name: '!setMode',
+        description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment. Ex: !setMode("hunting", true)',
+        params: {
+            'mode_name': '(string) The name of the mode to enable.',
+            'on': '(bool) Whether to enable or disable the mode.'
+        },
+        perform: async function (agent, mode_name, on) {
+            const modes = agent.bot.modes;
+            if (!modes.exists(mode_name))
+                return `Mode ${mode_name} does not exist.` + modes.getDocs();
+            if (modes.isOn(mode_name) === on)
+                return `Mode ${mode_name} is already ${on ? 'on' : 'off'}.`;
+            modes.setOn(mode_name, on);
+            return `Mode ${mode_name} is now ${on ? 'on' : 'off'}.`;
         }
     },
     {
@@ -40,7 +63,7 @@ export const actionsList = [
     },
     {
         name: '!followPlayer',
-        description: 'Endlessly follow the given player. Ex: !followPlayer("stevie")',
+        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie")',
         params: {'player_name': '(string) The name of the player to follow.'},
         perform: wrapExecution(async (agent, player_name) => {
             await skills.followPlayer(agent.bot, player_name);
@@ -55,7 +78,7 @@ export const actionsList = [
         },
         perform: wrapExecution(async (agent, type, num) => {
             await skills.collectBlock(agent.bot, type, num);
-        })
+        }, 10) // 10 minute timeout
     },
     {
         name: '!craftRecipe',
@@ -85,14 +108,6 @@ export const actionsList = [
         params: {'type': '(string) The type of entity to attack.'},
         perform: wrapExecution(async (agent, type) => {
             await skills.attackMob(agent.bot, type, true);
-        })
-    },
-    {
-        name: '!defend',
-        description: 'Follow the given player and attack any nearby monsters.',
-        params: {'player_name': '(string) The name of the player to defend.'},
-        perform: wrapExecution(async (agent, player_name) => {
-            await skills.defendPlayer(agent.bot, player_name);
         })
     },
     {

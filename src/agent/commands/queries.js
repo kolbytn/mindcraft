@@ -1,4 +1,4 @@
-import { getNearestBlock, getNearbyMobTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from '../world.js';
+import { getNearestBlock, getNearbyEntityTypes, getNearbyPlayerNames, getNearbyBlockTypes, getInventoryCounts } from '../world.js';
 import { getAllItems, getBiomeName } from '../../utils/mcdata.js';
 
 const pad = (str) => {
@@ -19,6 +19,7 @@ export const queryList = [
             res += `\n- Health: ${Math.round(bot.health)} / 20`;
             res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
             res += `\n- Biome: ${getBiomeName(bot)}`;
+            res += `\n- Weather: ${bot.weather}`;
             // let block = bot.blockAt(pos);
             // res += `\n- Artficial light: ${block.skyLight}`;
             // res += `\n- Sky light: ${block.light}`;
@@ -95,7 +96,7 @@ export const queryList = [
             for (const entity of getNearbyPlayerNames(bot)) {
                 res += `\n- player: ${entity}`;
             }
-            for (const entity of getNearbyMobTypes(bot)) {
+            for (const entity of getNearbyEntityTypes(bot)) {
                 res += `\n- mob: ${entity}`;
             }
             if (res == 'NEARBY_ENTITIES') {
@@ -105,10 +106,17 @@ export const queryList = [
         }
     },
     {
+        name: "!modes",
+        description: "Get all available modes and see which are on/off.",
+        perform: function (agent) {
+            return agent.bot.modes.getDocs();
+        }
+    },
+    {
         name: "!currentAction",
         description: "Get the currently executing code.",
         perform: function (agent) {
             return pad("Current code:\n`" + agent.coder.current_code +"`");
         }
-    }
+    },
 ];

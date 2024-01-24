@@ -5,6 +5,7 @@ import { Examples } from './examples.js';
 import { Coder } from './coder.js';
 import { containsCommand, commandExists, executeCommand } from './commands.js';
 import { Events } from './events.js';
+import { initModes } from './modes.js';
 
 
 export class Agent {
@@ -20,7 +21,10 @@ export class Agent {
 
         this.bot = initBot(name);
 
-        this.events = new Events(this, this.history.events)
+        this.events = new Events(this, this.history.events);
+
+        initModes(this);
+        this.idle = true;
 
         this.bot.on('login', async () => {
                 
@@ -49,7 +53,7 @@ export class Agent {
             this.bot.autoEat.options = {
                 priority: 'foodPoints',
                 startAt: 14,
-                bannedFood: []
+                bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
             };
 
             if (init_message) {
@@ -58,6 +62,8 @@ export class Agent {
                 this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
             }
+
+            this.startUpdateLoop();
         });
     }
 
@@ -116,5 +122,30 @@ export class Agent {
 
         this.history.save();
         this.bot.emit('finished_executing');
+    }
+
+    startUpdateLoop() {
+        this.bot.on('end', () => {
+            console.warn('Bot disconnected! Killing agent process.')
+            process.exit(1);
+        });
+        this.bot.on('death', () => {
+            this.coder.stop();
+        });
+        this.bot.on('messagestr', async (message, _, jsonMsg) => {
+            if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {
+                console.log('Agent died: ', message);
+                this.handleMessage('system', `You died with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
+            }
+        });
+
+        this.self_defense = true;
+        this.defending = false;
+        this._pause_defending = false;
+
+        // set interval every 300ms to update the bot's state
+        this.update_interval = setInterval(async () => {
+            this.bot.modes.update();
+        }, 300);
     }
 }
