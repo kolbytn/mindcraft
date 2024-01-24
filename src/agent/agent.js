@@ -67,6 +67,12 @@ export class Agent {
         });
     }
 
+    cleanChat(message) {
+        // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
+        message = message.replaceAll('\n', '  ');
+        return this.bot.chat(message);
+    }
+
     async handleMessage(source, message) {
         if (!!source && !!message)
             await this.history.add(source, message);
@@ -81,8 +87,8 @@ export class Agent {
                 let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
                 this.history.add(source, truncated_msg);
             }
-            if (execute_res)
-                this.bot.chat(execute_res);
+            if (execute_res) 
+                this.cleanChat(execute_res);
             return;
         }
 
@@ -103,7 +109,7 @@ export class Agent {
 
                 let pre_message = res.substring(0, res.indexOf(command_name)).trim();
 
-                this.bot.chat(`${pre_message}  *used ${command_name.substring(1)}*`);
+                this.cleanChat(`${pre_message}  *used ${command_name.substring(1)}*`);
                 let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
@@ -114,7 +120,7 @@ export class Agent {
                     break;
             }
             else { // conversation response
-                this.bot.chat(res);
+                this.cleanChat(res);
                 console.log('Purely conversational response:', res);
                 break;
             }
@@ -125,12 +131,19 @@ export class Agent {
     }
 
     startUpdateLoop() {
-        this.bot.on('end', () => {
-            console.warn('Bot disconnected! Killing agent process.')
+        this.bot.on('error' , (err) => {
+            console.error('Error event!', err);
+        });
+        this.bot.on('end', (reason) => {
+            console.warn('Bot disconnected! Killing agent process.', reason)
             process.exit(1);
         });
         this.bot.on('death', () => {
             this.coder.stop();
+        });
+        this.bot.on('kicked', (reason) => {
+            console.warn('Bot kicked!', reason);
+            process.exit(1);
         });
         this.bot.on('messagestr', async (message, _, jsonMsg) => {
             if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {

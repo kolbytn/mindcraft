@@ -107,7 +107,7 @@ export const actionsList = [
         description: 'Attack and kill the nearest entity of a given type.',
         params: {'type': '(string) The type of entity to attack.'},
         perform: wrapExecution(async (agent, type) => {
-            await skills.attackMob(agent.bot, type, true);
+            await skills.attackNearest(agent.bot, type, true);
         })
     },
     {

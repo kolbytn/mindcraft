@@ -19,7 +19,12 @@ export const queryList = [
             res += `\n- Health: ${Math.round(bot.health)} / 20`;
             res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
             res += `\n- Biome: ${getBiomeName(bot)}`;
-            res += `\n- Weather: ${bot.weather}`;
+            let weather = "clear";
+            if (bot.rainState > 0)
+                weather = "Rain";
+            if (bot.thunderState > 0)
+                weather = "Thunderstorm";
+            res += `\n- Weather: ${weather}`;
             // let block = bot.blockAt(pos);
             // res += `\n- Artficial light: ${block.skyLight}`;
             // res += `\n- Sky light: ${block.light}`;

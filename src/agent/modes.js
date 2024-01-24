@@ -53,6 +53,8 @@ const modes = [
                 let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
                 if (item) {
                     execute(this, agent, async () => {
+                        // wait 2 seconds for the item to settle
+                        await new Promise(resolve => setTimeout(resolve, 2000));
                         await skills.pickupNearbyItem(agent.bot);
                     });
                 }

@@ -186,7 +186,7 @@ export async function attackNearest(bot, mobType, kill=true) {
      * @param {boolean} kill, whether or not to continue attacking until the mob is dead. Defaults to true.
      * @returns {Promise<boolean>} true if the mob was attacked, false if the mob type was not found.
      * @example
-     * await skills.attackMob(bot, "zombie", true);
+     * await skills.attackNearest(bot, "zombie", true);
      **/
     const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
     if (mob) {
@@ -248,7 +248,7 @@ export async function defendSelf(bot, range=8) {
     let enemy = getNearestEntityWhere(bot, entity => isHostile(entity), range);
     while (enemy) {
         equipHighestAttack(bot);
-        if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper') {
+        if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
             try {
                 bot.pathfinder.setMovements(new pf.Movements(bot));
                 await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 2), true);
@@ -263,6 +263,7 @@ export async function defendSelf(bot, range=8) {
             return false;
         }
     }
+    bot.pvp.stop();
     if (attacked)
         log(bot, `Successfully defended self.`);
     else
@@ -678,12 +679,14 @@ export async function goToBed(bot) {
 
 
 export function isHuntable(mob) {
+    if (!mob || !mob.name) return false;
     const animals = ['chicken', 'cod', 'cow', 'llama', 'mooshroom', 'pig', 'pufferfish', 'rabbit', 'salmon', 'sheep', 'squid', 'tropical_fish', 'turtle'];
     return animals.includes(mob.name.toLowerCase()) && !mob.metadata[16]; // metadata 16 is not baby
 }
 
 
 export function isHostile(mob) {
+    if (!mob || !mob.name) return false;
     return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
 }
 
