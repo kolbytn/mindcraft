@@ -34,7 +34,7 @@ const modes = [
         on: true,
         active: false,
         update: function (agent) {
-            if (agent.idle) {
+            if (!agent.coder.executing) {
                 const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
                 if (huntable) {
                     execute(this, agent, async () => {
@@ -51,7 +51,7 @@ const modes = [
         on: true,
         active: false,
         update: function (agent) {
-            if (agent.idle) {
+            if (!agent.coder.executing) {
                 let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
                 if (item) {
                     execute(this, agent, async () => {
@@ -70,7 +70,7 @@ const modes = [
         active: false,
         update: function (agent) {
             if (this.active) return;
-            if (agent.idle) {
+            if (!agent.coder.executing) {
                 // TODO: check light level instead of nearby torches, block.light is broken
                 const near_torch = world.getNearestBlock(agent.bot, 'torch', 8);
                 if (!near_torch) {
@@ -96,7 +96,7 @@ const modes = [
         last_entity: null,
         next_change: 0,
         update: function (agent) {
-            if (agent.idle) {
+            if (!agent.coder.executing) {
                 this.active = true;
                 const entity = agent.bot.nearestEntity();
                 let entity_in_view = entity && entity.position.distanceTo(agent.bot.entity.position) < 10 && entity.name !== 'enderman';
@@ -131,13 +131,10 @@ const modes = [
 
 async function execute(mode, agent, func, timeout=-1) {
     mode.active = true;
-    await agent.coder.stop();
-    agent.idle = false;
     let code_return = await agent.coder.execute(async () => {
         await func();
     }, timeout);
     mode.active = false;
-    agent.idle = true;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
 }
 
@@ -177,7 +174,7 @@ class ModeController {
     }
 
     update() {
-        if (this.agent.idle) {
+        if (!this.agent.coder.executing) {
             // other actions might pause a mode to override it
             // when idle, unpause all modes
             for (let mode of this.modes_list) {

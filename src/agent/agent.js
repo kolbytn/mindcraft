@@ -21,7 +21,6 @@ export class Agent {
         this.bot = initBot(name);
 
         initModes(this);
-        this.idle = true;
 
         this.bot.on('login', async () => {
                 

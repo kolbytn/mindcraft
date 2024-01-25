@@ -117,12 +117,5 @@ export const queryList = [
         perform: function (agent) {
             return agent.bot.modes.getStr();
         }
-    },
-    {
-        name: "!currentAction",
-        description: "Get the currently executing code.",
-        perform: function (agent) {
-            return pad("Current code:\n`" + agent.coder.current_code +"`");
-        }
-    },
+    }
 ];

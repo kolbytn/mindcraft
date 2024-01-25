@@ -7,7 +7,6 @@ import { Examples } from '../utils/examples.js';
 export class Coder {
     constructor(agent) {
         this.agent = agent;
-        this.current_code = '';
         this.file_counter = 0;
         this.fp = '/bots/'+agent.name+'/action-code/';
         this.executing = false;
@@ -59,7 +58,6 @@ export class Coder {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-        this.current_code = code;
         return await import('../..' + this.fp + filename);
     }
 
@@ -148,8 +146,8 @@ export class Coder {
             if (this.agent.bot.interrupt_code)
                 return;
         }
-        
-        return 
+
+        return;
     }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
@@ -173,19 +171,15 @@ export class Coder {
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.clear();
-            this.agent.bot.emit("code_terminated");
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
-            this.executing = false;
-            clearTimeout(TIMEOUT);
-
             console.error("Code execution triggered catch: " + err);
+            clearTimeout(TIMEOUT);
             await this.stop();
-            let message = this.formatOutput(this.agent.bot);
-            message += '!!Code threw exception!!  Error: ' + err;
+
+            let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             this.clear();
-            this.agent.bot.emit("code_terminated");
             return {success: false, message, interrupted, timedout: false};
         }
     }
@@ -217,7 +211,6 @@ export class Coder {
     }
 
     clear() {
-        this.current_code = '';
         this.agent.bot.output = '';
         this.agent.bot.interrupt_code = false;
         this.timedout = false;

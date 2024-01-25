@@ -3,13 +3,11 @@ import * as skills from '../library/skills.js';
 
 function wrapExecution(func, timeout=-1) {
     return async function (agent, ...args) {
-        agent.idle = false;
         let code_return = await agent.coder.execute(async () => {
             await func(agent, ...args);
         }, timeout);
         if (code_return.interrupted && !code_return.timedout)
             return;
-        agent.idle = true;
         return code_return.message;
     }
 }
@@ -19,11 +17,7 @@ export const actionsList = [
         name: '!newAction',
         description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
         perform: async function (agent) {
-            agent.idle = false;
-            let res = await agent.coder.generateCode(agent.history);
-            agent.idle = true;
-            if (res)
-                return '\n' + res + '\n';
+            await agent.coder.generateCode(agent.history);
         }
     },
     {
@@ -32,7 +26,6 @@ export const actionsList = [
         perform: async function (agent) {
             await agent.coder.stop();
             agent.coder.clear();
-            agent.idle = true;
             return 'Agent stopped.';
         }
     },
