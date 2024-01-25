@@ -44,25 +44,52 @@ export async function craftRecipe(bot, itemName) {
      * @example
      * await skills.craftRecipe(bot, "stick");
      **/
-    let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); // get recipes that don't require a crafting table
+    let placedTable = false;
+
+    // get recipes that don't require a crafting table
+    let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
     let craftingTable = null;
     if (!recipes || recipes.length === 0) {
+
+        // Look for crafting table
         craftingTable = world.getNearestBlock(bot, 'crafting_table', 6);
         if (craftingTable === null){
-            log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table, but there is none nearby.`)
-            return false;
+
+            // Try to place crafting table
+            let hasTable = world.getInventoryCounts(bot)['crafting_table'] > 0;
+            if (hasTable) {
+                let pos = world.getNearestFreeSpace(bot, 1, 6);
+                await placeBlock(bot, 'crafting_table', pos.x, pos.y, pos.z);
+                craftingTable = world.getNearestBlock(bot, 'crafting_table', 6);
+                if (craftingTable) {
+                    recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
+                    placedTable = true;
+                }
+            }
+            else {
+                log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table.`)
+                return false;
+            }
         }
-        recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
+        else {
+            recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
+        }
     }
     if (!recipes || recipes.length === 0) {
         log(bot, `You do not have the resources to craft a ${itemName}.`);
+        if (placedTable) {
+            await collectBlock(bot, 'crafting_table', 1);
+        }
         return false;
     }
-    const recipe = recipes[0];
 
+    const recipe = recipes[0];
     console.log('crafting...');
     await bot.craft(recipe, 1, craftingTable);
     log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
+    if (placedTable) {
+        await collectBlock(bot, 'crafting_table', 1);
+    }
     return true;
 }
 
