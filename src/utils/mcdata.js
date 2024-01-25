@@ -33,6 +33,17 @@ export function initBot(username) {
     return bot;
 }
 
+export function isHuntable(mob) {
+    if (!mob || !mob.name) return false;
+    const animals = ['chicken', 'cod', 'cow', 'llama', 'mooshroom', 'pig', 'pufferfish', 'rabbit', 'salmon', 'sheep', 'squid', 'tropical_fish', 'turtle'];
+    return animals.includes(mob.name.toLowerCase()) && !mob.metadata[16]; // metadata 16 is not baby
+}
+
+export function isHostile(mob) {
+    if (!mob || !mob.name) return false;
+    return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
+}
+
 export function getItemId(item) {
     return mcdata.itemsByName[item].id;
 }
@@ -55,7 +66,6 @@ export function getAllItems(ignore) {
     return items;
 }
 
-
 export function getAllItemIds(ignore) {
     const items = getAllItems(ignore);
     let itemIds = [];
@@ -64,7 +74,6 @@ export function getAllItemIds(ignore) {
     }
     return itemIds;
 }
-
 
 export function getAllBlocks(ignore) {
     if (!ignore) {
@@ -80,7 +89,6 @@ export function getAllBlocks(ignore) {
     return blocks;
 }
 
-
 export function getAllBlockIds(ignore) {
     const blocks = getAllBlocks(ignore);
     let blockIds = [];
@@ -88,9 +96,4 @@ export function getAllBlockIds(ignore) {
         blockIds.push(block.id);
     }
     return blockIds;
-}
-
-export function getBiomeName(bot) {
-    const biomeId = bot.world.getBiome(bot.entity.position);
-    return mcdata.biomes[biomeId].name;
 }

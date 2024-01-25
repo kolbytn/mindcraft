@@ -1,4 +1,4 @@
-import { getAllBlockIds } from '../utils/mcdata.js';
+import { getAllBlockIds } from '../../utils/mcdata.js';
 
 
 export function getNearestBlocks(bot, block_types, distance=16, count=1) {
@@ -205,4 +205,17 @@ export function getNearbyBlockTypes(bot, distance=16) {
         }
     }
     return found;
+}
+
+
+export function getBiomeName(bot) {
+    /**
+     * Get the name of the biome the bot is in.
+     * @param {Bot} bot - The bot to get the biome for.
+     * @returns {string} - The name of the biome.
+     * @example
+     * let biome = world.getBiomeName(bot);
+     **/
+    const biomeId = bot.world.getBiome(bot.entity.position);
+    return mcdata.biomes[biomeId].name;
 }

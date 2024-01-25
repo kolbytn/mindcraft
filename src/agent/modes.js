@@ -1,5 +1,7 @@
-import * as skills from './skills.js';
-import * as world from './world.js';
+import * as skills from './library/skills.js';
+import * as world from './library/world.js';
+import * as mc from '../utils/mcdata.js';
+
 
 // a mode is a function that is called every tick to respond immediately to the world
 // it has the following fields:
@@ -17,7 +19,7 @@ const modes = [
         active: false,
         update: function (agent) {
             if (this.active) return;
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => skills.isHostile(entity), 8);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
             if (enemy) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
@@ -33,7 +35,7 @@ const modes = [
         active: false,
         update: function (agent) {
             if (agent.idle) {
-                const huntable = world.getNearestEntityWhere(agent.bot, entity => skills.isHuntable(entity), 8);
+                const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
                 if (huntable) {
                     execute(this, agent, async () => {
                         agent.bot.chat(`Hunting ${huntable.name}!`);
@@ -165,7 +167,7 @@ class ModeController {
         this.modes_map[mode_name].paused = true;
     }
 
-    getDocs() {
+    getStr() {
         let res = 'Available Modes:';
         for (let mode of this.modes_list) {
             let on = mode.on ? 'ON' : 'OFF';

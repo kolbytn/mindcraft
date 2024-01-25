@@ -1,7 +1,7 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
 import { sendRequest } from '../utils/gpt.js';
-import { getSkillDocs } from './skill-library.js';
-import { Examples } from './examples.js';
+import { getSkillDocs } from './library/index.js';
+import { Examples } from '../utils/examples.js';
 
 
 export class Coder {

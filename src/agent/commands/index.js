@@ -1,6 +1,6 @@
+import { actionsList } from './actions.js';
+import { queryList } from './queries.js';
 
-import { actionsList } from './commands/actions.js';
-import { queryList } from './commands/queries.js';
 
 const commandList = queryList.concat(actionsList);
 const commandMap = {};

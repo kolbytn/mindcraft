@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
-import { getCommandDocs } from './commands.js';
-import { sendRequest } from '../utils/gpt.js';
 import { stringifyTurns } from '../utils/text.js';
+import { sendRequest } from '../utils/gpt.js';
+import { getCommandDocs } from './commands/index.js';
 
 
 export class History {
@@ -13,9 +13,6 @@ export class History {
         // These define an agent's long term memory
         this.bio = '';
         this.memory = '';
-
-        // The bot's events
-        this.events = [];
 
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
@@ -91,7 +88,6 @@ export class History {
             'name': this.name,
             'bio': this.bio,
             'memory': this.memory,
-            'events': this.events,
             'turns': this.turns
         };
         const json_data = JSON.stringify(data, null, 4);
@@ -111,7 +107,6 @@ export class History {
             const obj = JSON.parse(data);
             this.bio = obj.bio;
             this.memory = obj.memory;
-            this.events = obj.events;
             this.turns = obj.turns;
         } catch (err) {
             console.error(`No file for profile '${load_path}' for agent ${this.name}.`);
