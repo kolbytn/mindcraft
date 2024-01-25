@@ -63,8 +63,7 @@ export function getNearbyBlocks(bot, maxDistance) {
 }
 
 
-export function getNearbyMobs(bot, maxDistance) {
-    if (maxDistance == null) maxDistance = 16;
+export function getNearbyEntities(bot, maxDistance=16) {
     let entities = [];
     for (const entity of Object.values(bot.entities)) {
         const distance = entity.position.distanceTo(bot.entity.position);
@@ -77,6 +76,10 @@ export function getNearbyMobs(bot, maxDistance) {
         res.push(entities[i].entity);
     }
     return res;
+}
+
+export function getNearestEntityWhere(bot, predicate, maxDistance=16) {
+    return bot.nearestEntity(entity => predicate(entity) && bot.entity.position.distanceTo(entity.position) < maxDistance);
 }
 
 
@@ -121,13 +124,15 @@ export function getInventoryCounts(bot) {
      * let hasWoodenPickaxe = inventory['wooden_pickaxe'] > 0;
      **/
     let inventory = {};
-    for (const item of getInventoryStacks(bot)) {
-        if (inventory.hasOwnProperty(item.name)) {
-            inventory[item.name] = inventory[item.name] + item.count;
-        } else {
-            inventory[item.name] = item.count;
+    for (const item of bot.inventory.items()) {
+        if (item != null) {
+            if (inventory[item.name] == null) {
+                inventory[item.name] = 0;
+            }
+            inventory[item.name] += item.count;
         }
     }
+    console.log(inventory)
     return inventory;
 }
 
@@ -145,15 +150,15 @@ export function getPosition(bot) {
 }
 
 
-export function getNearbyMobTypes(bot) {
+export function getNearbyEntityTypes(bot) {
     /**
      * Get a list of all nearby mob types.
      * @param {Bot} bot - The bot to get nearby mobs for.
      * @returns {string[]} - A list of all nearby mobs.
      * @example
-     * let mobs = world.getNearbyMobTypes(bot);
+     * let mobs = world.getNearbyEntityTypes(bot);
      **/
-    let mobs = getNearbyMobs(bot, 16);
+    let mobs = getNearbyEntities(bot, 16);
     let found = [];
     for (let i = 0; i < mobs.length; i++) {
         if (!found.includes(mobs[i].name)) {

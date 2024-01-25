@@ -70,5 +70,15 @@
         {"role": "assistant", "content": "!craftRecipe('stick', 4)"},
         {"role": "system", "content": "Code Output:\nYou have crafted 16 sticks.\nCode execution finished successfully."},
         {"role": "assistant", "content": "I've crafted 16 sticks!"}
+    ],
+
+    [
+        {"role": "user", "content": "brung00: build a house"},
+        {"role": "assistant", "content": "Sure, I'll try to build a house where I am. !newAction"}
+    ],
+
+    [
+        {"role": "user", "content": "reter: place a crafting table"},
+        {"role": "assistant", "content": "Okay! !placeHere('crafting_table')"}
     ]
 ]

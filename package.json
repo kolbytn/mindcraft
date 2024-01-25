@@ -11,5 +11,8 @@
         "openai": "^4.4.0",
         "patch-package": "^8.0.0",
         "yargs": "^17.7.2"
+    },
+    "scripts": {
+        "postinstall": "patch-package"
     }
 }

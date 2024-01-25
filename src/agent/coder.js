@@ -89,7 +89,7 @@ export class Coder {
 
 
     async generateCode(agent_history) {
-        let system_message = "You are a minecraft bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world queries to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
+        let system_message = "You are a minecraft mineflayer bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world functions to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
         system_message += getSkillDocs();
 
         system_message += "\n\nExamples:\nUser zZZn98: come here \nAssistant: I am going to navigate to zZZn98. ```\nawait skills.goToPlayer(bot, 'zZZn98');```\nSystem: Code execution finished successfully.\nAssistant: Done.";
@@ -144,6 +144,9 @@ export class Coder {
                 role: 'system',
                 content: code_return.message
             });
+
+            if (this.agent.bot.interrupt_code)
+                return;
         }
         
         return 

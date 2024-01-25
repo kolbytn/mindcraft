@@ -1,10 +1,12 @@
 import { getItemId, getItemName } from "../utils/mcdata.js";
-import { getNearestBlocks, getNearestBlock, getInventoryCounts, getInventoryStacks, getNearbyMobs, getNearbyBlocks } from "./world.js";
+import { getNearestBlocks, getNearestBlock, getInventoryCounts, getNearestEntityWhere, getNearbyEntities, getNearbyBlocks } from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 
-export function log(bot, message) {
+export function log(bot, message, chat=false) {
     bot.output += message + '\n';
+    if (chat)
+        bot.chat(message);
 }
 
 
@@ -175,7 +177,8 @@ function equipHighestAttack(bot) {
         bot.equip(weapon, 'hand');
 }
 
-export async function attackMob(bot, mobType, kill=true) {
+
+export async function attackNearest(bot, mobType, kill=true) {
     /**
      * Attack mob of the given type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -183,41 +186,91 @@ export async function attackMob(bot, mobType, kill=true) {
      * @param {boolean} kill, whether or not to continue attacking until the mob is dead. Defaults to true.
      * @returns {Promise<boolean>} true if the mob was attacked, false if the mob type was not found.
      * @example
-     * await skills.attackMob(bot, "zombie", true);
+     * await skills.attackNearest(bot, "zombie", true);
      **/
     const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
     if (mob) {
-        let pos = mob.position;
-        console.log(bot.entity.position.distanceTo(pos))
-
-        equipHighestAttack(bot)
-
-        if (!kill) {
-            if (bot.entity.position.distanceTo(pos) > 5) {
-                console.log('moving to mob...')
-                await goToPosition(bot, pos.x, pos.y, pos.z);
-            }
-            console.log('attacking mob...')
-            await bot.attack(mob);
-        }
-        else {
-            bot.pvp.attack(mob);
-            while (getNearbyMobs(bot, 16).includes(mob)) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                if (bot.interrupt_code) {
-                    bot.pvp.stop();
-                    return false;
-                }
-            }
-            log(bot, `Successfully killed ${mobType}.`);
-            await pickupNearbyItem(bot);
-            return true;
-        }
-
+        return await attackEntity(bot, mob, kill);
     }
     log(bot, 'Could not find any '+mobType+' to attack.');
     return false;
 }
+
+export async function attackEntity(bot, entity, kill=true) {
+    /**
+     * Attack mob of the given type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {Entity} entity, the entity to attack.
+     * @returns {Promise<boolean>} true if the entity was attacked, false if interrupted
+     * @example
+     * await skills.attackEntity(bot, entity);
+     **/
+
+    let pos = entity.position;
+    console.log(bot.entity.position.distanceTo(pos))
+
+    equipHighestAttack(bot)
+
+    if (!kill) {
+        if (bot.entity.position.distanceTo(pos) > 5) {
+            console.log('moving to mob...')
+            await goToPosition(bot, pos.x, pos.y, pos.z);
+        }
+        console.log('attacking mob...')
+        await bot.attack(entity);
+    }
+    else {
+        bot.pvp.attack(entity);
+        while (getNearbyEntities(bot, 16).includes(entity)) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (bot.interrupt_code) {
+                bot.pvp.stop();
+                return false;
+            }
+        }
+        log(bot, `Successfully killed ${entity.name}.`);
+        await pickupNearbyItem(bot);
+        return true;
+    }
+}
+
+export async function defendSelf(bot, range=8) {
+    /**
+     * Defend yourself from all nearby hostile mobs until there are no more.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} range, the range to look for mobs. Defaults to 8.
+     * @returns {Promise<boolean>} true if the bot found any enemies and has killed them, false if no entities were found.
+     * @example
+     * await skills.defendSelf(bot);
+     * **/
+    bot.modes.pause('self_defense');
+    let attacked = false;
+    let enemy = getNearestEntityWhere(bot, entity => isHostile(entity), range);
+    while (enemy) {
+        equipHighestAttack(bot);
+        if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
+            try {
+                bot.pathfinder.setMovements(new pf.Movements(bot));
+                await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 2), true);
+            } catch (err) {/* might error if entity dies, ignore */}
+        }
+        bot.pvp.attack(enemy);
+        attacked = true;
+        await new Promise(resolve => setTimeout(resolve, 500));
+        enemy = getNearestEntityWhere(bot, entity => isHostile(entity), range);
+        if (bot.interrupt_code) {
+            bot.pvp.stop();
+            return false;
+        }
+    }
+    bot.pvp.stop();
+    if (attacked)
+        log(bot, `Successfully defended self.`);
+    else
+        log(bot, `No enemies nearby to defend self from.`);
+    return attacked;
+}
+
 
 
 export async function collectBlock(bot, blockType, num=1) {
@@ -252,6 +305,7 @@ export async function collectBlock(bot, blockType, num=1) {
         try {
             await bot.collectBlock.collect(block);
             collected++;
+            autoLight(bot);
         }
         catch (err) {
             if (err.name === 'NoChests') {
@@ -263,6 +317,7 @@ export async function collectBlock(bot, blockType, num=1) {
                 continue;
             }
         }
+        
         if (bot.interrupt_code)
             break;  
     }
@@ -286,7 +341,7 @@ export async function pickupNearbyItem(bot) {
         return false;
     }
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalNear(nearestItem.position.x, nearestItem.position.y, nearestItem.position.z, 1));
+    await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
     log(bot, `Successfully picked up a dropped item.`);
     return true;
 }
@@ -347,41 +402,24 @@ export async function placeBlock(bot, blockType, x, y, z) {
         log(bot, `Cannot place ${blockType} at ${targetBlock.position}: nothing to place on.`);
         return false;
     }
-    console.log("Placing on: ", buildOffBlock.position, buildOffBlock.name)
 
     let block = bot.inventory.items().find(item => item.name === blockType);
     if (!block) {
         log(bot, `Don't have any ${blockType} to place.`);
         return false;
     }
-
-    // too close
-    let blockAbove = bot.blockAt(targetBlock.position.plus(Vec3(0,1,0)))
-    if (bot.entity.position.distanceTo(targetBlock.position) < 1 || bot.entity.position.distanceTo(blockAbove.position) < 1) {
-        console.log('moving away from block...')
-        let found = false;
-        for(let i = 0; i < 10; i++) {
-            console.log('looking for block...')
-            const randomDirection = new Vec3((Math.random() > 0.5 ? 1 : -1), 0, (Math.random() > 0.5 ? 1 : -1));
-            const pos = targetBlock.position.add(randomDirection.scale(1.2));
-            if (bot.blockAt(pos).name === 'air') {
-                console.log('found good position')
-                bot.pathfinder.setMovements(new pf.Movements(bot));
-                await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 1.2));
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            console.log('could not find good position')
-            log(bot, `Was too close to place ${blockType} at ${targetBlock.position}.`)
-            return false;
-        }
+    const pos = bot.entity.position;
+    const pos_above = pos.plus(Vec3(0,1,0));
+    const dont_move_for = ['torch', 'redstone_torch', 'redstone', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire'];
+    if (!dont_move_for.includes(blockType) && (pos.distanceTo(targetBlock.position) < 1 || pos_above.distanceTo(targetBlock.position) < 1)) {
+        // too close
+        let goal = new pf.goals.GoalNear(targetBlock.position.x, targetBlock.position.y, targetBlock.position.z, 2);
+        let inverted_goal = new pf.goals.GoalInvert(goal);
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(inverted_goal);
     }
-    // too far
     if (bot.entity.position.distanceTo(targetBlock.position) > 4.5) {
-        // move close until it is within 6 blocks
-        console.log('moving closer to block...')
+        // too far
         let pos = targetBlock.position;
         bot.pathfinder.setMovements(new pf.Movements(bot));
         await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
@@ -390,9 +428,6 @@ export async function placeBlock(bot, blockType, x, y, z) {
     await bot.equip(block, 'hand');
     await bot.lookAt(buildOffBlock.position);
 
-    console.log("placing block...")
-
-    console.log('entities:', buildOffBlock.blockEntity, targetBlock.blockEntity)
     // will throw error if an entity is in the way, and sometimes even if the block was placed
     try {
         await bot.placeBlock(buildOffBlock, faceVec);
@@ -507,6 +542,7 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
     return true;
 }
 
+
 export async function goToPosition(bot, x, y, z, min_distance=2) {
     /**
      * Navigate to the given position.
@@ -540,6 +576,7 @@ export async function goToPlayer(bot, username) {
      * @example
      * await skills.goToPlayer(bot, "player");
      **/
+    bot.modes.pause('self_defense');
     let player = bot.players[username].entity
     if (!player) {
         log(bot, `Could not find ${username}.`);
@@ -547,7 +584,7 @@ export async function goToPlayer(bot, username) {
     }
     
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalFollow(player, 2), true);
+    await bot.pathfinder.goto(new pf.goals.GoalFollow(player, 3), true);
 
     log(bot, `You have reached ${username}.`);
 }
@@ -562,74 +599,52 @@ export async function followPlayer(bot, username) {
      * @example
      * await skills.followPlayer(bot, "player");
      **/
+    bot.modes.pause('self_defense');
+    bot.modes.pause('hunting');
+
     let player = bot.players[username].entity
     if (!player)
         return false;
 
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 2), true);
-    log(bot, `You are now actively following player ${username}.`);
-
-    while (!bot.interrupt_code) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    return true;
-}
-
-export async function defendPlayer(bot, username) {
-    /**
-     * Defend the given player endlessly, attacking any nearby monsters. Will not return until the code is manually stopped.
-     * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} username, the username of the player to defend.
-     * @returns {Promise<boolean>} true if the player was found, false otherwise.
-     * @example
-     * await skills.defendPlayer(bot, "bob");
-     **/
-    let player = bot.players[username].entity
-    if (!player)
-        return false;
-
-    const follow_distance = 3;
-    const attack_distance = 12;
-    const return_distance = 16;
+    const follow_distance = 4;
+    const attack_distance = 8;
 
     bot.pathfinder.setMovements(new pf.Movements(bot));
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
-    log(bot, `Actively defending player ${username}.`);
+    log(bot, `You are now actively following player ${username}.`);
 
     while (!bot.interrupt_code) {
-        if (bot.entity.position.distanceTo(player.position) < return_distance) {
-            const mobs = getNearbyMobs(bot, attack_distance).filter(mob => mob.type === 'mob' || mob.type === 'hostile');
-            const mob = mobs.sort((a, b) => a.position.distanceTo(player.position) - b.position.distanceTo(player.position))[0]; // get closest to player
-            if (mob) {
-                bot.pathfinder.stop();
-                log(bot, `Found ${mob.name}, attacking!`);
-                bot.chat(`Found ${mob.name}, attacking!`);
-                equipHighestAttack(bot);
-                bot.pvp.attack(mob);
-                while (getNearbyMobs(bot, attack_distance).includes(mob)) {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    console.log('attacking...')
-                    if (bot.interrupt_code)
-                        return;
-                    if (bot.entity.position.distanceTo(player.position) > return_distance) {
-                        console.log('stopping pvp...');
-                        bot.pvp.stop();
-                        break;
-                    }
-                }
-                console.log('resuming pathfinder...')
-                bot.pathfinder.setMovements(new pf.Movements(bot));
-                bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, 5), true);
-                await new Promise(resolve => setTimeout(resolve, 3000));
+        let acted = false;
+        if (bot.modes.isOn('self_defense')) {
+            const enemy = getNearestEntityWhere(bot, entity => isHostile(entity), attack_distance);
+            if (enemy) {
+                log(bot, `Found ${enemy.name}, attacking!`, true);
+                await defendSelf(bot, 8);
+                acted = true;
             }
+        }
+        if (bot.modes.isOn('hunting')) {
+            const animal = getNearestEntityWhere(bot, entity => isHuntable(entity), attack_distance);
+            if (animal) {
+                log(bot, `Hunting ${animal.name}!`, true);
+                await attackEntity(bot, animal, true);
+                acted = true;
+            }
+        }
+        if (bot.entity.position.distanceTo(player.position) < follow_distance) {
+            acted = autoLight(bot);
+        }
+
+        if (acted) { // if we did something then resume following
+            bot.pathfinder.setMovements(new pf.Movements(bot));
+            bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
         }
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     return true;
 }
+
 
 export async function goToBed(bot) {
     /**
@@ -660,4 +675,35 @@ export async function goToBed(bot) {
     }
     log(bot, `You have woken up.`);
     return true;
+}
+
+
+export function isHuntable(mob) {
+    if (!mob || !mob.name) return false;
+    const animals = ['chicken', 'cod', 'cow', 'llama', 'mooshroom', 'pig', 'pufferfish', 'rabbit', 'salmon', 'sheep', 'squid', 'tropical_fish', 'turtle'];
+    return animals.includes(mob.name.toLowerCase()) && !mob.metadata[16]; // metadata 16 is not baby
+}
+
+
+export function isHostile(mob) {
+    if (!mob || !mob.name) return false;
+    return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
+}
+
+
+async function autoLight(bot) {
+    if (bot.modes.isOn('torch_placing') && !bot.interrupt_code) {
+        let nearest_torch = getNearestBlock(bot, 'torch', 8);
+        if (!nearest_torch) {
+            let has_torch = bot.inventory.items().find(item => item.name === 'torch');
+            if (has_torch) {
+                try {
+                    log(bot, `Placing torch at ${bot.entity.position}.`);
+                    await placeBlock(bot, 'torch', bot.entity.position.x, bot.entity.position.y, bot.entity.position.z);
+                    return true;
+                } catch (err) {return true;}
+            }
+        }
+    }
+    return false;
 }
