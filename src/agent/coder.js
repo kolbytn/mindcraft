@@ -93,10 +93,10 @@ export class Coder {
         // wrapper to prevent overlapping code generation loops
         await this.stop();
         this.generating = true;
-        await this.generateCodeLoop(agent_history);
+        let res = await this.generateCodeLoop(agent_history);
         this.generating = false;
+        if (!res.interrupted) this.agent.bot.emit('idle');
     }
-
 
     async generateCodeLoop(agent_history) {
         let system_message = "You are a minecraft mineflayer bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world functions to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
@@ -120,11 +120,11 @@ export class Coder {
                     agent_history.add('system', code_return.message);
                     agent_history.add(this.agent.name, res);
                     this.agent.bot.chat(res);
-                    return;
+                    return {success: true, message: null, interrupted: false, timedout: false};
                 }
                 if (failures >= 1) {
                     agent_history.add('system', 'Action failed, agent would not write code.');
-                    return;
+                    return {success: false, message: null, interrupted: false, timedout: false};
                 }
                 messages.push({
                     role: 'system', 
@@ -138,14 +138,14 @@ export class Coder {
             const execution_file = await this.stageCode(code);
             if (!execution_file) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
-                return;
+                return {success: false, message: null, interrupted: false, timedout: false};
             }
             code_return = await this.execute(async ()=>{
                 return await execution_file.main(this.agent.bot);
             });
 
             if (code_return.interrupted && !code_return.timedout)
-                return;
+                return {success: false, message: null, interrupted: true, timedout: false};
             console.log(code_return.message);
 
             messages.push({
@@ -157,7 +157,7 @@ export class Coder {
                 content: code_return.message
             });
         }
-        return;
+        return {success: false, message: null, interrupted: false, timedout: true};
     }
 
     async executeDefault(func=null, name=null, timeout=10) {
@@ -196,7 +196,7 @@ export class Coder {
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.clear();
-            if (!interrupted) this.agent.bot.emit('idle');
+            if (!interrupted && !this.generating) this.agent.bot.emit('idle');
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             this.executing = false;
@@ -208,7 +208,7 @@ export class Coder {
             let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             this.clear();
-            if (!interrupted) this.agent.bot.emit('idle');
+            if (!interrupted && !this.generating) this.agent.bot.emit('idle');
             return {success: false, message, interrupted, timedout: false};
         }
     }
