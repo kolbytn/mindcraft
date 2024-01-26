@@ -10,6 +10,7 @@ export class Coder {
         this.file_counter = 0;
         this.fp = '/bots/'+agent.name+'/action-code/';
         this.executing = false;
+        this.generating = false;
         this.code_template = '';
         this.timedout = false;
     }
@@ -87,6 +88,15 @@ export class Coder {
 
 
     async generateCode(agent_history) {
+        // wrapper to prevent overlapping code generation loops
+        await this.stop();
+        this.generating = true;
+        await this.generateCodeLoop(agent_history);
+        this.generating = false;
+    }
+
+
+    async generateCodeLoop(agent_history) {
         let system_message = "You are a minecraft mineflayer bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world functions to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
         system_message += getSkillDocs();
 
