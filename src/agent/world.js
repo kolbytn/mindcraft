@@ -1,4 +1,5 @@
 import { getAllBlockIds } from '../utils/mcdata.js';
+import pf from 'mineflayer-pathfinder';
 
 
 export function getNearestBlocks(bot, block_types, distance=16, count=1) {
@@ -205,4 +206,19 @@ export function getNearbyBlockTypes(bot, distance=16) {
         }
     }
     return found;
+}
+
+export async function isClearPath(bot, target) {
+    /**
+     * Check if there is a path to the target that requires no digging or placing blocks.
+     * @param {Bot} bot - The bot to get the path for.
+     * @param {Entity} target - The target to path to.
+     * @returns {boolean} - True if there is a clear path, false otherwise.
+     */
+    let movements = new pf.Movements(bot)
+    movements.canDig = false;
+    movements.canPlaceOn = false;
+    let goal = new pf.goals.GoalNear(target.position.x, target.position.y, target.position.z, 1);
+    let path = await bot.pathfinder.getPathTo(movements, goal, 100);
+    return path.status === 'success';
 }

@@ -8,17 +8,20 @@ import * as world from './world.js';
 // paused: whether the mode is paused by another action that overrides the behavior (eg followplayer implements its own self defense)
 // update: the function that is called every tick (if on is true)
 // when a mode is active, it will trigger an action to be performed but won't wait for it to return output
+
 // the order of this list matters! first modes will be prioritized
+// while update functions are async, they should *not* be awaited longer than ~100ms as it will block the update loop
+// to perform longer actions, use the execute function which won't block the update loop
 const modes = [
     {
         name: 'self_defense',
         description: 'Automatically attack nearby enemies. Interrupts other actions.',
         on: true,
         active: false,
-        update: function (agent) {
+        update: async function (agent) {
             if (this.active) return;
             const enemy = world.getNearestEntityWhere(agent.bot, entity => skills.isHostile(entity), 8);
-            if (enemy) {
+            if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
                     await skills.defendSelf(agent.bot, 8);
@@ -31,10 +34,10 @@ const modes = [
         description: 'Automatically hunt nearby animals when idle.',
         on: true,
         active: false,
-        update: function (agent) {
+        update: async function (agent) {
             if (agent.idle) {
                 const huntable = world.getNearestEntityWhere(agent.bot, entity => skills.isHuntable(entity), 8);
-                if (huntable) {
+                if (huntable && await world.isClearPath(agent.bot, huntable)) {
                     execute(this, agent, async () => {
                         agent.bot.chat(`Hunting ${huntable.name}!`);
                         await skills.attackEntity(agent.bot, huntable);
@@ -48,10 +51,10 @@ const modes = [
         description: 'Automatically collect nearby items when idle.',
         on: true,
         active: false,
-        update: function (agent) {
+        update: async function (agent) {
             if (agent.idle) {
-                let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-                if (item) {
+                let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 4);
+                if (item && await world.isClearPath(agent.bot, item)) {
                     execute(this, agent, async () => {
                         // wait 2 seconds for the item to settle
                         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -174,7 +177,7 @@ class ModeController {
         return res;
     }
 
-    update() {
+    async update() {
         if (this.agent.idle) {
             // other actions might pause a mode to override it
             // when idle, unpause all modes
@@ -185,7 +188,7 @@ class ModeController {
         }
         for (let mode of this.modes_list) {
             if (mode.on && !mode.paused) {
-                mode.update(this.agent);
+                await mode.update(this.agent);
                 if (mode.active) {
                     break;
                 }
