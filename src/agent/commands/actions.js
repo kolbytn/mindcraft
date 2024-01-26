@@ -1,15 +1,13 @@
-import * as skills from '../skills.js';
-import * as world from '../world.js';
+import * as skills from '../library/skills.js';
+
 
 function wrapExecution(func, timeout=-1) {
     return async function (agent, ...args) {
-        agent.idle = false;
         let code_return = await agent.coder.execute(async () => {
             await func(agent, ...args);
         }, timeout);
         if (code_return.interrupted && !code_return.timedout)
             return;
-        agent.idle = true;
         return code_return.message;
     }
 }
@@ -19,11 +17,7 @@ export const actionsList = [
         name: '!newAction',
         description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
         perform: async function (agent) {
-            agent.idle = false;
-            let res = await agent.coder.generateCode(agent.history);
-            agent.idle = true;
-            if (res)
-                return '\n' + res + '\n';
+            await agent.coder.generateCode(agent.history);
         }
     },
     {
@@ -32,7 +26,6 @@ export const actionsList = [
         perform: async function (agent) {
             await agent.coder.stop();
             agent.coder.clear();
-            agent.idle = true;
             return 'Agent stopped.';
         }
     },
@@ -46,7 +39,7 @@ export const actionsList = [
         perform: async function (agent, mode_name, on) {
             const modes = agent.bot.modes;
             if (!modes.exists(mode_name))
-                return `Mode ${mode_name} does not exist.` + modes.getDocs();
+                return `Mode ${mode_name} does not exist.` + modes.getStr();
             if (modes.isOn(mode_name) === on)
                 return `Mode ${mode_name} is already ${on ? 'on' : 'off'}.`;
             modes.setOn(mode_name, on);
@@ -67,6 +60,18 @@ export const actionsList = [
         params: {'player_name': '(string) The name of the player to follow.'},
         perform: wrapExecution(async (agent, player_name) => {
             await skills.followPlayer(agent.bot, player_name);
+        })
+    },
+    {
+        name: '!givePlayer',
+        description: 'Give the specified item to the given player. Ex: !givePlayer("steve", "stone_pickaxe", 1)',
+        params: { 
+            'player_name': '(string) The name of the player to give the item to.', 
+            'item_name': '(string) The name of the item to give.' ,
+            'num': '(number) The number of items to give.'
+        },
+        perform: wrapExecution(async (agent, player_name, item_name, num) => {
+            await skills.giveToPlayer(agent.bot, item_name, player_name, num);
         })
     },
     {
