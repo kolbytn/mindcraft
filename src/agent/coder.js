@@ -12,6 +12,9 @@ export class Coder {
         this.executing = false;
         this.code_template = '';
         this.timedout = false;
+        this.default_func = null;
+        this.default_name = null;
+        this.interruptible = false;
     }
 
     async load() {
@@ -85,7 +88,6 @@ export class Coder {
         });
     }
 
-
     async generateCode(agent_history) {
         let system_message = "You are a minecraft mineflayer bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world functions to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
         system_message += getSkillDocs();
@@ -150,6 +152,21 @@ export class Coder {
         return;
     }
 
+    async executeDefault(func=null, name=null, timeout=10) {
+        if (func != null) {
+            this.default_func = func;
+            this.default_name = name;
+        }
+        if (this.default_func != null) {
+            this.interruptible = true;
+            let res = await this.execute(this.default_func, timeout);
+            this.interruptible = false;
+            return res;
+        } else {
+            return {success: false, message: null, interrupted: false, timedout: false};
+        }
+    }
+
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
     async execute(func, timeout=10) {
         if (!this.code_template) return {success: false, message: "Code template not loaded.", interrupted: false, timedout: false};
@@ -171,6 +188,7 @@ export class Coder {
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.clear();
+            if (!interrupted) this.agent.bot.emit('idle');
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             console.error("Code execution triggered catch: " + err);
@@ -180,6 +198,7 @@ export class Coder {
             let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             this.clear();
+            if (!interrupted) this.agent.bot.emit('idle');
             return {success: false, message, interrupted, timedout: false};
         }
     }

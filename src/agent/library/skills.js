@@ -643,49 +643,18 @@ export async function followPlayer(bot, username) {
      * @example
      * await skills.followPlayer(bot, "player");
      **/
-    bot.modes.pause('self_defense');
-    bot.modes.pause('hunting');
-
     let player = bot.players[username].entity
     if (!player)
         return false;
 
     const follow_distance = 4;
-    const attack_distance = 8;
-
     bot.pathfinder.setMovements(new pf.Movements(bot));
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
     while (!bot.interrupt_code) {
-        let acted = false;
-        if (bot.modes.isOn('self_defense')) {
-            const enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), attack_distance);
-            if (enemy) {
-                log(bot, `Found ${enemy.name}, attacking!`, true);
-                await defendSelf(bot, 8);
-                acted = true;
-            }
-        }
-        if (bot.modes.isOn('hunting')) {
-            const animal = world.getNearestEntityWhere(bot, entity => mc.isHuntable(entity), attack_distance);
-            if (animal) {
-                log(bot, `Hunting ${animal.name}!`, true);
-                await attackEntity(bot, animal, true);
-                acted = true;
-            }
-        }
-        if (bot.entity.position.distanceTo(player.position) < follow_distance) {
-            acted = autoLight(bot);
-        }
-
-        if (acted) { // if we did something then resume following
-            bot.pathfinder.setMovements(new pf.Movements(bot));
-            bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
-        }
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
     }
-
     return true;
 }
 

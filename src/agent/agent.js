@@ -165,6 +165,10 @@ export class Agent {
             }
         });
 
+        this.bot.on('idle', () => {
+            this.coder.executeDefault();
+        });
+
         this.self_defense = true;
         this.defending = false;
         this._pause_defending = false;
