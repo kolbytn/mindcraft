@@ -64,10 +64,14 @@ export const actionsList = [
     },
     {
         name: '!givePlayer',
-        description: 'Give the specified item to the given player. Ex: !givePlayer("steve", "stone_pickaxe")',
-        params: { 'player_name': '(string) The name of the player to give the item to.', 'item_name': '(string) The name of the item to give.' },
-        perform: wrapExecution(async (agent, player_name, item_name) => {
-            await skills.giveToPlayer(agent.bot, item_name, player_name);
+        description: 'Give the specified item to the given player. Ex: !givePlayer("steve", "stone_pickaxe", 1)',
+        params: { 
+            'player_name': '(string) The name of the player to give the item to.', 
+            'item_name': '(string) The name of the item to give.' ,
+            'num': '(number) The number of items to give.'
+        },
+        perform: wrapExecution(async (agent, player_name, item_name, num) => {
+            await skills.giveToPlayer(agent.bot, item_name, player_name, num);
         })
     },
     {

@@ -62,7 +62,7 @@ export class Coder {
     }
 
     santitizeCode(code) {
-        const remove_strs = ['javascript', 'js']
+        const remove_strs = ['Javascript', 'javascript', 'js']
         for (let r of remove_strs) {
             if (code.startsWith(r)) {
                 code = code.slice(r.length);
@@ -97,6 +97,8 @@ export class Coder {
         let code_return = null;
         let failures = 0;
         for (let i=0; i<5; i++) {
+            if (this.agent.bot.interrupt_code)
+                return;
             console.log(messages)
             let res = await sendRequest(messages, system_message);
             console.log('Code generation response:', res)
@@ -142,11 +144,7 @@ export class Coder {
                 role: 'system',
                 content: code_return.message
             });
-
-            if (this.agent.bot.interrupt_code)
-                return;
         }
-
         return;
     }
 
@@ -173,8 +171,10 @@ export class Coder {
             this.clear();
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
-            console.error("Code execution triggered catch: " + err);
+            this.executing = false;
             clearTimeout(TIMEOUT);
+
+            console.error("Code execution triggered catch: " + err);
             await this.stop();
 
             let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err;

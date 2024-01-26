@@ -4,7 +4,7 @@ import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 
 
-function log(bot, message, chat=false) {
+export function log(bot, message, chat=false) {
     bot.output += message + '\n';
     if (chat)
         bot.chat(message);
