@@ -169,13 +169,13 @@ export class Agent {
             this.coder.executeDefault();
         });
 
-        this.self_defense = true;
-        this.defending = false;
-        this._pause_defending = false;
-
         // set interval every 300ms to update the bot's state
         this.update_interval = setInterval(async () => {
             this.bot.modes.update();
         }, 300);
+    }
+
+    isIdle() {
+        return !this.coder.executing && !this.coder.generating;
     }
 }

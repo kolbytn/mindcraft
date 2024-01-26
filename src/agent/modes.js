@@ -166,7 +166,7 @@ class ModeController {
     }
 
     update() {
-        if (!this.agent.coder.executing) {
+        if (this.agent.isIdle()) {
             // other actions might pause a mode to override it
             // when idle, unpause all modes
             for (let mode of this.modes_list) {
@@ -175,7 +175,7 @@ class ModeController {
             }
         }
         for (let mode of this.modes_list) {
-            let available = mode.interrupts.includes('all') || !this.agent.coder.executing;
+            let available = mode.interrupts.includes('all') || this.agent.isIdle();
             let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('defaults') || mode.interrupts.includes(this.agent.coder.default_name));
             if (mode.on && !mode.paused && !mode.active && (available || interruptible)) {
                 mode.update(this.agent);
