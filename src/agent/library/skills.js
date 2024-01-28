@@ -331,8 +331,12 @@ export async function collectBlock(bot, blockType, num=1) {
         log(bot, `Invalid number of blocks to collect: ${num}.`);
         return false;
     }
+    let blocktypes = [blockType];
+    if (blockType.endsWith('ore'))
+        blocktypes.push('deepslate_'+blockType);
+
     let collected = 0;
-    const blocks = world.getNearestBlocks(bot, blockType, 64, num);
+    const blocks = world.getNearestBlocks(bot, blocktypes, 64, num);
     if (blocks.length === 0) {
         log(bot, `Could not find any ${blockType} to collect.`);
         return false;

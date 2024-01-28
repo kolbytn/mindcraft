@@ -49,9 +49,12 @@ export function getNearestBlocks(bot, block_types, distance=16, count=1) {
      * @example
      * let woodBlocks = world.getNearestBlocks(bot, ['oak_log', 'birch_log'], 16, 1);
      **/
+    // if blocktypes is not a list, make it a list
+    if (!Array.isArray(block_types))
+        block_types = [block_types];
     let block_locs = bot.findBlocks({
         matching: (block) => {
-            return block && block_types.includes(block.name);
+            return block && block_types.some(name => name === block.name);
         },
         maxDistance: distance,
         count: count
