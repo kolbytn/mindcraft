@@ -30,6 +30,21 @@ export const actionsList = [
         }
     },
     {
+        name: '!restart',
+        description: 'Restart the agent process.',
+        perform: async function (agent) {
+            process.exit(1);
+        }
+    },
+    {
+        name: '!clear',
+        description: 'Clear the chat history.',
+        perform: async function (agent) {
+            agent.history.clear();
+            return agent.name + "'s chat history was cleared, starting new conversation from scratch.";
+        }
+    },
+    {
         name: '!setMode',
         description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment. Ex: !setMode("hunting", true)',
         params: {
