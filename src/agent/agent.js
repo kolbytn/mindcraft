@@ -75,6 +75,10 @@ export class Agent {
 
         const user_command_name = containsCommand(message);
         if (user_command_name) {
+            if (!commandExists(user_command_name)) {
+                this.bot.chat(`Command '${user_command_name}' does not exist.`);
+                return;
+            }
             this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
             let execute_res = await executeCommand(this, message);
             if (user_command_name === '!newAction') {
