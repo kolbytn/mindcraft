@@ -1,16 +1,16 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
 import { sendRequest } from '../utils/gpt.js';
-import { getSkillDocs } from './skill-library.js';
-import { Examples } from './examples.js';
+import { getSkillDocs } from './library/index.js';
+import { Examples } from '../utils/examples.js';
 
 
 export class Coder {
     constructor(agent) {
         this.agent = agent;
-        this.current_code = '';
         this.file_counter = 0;
         this.fp = '/bots/'+agent.name+'/action-code/';
         this.executing = false;
+        this.generating = false;
         this.code_template = '';
         this.timedout = false;
     }
@@ -59,12 +59,11 @@ export class Coder {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-        this.current_code = code;
         return await import('../..' + this.fp + filename);
     }
 
     santitizeCode(code) {
-        const remove_strs = ['javascript', 'js']
+        const remove_strs = ['Javascript', 'javascript', 'js']
         for (let r of remove_strs) {
             if (code.startsWith(r)) {
                 code = code.slice(r.length);
@@ -89,6 +88,15 @@ export class Coder {
 
 
     async generateCode(agent_history) {
+        // wrapper to prevent overlapping code generation loops
+        await this.stop();
+        this.generating = true;
+        await this.generateCodeLoop(agent_history);
+        this.generating = false;
+    }
+
+
+    async generateCodeLoop(agent_history) {
         let system_message = "You are a minecraft mineflayer bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world functions to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
         system_message += getSkillDocs();
 
@@ -99,6 +107,8 @@ export class Coder {
         let code_return = null;
         let failures = 0;
         for (let i=0; i<5; i++) {
+            if (this.agent.bot.interrupt_code)
+                return;
             console.log(messages)
             let res = await sendRequest(messages, system_message);
             console.log('Code generation response:', res)
@@ -144,12 +154,8 @@ export class Coder {
                 role: 'system',
                 content: code_return.message
             });
-
-            if (this.agent.bot.interrupt_code)
-                return;
         }
-        
-        return 
+        return;
     }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
@@ -173,7 +179,6 @@ export class Coder {
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.clear();
-            this.agent.bot.emit("code_terminated");
             return {success:true, message: output, interrupted, timedout};
         } catch (err) {
             this.executing = false;
@@ -181,11 +186,10 @@ export class Coder {
 
             console.error("Code execution triggered catch: " + err);
             await this.stop();
-            let message = this.formatOutput(this.agent.bot);
-            message += '!!Code threw exception!!  Error: ' + err;
+
+            let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err;
             let interrupted = this.agent.bot.interrupt_code;
             this.clear();
-            this.agent.bot.emit("code_terminated");
             return {success: false, message, interrupted, timedout: false};
         }
     }
@@ -217,7 +221,6 @@ export class Coder {
     }
 
     clear() {
-        this.current_code = '';
         this.agent.bot.output = '';
         this.agent.bot.interrupt_code = false;
         this.timedout = false;

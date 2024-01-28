@@ -1,12 +1,6 @@
 import * as skills from './skills.js';
 import * as world from './world.js';
 
-export function getSkillDocs() {
-    let docstring = "\n*SKILL DOCS\nThese skills are javascript functions that can be called when writing actions and skills.\n";
-    docstring += docHelper(Object.values(skills), 'skills');
-    docstring += docHelper(Object.values(world), 'world');
-    return docstring + '*\n';
-}
 
 export function docHelper(functions, module_name) {
     let docstring = '';
@@ -20,6 +14,9 @@ export function docHelper(functions, module_name) {
     return docstring;
 }
 
-export function containsCodeBlock(message) {
-    return message.indexOf('```') !== -1;
+export function getSkillDocs() {
+    let docstring = "\n*SKILL DOCS\nThese skills are javascript functions that can be called when writing actions and skills.\n";
+    docstring += docHelper(Object.values(skills), 'skills');
+    docstring += docHelper(Object.values(world), 'world');
+    return docstring + '*\n';
 }

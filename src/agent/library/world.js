@@ -1,5 +1,41 @@
-import { getAllBlockIds } from '../utils/mcdata.js';
 import pf from 'mineflayer-pathfinder';
+import { getAllBlockIds } from '../../utils/mcdata.js';
+
+
+export function getNearestFreeSpace(bot, size=1, distance=8) {
+    /**
+     * Get the nearest empty space with solid blocks beneath it of the given size.
+     * @param {Bot} bot - The bot to get the nearest free space for.
+     * @param {number} size - The (size x size) of the space to find, default 1.
+     * @param {number} distance - The maximum distance to search, default 8.
+     * @returns {Vec3} - The south west corner position of the nearest free space.
+     * @example
+     * let position = world.getNearestFreeSpace(bot, 1, 8);
+     **/
+    let empty_pos = bot.findBlocks({
+        matching: (block) => {
+            return block && block.name == 'air';
+        },
+        maxDistance: distance,
+        count: 1000
+    });
+    for (let i = 0; i < empty_pos.length; i++) {
+        let empty = true;
+        for (let x = 0; x < size; x++) {
+            for (let z = 0; z < size; z++) {
+                let top = bot.blockAt(empty_pos[i].offset(x, 0, z));
+                let bottom = bot.blockAt(empty_pos[i].offset(x, -1, z));
+                if (!top || !top.name == 'air' || !bottom || !bottom.diggable) {
+                    empty = false;
+                    break;
+                }
+            }
+        }
+        if (empty) {
+            return empty_pos[i];
+        }
+    }
+}
 
 
 export function getNearestBlocks(bot, block_types, distance=16, count=1) {
@@ -221,4 +257,16 @@ export async function isClearPath(bot, target) {
     let goal = new pf.goals.GoalNear(target.position.x, target.position.y, target.position.z, 1);
     let path = await bot.pathfinder.getPathTo(movements, goal, 100);
     return path.status === 'success';
+}
+
+export function getBiomeName(bot) {
+    /**
+     * Get the name of the biome the bot is in.
+     * @param {Bot} bot - The bot to get the biome for.
+     * @returns {string} - The name of the biome.
+     * @example
+     * let biome = world.getBiomeName(bot);
+     **/
+    const biomeId = bot.world.getBiome(bot.entity.position);
+    return mcdata.biomes[biomeId].name;
 }

@@ -1,11 +1,10 @@
+import { History } from './history.js';
+import { Coder } from './coder.js';
+import { initModes } from './modes.js';
+import { Examples } from '../utils/examples.js';
 import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
-import { History } from './history.js';
-import { Examples } from './examples.js';
-import { Coder } from './coder.js';
-import { containsCommand, commandExists, executeCommand } from './commands.js';
-import { Events } from './events.js';
-import { initModes } from './modes.js';
+import { containsCommand, commandExists, executeCommand } from './commands/index.js';
 
 
 export class Agent {
@@ -21,10 +20,7 @@ export class Agent {
 
         this.bot = initBot(name);
 
-        this.events = new Events(this, this.history.events);
-
         initModes(this);
-        this.idle = true;
 
         this.bot.on('login', async () => {
                 
@@ -63,7 +59,7 @@ export class Agent {
                 this.bot.emit('finished_executing');
             }
 
-            this.startUpdateLoop();
+            this.startEvents();
         });
     }
 
@@ -130,7 +126,24 @@ export class Agent {
         this.bot.emit('finished_executing');
     }
 
-    startUpdateLoop() {
+    startEvents() {
+        // Custom events
+        this.bot.on('time', () => {
+            if (this.bot.time.timeOfDay == 0)
+            this.bot.emit('sunrise');
+            else if (this.bot.time.timeOfDay == 6000)
+            this.bot.emit('noon');
+            else if (this.bot.time.timeOfDay == 12000)
+            this.bot.emit('sunset');
+            else if (this.bot.time.timeOfDay == 18000)
+            this.bot.emit('midnight');
+        });
+        this.bot.on('health', () => {
+            if (this.bot.health < 20)
+            this.bot.emit('damaged');
+        });
+
+        // Logging callbacks
         this.bot.on('error' , (err) => {
             console.error('Error event!', err);
         });
@@ -164,5 +177,9 @@ export class Agent {
                 }
             }
         }, INTERVAL);
+    }
+
+    isIdle() {
+        return !this.coder.executing && !this.coder.generating;
     }
 }

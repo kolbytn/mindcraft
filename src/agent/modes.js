@@ -1,5 +1,7 @@
-import * as skills from './skills.js';
-import * as world from './world.js';
+import * as skills from './library/skills.js';
+import * as world from './library/world.js';
+import * as mc from '../utils/mcdata.js';
+
 
 // a mode is a function that is called every tick to respond immediately to the world
 // it has the following fields:
@@ -20,7 +22,7 @@ const modes = [
         active: false,
         update: async function (agent) {
             if (this.active) return;
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => skills.isHostile(entity), 8);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
@@ -35,8 +37,8 @@ const modes = [
         on: true,
         active: false,
         update: async function (agent) {
-            if (agent.idle) {
-                const huntable = world.getNearestEntityWhere(agent.bot, entity => skills.isHuntable(entity), 8);
+            if (agent.isIdle()) {
+                const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
                 if (huntable && await world.isClearPath(agent.bot, huntable)) {
                     execute(this, agent, async () => {
                         agent.bot.chat(`Hunting ${huntable.name}!`);
@@ -52,8 +54,8 @@ const modes = [
         on: true,
         active: false,
         update: async function (agent) {
-            if (agent.idle) {
-                let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 4);
+            if (agent.isIdle()) {
+                let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
                 if (item && await world.isClearPath(agent.bot, item)) {
                     execute(this, agent, async () => {
                         // wait 2 seconds for the item to settle
@@ -71,7 +73,7 @@ const modes = [
         active: false,
         update: function (agent) {
             if (this.active) return;
-            if (agent.idle) {
+            if (agent.isIdle()) {
                 // TODO: check light level instead of nearby torches, block.light is broken
                 const near_torch = world.getNearestBlock(agent.bot, 'torch', 8);
                 if (!near_torch) {
@@ -97,7 +99,7 @@ const modes = [
         last_entity: null,
         next_change: 0,
         update: function (agent) {
-            if (agent.idle) {
+            if (agent.isIdle()) {
                 this.active = true;
                 const entity = agent.bot.nearestEntity();
                 let entity_in_view = entity && entity.position.distanceTo(agent.bot.entity.position) < 10 && entity.name !== 'enderman';
@@ -132,13 +134,10 @@ const modes = [
 
 async function execute(mode, agent, func, timeout=-1) {
     mode.active = true;
-    await agent.coder.stop();
-    agent.idle = false;
     let code_return = await agent.coder.execute(async () => {
         await func();
     }, timeout);
     mode.active = false;
-    agent.idle = true;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
 }
 
@@ -168,7 +167,7 @@ class ModeController {
         this.modes_map[mode_name].paused = true;
     }
 
-    getDocs() {
+    getStr() {
         let res = 'Available Modes:';
         for (let mode of this.modes_list) {
             let on = mode.on ? 'ON' : 'OFF';
@@ -178,7 +177,7 @@ class ModeController {
     }
 
     async update() {
-        if (this.agent.idle) {
+        if (this.agent.isIdle()) {
             // other actions might pause a mode to override it
             // when idle, unpause all modes
             for (let mode of this.modes_list) {
