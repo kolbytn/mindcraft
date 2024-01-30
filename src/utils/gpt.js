@@ -7,11 +7,17 @@ if (process.env.OPENAI_ORG_ID) {
         organization: process.env.OPENAI_ORG_ID,
         apiKey: process.env.OPENAI_API_KEY,
     };
-} else {
+} 
+else if (process.env.OPENAI_API_KEY) {
     openAiConfig = {
         apiKey: process.env.OPENAI_API_KEY,
     };
 }
+else {
+    console.error('OpenAI API key missing! Make sure you set OPENAI_API_KEY and OPENAI_ORG_ID (optional) environment variables.');
+    process.exit(1);
+}
+
 const openai = new OpenAIApi(openAiConfig);
 
 

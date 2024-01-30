@@ -1,0 +1,6 @@
+{
+    "host": "localhost",
+    "port": 55916,
+    "auth": "offline",
+    "allow_insecure_coding": false
+}

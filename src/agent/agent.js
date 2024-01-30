@@ -14,16 +14,18 @@ export class Agent {
         this.history = new History(this);
         this.coder = new Coder(this);
 
+        console.log('Loading examples...');
+
         this.history.load(profile);
         await this.examples.load('./src/examples.json');
         await this.coder.load();
 
+        console.log('Logging in...');
         this.bot = initBot(name);
 
         initModes(this);
 
         this.bot.on('login', async () => {
-                
             console.log(`${this.name} logged in.`);
             this.coder.clear();
             
