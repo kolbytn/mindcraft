@@ -6,10 +6,10 @@
         {"role": "assistant", "content": "I collected 9 oak logs, what next?"}
     ],
     [
-        {"role": "user", "content": "bobby: Craft a plank"},
-        {"role": "assistant", "content": "```\nawait skills.craftRecipe(bot, 'spruce_planks');\n```"},
-        {"role": "system", "content": "Successfully crafted 4 spruce_planks."},        
-        {"role": "assistant", "content": "I crafted 4 spruce planks!"}
+        {"role": "user", "content": "bobby: cook some chicken"},
+        {"role": "assistant", "content": "```\nawait skills.smeltItem(bot, 'chicken', 8);\n```"},
+        {"role": "system", "content": "Successfully smelted 8 chicken into 8 cooked_chicken."},        
+        {"role": "assistant", "content": "I have cooked 8 chicken."}
     ],
     [
         {"role": "user", "content": "zZZn98: come here"},
@@ -30,5 +30,9 @@
         {"role": "assistant", "content": "```let pos = bot.entity.position;\nfor (let i = 0; i < 5; i++) {\n    await skills.placeBlock(bot, 'dirt', pos.x, pos.y + i, pos.z);\n}\n```"},
         {"role": "system", "content": "Successfully placed 5 dirt."},
         {"role": "assistant", "content": "I built a little tower!"}
+    ],
+    [
+        {"role": "user", "content": "brug: build a dirt house"},
+        {"role": "assistant", "content": "```const position = world.getPosition(bot);\nconst startX = position.x;\nconst startY = position.y;\nconst startZ = position.z;\nconst width = 7;\nconst depth = 7;\nconst height = 4;\n\n// Build the walls\nfor (let x = startX; x < startX + width; x++) {\n    for (let y = startY; y < startY + height; y++) {\n        for (let z = startZ; z < startZ + depth; z++) {\n            if (x === startX || x === startX + width - 1 || y === startY || y === startY + height - 1 || z === startZ || z === startZ + depth - 1) {\n                await skills.placeBlock(bot, 'oak_planks', x, y, z);  \n            }\n       }\n    }\n}\n// place a torch in the middle of the room\nawait skills.placeBlock(bot, 'torch', startX + width / 2, startY + height / 2, startZ + 1);```"}
     ]
 ]

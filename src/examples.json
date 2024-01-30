@@ -78,7 +78,9 @@
     ],
 
     [
-        {"role": "user", "content": "reter: place a crafting table"},
-        {"role": "assistant", "content": "Okay! !placeHere('crafting_table')"}
+        {"role": "user", "content": "umpire_man: follow me without hunting"},
+        {"role": "assistant", "content": "Okay, first I'll turn off hunting mode !setMode('hunting', false)"},
+        {"role": "system", "content": "'hunting' mode disabled."},
+        {"role": "assistant", "content": "Now I'll follow you !followPlayer('umpire_man')"}
     ]
 ]

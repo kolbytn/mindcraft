@@ -112,4 +112,9 @@ export class History {
             console.error(`No file for profile '${load_path}' for agent ${this.name}.`);
         }
     }
+
+    clear() {
+        this.turns = [];
+        this.memory = '';
+    }
 }
