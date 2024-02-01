@@ -278,7 +278,7 @@ export async function attackEntity(bot, entity, kill=true) {
     }
 }
 
-export async function defendSelf(bot, range=8) {
+export async function defendSelf(bot, range=9) {
     /**
      * Defend yourself from all nearby hostile mobs until there are no more.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -336,24 +336,27 @@ export async function collectBlock(bot, blockType, num=1) {
         blocktypes.push('deepslate_'+blockType);
 
     let collected = 0;
-    const blocks = world.getNearestBlocks(bot, blocktypes, 64, num);
-    if (blocks.length === 0) {
-        log(bot, `Could not find any ${blockType} to collect.`);
-        return false;
-    }
-    const first_block = blocks[0];
-    await bot.tool.equipForBlock(first_block);
-    const itemId = bot.heldItem ? bot.heldItem.type : null
-    if (!first_block.canHarvest(itemId)) {
-        log(bot, `Don't have right tools to harvest ${blockType}.`);
-        return false;
-    }
 
-    for (let block of blocks) {
+    for (let i=0; i<num; i++) {
+        const blocks = world.getNearestBlocks(bot, blocktypes, 64, 1);
+        if (blocks.length === 0) {
+            if (collected === 0)
+                log(bot, `No ${blockType} nearby to collect.`);
+            else
+                log(bot, `No more ${blockType} nearby to collect.`);
+            break;
+        }
+        const block = blocks[0];
+        await bot.tool.equipForBlock(block);
+        const itemId = bot.heldItem ? bot.heldItem.type : null
+        if (!block.canHarvest(itemId)) {
+            log(bot, `Don't have right tools to harvest ${blockType}.`);
+            return false;
+        }
         try {
             await bot.collectBlock.collect(block);
             collected++;
-            autoLight(bot);
+            await autoLight(bot);
         }
         catch (err) {
             if (err.name === 'NoChests') {
@@ -667,7 +670,7 @@ export async function followPlayer(bot, username) {
             const enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), attack_distance);
             if (enemy) {
                 log(bot, `Found ${enemy.name}, attacking!`, true);
-                await defendSelf(bot, 8);
+                await defendSelf(bot);
                 acted = true;
             }
         }
@@ -680,7 +683,7 @@ export async function followPlayer(bot, username) {
             }
         }
         if (bot.entity.position.distanceTo(player.position) < follow_distance) {
-            acted = autoLight(bot);
+            acted = await autoLight(bot);
         }
 
         if (acted) { // if we did something then resume following

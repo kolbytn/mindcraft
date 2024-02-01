@@ -29,6 +29,7 @@ Run `node main.js`
 You can configure details in `settings.json`. Here is an example settings for connecting to a non-local server:
 ```
 {
+    "minecraft_version": "1.20.1",
     "host": "111.222.333.444",
     "port": 55920,
     "auth": "microsoft",
