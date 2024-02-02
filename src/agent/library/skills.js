@@ -697,6 +697,44 @@ export async function followPlayer(bot, username) {
 }
 
 
+export async function moveAway(bot, distance) {
+    /**
+     * Move away from current position in any direction.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     * @example
+     * await skills.moveAway(bot, 8);
+     **/
+    const pos = bot.entity.position;
+    let goal = new pf.goals.GoalNear(pos.x, pos.y, pos.z, distance);
+    let inverted_goal = new pf.goals.GoalInvert(goal);
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    await bot.pathfinder.goto(inverted_goal);
+    let new_pos = bot.entity.position;
+    log(bot, `Moved away from nearest entity to ${new_pos}.`);
+    return true;
+}
+
+export async function stay(bot) {
+    /**
+     * Stay in the current position until interrupted. Disables all modes.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if the bot stayed, false otherwise.
+     * @example
+     * await skills.stay(bot);
+     **/
+    bot.modes.pause('self_defense');
+    bot.modes.pause('hunting');
+    bot.modes.pause('torch_placing');
+    bot.modes.pause('item_collecting');
+    while (!bot.interrupt_code) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    return true;
+}
+
+
 export async function goToBed(bot) {
     /**
      * Sleep in the nearest bed.
