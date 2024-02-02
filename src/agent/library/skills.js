@@ -273,7 +273,7 @@ export async function attackEntity(bot, entity, kill=true) {
             }
         }
         log(bot, `Successfully killed ${entity.name}.`);
-        await pickupNearbyItem(bot);
+        await pickupNearbyItems(bot);
         return true;
     }
 }
@@ -376,24 +376,30 @@ export async function collectBlock(bot, blockType, num=1) {
     return true;
 }
 
-export async function pickupNearbyItem(bot) {
+export async function pickupNearbyItems(bot) {
     /**
      * Pick up all nearby items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @returns {Promise<boolean>} true if the items were picked up, false otherwise.
      * @example
-     * await skills.pickupNearbyItem(bot);
+     * await skills.pickupNearbyItems(bot);
      **/
-    const distance = 10;
-    let nearestItem = bot.nearestEntity(entity => entity.name === 'item' && bot.entity.position.distanceTo(entity.position) < distance);
-
-    if (!nearestItem) {
-        log(bot, `Didn't pick up items.`);
-        return false;
+    const distance = 8;
+    const getNearestItem = bot => bot.nearestEntity(entity => entity.name === 'item' && bot.entity.position.distanceTo(entity.position) < distance);
+    let nearestItem = getNearestItem(bot);
+    let pickedUp = 0;
+    while (nearestItem) {
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        let prev = nearestItem;
+        nearestItem = getNearestItem(bot);
+        if (prev === nearestItem) {
+            break;
+        }
+        pickedUp++;
     }
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
-    log(bot, `Successfully picked up a dropped item.`);
+    log(bot, `Picked up ${pickedUp} items.`);
     return true;
 }
 
