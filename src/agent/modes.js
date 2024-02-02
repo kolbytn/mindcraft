@@ -10,7 +10,10 @@ import * as mc from '../utils/mcdata.js';
 // paused: whether the mode is paused by another action that overrides the behavior (eg followplayer implements its own self defense)
 // update: the function that is called every tick (if on is true)
 // when a mode is active, it will trigger an action to be performed but won't wait for it to return output
+
 // the order of this list matters! first modes will be prioritized
+// while update functions are async, they should *not* be awaited longer than ~100ms as it will block the update loop
+// to perform longer actions, use the execute function which won't block the update loop
 const modes = [
     {
         name: 'self_defense',
@@ -18,12 +21,12 @@ const modes = [
         interrupts: ['all'],
         on: true,
         active: false,
-        update: function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
-            if (enemy) {
+        update: async function (agent) {
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 9);
+            if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.defendSelf(agent.bot, 8);
+                    await skills.defendSelf(agent.bot, 9);
                 });
             }
         }
@@ -34,9 +37,9 @@ const modes = [
         interrupts: ['defaults'],
         on: true,
         active: false,
-        update: function (agent) {
+        update: async function (agent) {
             const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
-            if (huntable) {
+            if (huntable && await world.isClearPath(agent.bot, huntable)) {
                 execute(this, agent, async () => {
                     agent.bot.chat(`Hunting ${huntable.name}!`);
                     await skills.attackEntity(agent.bot, huntable);
@@ -50,14 +53,24 @@ const modes = [
         interrupts: ['followPlayer'],
         on: true,
         active: false,
-        update: function (agent) {
+
+        wait: 2, // number of seconds to wait after noticing an item to pick it up
+        noticedAt: -1,
+        update: async function (agent) {
             let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-            if (item) {
-                execute(this, agent, async () => {
-                    // wait 2 seconds for the item to settle
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    await skills.pickupNearbyItem(agent.bot);
-                });
+            if (item && await world.isClearPath(agent.bot, item)) {
+                if (this.noticedAt === -1) {
+                    this.noticedAt = Date.now();
+                }
+                if (Date.now() - this.noticedAt > this.wait * 1000) {
+                    agent.bot.chat(`Picking up ${item.name}!`);
+                    execute(this, agent, async () => {
+                        await skills.pickupNearbyItems(agent.bot);
+                    });
+                }
+            }
+            else {
+                this.noticedAt = -1;
             }
         }
     },
@@ -165,20 +178,22 @@ class ModeController {
         return res;
     }
 
-    update() {
+    unPauseAll() {
+        for (let mode of this.modes_list) {
+            if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
+            mode.paused = false;
+        }
+    }
+
+    async update() {
         if (this.agent.isIdle()) {
-            // other actions might pause a mode to override it
-            // when idle, unpause all modes
-            for (let mode of this.modes_list) {
-                if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
-                mode.paused = false;
-            }
+            this.unPauseAll();
         }
         for (let mode of this.modes_list) {
             let available = mode.interrupts.includes('all') || this.agent.isIdle();
-            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('defaults') || mode.interrupts.includes(this.agent.coder.default_name));
+            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('defaults') || mode.interrupts.includes(this.agent.coder.resume_name));
             if (mode.on && !mode.paused && !mode.active && (available || interruptible)) {
-                mode.update(this.agent);
+                await mode.update(this.agent);
             }
             if (mode.active) break;
         }

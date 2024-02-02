@@ -1,13 +1,13 @@
 import * as skills from '../library/skills.js';
 
 
-function wrapExecution(func, timeout=-1, default_name=null) {
+function wrapExecution(func, timeout=-1, resume_name=null) {
     return async function (agent, ...args) {
         let code_return;
-        if (default_name != null) {
-            code_return = await agent.coder.executeDefault(async () => {
+        if (resume_name != null) {
+            code_return = await agent.coder.executeResume(async () => {
                 await func(agent, ...args);
-            }, default_name, timeout);
+            }, resume_name, timeout);
         } else {
             code_return = await agent.coder.execute(async () => {
                 await func(agent, ...args);
@@ -33,9 +33,24 @@ export const actionsList = [
         perform: async function (agent) {
             await agent.coder.stop();
             agent.coder.clear();
-            agent.coder.default_func = null;
-            agent.coder.default_name = null;
+            agent.coder.resume_func = null;
+            agent.coder.resume_name = null;
             return 'Agent stopped.';
+        }
+    },
+    {
+        name: '!restart',
+        description: 'Restart the agent process.',
+        perform: async function (agent) {
+            process.exit(1);
+        }
+    },
+    {
+        name: '!clear',
+        description: 'Clear the chat history.',
+        perform: async function (agent) {
+            agent.history.clear();
+            return agent.name + "'s chat history was cleared, starting new conversation from scratch.";
         }
     },
     {

@@ -331,8 +331,12 @@ export async function collectBlock(bot, blockType, num=1) {
         log(bot, `Invalid number of blocks to collect: ${num}.`);
         return false;
     }
+    let blocktypes = [blockType];
+    if (blockType.endsWith('ore'))
+        blocktypes.push('deepslate_'+blockType);
+
     let collected = 0;
-    const blocks = world.getNearestBlocks(bot, blockType, 64, num);
+    const blocks = world.getNearestBlocks(bot, blocktypes, 64, num);
     if (blocks.length === 0) {
         log(bot, `Could not find any ${blockType} to collect.`);
         return false;
@@ -369,7 +373,7 @@ export async function collectBlock(bot, blockType, num=1) {
     return true;
 }
 
-export async function pickupNearbyItem(bot) {
+export async function pickupNearbyItems(bot) {
     /**
      * Pick up all nearby items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -377,16 +381,22 @@ export async function pickupNearbyItem(bot) {
      * @example
      * await skills.pickupNearbyItem(bot);
      **/
-    const distance = 10;
-    let nearestItem = bot.nearestEntity(entity => entity.name === 'item' && bot.entity.position.distanceTo(entity.position) < distance);
-
-    if (!nearestItem) {
-        log(bot, `Didn't pick up items.`);
-        return false;
+    const distance = 8;
+    const getNearestItem = bot => bot.nearestEntity(entity => entity.name === 'item' && bot.entity.position.distanceTo(entity.position) < distance);
+    let nearestItem = getNearestItem(bot);
+    let pickedUp = 0;
+    while (nearestItem) {
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        let prev = nearestItem;
+        nearestItem = getNearestItem(bot);
+        if (prev === nearestItem) {
+            break;
+        }
+        pickedUp++;
     }
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
-    log(bot, `Successfully picked up a dropped item.`);
+    log(bot, `Picked up ${pickedUp} items.`);
     return true;
 }
 

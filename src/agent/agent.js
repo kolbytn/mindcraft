@@ -75,6 +75,10 @@ export class Agent {
 
         const user_command_name = containsCommand(message);
         if (user_command_name) {
+            if (!commandExists(user_command_name)) {
+                this.bot.chat(`Command '${user_command_name}' does not exist.`);
+                return;
+            }
             this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
             let execute_res = await executeCommand(this, message);
             if (user_command_name === '!newAction') {
@@ -164,15 +168,23 @@ export class Agent {
                 this.handleMessage('system', `You died with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
             }
         });
-
         this.bot.on('idle', () => {
-            this.coder.executeDefault();
+            this.bot.modes.unPauseAll();
+            this.coder.executeResume();
         });
 
-        // set interval every 300ms to update the bot's state
-        this.update_interval = setInterval(async () => {
-            this.bot.modes.update();
-        }, 300);
+        // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
+        const INTERVAL = 300;
+        setTimeout(async () => {
+            while (true) {
+                let start = Date.now();
+                await this.bot.modes.update();
+                let remaining = INTERVAL - (Date.now() - start);
+                if (remaining > 0) {
+                    await new Promise((resolve) => setTimeout(resolve, remaining));
+                }
+            }
+        }, INTERVAL);
     }
 
     isIdle() {

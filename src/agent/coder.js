@@ -13,8 +13,8 @@ export class Coder {
         this.generating = false;
         this.code_template = '';
         this.timedout = false;
-        this.default_func = null;
-        this.default_name = null;
+        this.resume_func = null;
+        this.resume_name = null;
         this.interruptible = false;
     }
 
@@ -160,14 +160,15 @@ export class Coder {
         return {success: false, message: null, interrupted: false, timedout: true};
     }
 
-    async executeDefault(func=null, name=null, timeout=10) {
+    async executeResume(func=null, name=null, timeout=10) {
+        console.log('resuming code...')
         if (func != null) {
-            this.default_func = func;
-            this.default_name = name;
+            this.resume_func = func;
+            this.resume_name = name;
         }
-        if (this.default_func != null) {
+        if (this.resume_func != null) {
             this.interruptible = true;
-            let res = await this.execute(this.default_func, timeout);
+            let res = await this.execute(this.resume_func, timeout);
             this.interruptible = false;
             return res;
         } else {
