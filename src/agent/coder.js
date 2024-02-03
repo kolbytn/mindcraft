@@ -168,6 +168,7 @@ export class Coder {
         }
         if (this.resume_func != null) {
             this.interruptible = true;
+            await new Promise(resolve => setTimeout(resolve, 500));
             let res = await this.execute(this.resume_func, timeout);
             this.interruptible = false;
             return res;
