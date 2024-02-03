@@ -1,4 +1,5 @@
 import minecraftData from 'minecraft-data';
+import settings from '../settings.js';
 import { createBot } from 'mineflayer';
 import { pathfinder } from 'mineflayer-pathfinder';
 import { plugin as pvp } from 'mineflayer-pvp';
@@ -7,7 +8,7 @@ import { plugin as autoEat } from 'mineflayer-auto-eat';
 import plugin from 'mineflayer-armor-manager';
 const armorManager = plugin;
 
-const mc_version = '1.20.1'
+const mc_version = settings.minecraft_version;
 const mcdata = minecraftData(mc_version);
 
 
@@ -15,12 +16,9 @@ export function initBot(username) {
     let bot = createBot({
         username: username,
 
-        host: 'localhost',
-        port: 55916,
-        
-        // host: '000.111.222.333', 
-        // port: 55920,
-        // auth: 'microsoft',
+        host: settings.host,
+        port: settings.port,
+        auth: settings.auth,
 
         version: mc_version,
     });
@@ -96,4 +94,8 @@ export function getAllBlockIds(ignore) {
         blockIds.push(block.id);
     }
     return blockIds;
+}
+
+export function getAllBiomes() {
+    return mcdata.biomes;
 }

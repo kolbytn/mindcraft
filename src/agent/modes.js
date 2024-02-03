@@ -53,15 +53,29 @@ const modes = [
         description: 'Automatically collect nearby items when idle.',
         on: true,
         active: false,
+
+        wait: 2, // number of seconds to wait after noticing an item to pick it up
+        prev_item: null,
+        noticed_at: -1,
         update: async function (agent) {
+            if (this.active) return;
             if (agent.isIdle()) {
                 let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-                if (item && await world.isClearPath(agent.bot, item)) {
-                    execute(this, agent, async () => {
-                        // wait 2 seconds for the item to settle
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                        await skills.pickupNearbyItem(agent.bot);
-                    });
+                if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item)) {
+                    if (this.noticed_at === -1) {
+                        this.noticed_at = Date.now();
+                    }
+                    if (Date.now() - this.noticed_at > this.wait * 1000) {
+                        agent.bot.chat(`Picking up ${item.name}!`);
+                        this.prev_item = item;
+                        execute(this, agent, async () => {
+                            await skills.pickupNearbyItems(agent.bot);
+                        });
+                        this.noticed_at = -1;
+                    }
+                }
+                else {
+                    this.noticed_at = -1;
                 }
             }
         }

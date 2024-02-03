@@ -33,6 +33,6 @@
     ],
     [
         {"role": "user", "content": "brug: build a dirt house"},
-        {"role": "assistant", "content": "```const position = world.getPosition(bot);\nconst startX = position.x;\nconst startY = position.y;\nconst startZ = position.z;\nconst width = 7;\nconst depth = 7;\nconst height = 4;\n\n// Build the walls\nfor (let x = startX; x < startX + width; x++) {\n    for (let y = startY; y < startY + height; y++) {\n        for (let z = startZ; z < startZ + depth; z++) {\n            if (x === startX || x === startX + width - 1 || y === startY || y === startY + height - 1 || z === startZ || z === startZ + depth - 1) {\n                await skills.placeBlock(bot, 'oak_planks', x, y, z);  \n            }\n       }\n    }\n}\n// place a torch in the middle of the room\nawait skills.placeBlock(bot, 'torch', startX + width / 2, startY + height / 2, startZ + 1);```"}
+        {"role": "assistant", "content": "```const position = world.getPosition(bot);\nconst startX = position.x;\nconst startY = position.y;\nconst startZ = position.z;\nconst width = 7;\nconst depth = 7;\nconst height = 4;\n\n// Build the walls\nfor (let x = startX; x < startX + width; x++) {\n    for (let y = startY; y < startY + height; y++) {\n        for (let z = startZ; z < startZ + depth; z++) {\n            if (x === startX || x === startX + width - 1 || y === startY || y === startY + height - 1 || z === startZ || z === startZ + depth - 1) {\n                await skills.placeBlock(bot, 'oak_planks', x, y, z);  \n            }\n       }\n    }\n}\n```"}
     ]
 ]

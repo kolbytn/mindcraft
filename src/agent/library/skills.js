@@ -273,12 +273,12 @@ export async function attackEntity(bot, entity, kill=true) {
             }
         }
         log(bot, `Successfully killed ${entity.name}.`);
-        await pickupNearbyItem(bot);
+        await pickupNearbyItems(bot);
         return true;
     }
 }
 
-export async function defendSelf(bot, range=8) {
+export async function defendSelf(bot, range=9) {
     /**
      * Defend yourself from all nearby hostile mobs until there are no more.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -336,24 +336,27 @@ export async function collectBlock(bot, blockType, num=1) {
         blocktypes.push('deepslate_'+blockType);
 
     let collected = 0;
-    const blocks = world.getNearestBlocks(bot, blocktypes, 64, num);
-    if (blocks.length === 0) {
-        log(bot, `Could not find any ${blockType} to collect.`);
-        return false;
-    }
-    const first_block = blocks[0];
-    await bot.tool.equipForBlock(first_block);
-    const itemId = bot.heldItem ? bot.heldItem.type : null
-    if (!first_block.canHarvest(itemId)) {
-        log(bot, `Don't have right tools to harvest ${blockType}.`);
-        return false;
-    }
 
-    for (let block of blocks) {
+    for (let i=0; i<num; i++) {
+        const blocks = world.getNearestBlocks(bot, blocktypes, 64, 1);
+        if (blocks.length === 0) {
+            if (collected === 0)
+                log(bot, `No ${blockType} nearby to collect.`);
+            else
+                log(bot, `No more ${blockType} nearby to collect.`);
+            break;
+        }
+        const block = blocks[0];
+        await bot.tool.equipForBlock(block);
+        const itemId = bot.heldItem ? bot.heldItem.type : null
+        if (!block.canHarvest(itemId)) {
+            log(bot, `Don't have right tools to harvest ${blockType}.`);
+            return false;
+        }
         try {
             await bot.collectBlock.collect(block);
             collected++;
-            autoLight(bot);
+            await autoLight(bot);
         }
         catch (err) {
             if (err.name === 'NoChests') {
@@ -373,24 +376,30 @@ export async function collectBlock(bot, blockType, num=1) {
     return true;
 }
 
-export async function pickupNearbyItem(bot) {
+export async function pickupNearbyItems(bot) {
     /**
      * Pick up all nearby items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @returns {Promise<boolean>} true if the items were picked up, false otherwise.
      * @example
-     * await skills.pickupNearbyItem(bot);
+     * await skills.pickupNearbyItems(bot);
      **/
-    const distance = 10;
-    let nearestItem = bot.nearestEntity(entity => entity.name === 'item' && bot.entity.position.distanceTo(entity.position) < distance);
-
-    if (!nearestItem) {
-        log(bot, `Didn't pick up items.`);
-        return false;
+    const distance = 8;
+    const getNearestItem = bot => bot.nearestEntity(entity => entity.name === 'item' && bot.entity.position.distanceTo(entity.position) < distance);
+    let nearestItem = getNearestItem(bot);
+    let pickedUp = 0;
+    while (nearestItem) {
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        let prev = nearestItem;
+        nearestItem = getNearestItem(bot);
+        if (prev === nearestItem) {
+            break;
+        }
+        pickedUp++;
     }
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalFollow(nearestItem, 0.8), true);
-    log(bot, `Successfully picked up a dropped item.`);
+    log(bot, `Picked up ${pickedUp} items.`);
     return true;
 }
 
@@ -407,9 +416,24 @@ export async function breakBlockAt(bot, x, y, z) {
      * let position = world.getPosition(bot);
      * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
      **/
-    let current = bot.blockAt(Vec3(x, y, z));
-    if (current.name != 'air')
-        await bot.dig(current, true);
+    let block = bot.blockAt(Vec3(x, y, z));
+    if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
+        await bot.tool.equipForBlock(block);
+        const itemId = bot.heldItem ? bot.heldItem.type : null
+        if (!block.canHarvest(itemId)) {
+            log(bot, `Don't have right tools to break ${block.name}.`);
+            return false;
+        }
+        if (bot.entity.position.distanceTo(block.position) > 4.5) {
+            let pos = block.position;
+            let movements = new pf.Movements(bot);
+            movements.canPlaceOn = false;
+            movements.allow1by1towers = false;
+            bot.pathfinder.setMovements();
+            await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+        }
+        await bot.dig(block, true);
+    }
     return true;
 }
 
@@ -667,7 +691,7 @@ export async function followPlayer(bot, username) {
             const enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), attack_distance);
             if (enemy) {
                 log(bot, `Found ${enemy.name}, attacking!`, true);
-                await defendSelf(bot, 8);
+                await defendSelf(bot);
                 acted = true;
             }
         }
@@ -680,7 +704,7 @@ export async function followPlayer(bot, username) {
             }
         }
         if (bot.entity.position.distanceTo(player.position) < follow_distance) {
-            acted = autoLight(bot);
+            acted = await autoLight(bot);
         }
 
         if (acted) { // if we did something then resume following
@@ -690,6 +714,44 @@ export async function followPlayer(bot, username) {
         await new Promise(resolve => setTimeout(resolve, 500));
     }
 
+    return true;
+}
+
+
+export async function moveAway(bot, distance) {
+    /**
+     * Move away from current position in any direction.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     * @example
+     * await skills.moveAway(bot, 8);
+     **/
+    const pos = bot.entity.position;
+    let goal = new pf.goals.GoalNear(pos.x, pos.y, pos.z, distance);
+    let inverted_goal = new pf.goals.GoalInvert(goal);
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    await bot.pathfinder.goto(inverted_goal);
+    let new_pos = bot.entity.position;
+    log(bot, `Moved away from nearest entity to ${new_pos}.`);
+    return true;
+}
+
+export async function stay(bot) {
+    /**
+     * Stay in the current position until interrupted. Disables all modes.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if the bot stayed, false otherwise.
+     * @example
+     * await skills.stay(bot);
+     **/
+    bot.modes.pause('self_defense');
+    bot.modes.pause('hunting');
+    bot.modes.pause('torch_placing');
+    bot.modes.pause('item_collecting');
+    while (!bot.interrupt_code) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
     return true;
 }
 

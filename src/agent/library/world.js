@@ -1,5 +1,5 @@
 import pf from 'mineflayer-pathfinder';
-import { getAllBlockIds } from '../../utils/mcdata.js';
+import { getAllBlockIds, getAllBiomes } from '../../utils/mcdata.js';
 
 
 export function getNearestFreeSpace(bot, size=1, distance=8) {
@@ -271,5 +271,5 @@ export function getBiomeName(bot) {
      * let biome = world.getBiomeName(bot);
      **/
     const biomeId = bot.world.getBiome(bot.entity.position);
-    return mcdata.biomes[biomeId].name;
+    return getAllBiomes()[biomeId].name;
 }
