@@ -416,9 +416,24 @@ export async function breakBlockAt(bot, x, y, z) {
      * let position = world.getPosition(bot);
      * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
      **/
-    let current = bot.blockAt(Vec3(x, y, z));
-    if (current.name != 'air')
-        await bot.dig(current, true);
+    let block = bot.blockAt(Vec3(x, y, z));
+    if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
+        await bot.tool.equipForBlock(block);
+        const itemId = bot.heldItem ? bot.heldItem.type : null
+        if (!block.canHarvest(itemId)) {
+            log(bot, `Don't have right tools to break ${block.name}.`);
+            return false;
+        }
+        if (bot.entity.position.distanceTo(block.position) > 4.5) {
+            let pos = block.position;
+            let movements = new pf.Movements(bot);
+            movements.canPlaceOn = false;
+            movements.allow1by1towers = false;
+            bot.pathfinder.setMovements();
+            await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+        }
+        await bot.dig(block, true);
+    }
     return true;
 }
 
