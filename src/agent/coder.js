@@ -13,9 +13,6 @@ export class Coder {
         this.generating = false;
         this.code_template = '';
         this.timedout = false;
-        this.resume_func = null;
-        this.resume_name = null;
-        this.interruptible = false;
     }
 
     async load() {
@@ -166,9 +163,9 @@ export class Coder {
             this.resume_func = func;
             this.resume_name = name;
         }
-        if (this.resume_func != null) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (this.resume_func != null && this.agent.isIdle()) {
             this.interruptible = true;
-            await new Promise(resolve => setTimeout(resolve, 500));
             let res = await this.execute(this.resume_func, timeout);
             this.interruptible = false;
             return res;
