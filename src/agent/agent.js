@@ -158,6 +158,7 @@ export class Agent {
             process.exit(1);
         });
         this.bot.on('death', () => {
+            this.coder.cancelResume();
             this.coder.stop();
         });
         this.bot.on('kicked', (reason) => {
