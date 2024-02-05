@@ -12,7 +12,7 @@ export function log(bot, message, chat=false) {
 
 async function autoLight(bot) {
     if (bot.modes.isOn('torch_placing') && !bot.interrupt_code) {
-        let nearest_torch = world.getNearestBlock(bot, 'torch', 8);
+        let nearest_torch = world.getNearestBlock(bot, 'torch', 6);
         if (!nearest_torch) {
             let has_torch = bot.inventory.items().find(item => item.name === 'torch');
             if (has_torch) {

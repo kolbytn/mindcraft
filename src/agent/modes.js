@@ -85,7 +85,7 @@ const modes = [
         active: false,
         update: function (agent) {
             // TODO: check light level instead of nearby torches, block.light is broken
-            const near_torch = world.getNearestBlock(agent.bot, 'torch', 8);
+            const near_torch = world.getNearestBlock(agent.bot, 'torch', 6);
             if (!near_torch) {
                 let torches = agent.bot.inventory.items().filter(item => item.name.includes('torch'));
                 if (torches.length > 0) {
