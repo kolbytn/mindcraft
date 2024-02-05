@@ -55,22 +55,25 @@ const modes = [
         active: false,
 
         wait: 2, // number of seconds to wait after noticing an item to pick it up
-        noticedAt: -1,
+        prev_item: null,
+        noticed_at: -1,
         update: async function (agent) {
             let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-            if (item && await world.isClearPath(agent.bot, item)) {
-                if (this.noticedAt === -1) {
-                    this.noticedAt = Date.now();
+            if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item)) {
+                if (this.noticed_at === -1) {
+                    this.noticed_at = Date.now();
                 }
-                if (Date.now() - this.noticedAt > this.wait * 1000) {
+                if (Date.now() - this.noticed_at > this.wait * 1000) {
                     agent.bot.chat(`Picking up ${item.name}!`);
+                    this.prev_item = item;
                     execute(this, agent, async () => {
                         await skills.pickupNearbyItems(agent.bot);
                     });
+                    this.noticed_at = -1;
                 }
             }
             else {
-                this.noticedAt = -1;
+                this.noticed_at = -1;
             }
         }
     },

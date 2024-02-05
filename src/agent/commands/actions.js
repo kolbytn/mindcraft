@@ -1,5 +1,5 @@
 import * as skills from '../library/skills.js';
-
+import settings from '../../settings.js';
 
 function wrapExecution(func, timeout=-1, resume_name=null) {
     return async function (agent, ...args) {
@@ -24,6 +24,8 @@ export const actionsList = [
         name: '!newAction',
         description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
         perform: async function (agent) {
+            if (!settings.allow_insecure_coding)
+                return 'Agent is not allowed to write code.';
             await agent.coder.generateCode(agent.history);
         }
     },
@@ -85,6 +87,14 @@ export const actionsList = [
         perform: wrapExecution(async (agent, player_name) => {
             await skills.followPlayer(agent.bot, player_name);
         }, -1, 'followPlayer')
+    },
+    {
+        name: '!moveAway',
+        description: 'Move away from the current location in any direction by a given distance. Ex: !moveAway(2)',
+        params: {'distance': '(number) The distance to move away.'},
+        perform: wrapExecution(async (agent, distance) => {
+            await skills.moveAway(agent.bot, distance);
+        })
     },
     {
         name: '!givePlayer',
@@ -154,6 +164,13 @@ export const actionsList = [
         description: 'Go to the nearest bed and sleep.',
         perform: wrapExecution(async (agent) => {
             await skills.goToBed(agent.bot);
+        })
+    },
+    {
+        name: '!stay',
+        description: 'Stay in the current location no matter what. Pauses all modes.',
+        perform: wrapExecution(async (agent) => {
+            await skills.stay(agent.bot);
         })
     }
 ];

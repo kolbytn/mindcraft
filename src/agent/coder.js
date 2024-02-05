@@ -228,13 +228,17 @@ export class Coder {
 
     async stop() {
         if (!this.executing) return;
+        const start = Date.now();
         while (this.executing) {
             this.agent.bot.interrupt_code = true;
             this.agent.bot.collectBlock.cancelTask();
             this.agent.bot.pathfinder.stop();
             this.agent.bot.pvp.stop();
-            console.log('waiting for code to finish executing... interrupt:', this.agent.bot.interrupt_code);
+            console.log('waiting for code to finish executing...');
             await new Promise(resolve => setTimeout(resolve, 1000));
+            if (Date.now() - start > 10 * 1000) {
+                process.exit(1); // force exit program after 10 seconds of failing to stop
+            }
         }
     }
 
