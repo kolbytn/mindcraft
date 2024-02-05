@@ -12,7 +12,7 @@ export function log(bot, message, chat=false) {
 
 async function autoLight(bot) {
     if (bot.modes.isOn('torch_placing') && !bot.interrupt_code) {
-        let nearest_torch = world.getNearestBlock(bot, 'torch', 8);
+        let nearest_torch = world.getNearestBlock(bot, 'torch', 6);
         if (!nearest_torch) {
             let has_torch = bot.inventory.items().find(item => item.name === 'torch');
             if (has_torch) {
@@ -373,7 +373,7 @@ export async function collectBlock(bot, blockType, num=1) {
             break;  
     }
     log(bot, `Collected ${collected} ${blockType}.`);
-    return true;
+    return collected > 0;
 }
 
 export async function pickupNearbyItems(bot) {
@@ -671,49 +671,18 @@ export async function followPlayer(bot, username) {
      * @example
      * await skills.followPlayer(bot, "player");
      **/
-    bot.modes.pause('self_defense');
-    bot.modes.pause('hunting');
-
     let player = bot.players[username].entity
     if (!player)
         return false;
 
     const follow_distance = 4;
-    const attack_distance = 8;
-
     bot.pathfinder.setMovements(new pf.Movements(bot));
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
     while (!bot.interrupt_code) {
-        let acted = false;
-        if (bot.modes.isOn('self_defense')) {
-            const enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), attack_distance);
-            if (enemy) {
-                log(bot, `Found ${enemy.name}, attacking!`, true);
-                await defendSelf(bot);
-                acted = true;
-            }
-        }
-        if (bot.modes.isOn('hunting')) {
-            const animal = world.getNearestEntityWhere(bot, entity => mc.isHuntable(entity), attack_distance);
-            if (animal) {
-                log(bot, `Hunting ${animal.name}!`, true);
-                await attackEntity(bot, animal, true);
-                acted = true;
-            }
-        }
-        if (bot.entity.position.distanceTo(player.position) < follow_distance) {
-            acted = await autoLight(bot);
-        }
-
-        if (acted) { // if we did something then resume following
-            bot.pathfinder.setMovements(new pf.Movements(bot));
-            bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
-        }
         await new Promise(resolve => setTimeout(resolve, 500));
     }
-
     return true;
 }
 

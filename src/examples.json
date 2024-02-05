@@ -54,7 +54,7 @@
     ],
 
     [
-        {"role": "user", "content": "billybob: stop"},
+        {"role": "user", "content": "abc: stop"},
         {"role": "assistant", "content": "Sure. !stop"}
     ],
 

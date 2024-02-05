@@ -18,15 +18,15 @@ const modes = [
     {
         name: 'self_defense',
         description: 'Automatically attack nearby enemies. Interrupts other actions.',
+        interrupts: ['all'],
         on: true,
         active: false,
         update: async function (agent) {
-            if (this.active) return;
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 9);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.defendSelf(agent.bot, 8);
+                    await skills.defendSelf(agent.bot, 9);
                 });
             }
         }
@@ -34,23 +34,23 @@ const modes = [
     {
         name: 'hunting',
         description: 'Automatically hunt nearby animals when idle.',
+        interrupts: ['defaults'],
         on: true,
         active: false,
         update: async function (agent) {
-            if (agent.isIdle()) {
-                const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
-                if (huntable && await world.isClearPath(agent.bot, huntable)) {
-                    execute(this, agent, async () => {
-                        agent.bot.chat(`Hunting ${huntable.name}!`);
-                        await skills.attackEntity(agent.bot, huntable);
-                    });
-                }
+            const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
+            if (huntable && await world.isClearPath(agent.bot, huntable)) {
+                execute(this, agent, async () => {
+                    agent.bot.chat(`Hunting ${huntable.name}!`);
+                    await skills.attackEntity(agent.bot, huntable);
+                });
             }
         }
     },
     {
         name: 'item_collecting',
         description: 'Automatically collect nearby items when idle.',
+        interrupts: ['followPlayer'],
         on: true,
         active: false,
 
@@ -58,47 +58,42 @@ const modes = [
         prev_item: null,
         noticed_at: -1,
         update: async function (agent) {
-            if (this.active) return;
-            if (agent.isIdle()) {
-                let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-                if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item)) {
-                    if (this.noticed_at === -1) {
-                        this.noticed_at = Date.now();
-                    }
-                    if (Date.now() - this.noticed_at > this.wait * 1000) {
-                        agent.bot.chat(`Picking up ${item.name}!`);
-                        this.prev_item = item;
-                        execute(this, agent, async () => {
-                            await skills.pickupNearbyItems(agent.bot);
-                        });
-                        this.noticed_at = -1;
-                    }
+            let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
+            if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item)) {
+                if (this.noticed_at === -1) {
+                    this.noticed_at = Date.now();
                 }
-                else {
+                if (Date.now() - this.noticed_at > this.wait * 1000) {
+                    agent.bot.chat(`Picking up ${item.name}!`);
+                    this.prev_item = item;
+                    execute(this, agent, async () => {
+                        await skills.pickupNearbyItems(agent.bot);
+                    });
                     this.noticed_at = -1;
                 }
+            }
+            else {
+                this.noticed_at = -1;
             }
         }
     },
     {
         name: 'torch_placing',
         description: 'Automatically place torches when idle and there are no torches nearby.',
+        interrupts: ['followPlayer'],
         on: true,
         active: false,
         update: function (agent) {
-            if (this.active) return;
-            if (agent.isIdle()) {
-                // TODO: check light level instead of nearby torches, block.light is broken
-                const near_torch = world.getNearestBlock(agent.bot, 'torch', 8);
-                if (!near_torch) {
-                    let torches = agent.bot.inventory.items().filter(item => item.name.includes('torch'));
-                    if (torches.length > 0) {
-                        const torch = torches[0];
-                        const pos = agent.bot.entity.position;
-                        execute(this, agent, async () => {
-                            await skills.placeBlock(agent.bot, torch.name, pos.x, pos.y, pos.z);
-                        });
-                    }
+            // TODO: check light level instead of nearby torches, block.light is broken
+            const near_torch = world.getNearestBlock(agent.bot, 'torch', 6);
+            if (!near_torch) {
+                let torches = agent.bot.inventory.items().filter(item => item.name.includes('torch'));
+                if (torches.length > 0) {
+                    const torch = torches[0];
+                    const pos = agent.bot.entity.position;
+                    execute(this, agent, async () => {
+                        await skills.placeBlock(agent.bot, torch.name, pos.x, pos.y, pos.z);
+                    });
                 }
             }
         }
@@ -106,6 +101,7 @@ const modes = [
     {
         name: 'idle_staring',
         description: 'Non-functional animation to look around at entities when idle.',
+        interrupts: [],
         on: true,
         active: false,
 
@@ -113,35 +109,30 @@ const modes = [
         last_entity: null,
         next_change: 0,
         update: function (agent) {
-            if (agent.isIdle()) {
-                this.active = true;
-                const entity = agent.bot.nearestEntity();
-                let entity_in_view = entity && entity.position.distanceTo(agent.bot.entity.position) < 10 && entity.name !== 'enderman';
-                if (entity_in_view && entity !== this.last_entity) {
-                    this.staring = true;
-                    this.last_entity = entity;
-                    this.next_change = Date.now() + Math.random() * 1000 + 4000;
-                }
-                if (entity_in_view && this.staring) {
-                    let isbaby = entity.type !== 'player' && entity.metadata[16];
-                    let height = isbaby ? entity.height/2 : entity.height;
-                    agent.bot.lookAt(entity.position.offset(0, height, 0));
-                }
-                if (!entity_in_view)
-                    this.last_entity = null;
-                if (Date.now() > this.next_change) {
-                    // look in random direction
-                    this.staring = Math.random() < 0.3;
-                    if (!this.staring) {
-                        const yaw = Math.random() * Math.PI * 2;
-                        const pitch = (Math.random() * Math.PI/2) - Math.PI/4;
-                        agent.bot.look(yaw, pitch, false);
-                    }
-                    this.next_change = Date.now() + Math.random() * 10000 + 2000;
-                }
+            const entity = agent.bot.nearestEntity();
+            let entity_in_view = entity && entity.position.distanceTo(agent.bot.entity.position) < 10 && entity.name !== 'enderman';
+            if (entity_in_view && entity !== this.last_entity) {
+                this.staring = true;
+                this.last_entity = entity;
+                this.next_change = Date.now() + Math.random() * 1000 + 4000;
             }
-            else
-                this.active = false;
+            if (entity_in_view && this.staring) {
+                let isbaby = entity.type !== 'player' && entity.metadata[16];
+                let height = isbaby ? entity.height/2 : entity.height;
+                agent.bot.lookAt(entity.position.offset(0, height, 0));
+            }
+            if (!entity_in_view)
+                this.last_entity = null;
+            if (Date.now() > this.next_change) {
+                // look in random direction
+                this.staring = Math.random() < 0.3;
+                if (!this.staring) {
+                    const yaw = Math.random() * Math.PI * 2;
+                    const pitch = (Math.random() * Math.PI/2) - Math.PI/4;
+                    agent.bot.look(yaw, pitch, false);
+                }
+                this.next_change = Date.now() + Math.random() * 10000 + 2000;
+            }
         }
     },
 ];
@@ -190,22 +181,24 @@ class ModeController {
         return res;
     }
 
+    unPauseAll() {
+        for (let mode of this.modes_list) {
+            if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
+            mode.paused = false;
+        }
+    }
+
     async update() {
         if (this.agent.isIdle()) {
-            // other actions might pause a mode to override it
-            // when idle, unpause all modes
-            for (let mode of this.modes_list) {
-                if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
-                mode.paused = false;
-            }
+            this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            if (mode.on && !mode.paused) {
+            let available = mode.interrupts.includes('all') || this.agent.isIdle();
+            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('defaults') || mode.interrupts.includes(this.agent.coder.resume_name));
+            if (mode.on && !mode.paused && !mode.active && (available || interruptible)) {
                 await mode.update(this.agent);
-                if (mode.active) {
-                    break;
-                }
             }
+            if (mode.active) break;
         }
     }
 }

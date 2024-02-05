@@ -158,6 +158,7 @@ export class Agent {
             process.exit(1);
         });
         this.bot.on('death', () => {
+            this.coder.cancelResume();
             this.coder.stop();
         });
         this.bot.on('kicked', (reason) => {
@@ -169,6 +170,10 @@ export class Agent {
                 console.log('Agent died: ', message);
                 this.handleMessage('system', `You died with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
             }
+        });
+        this.bot.on('idle', () => {
+            this.bot.modes.unPauseAll();
+            this.coder.executeResume();
         });
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval

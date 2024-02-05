@@ -1,11 +1,18 @@
 import * as skills from '../library/skills.js';
 import settings from '../../settings.js';
 
-function wrapExecution(func, timeout=-1) {
+function wrapExecution(func, timeout=-1, resume_name=null) {
     return async function (agent, ...args) {
-        let code_return = await agent.coder.execute(async () => {
-            await func(agent, ...args);
-        }, timeout);
+        let code_return;
+        if (resume_name != null) {
+            code_return = await agent.coder.executeResume(async () => {
+                await func(agent, ...args);
+            }, resume_name, timeout);
+        } else {
+            code_return = await agent.coder.execute(async () => {
+                await func(agent, ...args);
+            }, timeout);
+        }
         if (code_return.interrupted && !code_return.timedout)
             return;
         return code_return.message;
@@ -28,6 +35,7 @@ export const actionsList = [
         perform: async function (agent) {
             await agent.coder.stop();
             agent.coder.clear();
+            agent.coder.cancelResume();
             return 'Agent stopped.';
         }
     },
@@ -77,7 +85,7 @@ export const actionsList = [
         params: {'player_name': '(string) The name of the player to follow.'},
         perform: wrapExecution(async (agent, player_name) => {
             await skills.followPlayer(agent.bot, player_name);
-        })
+        }, -1, 'followPlayer')
     },
     {
         name: '!moveAway',
@@ -109,6 +117,18 @@ export const actionsList = [
         perform: wrapExecution(async (agent, type, num) => {
             await skills.collectBlock(agent.bot, type, num);
         }, 10) // 10 minute timeout
+    },
+    {
+        name: '!collectAllBlocks',
+        description: 'Collect all the nearest blocks of a given type until told to stop.',
+        params: {
+            'type': '(string) The block type to collect. Ex: !collectAllBlocks("stone")'
+        },
+        perform: wrapExecution(async (agent, type) => {
+            let success = await skills.collectBlock(agent.bot, type, 1);
+            if (!success)
+                agent.coder.cancelResume();
+        }, 10, 'collectAllBlocks') // 10 minute timeout
     },
     {
         name: '!craftRecipe',
