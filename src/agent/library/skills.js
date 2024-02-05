@@ -373,7 +373,7 @@ export async function collectBlock(bot, blockType, num=1) {
             break;  
     }
     log(bot, `Collected ${collected} ${blockType}.`);
-    return true;
+    return collected > 0;
 }
 
 export async function pickupNearbyItems(bot) {

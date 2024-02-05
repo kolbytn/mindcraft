@@ -163,7 +163,6 @@ export class Coder {
             this.resume_func = func;
             this.resume_name = name;
         }
-        await new Promise(resolve => setTimeout(resolve, 500));
         if (this.resume_func != null && this.agent.isIdle()) {
             this.interruptible = true;
             let res = await this.execute(this.resume_func, timeout);
@@ -172,6 +171,11 @@ export class Coder {
         } else {
             return {success: false, message: null, interrupted: false, timedout: false};
         }
+    }
+
+    cancelResume() {
+        this.resume_func = null;
+        this.resume_name = null;
     }
 
     // returns {success: bool, message: string, interrupted: bool, timedout: false}
@@ -200,7 +204,7 @@ export class Coder {
         } catch (err) {
             this.executing = false;
             clearTimeout(TIMEOUT);
-
+            this.cancelResume();
             console.error("Code execution triggered catch: " + err);
             await this.stop();
 

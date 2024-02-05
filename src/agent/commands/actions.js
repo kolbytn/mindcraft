@@ -35,8 +35,7 @@ export const actionsList = [
         perform: async function (agent) {
             await agent.coder.stop();
             agent.coder.clear();
-            agent.coder.resume_func = null;
-            agent.coder.resume_name = null;
+            agent.coder.cancelResume();
             return 'Agent stopped.';
         }
     },
@@ -126,7 +125,9 @@ export const actionsList = [
             'type': '(string) The block type to collect. Ex: !collectAllBlocks("stone")'
         },
         perform: wrapExecution(async (agent, type) => {
-            await skills.collectBlock(agent.bot, type, 1);
+            let success = await skills.collectBlock(agent.bot, type, 1);
+            if (!success)
+                agent.coder.cancelResume();
         }, 10, 'collectAllBlocks') // 10 minute timeout
     },
     {
