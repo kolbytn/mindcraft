@@ -29,9 +29,11 @@
 
     [
         {"role": "user", "content": "zZZn98: come here"},
-        {"role": "assistant", "content": "On my way! !goToPlayer('zZZn98')"},
-        {"role": "system", "content": "Code execution finished successfully."},
-        {"role": "assistant", "content": "Here!"}
+        {"role": "assistant", "content": "On my way! !goToPlayer('zZZn98', 3)"},
+        {"role": "system", "content": "Arrived at player."},
+        {"role": "assistant", "content": "Here!"},
+        {"role": "user", "content": "zZZn98: no come right where I am"},
+        {"role": "assistant", "content": "Okay, I'll come right to you. !goToPlayer('zZZn98', 0)"}
     ],
 
     [
@@ -43,7 +45,9 @@
 
     [
         {"role": "user", "content": "joe: Follow me!"},
-        {"role": "assistant", "content": "Sure! !followPlayer('joe')"}
+        {"role": "assistant", "content": "Sure! !followPlayer('joe', 4)"},
+        {"role": "user", "content": "joe: Not so close!"},
+        {"role": "assistant", "content": "Okay, I'll keep my distance. !followPlayer('joe', 3)"}
     ],
 
     [
