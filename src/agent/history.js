@@ -13,6 +13,7 @@ export class History {
         // These define an agent's long term memory
         this.bio = '';
         this.memory = '';
+        this.goals = [];
 
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
@@ -88,6 +89,7 @@ export class History {
             'name': this.name,
             'bio': this.bio,
             'memory': this.memory,
+            'goals': this.goals,
             'turns': this.turns
         };
         const json_data = JSON.stringify(data, null, 4);
@@ -108,6 +110,7 @@ export class History {
             this.bio = obj.bio;
             this.memory = obj.memory;
             this.turns = obj.turns;
+            this.goals = obj.goals;
         } catch (err) {
             console.error(`No file for profile '${load_path}' for agent ${this.name}.`);
         }

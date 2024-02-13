@@ -15,11 +15,11 @@ export class Agent {
         this.history = new History(this);
         this.coder = new Coder(this);
         this.item_goal = new ItemGoal(this);
-        this.item_goal.setGoal('iron_pickaxe', 1);
 
         console.log('Loading examples...');
 
         this.history.load(profile);
+        this.item_goal.setGoals(this.history.goals);
         await this.examples.load('./src/examples.json');
         await this.coder.load();
 
