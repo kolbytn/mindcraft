@@ -301,10 +301,18 @@ export class ItemGoal {
             return;
         }
 
+        // Wait for the bot to be idle before attempting to execute the next goal
+        if (!this.agent.isIdle()) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            return;
+        }
+
         let init_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
+        this.agent.coder.interruptible = true;
         await this.agent.coder.execute(async () => {
             await next.execute();
         }, this.timeout);
+        this.agent.coder.interruptible = false;
         let final_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
 
         if (final_quantity > init_quantity) {
