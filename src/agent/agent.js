@@ -15,6 +15,7 @@ export class Agent {
         this.history = new History(this);
         this.coder = new Coder(this);
         this.item_goal = new ItemGoal(this);
+        this.item_goal.setGoal('iron_pickaxe', 1);
 
         console.log('Loading examples...');
 

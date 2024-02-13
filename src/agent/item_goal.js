@@ -118,8 +118,8 @@ class ItemNode {
         return false;
     }
 
-    getDepth(quantity=1) {
-        if (this.isDone(quantity)) {
+    getDepth(q=1) {
+        if (this.isDone(q)) {
             return 0;
         }
         let depth = 0;
@@ -129,8 +129,8 @@ class ItemNode {
         return depth + 1;
     }
 
-    getFails(quantity=1) {
-        if (this.isDone(quantity)) {
+    getFails(q=1) {
+        if (this.isDone(q)) {
             return 0;
         }
         let fails = 0;
@@ -144,16 +144,12 @@ class ItemNode {
         if (this.isReady()) {
             return this;
         }
-        let furthest_depth = -1;
-        let furthest_child = null;
         for (let [child, quantity] of this.getChildren()) {
-            let depth = child.getDepth();
-            if (depth > furthest_depth) {
-                furthest_depth = depth;
-                furthest_child = child;
-            }
+            let res = child.getNext();
+            if (res)
+                return res;
         }
-        return furthest_child.getNext();    
+        return null;
     }
 
     async execute() {
@@ -258,16 +254,16 @@ class ItemWrapper {
         return this.getBestMethod().isDone(quantity);
     }
 
-    getDepth() {
+    getDepth(q=1) {
         if (this.methods.length === 0)
             return 0;
-        return this.getBestMethod().getDepth();
+        return this.getBestMethod().getDepth(q);
     }
 
-    getFails() {
+    getFails(q=1) {
         if (this.methods.length === 0)
             return 0;
-        return this.getBestMethod().getFails();
+        return this.getBestMethod().getFails(q);
     }
 
     getNext() {
@@ -296,6 +292,7 @@ export class ItemGoal {
 
     async executeNext() {
         let next = this.goal.getNext();
+
         // Prevent unnecessary attempts to obtain blocks that are not nearby
         if (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source)) {
             next.fails += 1;
