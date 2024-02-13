@@ -3,6 +3,21 @@ import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
 
 
+const blacklist = [
+    'coal_block',
+    'iron_block',
+    'gold_block',
+    'diamond_block',
+    'deepslate',
+    'blackstone',
+    'netherite',
+    '_wood',
+    'stripped_',
+    'crimson',
+    'warped'
+]
+
+
 class ItemNode {
     constructor(manager, wrapper, name) {
         this.manager = manager;
@@ -52,9 +67,15 @@ class ItemNode {
         if (this.manager.nodes['furnace'] === undefined)
             this.manager.nodes['furnace'] = new ItemWrapper(this.manager, this.wrapper, 'furnace');
         this.prereq = this.manager.nodes['furnace'];
+
         if (this.manager.nodes[source_item] === undefined)
             this.manager.nodes[source_item] = new ItemWrapper(this.manager, this.wrapper, source_item);
-        this.source = this.manager.nodes[source_item];
+        if (this.manager.nodes['coal'] === undefined)
+            this.manager.nodes['coal'] = new ItemWrapper(this.manager, this.wrapper, 'coal');
+        this.recipe = [
+            {node: this.manager.nodes[source_item], quantity: 1},
+            {node: this.manager.nodes['coal'], quantity: 1}
+        ];
         return this;
     }
 
@@ -140,7 +161,7 @@ class ItemNode {
         if (this.isDone(q))
             return null;
         if (this.isReady())
-            return this;
+            return {node: this, quantity: q};
         for (let child of this.getChildren()) {
             let res = child.node.getNext(child.quantity);
             if (res)
@@ -149,20 +170,27 @@ class ItemNode {
         return null;
     }
 
-    async execute() {
+    async execute(quantity=1) {
         if (!this.isReady()) {
             this.fails += 1;
             return;
         }
-        let init_quantity = world.getInventoryCounts(this.manager.agent.bot)[this.name] || 0;
+        let inventory = world.getInventoryCounts(this.manager.agent.bot);
+        let init_quantity = inventory[this.name] || 0;
         if (this.type === 'block') {
-            await skills.collectBlock(this.manager.agent.bot, this.source);
+            await skills.collectBlock(this.manager.agent.bot, this.source, quantity);
         } else if (this.type === 'smelt') {
-            await skills.smeltItem(this.manager.agent.bot, this.name);
+            let to_smelt_name = this.recipe[0].node.name;
+            let to_smelt_quantity = Math.min(quantity, inventory[to_smelt_name] || 1);
+            await skills.smeltItem(this.manager.agent.bot, to_smelt_name, to_smelt_quantity);
         } else if (this.type === 'hunt') {
-            await skills.attackNearest(this.manager.agent.bot, this.source);
+            for (let i=0; i<quantity; i++) {
+                res = await skills.attackNearest(this.manager.agent.bot, this.source);
+                if (!res)
+                    break;
+            }
         } else if (this.type === 'craft') {
-            await skills.craftRecipe(this.manager.agent.bot, this.name);
+            await skills.craftRecipe(this.manager.agent.bot, this.name, quantity);
         }
         let final_quantity = world.getInventoryCounts(this.manager.agent.bot)[this.name] || 0;
         if (final_quantity <= init_quantity) {
@@ -179,7 +207,15 @@ class ItemWrapper {
         this.parent = parent;
         this.methods = [];
 
-        if (!this.containsCircularDependency()) {
+        let blacklisted = false;
+        for (let match of blacklist) {
+            if (name.includes(match)) {
+                blacklisted = true;
+                break;
+            }
+        }
+
+        if (!blacklisted && !this.containsCircularDependency()) {
             this.createChildren();
         }
     }
@@ -298,7 +334,9 @@ export class ItemGoal {
             return;
 
         // Get next goal to execute
-        let next = goal.getNext();
+        let next_info = goal.getNext();
+        let next = next_info.node;
+        let quantity = next_info.quantity;
 
         // Prevent unnecessary attempts to obtain blocks that are not nearby
         if (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source) ||
@@ -317,7 +355,7 @@ export class ItemGoal {
         let init_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
         this.agent.coder.interruptible = true;
         await this.agent.coder.execute(async () => {
-            await next.execute();
+            await next.execute(quantity);
         }, this.timeout);
         this.agent.coder.interruptible = false;
         let final_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
