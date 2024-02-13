@@ -172,7 +172,9 @@ export function getItemAnimalSource(itemName) {
         raw_mutton: 'sheep',
         raw_porkchop: 'pig',
         raw_rabbit: 'rabbit',
-        raw_salmon: 'salmon'
+        raw_salmon: 'salmon',
+        leather: 'cow',
+        wool: 'sheep'
     }[itemName];
 }
 

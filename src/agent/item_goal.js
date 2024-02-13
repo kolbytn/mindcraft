@@ -192,7 +192,6 @@ class ItemWrapper {
         this.methods.push(method);
     }
 
-
     createChildren() {
         let recipes = mc.getItemCraftingRecipes(this.name);
         if (recipes) {
@@ -302,7 +301,8 @@ export class ItemGoal {
         let next = goal.getNext();
 
         // Prevent unnecessary attempts to obtain blocks that are not nearby
-        if (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source)) {
+        if (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source) ||
+                next.type === 'hunt' && !world.getNearbyEntityTypes(this.agent.bot).includes(next.source)) {
             next.fails += 1;
             await new Promise((resolve) => setTimeout(resolve, 500));
             this.agent.bot.emit('idle');
