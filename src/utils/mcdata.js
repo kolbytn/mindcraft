@@ -42,12 +42,20 @@ export function isHostile(mob) {
     return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
 }
 
-export function getItemId(item) {
-    return mcdata.itemsByName[item].id;
+export function getItemId(itemName) {
+    let item = mcdata.itemsByName[itemName];
+    if (item) {
+        return item.id;
+    }
+    return null;
 }
 
 export function getItemName(itemId) {
-    return mcdata.items[itemId].name;
+    let item = mcdata.items[itemId]
+    if (item) {
+        return item.name;
+    }
+    return null;
 }
 
 export function getAllItems(ignore) {
@@ -98,4 +106,80 @@ export function getAllBlockIds(ignore) {
 
 export function getAllBiomes() {
     return mcdata.biomes;
+}
+
+export function getItemCraftingRecipes(itemName) {
+    let itemId = getItemId(itemName);
+    if (!mcdata.recipes[itemId]) {
+        return null;
+    }
+
+    let recipes = [];
+    for (let r of mcdata.recipes[itemId]) {
+        let recipe = {};
+        let ingredients = [];
+        if (r.ingredients) {
+            ingredients = r.ingredients;
+        } else if (r.inShape) {
+            ingredients = r.inShape.flat();
+        }
+        for (let ingredient of ingredients) {
+            let ingredientName = getItemName(ingredient);
+            if (ingredientName === null) continue;
+            if (!recipe[ingredientName])
+                recipe[ingredientName] = 0;
+            recipe[ingredientName]++;
+        }
+        recipes.push(recipe);
+    }
+
+    return recipes;
+}
+
+export function getItemSmeltingIngredient(itemName) {
+    return {    
+        baked_potato: 'potato',
+        steak: 'raw_beef',
+        cooked_chicken: 'raw_chicken',
+        cooked_cod: 'raw_cod',
+        cooked_mutton: 'raw_mutton',
+        cooked_porkchop: 'raw_porkchop',
+        cooked_rabbit: 'raw_rabbit',
+        cooked_salmon: 'raw_salmon',
+        dried_kelp: 'kelp',
+        iron_ingot: 'raw_iron',
+        gold_ingot: 'raw_gold',
+        copper_ingot: 'raw_copper',
+        glass: 'sand'
+    }[itemName];
+}
+
+export function getItemBlockSource(itemName) {
+    let itemId = getItemId(itemName);
+    for (let block of getAllBlocks()) {
+        if (block.drops.includes(itemId)) {
+            return block.name;
+        }
+    }
+    return null;
+}
+
+export function getItemAnimalSource(itemName) {
+    return {    
+        raw_beef: 'cow',
+        raw_chicken: 'chicken',
+        raw_cod: 'cod',
+        raw_mutton: 'sheep',
+        raw_porkchop: 'pig',
+        raw_rabbit: 'rabbit',
+        raw_salmon: 'salmon'
+    }[itemName];
+}
+
+export function getBlockTool(blockName) {
+    let block = mcdata.blocksByName[blockName];
+    if (!block || !block.harvestTools) {
+        return null;
+    }
+    return getItemName(Object.keys(block.harvestTools)[0]);  // Double check first tool is always simplest
 }

@@ -35,7 +35,7 @@ function equipHighestAttack(bot) {
 }
 
 
-export async function craftRecipe(bot, itemName) {
+export async function craftRecipe(bot, itemName, num=1) {
     /**
      * Attempt to craft the given item name from a recipe. May craft many items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -85,7 +85,7 @@ export async function craftRecipe(bot, itemName) {
 
     const recipe = recipes[0];
     console.log('crafting...');
-    await bot.craft(recipe, 1, craftingTable);
+    await bot.craft(recipe, num, craftingTable);
     log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
     if (placedTable) {
         await collectBlock(bot, 'crafting_table', 1);
@@ -114,7 +114,16 @@ export async function smeltItem(bot, itemName, num=1) {
     let furnaceBlock = undefined;
     furnaceBlock = world.getNearestBlock(bot, 'furnace', 6);
     if (!furnaceBlock){
-        log(bot, `There is no furnace nearby.`)
+        // Try to place furnace
+        let hasFurnace = world.getInventoryCounts(bot)['furnace'] > 0;
+        if (hasFurnace) {
+            let pos = world.getNearestFreeSpace(bot, 1, 6);
+            await placeBlock(bot, 'furnace', pos.x, pos.y, pos.z);
+            furnaceBlock = world.getNearestBlock(bot, 'furnace', 6);
+        }
+    }
+    if (!furnaceBlock){
+        log(bot, `There is no furnace nearby and you have no furnace.`)
         return false;
     }
     await bot.lookAt(furnaceBlock.position);

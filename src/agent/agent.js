@@ -5,6 +5,7 @@ import { Examples } from '../utils/examples.js';
 import { initBot } from '../utils/mcdata.js';
 import { sendRequest } from '../utils/gpt.js';
 import { containsCommand, commandExists, executeCommand } from './commands/index.js';
+import { ItemGoal } from './item_goal.js';
 
 
 export class Agent {
@@ -13,6 +14,7 @@ export class Agent {
         this.examples = new Examples();
         this.history = new History(this);
         this.coder = new Coder(this);
+        this.item_goal = new ItemGoal(this);
 
         console.log('Loading examples...');
 
@@ -171,9 +173,13 @@ export class Agent {
                 this.handleMessage('system', `You died with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
             }
         });
+
         this.bot.on('idle', () => {
             this.bot.modes.unPauseAll();
-            this.coder.executeResume();
+            if (this.coder.resume_func != null)
+                this.coder.executeResume();
+            else
+                this.item_goal.executeNext();
         });
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
@@ -188,6 +194,8 @@ export class Agent {
                 }
             }
         }, INTERVAL);
+
+        this.bot.emit('idle');
     }
 
     isIdle() {
