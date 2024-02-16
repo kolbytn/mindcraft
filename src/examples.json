@@ -6,14 +6,14 @@
 
     [
         {"role": "user", "content": "grombo_Xx: What do you see?"},
-        {"role": "assistant", "content": "Let me see... !blocks"},
+        {"role": "assistant", "content": "Let me see... !nearbyBlocks"},
         {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
         {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone."}
     ],
 
     [
         {"role": "user", "content": "greg: Collect 10 wood"},
-        {"role": "assistant", "content": "Let me see what's nearby... !blocks"},
+        {"role": "assistant", "content": "Let me see what's nearby... !nearbyBlocks"},
         {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
         {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !collectBlocks('oak_log', 10)"}
     ],
@@ -77,8 +77,13 @@
     ],
 
     [
-        {"role": "user", "content": "brung00: build a house"},
-        {"role": "assistant", "content": "Sure, I'll try to build a house where I am. !newAction"}
+        {"role": "user", "content": "poppy: build a cobblestone house"},
+        {"role": "assistant", "content": "Sure, I'll to build a small cobblestone house where I am. !newAction"}
+    ],
+
+    [
+        {"role": "user", "content": "zib: build a dirt tower"},
+        {"role": "assistant", "content": "Sure, I'll build a dirt tower 5 tall where I am. !newAction"}
     ],
 
     [

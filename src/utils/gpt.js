@@ -20,14 +20,28 @@ else {
 
 const openai = new OpenAIApi(openAiConfig);
 
+let counter = 0;
+let request_queue = [];
+export async function sendRequest(turns, systemMessage) {
+    // this wrapper function ensures that new requests await the completion of previous requests in order
+    let id = counter++;
+    request_queue.push(id);
+    if (request_queue.length > 1)
+        console.log('awaiting previous requests to complete, queueing request', id);
+    while (request_queue[0] !== id) {
+        await new Promise(r => setTimeout(r, 100));
+    }
+    let res = await queryGPT(turns, systemMessage);
+    request_queue.shift();
+    return res;
+}
 
-export async function sendRequest(turns, systemMessage, stop_seq='***') {
-
+async function queryGPT(turns, systemMessage, stop_seq='***') {
     let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
     let res = null;
     try {
-        console.log('Awaiting openai api response...')
+        console.log('Awaiting openai api response...');
         let completion = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages: messages,
@@ -35,13 +49,12 @@ export async function sendRequest(turns, systemMessage, stop_seq='***') {
         });
         if (completion.choices[0].finish_reason == 'length')
             throw new Error('Context length exceeded'); 
-        console.log('Received.')
         res = completion.choices[0].message.content;
     }
     catch (err) {
         if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
             console.log('Context length exceeded, trying again with shorter context.');
-            return await sendRequest(turns.slice(1), systemMessage, stop_seq);
+            return await queryGPT(turns.slice(1), systemMessage, stop_seq);
         } else {
             console.log(err);
             res = 'My brain disconnected, try again.';

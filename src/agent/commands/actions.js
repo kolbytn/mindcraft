@@ -26,7 +26,7 @@ export const actionsList = [
         perform: async function (agent) {
             if (!settings.allow_insecure_coding)
                 return 'Agent is not allowed to write code.';
-            await agent.coder.generateCode(agent.history);
+            return await agent.coder.generateCode(agent.history);
         }
     },
     {
@@ -47,7 +47,7 @@ export const actionsList = [
         }
     },
     {
-        name: '!clear',
+        name: '!clearChat',
         description: 'Clear the chat history.',
         perform: async function (agent) {
             agent.history.clear();
@@ -84,7 +84,7 @@ export const actionsList = [
     },
     {
         name: '!followPlayer',
-        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie")',
+        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie", 4)',
         params: {
             'player_name': '(string) The name of the player to follow.',
             'follow_dist': '(number) The distance to follow from.'

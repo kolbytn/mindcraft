@@ -29,7 +29,7 @@ export class Coder {
 
     // write custom code to file and import it
     async stageCode(code) {
-        code = this.santitizeCode(code);
+        code = this.sanitizeCode(code);
         let src = '';
         code = code.replaceAll('console.log(', 'log(bot,');
         code = code.replaceAll('log("', 'log(bot,"');
@@ -62,7 +62,8 @@ export class Coder {
         return await import('../..' + this.fp + filename);
     }
 
-    santitizeCode(code) {
+    sanitizeCode(code) {
+        code = code.trim();
         const remove_strs = ['Javascript', 'javascript', 'js']
         for (let r of remove_strs) {
             if (code.startsWith(r)) {
@@ -93,6 +94,7 @@ export class Coder {
         let res = await this.generateCodeLoop(agent_history);
         this.generating = false;
         if (!res.interrupted) this.agent.bot.emit('idle');
+        return res.message;
     }
 
     async generateCodeLoop(agent_history) {
@@ -107,7 +109,7 @@ export class Coder {
         let failures = 0;
         for (let i=0; i<5; i++) {
             if (this.agent.bot.interrupt_code)
-                return;
+                return {success: true, message: null, interrupted: true, timedout: false};
             console.log(messages)
             let res = await sendRequest(messages, system_message);
             console.log('Code generation response:', res)
@@ -120,8 +122,7 @@ export class Coder {
                     return {success: true, message: null, interrupted: false, timedout: false};
                 }
                 if (failures >= 1) {
-                    agent_history.add('system', 'Action failed, agent would not write code.');
-                    return {success: false, message: null, interrupted: false, timedout: false};
+                    return {success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false};
                 }
                 messages.push({
                     role: 'system', 
@@ -143,7 +144,7 @@ export class Coder {
 
             if (code_return.interrupted && !code_return.timedout)
                 return {success: false, message: null, interrupted: true, timedout: false};
-            console.log(code_return.message);
+            console.log("Code generation result:", code_return.success, code_return.message);
 
             messages.push({
                 role: 'assistant',
@@ -219,7 +220,7 @@ export class Coder {
     formatOutput(bot) {
         if (bot.interrupt_code && !this.timedout) return '';
         let output = bot.output;
-        const MAX_OUT = 1000;
+        const MAX_OUT = 500;
         if (output.length > MAX_OUT) {
             output = `Code output is very long (${output.length} chars) and has been shortened.\n
                 First outputs:\n${output.substring(0, MAX_OUT/2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT/2)}`;

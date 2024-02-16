@@ -4,7 +4,7 @@ import { stringifyTurns } from './text.js';
 
 
 export class Examples {
-    constructor(select_num=3) {
+    constructor(select_num=2) {
         this.examples = [];
         this.select_num = select_num;
     }
