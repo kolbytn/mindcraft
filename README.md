@@ -9,7 +9,7 @@ This project allows an AI model to write/execute code on your computer that may 
 ## Requirements
 
 - [OpenAI API Subscription](https://openai.com/blog/openai-api)
-- [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (at most v1.20.2)
+- [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc)
 - [Node.js](https://nodejs.org/) (at least v14)
 
 ## Installation
@@ -19,6 +19,8 @@ Add `OPENAI_API_KEY` (and optionally `OPENAI_ORG_ID`) to your environment variab
 Clone/Download this repository
 
 Run `npm install`
+
+Install the minecraft version specified in `settings.json`, currently supports up to 1.20.2
 
 ## Run
 
