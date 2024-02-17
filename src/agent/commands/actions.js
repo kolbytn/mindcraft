@@ -26,7 +26,7 @@ export const actionsList = [
         perform: async function (agent) {
             if (!settings.allow_insecure_coding)
                 return 'Agent is not allowed to write code.';
-            await agent.coder.generateCode(agent.history);
+            return await agent.coder.generateCode(agent.history);
         }
     },
     {
@@ -47,7 +47,7 @@ export const actionsList = [
         }
     },
     {
-        name: '!clear',
+        name: '!clearChat',
         description: 'Clear the chat history.',
         perform: async function (agent) {
             agent.history.clear();
@@ -73,18 +73,24 @@ export const actionsList = [
     },
     {
         name: '!goToPlayer',
-        description: 'Go to the given player. Ex: !goToPlayer("steve")',
-        params: {'player_name': '(string) The name of the player to go to.'},
-        perform: wrapExecution(async (agent, player_name) => {
-            return await skills.goToPlayer(agent.bot, player_name);
+        description: 'Go to the given player. Ex: !goToPlayer("steve", 3)',
+        params: {
+            'player_name': '(string) The name of the player to go to.',
+            'closeness': '(number) How close to get to the player.'
+        },
+        perform: wrapExecution(async (agent, player_name, closeness) => {
+            return await skills.goToPlayer(agent.bot, player_name, closeness);
         })
     },
     {
         name: '!followPlayer',
-        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie")',
-        params: {'player_name': '(string) The name of the player to follow.'},
-        perform: wrapExecution(async (agent, player_name) => {
-            await skills.followPlayer(agent.bot, player_name);
+        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie", 4)',
+        params: {
+            'player_name': '(string) The name of the player to follow.',
+            'follow_dist': '(number) The distance to follow from.'
+        },
+        perform: wrapExecution(async (agent, player_name, follow_dist) => {
+            await skills.followPlayer(agent.bot, player_name, follow_dist);
         }, -1, 'followPlayer')
     },
     {
