@@ -22,7 +22,7 @@ function wrapExecution(func, timeout=-1, resume_name=null) {
 export const actionsList = [
     {
         name: '!newAction',
-        description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
+        description: 'Perform custom behaviors not available as a command by writing code.', 
         perform: async function (agent) {
             if (!settings.allow_insecure_coding)
                 return 'Agent is not allowed to write code.';
@@ -31,7 +31,7 @@ export const actionsList = [
     },
     {
         name: '!stop',
-        description: 'Force stop all actions and commands that are currently executing.',
+        description: 'Force stop all actions.',
         perform: async function (agent) {
             await agent.coder.stop();
             agent.coder.clear();
@@ -41,7 +41,7 @@ export const actionsList = [
     },
     {
         name: '!restart',
-        description: 'Restart the agent process.',
+        description: 'Restart the agent.',
         perform: async function (agent) {
             process.exit(1);
         }
@@ -56,9 +56,9 @@ export const actionsList = [
     },
     {
         name: '!setMode',
-        description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment. Ex: !setMode("hunting", true)',
+        description: 'Set a mode to on or off. A mode is an automatic behavior that responds to the environment. Ex: !setMode("hunting", true)',
         params: {
-            'mode_name': '(string) The name of the mode to enable.',
+            'mode_name': '(string) Name of the mode.',
             'on': '(bool) Whether to enable or disable the mode.'
         },
         perform: async function (agent, mode_name, on) {
@@ -75,7 +75,7 @@ export const actionsList = [
         name: '!goToPlayer',
         description: 'Go to the given player. Ex: !goToPlayer("steve", 3)',
         params: {
-            'player_name': '(string) The name of the player to go to.',
+            'player_name': '(string) Name of the player.',
             'closeness': '(number) How close to get to the player.'
         },
         perform: wrapExecution(async (agent, player_name, closeness) => {
@@ -84,10 +84,10 @@ export const actionsList = [
     },
     {
         name: '!followPlayer',
-        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie", 4)',
+        description: 'Follow the given player. Ex: !followPlayer("stevie", 4)',
         params: {
-            'player_name': '(string) The name of the player to follow.',
-            'follow_dist': '(number) The distance to follow from.'
+            'player_name': '(string) Name of the player to follow.',
+            'follow_dist': '(number) Distance to follow from.'
         },
         perform: wrapExecution(async (agent, player_name, follow_dist) => {
             await skills.followPlayer(agent.bot, player_name, follow_dist);
@@ -95,8 +95,8 @@ export const actionsList = [
     },
     {
         name: '!moveAway',
-        description: 'Move away from the current location in any direction by a given distance. Ex: !moveAway(2)',
-        params: {'distance': '(number) The distance to move away.'},
+        description: 'Move away by a given distance.',
+        params: {'distance': '(number) Distance to move away.'},
         perform: wrapExecution(async (agent, distance) => {
             await skills.moveAway(agent.bot, distance);
         })
@@ -105,9 +105,9 @@ export const actionsList = [
         name: '!givePlayer',
         description: 'Give the specified item to the given player. Ex: !givePlayer("steve", "stone_pickaxe", 1)',
         params: { 
-            'player_name': '(string) The name of the player to give the item to.', 
-            'item_name': '(string) The name of the item to give.' ,
-            'num': '(number) The number of items to give.'
+            'player_name': '(string) Name of the player to give the item to.', 
+            'item_name': '(string) Name of the item to give.' ,
+            'num': '(number) Number of items to give.'
         },
         perform: wrapExecution(async (agent, player_name, item_name, num) => {
             await skills.giveToPlayer(agent.bot, item_name, player_name, num);
@@ -115,10 +115,10 @@ export const actionsList = [
     },
     {
         name: '!collectBlocks',
-        description: 'Collect the nearest blocks of a given type.',
+        description: 'Collect the nearest blocks of a given type. Ex: !collectBlocks("stone", 10)',
         params: {
-            'type': '(string) The block type to collect. Ex: !collectBlocks("stone", 10)',
-            'num': '(number) The number of blocks to collect.'
+            'type': '(string) The block type to collect.',
+            'num': '(number) Number of blocks to collect.'
         },
         perform: wrapExecution(async (agent, type, num) => {
             await skills.collectBlock(agent.bot, type, num);
@@ -128,7 +128,7 @@ export const actionsList = [
         name: '!collectAllBlocks',
         description: 'Collect all the nearest blocks of a given type until told to stop.',
         params: {
-            'type': '(string) The block type to collect. Ex: !collectAllBlocks("stone")'
+            'type': '(string) The block type to collect.'
         },
         perform: wrapExecution(async (agent, type) => {
             let success = await skills.collectBlock(agent.bot, type, 1);
@@ -140,8 +140,8 @@ export const actionsList = [
         name: '!craftRecipe',
         description: 'Craft the given recipe a given number of times. Ex: I will craft 8 sticks !craftRecipe("stick", 2)',
         params: {
-            'recipe_name': '(string) The name of the output item to craft.',
-            'num': '(number) The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.'
+            'recipe_name': '(string) Name of the output item to craft.',
+            'num': '(number) Number of times to craft the recipe, NOT the number of output items.'
         },
         perform: wrapExecution(async (agent, recipe_name, num) => {
             for (let i=0; i<num; i++) {
@@ -151,7 +151,7 @@ export const actionsList = [
     },
     {
         name: '!placeHere',
-        description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches. Ex: !placeBlockHere("crafting_table")',
+        description: 'Place a block in the current location. Only use for single blocks/torches, NOT structures.',
         params: {'type': '(string) The block type to place.'},
         perform: wrapExecution(async (agent, type) => {
             let pos = agent.bot.entity.position;
@@ -160,7 +160,7 @@ export const actionsList = [
     },
     {
         name: '!attack',
-        description: 'Attack and kill the nearest entity of a given type.',
+        description: 'Kill an entity of a given type.',
         params: {'type': '(string) The type of entity to attack.'},
         perform: wrapExecution(async (agent, type) => {
             await skills.attackNearest(agent.bot, type, true);
@@ -168,7 +168,7 @@ export const actionsList = [
     },
     {
         name: '!goToBed',
-        description: 'Go to the nearest bed and sleep.',
+        description: 'Go to bed and sleep.',
         perform: wrapExecution(async (agent) => {
             await skills.goToBed(agent.bot);
         })
