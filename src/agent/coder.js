@@ -1,5 +1,5 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-import { sendRequest } from '../utils/gpt.js';
+import { sendRequest } from '../models/model.js';
 import { getSkillDocs } from './library/index.js';
 import { Examples } from '../utils/examples.js';
 

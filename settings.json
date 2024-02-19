@@ -3,5 +3,7 @@
     "host": "localhost",
     "port": 55916,
     "auth": "offline",
+
+    "model": "gemini-1.0-pro",
     "allow_insecure_coding": false
 }

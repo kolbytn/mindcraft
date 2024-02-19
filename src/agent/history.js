@@ -1,6 +1,6 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { stringifyTurns } from '../utils/text.js';
-import { sendRequest } from '../utils/gpt.js';
+import { sendRequest } from '../models/model.js';
 import { getCommandDocs } from './commands/index.js';
 
 

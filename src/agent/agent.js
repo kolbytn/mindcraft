@@ -3,7 +3,7 @@ import { Coder } from './coder.js';
 import { initModes } from './modes.js';
 import { Examples } from '../utils/examples.js';
 import { initBot } from '../utils/mcdata.js';
-import { sendRequest } from '../utils/gpt.js';
+import { sendRequest } from '../models/model.js';
 import { containsCommand, commandExists, executeCommand } from './commands/index.js';
 
 
@@ -102,7 +102,7 @@ export class Agent {
             let command_name = containsCommand(res);
 
             if (command_name) { // contains query or command
-                console.log('Command message:', res);
+                console.log(`""${res}""`)
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
                     console.log('Agent hallucinated command:', command_name)
@@ -110,8 +110,10 @@ export class Agent {
                 }
 
                 let pre_message = res.substring(0, res.indexOf(command_name)).trim();
-
-                this.cleanChat(`${pre_message}  *used ${command_name.substring(1)}*`);
+                let message = `*used ${command_name.substring(1)}*`;
+                if (pre_message.length > 0)
+                    message = `${pre_message}  ${message}`;
+                this.cleanChat(message);
                 let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);

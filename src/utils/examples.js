@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
-import { embed, cosineSimilarity } from './gpt.js';
+import { cosineSimilarity } from './math.js';
 import { stringifyTurns } from './text.js';
+import { embed } from '../models/model.js';
 
 
 export class Examples {
