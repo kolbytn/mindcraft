@@ -13,6 +13,7 @@ export class Gemini {
     }
 
     async sendRequest(turns, systemMessage) {
+        systemMessage += "\nBegin the conversation:\n";
         const messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
         let prompt = "";
         let role = "";

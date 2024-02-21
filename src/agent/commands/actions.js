@@ -25,7 +25,7 @@ export const actionsList = [
         description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
         perform: async function (agent) {
             if (!settings.allow_insecure_coding)
-                return 'Agent is not allowed to write code.';
+                return 'newAction Failed! Agent is not allowed to write code. Notify the user.';
             return await agent.coder.generateCode(agent.history);
         }
     },
