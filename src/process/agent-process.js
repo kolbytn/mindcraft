@@ -1,13 +1,11 @@
 import { spawn } from 'child_process';
 
 export class AgentProcess {
-    constructor(name) {
-        this.name = name;
-    }
-    start(profile='assist', init_message=null) {
+    start(profile, load_memory=false, init_message=null) {
         let args = ['src/process/init-agent.js', this.name];
-        if (profile)
-            args.push('-p', profile);
+        args.push('-p', profile);
+        if (load_memory)
+            args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
 
@@ -27,7 +25,7 @@ export class AgentProcess {
                     process.exit(1);
                 }
                 console.log('Restarting agent...');
-                this.start('save', 'Agent process restarted. Notify the user and decide what to do.');
+                this.start(profile, true, 'Agent process restarted. Notify the user and decide what to do.');
                 last_restart = Date.now();
             }
         });

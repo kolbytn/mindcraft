@@ -1,19 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import settings from '../settings.js';
 
 export class Gemini {
-    constructor() {
+    constructor(model_name) {
         if (!process.env.GEMINI_API_KEY) {
             console.error('Gemini API key missing! Make sure you set your GEMINI_API_KEY environment variable.');
             process.exit(1);
         }
         this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-        this.model = this.genAI.getGenerativeModel({ model: settings.model });
+        this.model = this.genAI.getGenerativeModel({ model: model_name });
     }
 
     async sendRequest(turns, systemMessage) {
-        systemMessage += "\nBegin the conversation:\n";
         const messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
         let prompt = "";
         let role = "";

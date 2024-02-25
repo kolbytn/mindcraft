@@ -56,7 +56,7 @@ export const actionsList = [
     },
     {
         name: '!setMode',
-        description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment. Ex: !setMode("hunting", true)',
+        description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment.',
         params: {
             'mode_name': '(string) The name of the mode to enable.',
             'on': '(bool) Whether to enable or disable the mode.'
@@ -73,7 +73,7 @@ export const actionsList = [
     },
     {
         name: '!goToPlayer',
-        description: 'Go to the given player. Ex: !goToPlayer("steve", 3)',
+        description: 'Go to the given player.',
         params: {
             'player_name': '(string) The name of the player to go to.',
             'closeness': '(number) How close to get to the player.'
@@ -84,7 +84,7 @@ export const actionsList = [
     },
     {
         name: '!followPlayer',
-        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on. Ex: !followPlayer("stevie", 4)',
+        description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on.',
         params: {
             'player_name': '(string) The name of the player to follow.',
             'follow_dist': '(number) The distance to follow from.'
@@ -95,7 +95,7 @@ export const actionsList = [
     },
     {
         name: '!moveAway',
-        description: 'Move away from the current location in any direction by a given distance. Ex: !moveAway(2)',
+        description: 'Move away from the current location in any direction by a given distance.',
         params: {'distance': '(number) The distance to move away.'},
         perform: wrapExecution(async (agent, distance) => {
             await skills.moveAway(agent.bot, distance);
@@ -103,7 +103,7 @@ export const actionsList = [
     },
     {
         name: '!givePlayer',
-        description: 'Give the specified item to the given player. Ex: !givePlayer("steve", "stone_pickaxe", 1)',
+        description: 'Give the specified item to the given player.',
         params: { 
             'player_name': '(string) The name of the player to give the item to.', 
             'item_name': '(string) The name of the item to give.' ,
@@ -117,7 +117,7 @@ export const actionsList = [
         name: '!collectBlocks',
         description: 'Collect the nearest blocks of a given type.',
         params: {
-            'type': '(string) The block type to collect. Ex: !collectBlocks("stone", 10)',
+            'type': '(string) The block type to collect.',
             'num': '(number) The number of blocks to collect.'
         },
         perform: wrapExecution(async (agent, type, num) => {
@@ -128,7 +128,7 @@ export const actionsList = [
         name: '!collectAllBlocks',
         description: 'Collect all the nearest blocks of a given type until told to stop.',
         params: {
-            'type': '(string) The block type to collect. Ex: !collectAllBlocks("stone")'
+            'type': '(string) The block type to collect.'
         },
         perform: wrapExecution(async (agent, type) => {
             let success = await skills.collectBlock(agent.bot, type, 1);
@@ -138,7 +138,7 @@ export const actionsList = [
     },
     {
         name: '!craftRecipe',
-        description: 'Craft the given recipe a given number of times. Ex: I will craft 8 sticks !craftRecipe("stick", 2)',
+        description: 'Craft the given recipe a given number of times.',
         params: {
             'recipe_name': '(string) The name of the output item to craft.',
             'num': '(number) The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.'
@@ -151,7 +151,7 @@ export const actionsList = [
     },
     {
         name: '!placeHere',
-        description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches. Ex: !placeBlockHere("crafting_table")',
+        description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
         params: {'type': '(string) The block type to place.'},
         perform: wrapExecution(async (agent, type) => {
             let pos = agent.bot.entity.position;

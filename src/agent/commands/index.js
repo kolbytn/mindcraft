@@ -60,6 +60,14 @@ function parseCommandMessage(message) {
     return null;
 }
 
+export function truncCommandMessage(message) {
+    const commandMatch = message.match(commandRegex);
+    if (commandMatch) {
+        return message.substring(0, commandMatch.index + commandMatch[0].length);
+    }
+    return message;
+}
+
 function numParams(command) {
     if (!command.params)
         return 0;

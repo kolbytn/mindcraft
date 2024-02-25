@@ -3,7 +3,5 @@
     "host": "localhost",
     "port": 55916,
     "auth": "offline",
-
-    "model": "gpt-3.5-turbo-0125",
-    "allow_insecure_coding": false
+    "allow_insecure_coding": true
 }

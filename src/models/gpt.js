@@ -1,8 +1,8 @@
 import OpenAIApi from 'openai';
-import settings from '../settings.js';
 
 export class GPT {
-    constructor() {
+    constructor(model_name) {
+        this.model_name = model_name;
         let openAiConfig = null;
         if (process.env.OPENAI_ORG_ID) {
             openAiConfig = {
@@ -30,8 +30,9 @@ export class GPT {
         let res = null;
         try {
             console.log('Awaiting openai api response...')
+            console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
-                model: settings.model,
+                model: this.model_name,
                 messages: messages,
                 stop: stop_seq,
             });
