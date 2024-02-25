@@ -38,6 +38,11 @@ export const queryList = [
             } else {
                 res += '\n- Time: Night';
             }
+
+            let other_players = world.getNearbyPlayerNames(bot);
+            if (other_players.length > 0) {
+                res += '\n- Other Players: ' + other_players.join(', ');
+            }
             return pad(res);
         }
     },
