@@ -175,8 +175,15 @@ export class Agent {
             }
         });
 
-        this.bot.on('idle', () => {
+        this.bot.on('idle', async () => {
+            // Resume all paused modes
             this.bot.modes.unPauseAll();
+
+            // Wait a while for inputs before acting independently
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            if (!this.isIdle()) return;
+
+            // Resume behavior or persue goal
             if (this.coder.resume_func != null)
                 this.coder.executeResume();
             else

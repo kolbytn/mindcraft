@@ -309,6 +309,7 @@ export class ItemGoal {
         this.timeout = timeout;
         this.goals = [];
         this.nodes = {};
+        this.failed = [];
     }
 
     setGoals(goals) {
@@ -321,11 +322,10 @@ export class ItemGoal {
     async executeNext() {
         // Get goal by priority
         let goal = null;
-        let inventory = world.getInventoryCounts(this.agent.bot);
         for (let g of this.goals) {
-            if (inventory[g.name] === undefined || inventory[g.name] < g.quantity) {
-                if (this.nodes[g.name] === undefined)
-                    this.nodes[g.name] = new ItemWrapper(this, null, g.name);
+            if (this.nodes[g.name] === undefined)
+                this.nodes[g.name] = new ItemWrapper(this, null, g.name);
+            if (!this.nodes[g.name].isDone(g.quantity)) {
                 goal = this.nodes[g.name];
                 break;
             }
@@ -342,8 +342,20 @@ export class ItemGoal {
         if (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source) ||
                 next.type === 'hunt' && !world.getNearbyEntityTypes(this.agent.bot).includes(next.source)) {
             next.fails += 1;
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            this.agent.bot.emit('idle');
+
+            // If the bot has failed to obtain the block before, explore
+            if (this.failed.includes(next.name)) {
+                this.failed = this.failed.filter((item) => item !== next.name);
+                this.agent.coder.interruptible = true;
+                await this.agent.coder.execute(async () => {
+                    await skills.moveAway(this.agent.bot, 8);
+                }, this.timeout);
+                this.agent.coder.interruptible = false;
+            } else {
+                this.failed.push(next.name);
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                this.agent.bot.emit('idle');
+            }
             return;
         }
 
