@@ -1,27 +1,24 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
+import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
-import { Examples } from '../utils/examples.js';
 import { initBot } from '../utils/mcdata.js';
-import { sendRequest } from '../utils/gpt.js';
-import { containsCommand, commandExists, executeCommand } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
 
 
 export class Agent {
-    async start(name, profile=null, init_message=null) {
-        this.name = name;
-        this.examples = new Examples();
+    async start(profile_fp, load_mem=false, init_message=null) {
+        this.prompter = new Prompter(this, profile_fp);
+        this.name = this.prompter.getName();
         this.history = new History(this);
         this.coder = new Coder(this);
+        await this.prompter.initExamples();
 
-        console.log('Loading examples...');
-
-        this.history.load(profile);
-        await this.examples.load('./src/examples.json');
-        await this.coder.load();
+        if (load_mem)
+            this.history.load();
 
         console.log('Logging in...');
-        this.bot = initBot(name);
+        this.bot = initBot(this.name);
 
         initModes(this);
 
@@ -95,23 +92,26 @@ export class Agent {
         }
 
         for (let i=0; i<5; i++) {
-            let history = await this.history.getHistory(this.examples);
-            let res = await sendRequest(history, this.history.getSystemMessage());
-            this.history.add(this.name, res);
+            let history = this.history.getHistory();
+            let res = await this.prompter.promptConvo(history);
 
             let command_name = containsCommand(res);
 
             if (command_name) { // contains query or command
-                console.log('Command message:', res);
+                console.log(`Full response: ""${res}""`)
+                res = truncCommandMessage(res); // everything after the command is ignored
+                this.history.add(this.name, res);
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
                     console.log('Agent hallucinated command:', command_name)
                     continue;
                 }
-
                 let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+                let chat_message = `*used ${command_name.substring(1)}*`;
+                if (pre_message.length > 0)
+                    chat_message = `${pre_message}  ${chat_message}`;
+                this.cleanChat(chat_message);
 
-                this.cleanChat(`${pre_message}  *used ${command_name.substring(1)}*`);
                 let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
@@ -122,6 +122,7 @@ export class Agent {
                     break;
             }
             else { // conversation response
+                this.history.add(this.name, res);
                 this.cleanChat(res);
                 console.log('Purely conversational response:', res);
                 break;

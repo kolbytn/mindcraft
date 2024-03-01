@@ -1,34 +1,26 @@
-import { readFileSync } from 'fs';
-import { embed, cosineSimilarity } from './gpt.js';
+import { cosineSimilarity } from './math.js';
 import { stringifyTurns } from './text.js';
 
-
 export class Examples {
-    constructor(select_num=2) {
+    constructor(model, select_num=2) {
         this.examples = [];
+        this.model = model;
         this.select_num = select_num;
     }
 
-    async load(path) {
-        let examples = [];
-        try {
-            const data = readFileSync(path, 'utf8');
-            examples = JSON.parse(data);
-        } catch (err) {
-            console.error('Examples failed to load!', err);
-        }
-
+    async load(examples) {
         this.examples = [];
-        for (let example of examples) {
+        let promises = examples.map(async (example) => {
             let messages = '';
             for (let turn of example) {
-                if (turn.role != 'assistant')
+                if (turn.role === 'user')
                     messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
             }
             messages = messages.trim();
-            const embedding = await embed(messages);
-            this.examples.push({'embedding': embedding, 'turns': example});
-        }
+            const embedding = await this.model.embed(messages);
+            return {'embedding': embedding, 'turns': example};
+        });
+        this.examples = await Promise.all(promises);
     }
 
     async getRelevant(turns) {
@@ -38,7 +30,7 @@ export class Examples {
                 messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
         }
         messages = messages.trim();
-        const embedding = await embed(messages);
+        const embedding = await this.model.embed(messages);
         this.examples.sort((a, b) => {
             return cosineSimilarity(b.embedding, embedding) - cosineSimilarity(a.embedding, embedding);
         });
@@ -54,11 +46,11 @@ export class Examples {
             console.log(example.turns[0].content)
         }
 
-        let msg = 'Here are some examples of how to respond:\n';
+        let msg = 'Examples of how to respond:\n';
         for (let i=0; i<selected_examples.length; i++) {
             let example = selected_examples[i];
             msg += `Example ${i+1}:\n${stringifyTurns(example.turns)}\n\n`;
         }
-        return [{'role': 'system', 'content': msg}];
+        return msg;
     }
 }

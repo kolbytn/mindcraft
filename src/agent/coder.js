@@ -1,7 +1,4 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-import { sendRequest } from '../utils/gpt.js';
-import { getSkillDocs } from './library/index.js';
-import { Examples } from '../utils/examples.js';
 
 
 export class Coder {
@@ -13,11 +10,6 @@ export class Coder {
         this.generating = false;
         this.code_template = '';
         this.timedout = false;
-    }
-
-    async load() {
-        this.examples = new Examples();
-        await this.examples.load('./src/examples_coder.json');
 
         readFile('./bots/template.js', 'utf8', (err, data) => {
             if (err) throw err;
@@ -98,12 +90,7 @@ export class Coder {
     }
 
     async generateCodeLoop(agent_history) {
-        let system_message = "You are a minecraft mineflayer bot that plays minecraft by writing javascript codeblocks. Given the conversation between you and the user, use the provided skills and world functions to write your code in a codeblock. Example response: ``` // your code here ``` You will then be given a response to your code. If you are satisfied with the response, respond without a codeblock in a conversational way. If something went wrong, write another codeblock and try to fix the problem.";
-        system_message += getSkillDocs();
-
-        system_message += "\n\nExamples:\nUser zZZn98: come here \nAssistant: I am going to navigate to zZZn98. ```\nawait skills.goToPlayer(bot, 'zZZn98', 3);```\nSystem: Code execution finished successfully.\nAssistant: Done.";
-
-        let messages = await agent_history.getHistory(this.examples);
+        let messages = agent_history.getHistory();
 
         let code_return = null;
         let failures = 0;
@@ -111,7 +98,7 @@ export class Coder {
             if (this.agent.bot.interrupt_code)
                 return {success: true, message: null, interrupted: true, timedout: false};
             console.log(messages)
-            let res = await sendRequest(messages, system_message);
+            let res = await this.agent.prompter.promptCoding(messages);
             console.log('Code generation response:', res)
             let contains_code = res.indexOf('```') !== -1;
             if (!contains_code) {

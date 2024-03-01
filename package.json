@@ -1,6 +1,7 @@
 {
     "type": "module",
     "dependencies": {
+        "@google/generative-ai": "^0.2.1",
         "minecraft-data": "^3.46.2",
         "mineflayer": "^4.14.0",
         "mineflayer-armor-manager": "^2.0.1",
