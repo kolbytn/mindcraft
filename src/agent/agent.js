@@ -4,7 +4,7 @@ import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
-import { ItemGoal } from './item_goal.js';
+import { NPCContoller } from './npc/controller.js';
 
 
 export class Agent {
@@ -13,13 +13,12 @@ export class Agent {
         this.name = this.prompter.getName();
         this.history = new History(this);
         this.coder = new Coder(this);
-        this.item_goal = new ItemGoal(this);        
+        this.npc = new NPCContoller(this);
 
         await this.prompter.initExamples();
 
         if (load_mem)
             this.history.load();
-        this.item_goal.setGoals(this.history.goals);
 
         console.log('Logging in...');
         this.bot = initBot(this.name);
@@ -178,19 +177,12 @@ export class Agent {
         });
 
         this.bot.on('idle', async () => {
-            // Resume all paused modes
             this.bot.modes.unPauseAll();
-
-            // Wait a while for inputs before acting independently
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            if (!this.isIdle()) return;
-
-            // Resume behavior or persue goal
-            if (this.coder.resume_func != null)
-                this.coder.executeResume();
-            else
-                this.item_goal.executeNext();
+            this.coder.executeResume();
         });
+
+        // Init NPC controller
+        this.npc.init();
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
         const INTERVAL = 300;

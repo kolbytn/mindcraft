@@ -1,4 +1,5 @@
-import { writeFileSync, readFileSync, mkdirSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
+import { NPCData } from './npc/data.js';
 
 
 export class History {
@@ -10,7 +11,6 @@ export class History {
 
         // These define an agent's long term memory
         this.memory = '';
-        this.goals = [];
 
         // Variables for controlling the agent's memory and knowledge
         this.max_messages = 20;
@@ -51,9 +51,10 @@ export class History {
         let data = {
             'name': this.name,
             'memory': this.memory,
-            'goals': this.goals,
             'turns': this.turns
         };
+        if (this.agent.npc.data !== null)
+            data.npc = this.agent.npc.data.toObject();
         const json_data = JSON.stringify(data, null, 4);
         writeFileSync(this.memory_fp, json_data, (err) => {
             if (err) {
@@ -69,8 +70,8 @@ export class History {
             const data = readFileSync(this.memory_fp, 'utf8');
             const obj = JSON.parse(data);
             this.memory = obj.memory;
+            this.agent.npc.data = NPCData.fromObject(obj.npc);
             this.turns = obj.turns;
-            this.goals = obj.goals;
         } catch (err) {
             console.error(`No memory file '${this.memory_fp}' for agent ${this.name}.`);
         }
