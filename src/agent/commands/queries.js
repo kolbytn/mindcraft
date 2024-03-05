@@ -38,6 +38,11 @@ export const queryList = [
             } else {
                 res += '\n- Time: Night';
             }
+
+            let other_players = world.getNearbyPlayerNames(bot);
+            if (other_players.length > 0) {
+                res += '\n- Other Players: ' + other_players.join(', ');
+            }
             return pad(res);
         }
     },
@@ -59,7 +64,7 @@ export const queryList = [
         }
     },
     {
-        name: "!blocks",
+        name: "!nearbyBlocks",
         description: "Get the blocks near the bot.",
         perform: function (agent) {
             let bot = agent.bot;

@@ -27,11 +27,16 @@ async function autoLight(bot) {
     return false;
 }
 
-function equipHighestAttack(bot) {
-    let weapons = bot.inventory.items().filter(item => item.name.includes('sword') || item.name.includes('axe') || item.name.includes('pickaxe') || item.name.includes('shovel'));
-    let weapon = weapons.sort((a, b) => b.attackDamage - a.attackDamage)[0];
+async function equipHighestAttack(bot) {
+    let weapons = bot.inventory.items().filter(item => item.name.includes('sword') || (item.name.includes('axe') && !item.name.includes('pickaxe')));
+    if (weapons.length === 0)
+        weapons = bot.inventory.items().filter(item => item.name.includes('pickaxe') || item.name.includes('shovel'));
+    if (weapons.length === 0)
+        return;
+    weapons.sort((a, b) => a.attackDamage < b.attackDamage);
+    let weapon = weapons[0];
     if (weapon)
-        bot.equip(weapon, 'hand');
+        await bot.equip(weapon, 'hand');
 }
 
 
@@ -262,7 +267,7 @@ export async function attackEntity(bot, entity, kill=true) {
     let pos = entity.position;
     console.log(bot.entity.position.distanceTo(pos))
 
-    equipHighestAttack(bot)
+    await equipHighestAttack(bot)
 
     if (!kill) {
         if (bot.entity.position.distanceTo(pos) > 5) {
@@ -300,7 +305,7 @@ export async function defendSelf(bot, range=9) {
     let attacked = false;
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
     while (enemy) {
-        equipHighestAttack(bot);
+        await equipHighestAttack(bot);
         if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
             try {
                 bot.pathfinder.setMovements(new pf.Movements(bot));
@@ -425,23 +430,29 @@ export async function breakBlockAt(bot, x, y, z) {
      * let position = world.getPosition(bot);
      * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
      **/
+    if (x == null || y == null || z == null) throw new Error('Invalid position to break block at.');
     let block = bot.blockAt(Vec3(x, y, z));
     if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
+        if (bot.entity.position.distanceTo(block.position) > 4.5) {
+            let pos = block.position;
+            let movements = new pf.Movements(bot);
+            movements.canPlaceOn = false;
+            movements.allow1by1towers = false;
+            bot.pathfinder.setMovements(movements);
+            await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+        }
         await bot.tool.equipForBlock(block);
         const itemId = bot.heldItem ? bot.heldItem.type : null
         if (!block.canHarvest(itemId)) {
             log(bot, `Don't have right tools to break ${block.name}.`);
             return false;
         }
-        if (bot.entity.position.distanceTo(block.position) > 4.5) {
-            let pos = block.position;
-            let movements = new pf.Movements(bot);
-            movements.canPlaceOn = false;
-            movements.allow1by1towers = false;
-            bot.pathfinder.setMovements();
-            await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
-        }
         await bot.dig(block, true);
+        log(bot, `Broke ${block.name} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
+    }
+    else {
+        log(bot, `Skipping block at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)} because it is ${block.name}.`);
+        return false;
     }
     return true;
 }
@@ -648,11 +659,12 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
 }
 
 
-export async function goToPlayer(bot, username) {
+export async function goToPlayer(bot, username, distance=3) {
     /**
      * Navigate to the given player.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} username, the username of the player to navigate to.
+     * @param {number} distance, the goal distance to the player.
      * @returns {Promise<boolean>} true if the player was found, false otherwise.
      * @example
      * await skills.goToPlayer(bot, "player");
@@ -665,13 +677,13 @@ export async function goToPlayer(bot, username) {
     }
     
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalFollow(player, 3), true);
+    await bot.pathfinder.goto(new pf.goals.GoalFollow(player, distance), true);
 
     log(bot, `You have reached ${username}.`);
 }
 
 
-export async function followPlayer(bot, username) {
+export async function followPlayer(bot, username, distance=4) {
     /**
      * Follow the given player endlessly. Will not return until the code is manually stopped.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -684,9 +696,8 @@ export async function followPlayer(bot, username) {
     if (!player)
         return false;
 
-    const follow_distance = 4;
     bot.pathfinder.setMovements(new pf.Movements(bot));
-    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, follow_distance), true);
+    bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
     while (!bot.interrupt_code) {
