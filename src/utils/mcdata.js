@@ -42,12 +42,20 @@ export function isHostile(mob) {
     return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
 }
 
-export function getItemId(item) {
-    return mcdata.itemsByName[item].id;
+export function getItemId(itemName) {
+    let item = mcdata.itemsByName[itemName];
+    if (item) {
+        return item.id;
+    }
+    return null;
 }
 
 export function getItemName(itemId) {
-    return mcdata.items[itemId].name;
+    let item = mcdata.items[itemId]
+    if (item) {
+        return item.name;
+    }
+    return null;
 }
 
 export function getAllItems(ignore) {

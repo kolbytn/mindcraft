@@ -172,7 +172,6 @@ export function getInventoryCounts(bot) {
             inventory[item.name] += item.count;
         }
     }
-    console.log(inventory)
     return inventory;
 }
 
