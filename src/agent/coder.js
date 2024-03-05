@@ -146,12 +146,12 @@ export class Coder {
     }
 
     async executeResume(func=null, name=null, timeout=10) {
-        console.log('resuming code...')
         if (func != null) {
             this.resume_func = func;
             this.resume_name = name;
         }
         if (this.resume_func != null && this.agent.isIdle()) {
+            console.log('resuming code...')
             this.interruptible = true;
             let res = await this.execute(this.resume_func, timeout);
             this.interruptible = false;

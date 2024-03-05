@@ -116,6 +116,7 @@ export async function smeltItem(bot, itemName, num=1) {
         return false;
     } // TODO: allow cobblestone, sand, clay, etc.
 
+    let placedFurnace = false;
     let furnaceBlock = undefined;
     furnaceBlock = world.getNearestBlock(bot, 'furnace', 6);
     if (!furnaceBlock){
@@ -125,6 +126,7 @@ export async function smeltItem(bot, itemName, num=1) {
             let pos = world.getNearestFreeSpace(bot, 1, 6);
             await placeBlock(bot, 'furnace', pos.x, pos.y, pos.z);
             furnaceBlock = world.getNearestBlock(bot, 'furnace', 6);
+            placedFurnace = true;
         }
     }
     if (!furnaceBlock){
@@ -141,12 +143,16 @@ export async function smeltItem(bot, itemName, num=1) {
         // TODO: check if furnace is currently burning fuel. furnace.fuel is always null, I think there is a bug.
         // This only checks if the furnace has an input item, but it may not be smelting it and should be cleared.
         log(bot, `The furnace is currently smelting ${mc.getItemName(input_item.type)}.`);
+        if (placedFurnace)
+            await collectBlock(bot, 'furnace', 1);
         return false;
     }
     // check if the bot has enough items to smelt
     let inv_counts = world.getInventoryCounts(bot);
     if (!inv_counts[itemName] || inv_counts[itemName] < num) {
         log(bot, `You do not have enough ${itemName} to smelt.`);
+        if (placedFurnace)
+            await collectBlock(bot, 'furnace', 1);
         return false;
     }
 
@@ -156,6 +162,8 @@ export async function smeltItem(bot, itemName, num=1) {
         let put_fuel = Math.ceil(num / 8);
         if (!fuel || fuel.count < put_fuel) {
             log(bot, `You do not have enough coal or charcoal to smelt ${num} ${itemName}, you need ${put_fuel} coal or charcoal`);
+            if (placedFurnace)
+                await collectBlock(bot, 'furnace', 1);
             return false;
         }
         await furnace.putFuel(fuel.type, null, put_fuel);
@@ -189,6 +197,9 @@ export async function smeltItem(bot, itemName, num=1) {
         }
     }
 
+    if (placedFurnace) {
+        await collectBlock(bot, 'furnace', 1);
+    }
     if (total === 0) {
         log(bot, `Failed to smelt ${itemName}.`);
         return false;

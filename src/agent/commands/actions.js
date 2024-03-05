@@ -144,9 +144,18 @@ export const actionsList = [
             'num': '(number) The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.'
         },
         perform: wrapExecution(async (agent, recipe_name, num) => {
-            for (let i=0; i<num; i++) {
-                await skills.craftRecipe(agent.bot, recipe_name);
-            }
+            await skills.craftRecipe(agent.bot, recipe_name, num);
+        })
+    },
+    {
+        name: '!smeltItem',
+        description: 'Smelt the given item the given number of times.',
+        params: {
+            'item_name': '(string) The name of the input item to smelt.',
+            'num': '(number) The number of times to smelt the item.'
+        },
+        perform: wrapExecution(async (agent, recipe_name, num) => {
+            await skills.smeltItem(agent.bot, recipe_name, num);
         })
     },
     {
