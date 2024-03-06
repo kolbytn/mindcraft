@@ -174,7 +174,7 @@ export class Agent {
                 console.log('Agent died: ', message);
                 this.handleMessage('system', `You died with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
             }
-        })
+        });
         this.bot.on('idle', () => {
             this.bot.modes.unPauseAll();
             this.coder.executeResume();

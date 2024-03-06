@@ -1,6 +1,7 @@
 import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
+import { itemSatisfied } from './utils.js';
 
 
 const blacklist = [
@@ -103,36 +104,9 @@ class ItemNode {
     }
 
     isDone(quantity=1) {
-        let qualifying = [this.name];
-        if (this.name.includes('pickaxe') || 
-                this.name.includes('axe') || 
-                this.name.includes('shovel') ||
-                this.name.includes('hoe') ||
-                this.name.includes('sword')) {
-            let material = this.name.split('_')[0];
-            let type = this.name.split('_')[1];
-            if (material === 'wooden') {
-                qualifying.push('stone_' + type);
-                qualifying.push('iron_' + type);
-                qualifying.push('gold_' + type);
-                qualifying.push('diamond_' + type);
-            } else if (material === 'stone') {
-                qualifying.push('iron_' + type);
-                qualifying.push('gold_' + type);
-                qualifying.push('diamond_' + type);
-            } else if (material === 'iron') {
-                qualifying.push('gold_' + type);
-                qualifying.push('diamond_' + type);
-            } else if (material === 'gold') {
-                qualifying.push('diamond_' + type);
-            }
-        }
-        for (let item of qualifying) {
-            if (world.getInventoryCounts(this.manager.agent.bot)[item] >= quantity) {
-                return true;
-            }
-        }
-        return false;
+        if (this.manager.goal.name === this.name)
+            return false;
+        return itemSatisfied(this.manager.agent.bot, this.name, quantity);
     }
 
     getDepth(q=1) {
@@ -304,37 +278,24 @@ class ItemWrapper {
 
 
 export class ItemGoal {
-    constructor(agent, timeout=-1) {
+    constructor(agent) {
         this.agent = agent;
-        this.timeout = timeout;
-        this.goals = [];
+        this.goal = null;
         this.nodes = {};
         this.failed = [];
     }
 
-    setGoals(goals) {
-        this.goals = []
-        for (let goal of goals) {
-            this.goals.push({name: goal, quantity: 1})
-        }
-    }
-
-    async executeNext() {
-        // Get goal by priority
-        let goal = null;
-        for (let g of this.goals) {
-            if (this.nodes[g.name] === undefined)
-                this.nodes[g.name] = new ItemWrapper(this, null, g.name);
-            if (!this.nodes[g.name].isDone(g.quantity)) {
-                goal = this.nodes[g.name];
-                break;
-            }
-        }
-        if (goal === null)
-            return;
+    async executeNext(item_name) {
+        if (this.nodes[item_name] === undefined)
+            this.nodes[item_name] = new ItemWrapper(this, null, item_name);
+        this.goal = this.nodes[item_name];
 
         // Get next goal to execute
-        let next_info = goal.getNext();
+        let next_info = this.goal.getNext();
+        if (!next_info) {
+            console.log(`Invalid item goal ${this.goal.name}`);
+            return;
+        }
         let next = next_info.node;
         let quantity = next_info.quantity;
 
@@ -346,11 +307,9 @@ export class ItemGoal {
             // If the bot has failed to obtain the block before, explore
             if (this.failed.includes(next.name)) {
                 this.failed = this.failed.filter((item) => item !== next.name);
-                this.agent.coder.interruptible = true;
                 await this.agent.coder.execute(async () => {
                     await skills.moveAway(this.agent.bot, 8);
-                }, this.timeout);
-                this.agent.coder.interruptible = false;
+                });
             } else {
                 this.failed.push(next.name);
                 await new Promise((resolve) => setTimeout(resolve, 500));
@@ -365,18 +324,16 @@ export class ItemGoal {
 
         // Execute the next goal
         let init_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
-        this.agent.coder.interruptible = true;
         await this.agent.coder.execute(async () => {
             await next.execute(quantity);
-        }, this.timeout);
-        this.agent.coder.interruptible = false;
+        });
         let final_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
 
         // Log the result of the goal attempt
         if (final_quantity > init_quantity) {
-            console.log(`Successfully obtained ${next.name} for goal ${goal.name}`);
+            console.log(`Successfully obtained ${next.name} for goal ${this.goal.name}`);
         } else {
-            console.log(`Failed to obtain ${next.name} for goal ${goal.name}`);
+            console.log(`Failed to obtain ${next.name} for goal ${this.goal.name}`);
         }
     }
 }

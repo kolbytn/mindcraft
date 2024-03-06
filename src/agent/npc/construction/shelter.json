@@ -1,0 +1,43 @@
+{
+    "name": "shelter",
+    "offset": -1,
+    "placement": [
+        [1, 1, 1],
+        [1, 2, 1],
+        [1, 3, 1],
+        [2, 3, 1],
+        [3, 1, 1],
+        [3, 2, 1],
+        [3, 3, 1]
+    ],
+    "blocks": [
+        [
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"]
+        ],
+        [
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"]
+        ],
+        [
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"]
+        ],
+        [
+            ["air", "air", "air", "air", "air"],
+            ["air", "dirt", "dirt", "dirt", "air"],
+            ["air", "dirt", "dirt", "dirt", "air"],
+            ["air", "dirt", "dirt", "dirt", "air"],
+            ["air", "air", "air", "air", "air"]
+        ]
+    ]
+}

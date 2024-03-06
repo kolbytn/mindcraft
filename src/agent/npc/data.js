@@ -1,18 +1,23 @@
 export class NPCData {
     constructor() {
         this.goals = [];
+        this.built = {};
     }
 
     toObject() {
         return {
-            goals: this.goals
+            goals: this.goals,
+            built: this.built
         }
     }
 
     static fromObject(obj) {
         if (!obj) return null;
         let npc = new NPCData();
-        npc.goals = obj.goals;
+        if (obj.goals)
+            npc.goals = obj.goals;
+        if (obj.built)
+            npc.built = obj.built;
         return npc;
     }
 }
