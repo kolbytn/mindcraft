@@ -342,7 +342,7 @@ export async function defendSelf(bot, range=9) {
 
 
 
-export async function collectBlock(bot, blockType, num=1) {
+export async function collectBlock(bot, blockType, num=1, exclude=null) {
     /**
      * Collect one of the given block type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -363,7 +363,14 @@ export async function collectBlock(bot, blockType, num=1) {
     let collected = 0;
 
     for (let i=0; i<num; i++) {
-        const blocks = world.getNearestBlocks(bot, blocktypes, 64, 1);
+        const blocks = world.getNearestBlocks(bot, blocktypes, 64);
+        if (exclude) {
+            for (let position of exclude) {
+                blocks = blocks.filter(
+                    block => block.position.x !== position.x || block.position.y !== position.y || block.position.z !== position.z
+                );
+            }
+        }
         if (blocks.length === 0) {
             if (collected === 0)
                 log(bot, `No ${blockType} nearby to collect.`);
