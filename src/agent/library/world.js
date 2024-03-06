@@ -1,5 +1,5 @@
 import pf from 'mineflayer-pathfinder';
-import { getAllBlockIds, getAllBiomes } from '../../utils/mcdata.js';
+import * as mc from '../../utils/mcdata.js';
 
 
 export function getNearestFreeSpace(bot, size=1, distance=8) {
@@ -39,26 +39,7 @@ export function getNearestFreeSpace(bot, size=1, distance=8) {
 }
 
 
-export function getNearbyBlocks(bot, maxDistance, count=null) {
-    if (maxDistance == null) maxDistance = 16;
-    if (count == null) count = 10000;
-    let positions = bot.findBlocks({matching: getAllBlockIds(['air']), maxDistance: maxDistance, count: count});
-    let blocks = [];
-    for (let i = 0; i < positions.length; i++) {
-        let block = bot.blockAt(positions[i]);
-        let distance = positions[i].distanceTo(bot.entity.position);
-        blocks.push({ block: block, distance: distance });
-    }
-    blocks.sort((a, b) => a.distance - b.distance);
-    let res = [];
-    for (let i = 0; i < blocks.length; i++) {
-        res.push(blocks[i].block);
-    }
-    return res;
-}
-
-
-export function getNearestBlocks(bot, block_types, distance=16, count=null) {
+export function getNearestBlocks(bot, block_types=null, distance=16, count=10000) {
     /**
      * Get a list of the nearest blocks of the given types.
      * @param {Bot} bot - The bot to get the nearest block for.
@@ -70,17 +51,32 @@ export function getNearestBlocks(bot, block_types, distance=16, count=null) {
      * let woodBlocks = world.getNearestBlocks(bot, ['oak_log', 'birch_log'], 16, 1);
      **/
     // if blocktypes is not a list, make it a list
-    if (!Array.isArray(block_types))
-        block_types = [block_types];
-    let blocks = [];
-    for (let block of getNearbyBlocks(bot, distance, count)) {
-        if (block_types.includes(block.name)) {
-            blocks.push(block);
-            if (count !== null && blocks.length >= count)
-                break;
+    let block_ids = [];
+    if (block_types === null) {
+        block_ids = mc.getAllBlockIds(['air']);
+    }
+    else {
+        if (!Array.isArray(block_types))
+            block_types = [block_types];
+        for(let block_type of block_types) {
+            block_ids.push(mc.getBlockId(block_type));
         }
     }
-    return blocks;
+
+    let positions = bot.findBlocks({matching: block_ids, maxDistance: distance, count: count});
+    let blocks = [];
+    for (let i = 0; i < positions.length; i++) {
+        let block = bot.blockAt(positions[i]);
+        let distance = positions[i].distanceTo(bot.entity.position);
+        blocks.push({ block: block, distance: distance });
+    }
+    blocks.sort((a, b) => a.distance - b.distance);
+
+    let res = [];
+    for (let i = 0; i < blocks.length; i++) {
+        res.push(blocks[i].block);
+    }
+    return res;
 }
 
 
@@ -235,7 +231,7 @@ export function getNearbyBlockTypes(bot, distance=16) {
      * @example
      * let blocks = world.getNearbyBlockTypes(bot);
      **/
-    let blocks = getNearbyBlocks(bot, distance);
+    let blocks = getNearestBlocks(bot, null, distance);
     let found = [];
     for (let i = 0; i < blocks.length; i++) {
         if (!found.includes(blocks[i].name)) {
@@ -269,5 +265,5 @@ export function getBiomeName(bot) {
      * let biome = world.getBiomeName(bot);
      **/
     const biomeId = bot.world.getBiome(bot.entity.position);
-    return getAllBiomes()[biomeId].name;
+    return mc.getAllBiomes()[biomeId].name;
 }
