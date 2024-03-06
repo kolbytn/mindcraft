@@ -2,6 +2,7 @@ import { Vec3 } from 'vec3';
 import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
+import { blockSatisfied, getTypeOfGeneric } from './utils.js';
 
 
 export class BuildGoal {
@@ -46,7 +47,7 @@ export class BuildGoal {
                     let current_block = this.agent.bot.blockAt(world_pos);
 
                     let res = null;
-                    if (current_block.name !== block_name) {
+                    if (!blockSatisfied(block_name, current_block)) {
                         acted = true;
 
                         if (!this.agent.isIdle())
@@ -57,18 +58,19 @@ export class BuildGoal {
                         if (res.interrupted)
                             return {missing: missing, acted: acted, position: position, orientation: orientation};
 
-                        if (inventory[block_name] > 0) {
+                        let block_typed = getTypeOfGeneric(this.agent.bot, block_name);
+                        if (inventory[block_typed] > 0) {
 
                             if (!this.agent.isIdle())
                                 return {missing: missing, acted: acted, position: position, orientation: orientation};
                             await this.agent.coder.execute(async () => {
-                                await skills.placeBlock(this.agent.bot, block_name, world_pos.x, world_pos.y, world_pos.z);
+                                await skills.placeBlock(this.agent.bot, block_typed, world_pos.x, world_pos.y, world_pos.z);
                             });
                             if (res.interrupted)
                                 return {missing: missing, acted: acted, position: position, orientation: orientation};
 
                         } else {
-                            missing.push(block_name);
+                            missing.push(block_typed);
                         }
                     }
                 }

@@ -46,10 +46,16 @@ export class NPCContoller {
         }
 
         for (let goal of goals) {
-            if (this.constructions[goal] === undefined && !itemSatisfied(this.agent.bot, goal)) {
-                await this.item_goal.executeNext(goal);
-                break;
-            } else if (this.constructions[goal]) {
+            if (this.constructions[goal] === undefined) {
+                let quantity = 0;
+                for (let item of goals) {
+                    if (item === goal) quantity++;
+                }
+                if (!itemSatisfied(this.agent.bot, goal, quantity)) {
+                    await this.item_goal.executeNext(goal);
+                    break;
+                }
+            } else {
                 let res = null;
                 if (this.data.built.hasOwnProperty(goal)) {
                     res = await this.build_goal.executeNext(

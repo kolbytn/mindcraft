@@ -12,6 +12,23 @@ const mc_version = settings.minecraft_version;
 const mcdata = minecraftData(mc_version);
 
 
+export const WOOD_TYPES = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak'];
+export const MATCHING_WOOD_BLOCKS = [
+    'log',
+    'planks',
+    'sign',
+    'boat',
+    'fence_gate',
+    'door',
+    'fence',
+    'slab',
+    'stairs',
+    'button',
+    'pressure_plate',
+    'trapdoor'
+]
+
+
 export function initBot(username) {
     let bot = createBot({
         username: username,

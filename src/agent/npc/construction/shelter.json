@@ -23,20 +23,20 @@
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
-            ["dirt", "dirt", "dirt", "dirt", "dirt"]
+            ["dirt", "dirt", "door", "dirt", "dirt"]
         ],
         [
             ["dirt", "dirt", "dirt", "dirt", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
-            ["dirt", "dirt", "dirt", "dirt", "dirt"]
+            ["dirt", "dirt", "", "dirt", "dirt"]
         ],
         [
             ["air", "air", "air", "air", "air"],
-            ["air", "dirt", "dirt", "dirt", "air"],
-            ["air", "dirt", "dirt", "dirt", "air"],
-            ["air", "dirt", "dirt", "dirt", "air"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
+            ["dirt", "dirt", "dirt", "dirt", "dirt"],
             ["air", "air", "air", "air", "air"]
         ]
     ]
