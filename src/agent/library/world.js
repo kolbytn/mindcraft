@@ -39,13 +39,32 @@ export function getNearestFreeSpace(bot, size=1, distance=8) {
 }
 
 
-export function getNearestBlocks(bot, block_types, distance=16, count=1) {
+export function getNearbyBlocks(bot, maxDistance, count=null) {
+    if (maxDistance == null) maxDistance = 16;
+    if (count == null) count = 10000;
+    let positions = bot.findBlocks({matching: getAllBlockIds(['air']), maxDistance: maxDistance, count: count});
+    let blocks = [];
+    for (let i = 0; i < positions.length; i++) {
+        let block = bot.blockAt(positions[i]);
+        let distance = positions[i].distanceTo(bot.entity.position);
+        blocks.push({ block: block, distance: distance });
+    }
+    blocks.sort((a, b) => a.distance - b.distance);
+    let res = [];
+    for (let i = 0; i < blocks.length; i++) {
+        res.push(blocks[i].block);
+    }
+    return res;
+}
+
+
+export function getNearestBlocks(bot, block_types, distance=16, count=null) {
     /**
      * Get a list of the nearest blocks of the given types.
      * @param {Bot} bot - The bot to get the nearest block for.
      * @param {string[]} block_types - The names of the blocks to search for.
      * @param {number} distance - The maximum distance to search, default 16.
-     * @param {number} count - The maximum number of blocks to find, default 1.
+     * @param {number} count - The maximum number of blocks to find, default 10000.
      * @returns {Block[]} - The nearest blocks of the given type.
      * @example
      * let woodBlocks = world.getNearestBlocks(bot, ['oak_log', 'birch_log'], 16, 1);
@@ -53,16 +72,13 @@ export function getNearestBlocks(bot, block_types, distance=16, count=1) {
     // if blocktypes is not a list, make it a list
     if (!Array.isArray(block_types))
         block_types = [block_types];
-    let block_locs = bot.findBlocks({
-        matching: (block) => {
-            return block && block_types.some(name => name === block.name);
-        },
-        maxDistance: distance,
-        count: count
-    });
     let blocks = [];
-    for (let i = 0; i < block_locs.length; i++) {
-        blocks.push(bot.blockAt(block_locs[i]));
+    for (let block of getNearbyBlocks(bot, distance, count)) {
+        if (block_types.includes(block.name)) {
+            blocks.push(block);
+            if (blocks.length >= count)
+                break;
+        }
     }
     return blocks;
 }
@@ -78,29 +94,11 @@ export function getNearestBlock(bot, block_type, distance=16) {
      * @example
      * let coalBlock = world.getNearestBlock(bot, 'coal_ore', 16);
      **/
-    let blocks = getNearestBlocks(bot, [block_type], distance, 1);
+    let blocks = getNearestBlocks(bot, block_type, distance, 1);
     if (blocks.length > 0) {
         return blocks[0];
     }
     return null;
-}
-
-
-export function getNearbyBlocks(bot, maxDistance) {
-    if (maxDistance == null) maxDistance = 16;
-    let positions = bot.findBlocks({matching: getAllBlockIds(['air']), maxDistance: maxDistance, count: 10000});
-    let blocks = [];
-    for (let i = 0; i < positions.length; i++) {
-        let block = bot.blockAt(positions[i]);
-        let distance = positions[i].distanceTo(bot.entity.position);
-        blocks.push({ block: block, distance: distance });
-    }
-    blocks.sort((a, b) => a.distance - b.distance);
-    let res = [];
-    for (let i = 0; i < blocks.length; i++) {
-        res.push(blocks[i].block);
-    }
-    return res;
 }
 
 
