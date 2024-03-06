@@ -57,7 +57,7 @@ export async function craftRecipe(bot, itemName, num=1) {
     if (!recipes || recipes.length === 0) {
 
         // Look for crafting table
-        craftingTable = world.getNearestBlock(bot, 'crafting_table', 6);
+        craftingTable = world.getNearestBlock(bot, 'crafting_table', 8);
         if (craftingTable === null){
 
             // Try to place crafting table
@@ -65,7 +65,7 @@ export async function craftRecipe(bot, itemName, num=1) {
             if (hasTable) {
                 let pos = world.getNearestFreeSpace(bot, 1, 6);
                 await placeBlock(bot, 'crafting_table', pos.x, pos.y, pos.z);
-                craftingTable = world.getNearestBlock(bot, 'crafting_table', 6);
+                craftingTable = world.getNearestBlock(bot, 'crafting_table', 8);
                 if (craftingTable) {
                     recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
                     placedTable = true;
