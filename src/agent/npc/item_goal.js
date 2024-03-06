@@ -152,7 +152,7 @@ class ItemNode {
         let inventory = world.getInventoryCounts(this.manager.agent.bot);
         let init_quantity = inventory[this.name] || 0;
         if (this.type === 'block') {
-            await skills.collectBlock(this.manager.agent.bot, this.source, quantity);
+            await skills.collectBlock(this.manager.agent.bot, this.source, quantity, this.manager.agent.npc.getBuiltPositions());
         } else if (this.type === 'smelt') {
             let to_smelt_name = this.recipe[0].node.name;
             let to_smelt_quantity = Math.min(quantity, inventory[to_smelt_name] || 1);
@@ -210,10 +210,13 @@ class ItemWrapper {
             }
         }
 
-        let block_source = mc.getItemBlockSource(this.name);
-        if (block_source) {
-            let tool = mc.getBlockTool(block_source);
-            this.add_method(new ItemNode(this.manager, this, this.name).setCollectable(block_source, tool));
+        let block_sources = mc.getItemBlockSources(this.name);
+        if (block_sources.length > 0 && this.name !== 'torch') {  // Do not collect placed torches
+            for (let block_source of block_sources) {
+                if (block_source === 'grass_block') continue;  // Dirt nodes will collect grass blocks
+                let tool = mc.getBlockTool(block_source);
+                this.add_method(new ItemNode(this.manager, this, this.name).setCollectable(block_source, tool));
+            }
         }
 
         let smeltingIngredient = mc.getItemSmeltingIngredient(this.name);

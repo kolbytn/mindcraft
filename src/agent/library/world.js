@@ -76,7 +76,7 @@ export function getNearestBlocks(bot, block_types, distance=16, count=null) {
     for (let block of getNearbyBlocks(bot, distance, count)) {
         if (block_types.includes(block.name)) {
             blocks.push(block);
-            if (blocks.length >= count)
+            if (count !== null && blocks.length >= count)
                 break;
         }
     }

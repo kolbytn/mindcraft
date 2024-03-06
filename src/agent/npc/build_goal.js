@@ -17,6 +17,13 @@ export class BuildGoal {
         if (orientation === 3) return [sizez-z-1, x];
     }
 
+    async wrapSkill(func) {
+        if (!this.agent.isIdle())
+            return false;
+        let res = await this.agent.coder.execute(func);
+        return !res.interrupted;
+    }
+
     async executeNext(goal, position=null, orientation=null) {
         let sizex = goal.blocks[0][0].length;
         let sizez = goal.blocks[0].length;
@@ -47,32 +54,28 @@ export class BuildGoal {
                     let current_block = this.agent.bot.blockAt(world_pos);
 
                     let res = null;
-                    if (!blockSatisfied(block_name, current_block)) {
+                    if (current_block !== null && !blockSatisfied(block_name, current_block)) {
                         acted = true;
 
-                        if (!this.agent.isIdle())
-                            return {missing: missing, acted: acted, position: position, orientation: orientation};
-                        res = await this.agent.coder.execute(async () => {
-                            await skills.breakBlockAt(this.agent.bot, world_pos.x, world_pos.y, world_pos.z);
-                        });
-                        if (res.interrupted)
-                            return {missing: missing, acted: acted, position: position, orientation: orientation};
-
-                        let block_typed = getTypeOfGeneric(this.agent.bot, block_name);
-                        if (inventory[block_typed] > 0) {
-
-                            if (!this.agent.isIdle())
-                                return {missing: missing, acted: acted, position: position, orientation: orientation};
-                            await this.agent.coder.execute(async () => {
-                                await skills.placeBlock(this.agent.bot, block_typed, world_pos.x, world_pos.y, world_pos.z);
+                        if (current_block.name !== 'air') {
+                            res = await this.wrapSkill(async () => {
+                                await skills.breakBlockAt(this.agent.bot, world_pos.x, world_pos.y, world_pos.z);
                             });
-                            if (res.interrupted)
-                                return {missing: missing, acted: acted, position: position, orientation: orientation};
+                            if (!res) return {missing: missing, acted: acted, position: position, orientation: orientation};
+                        }
 
-                        } else {
-                            if (missing[block_typed] === undefined)
-                                missing[block_typed] = 0;
-                            missing[block_typed]++;
+                        if (block_name !== 'air') {
+                            let block_typed = getTypeOfGeneric(this.agent.bot, block_name);
+                            if (inventory[block_typed] > 0) {
+                                res = await this.wrapSkill(async () => {
+                                    await skills.placeBlock(this.agent.bot, block_typed, world_pos.x, world_pos.y, world_pos.z);
+                                });
+                                if (!res) return {missing: missing, acted: acted, position: position, orientation: orientation};
+                            } else {
+                                if (missing[block_typed] === undefined)
+                                    missing[block_typed] = 0;
+                                missing[block_typed]++;
+                            }
                         }
                     }
                 }

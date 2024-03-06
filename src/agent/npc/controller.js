@@ -10,9 +10,28 @@ export class NPCContoller {
         this.agent = agent;
         this.data = NPCData.fromObject(agent.prompter.prompts.npc);
         this.temp_goals = [];
-        this.item_goal = new ItemGoal(agent);
+        this.item_goal = new ItemGoal(agent, this.data);
         this.build_goal = new BuildGoal(agent);
         this.constructions = {};
+    }
+
+    getBuiltPositions() {
+        let positions = [];
+        for (let name in this.data.built) {
+            let position = this.data.built[name].position;
+            let offset = this.constructions[name].offset;
+            let sizex = this.constructions[name].blocks[0][0].length;
+            let sizez = this.constructions[name].blocks[0].length;
+            let sizey = this.constructions[name].blocks.length;
+            for (let y = offset; y < sizey+offset; y++) {
+                for (let z = 0; z < sizez; z++) {
+                    for (let x = 0; x < sizex; x++) {
+                        positions.push({x: position.x + x, y: position.y + y, z: position.z + z});
+                    }
+                }
+            }
+        }
+        return positions;
     }
 
     init() {
@@ -80,5 +99,8 @@ export class NPCContoller {
                 if (res.acted) break;
             }
         }
+
+        if (this.agent.isIdle())
+            this.agent.bot.emit('idle');
     }
 }

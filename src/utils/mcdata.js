@@ -171,14 +171,15 @@ export function getItemSmeltingIngredient(itemName) {
     }[itemName];
 }
 
-export function getItemBlockSource(itemName) {
+export function getItemBlockSources(itemName) {
     let itemId = getItemId(itemName);
+    let sources = [];
     for (let block of getAllBlocks()) {
         if (block.drops.includes(itemId)) {
-            return block.name;
+            sources.push(block.name);
         }
     }
-    return null;
+    return sources;
 }
 
 export function getItemAnimalSource(itemName) {

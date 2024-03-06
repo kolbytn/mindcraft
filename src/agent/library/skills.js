@@ -359,11 +359,13 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
     let blocktypes = [blockType];
     if (blockType.endsWith('ore'))
         blocktypes.push('deepslate_'+blockType);
+    if (blockType === 'dirt')
+        blocktypes.push('grass_block');
 
     let collected = 0;
 
     for (let i=0; i<num; i++) {
-        const blocks = world.getNearestBlocks(bot, blocktypes, 64);
+        let blocks = world.getNearestBlocks(bot, blocktypes, 64);
         if (exclude) {
             for (let position of exclude) {
                 blocks = blocks.filter(
