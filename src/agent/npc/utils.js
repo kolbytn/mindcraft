@@ -27,10 +27,11 @@ export function getTypeOfGeneric(bot, block_name) {
             return max_type + '_' + block_name;
 
         // Return nearest wood type
-        let blocks = world.getNearbyBlocks(bot, 32);
-        for (const block of blocks) {
-            if (block.name.endsWith('log'))
-                return block.name.split('_')[0] + '_' + block_name;
+        let log_types = mc.WOOD_TYPES.map((wood) => wood + '_log');
+        let blocks = world.getNearestBlocks(bot, log_types, 16, 1);
+        if (blocks.length > 0) {
+            let wood = blocks[0].name.split('_')[0];
+            return wood + '_' + block_name;
         }
 
         // Return oak

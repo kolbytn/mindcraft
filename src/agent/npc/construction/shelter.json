@@ -20,7 +20,7 @@
         ],
         [
             ["dirt", "dirt", "dirt", "dirt", "dirt"],
-            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "chest", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "dirt", "door", "dirt", "dirt"]

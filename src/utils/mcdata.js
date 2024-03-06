@@ -75,6 +75,22 @@ export function getItemName(itemId) {
     return null;
 }
 
+export function getBlockId(blockName) {
+    let block = mcdata.blocksByName[blockName];
+    if (block) {
+        return block.id;
+    }
+    return null;
+}
+
+export function getBlockName(blockId) {
+    let block = mcdata.blocks[blockId]
+    if (block) {
+        return block.name;
+    }
+    return null;
+}
+
 export function getAllItems(ignore) {
     if (!ignore) {
         ignore = [];
