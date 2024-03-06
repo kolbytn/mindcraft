@@ -160,7 +160,7 @@ class ItemNode {
         } else if (this.type === 'hunt') {
             for (let i=0; i<quantity; i++) {
                 res = await skills.attackNearest(this.manager.agent.bot, this.source);
-                if (!res)
+                if (!res || this.manager.agent.bot.interrupt_code)
                     break;
             }
         } else if (this.type === 'craft') {
@@ -285,13 +285,13 @@ export class ItemGoal {
         this.failed = [];
     }
 
-    async executeNext(item_name) {
+    async executeNext(item_name, item_quantity=1) {
         if (this.nodes[item_name] === undefined)
             this.nodes[item_name] = new ItemWrapper(this, null, item_name);
         this.goal = this.nodes[item_name];
 
         // Get next goal to execute
-        let next_info = this.goal.getNext();
+        let next_info = this.goal.getNext(item_quantity);
         if (!next_info) {
             console.log(`Invalid item goal ${this.goal.name}`);
             return;

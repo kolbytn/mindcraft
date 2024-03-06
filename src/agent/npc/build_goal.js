@@ -32,7 +32,7 @@ export class BuildGoal {
         }
 
         let inventory = world.getInventoryCounts(this.agent.bot);
-        let missing = [];
+        let missing = {};
         let acted = false;
         for (let y = goal.offset; y < sizey+goal.offset; y++) {
             for (let z = 0; z < sizez; z++) {
@@ -70,7 +70,9 @@ export class BuildGoal {
                                 return {missing: missing, acted: acted, position: position, orientation: orientation};
 
                         } else {
-                            missing.push(block_typed);
+                            if (missing[block_typed] === undefined)
+                                missing[block_typed] = 0;
+                            missing[block_typed]++;
                         }
                     }
                 }

@@ -40,38 +40,43 @@ export class NPCContoller {
     }
 
     async executeNext() {
-        let goals = this.data.goals;
-        if (this.temp_goals !== null && this.temp_goals.length > 0) {
-            goals = this.temp_goals.concat(goals);
-        }
+        // If we need more blocks to complete a building, get those first
+        let goals = this.temp_goals.concat(this.data.goals);
 
         for (let goal of goals) {
-            if (this.constructions[goal] === undefined) {
-                let quantity = 0;
-                for (let item of goals) {
-                    if (item === goal) quantity++;
-                }
-                if (!itemSatisfied(this.agent.bot, goal, quantity)) {
-                    await this.item_goal.executeNext(goal);
+
+            // Obtain goal item or block
+            if (this.constructions[goal.name] === undefined) {
+                if (!itemSatisfied(this.agent.bot, goal.name, goal.quantity)) {
+                    await this.item_goal.executeNext(goal.name, goal.quantity);
                     break;
                 }
-            } else {
+            }
+
+            // Build construction goal
+            else {
                 let res = null;
-                if (this.data.built.hasOwnProperty(goal)) {
+                if (this.data.built.hasOwnProperty(goal.name)) {
                     res = await this.build_goal.executeNext(
-                        this.constructions[goal],
-                        this.data.built[goal].position,
-                        this.data.built[goal].orientation
+                        this.constructions[goal.name],
+                        this.data.built[goal.name].position,
+                        this.data.built[goal.name].orientation
                     );
                 } else {
-                    res = await this.build_goal.executeNext(this.constructions[goal]);
-                    this.data.built[goal] = {
-                        name: goal,
+                    res = await this.build_goal.executeNext(this.constructions[goal.name]);
+                    this.data.built[goal.name] = {
+                        name: goal.name,
                         position: res.position,
                         orientation: res.orientation
                     };
                 }
-                this.temp_goals = res.missing;
+                this.temp_goals = [];
+                for (let block_name in res.missing) {
+                    this.temp_goals.push({
+                        name: block_name,
+                        quantity: res.missing[block_name]
+                    })
+                }
                 if (res.acted) break;
             }
         }
