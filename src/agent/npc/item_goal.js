@@ -15,7 +15,8 @@ const blacklist = [
     '_wood',
     'stripped_',
     'crimson',
-    'warped'
+    'warped',
+    'dye'
 ]
 
 
@@ -206,12 +207,23 @@ class ItemWrapper {
         let recipes = mc.getItemCraftingRecipes(this.name);
         if (recipes) {
             for (let recipe of recipes) {
+                let includes_blacklisted = false;
+                for (let ingredient in recipe) {
+                    for (let match of blacklist) {
+                        if (ingredient.includes(match)) {
+                            includes_blacklisted = true;
+                            break;
+                        }
+                    }
+                    if (includes_blacklisted) break;
+                }
+                if (includes_blacklisted) continue;
                 this.add_method(new ItemNode(this.manager, this, this.name).setRecipe(recipe))
             }
         }
 
         let block_sources = mc.getItemBlockSources(this.name);
-        if (block_sources.length > 0 && this.name !== 'torch') {  // Do not collect placed torches
+        if (block_sources.length > 0 && this.name !== 'torch' && !this.name.includes('bed')) {  // Do not collect placed torches or beds
             for (let block_source of block_sources) {
                 if (block_source === 'grass_block') continue;  // Dirt nodes will collect grass blocks
                 let tool = mc.getBlockTool(block_source);

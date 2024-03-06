@@ -3,6 +3,7 @@ import * as mc from '../../utils/mcdata.js';
 
 
 export function getTypeOfGeneric(bot, block_name) {
+    // Get type of wooden block
     if (mc.MATCHING_WOOD_BLOCKS.includes(block_name)) {
 
         // Return most common wood type in inventory
@@ -37,6 +38,34 @@ export function getTypeOfGeneric(bot, block_name) {
         // Return oak
         return 'oak_' + block_name;
     }
+
+    // Get type of bed
+    if (block_name === 'bed') {
+
+        // Return most common wool type in inventory
+        let type_count = {};
+        let max_count = 0;
+        let max_type = null;
+        let inventory = world.getInventoryCounts(bot);
+        for (const item in inventory) {
+            for (const color of mc.WOOL_COLORS) {
+                if (item === color + '_wool') {
+                    if (type_count[color] === undefined)
+                        type_count[color] = 0;
+                    type_count[color] += inventory[item];
+                    if (type_count[color] > max_count) {
+                        max_count = type_count[color];
+                        max_type = color;
+                    }
+                }
+            }
+        }
+        if (max_type !== null)
+            return max_type + '_' + block_name;
+
+        // Return white
+        return 'white_' + block_name;
+    }
     return block_name;
 }
 
@@ -46,6 +75,8 @@ export function blockSatisfied(target_name, block) {
         return block.name == 'dirt' || block.name == 'grass_block';
     } else if (mc.MATCHING_WOOD_BLOCKS.includes(target_name)) {
         return block.name.endsWith(target_name);
+    } else if (target_name == 'bed') {
+        return block.name.endsWith('bed');
     }
     return block.name == target_name;
 }

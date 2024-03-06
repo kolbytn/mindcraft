@@ -20,8 +20,8 @@
         ],
         [
             ["dirt", "dirt", "dirt", "dirt", "dirt"],
-            ["dirt", "chest", "air", "air", "dirt"],
-            ["dirt", "air", "air", "air", "dirt"],
+            ["dirt", "chest", "air", "bed", "dirt"],
+            ["dirt", "air", "air", "bed", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "dirt", "door", "dirt", "dirt"]
         ],
@@ -30,7 +30,7 @@
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
             ["dirt", "air", "air", "air", "dirt"],
-            ["dirt", "dirt", "", "dirt", "dirt"]
+            ["dirt", "dirt", "door", "dirt", "dirt"]
         ],
         [
             ["air", "air", "air", "air", "air"],

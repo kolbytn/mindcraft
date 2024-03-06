@@ -27,6 +27,24 @@ export const MATCHING_WOOD_BLOCKS = [
     'pressure_plate',
     'trapdoor'
 ]
+export const WOOL_COLORS = [
+    'white',
+    'orange',
+    'magenta',
+    'light_blue',
+    'yellow',
+    'lime',
+    'pink',
+    'gray',
+    'light_gray',
+    'cyan',
+    'purple',
+    'blue',
+    'brown',
+    'green',
+    'red',
+    'black'
+]
 
 
 export function initBot(username) {
