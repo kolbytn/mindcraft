@@ -2,6 +2,7 @@ export class NPCData {
     constructor() {
         this.goals = [];
         this.built = {};
+        this.home = null;
     }
 
     toObject() {
@@ -10,6 +11,8 @@ export class NPCData {
             obj.goals = this.goals;
         if (Object.keys(this.built).length > 0)
             obj.built = this.built;
+        if (this.home)
+            obj.home = this.home;
         return obj;
     }
 
@@ -27,6 +30,8 @@ export class NPCData {
         }
         if (obj.built)
             npc.built = obj.built;
+        if (obj.home)
+            npc.home = obj.home;
         return npc;
     }
 }

@@ -2,19 +2,12 @@ import { Vec3 } from 'vec3';
 import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
-import { blockSatisfied, getTypeOfGeneric } from './utils.js';
+import { blockSatisfied, getTypeOfGeneric, rotateXZ } from './utils.js';
 
 
 export class BuildGoal {
     constructor(agent) {
         this.agent = agent;
-    }
-
-    rotateXZ(x, z, orientation, sizex, sizez) {
-        if (orientation === 0) return [x, z];
-        if (orientation === 1) return [z, sizex-x-1];
-        if (orientation === 2) return [sizex-x-1, sizez-z-1];
-        if (orientation === 3) return [sizez-z-1, x];
     }
 
     async wrapSkill(func) {
@@ -45,7 +38,7 @@ export class BuildGoal {
             for (let z = 0; z < sizez; z++) {
                 for (let x = 0; x < sizex; x++) {
 
-                    let [rx, rz] = this.rotateXZ(x, z, orientation, sizex, sizez);
+                    let [rx, rz] = rotateXZ(x, z, orientation, sizex, sizez);
                     let ry = y - goal.offset;
                     let block_name = goal.blocks[ry][rz][rx];
                     if (block_name === null || block_name === '') continue;

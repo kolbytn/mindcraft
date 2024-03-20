@@ -2,7 +2,10 @@ import { readdirSync, readFileSync } from 'fs';
 import { NPCData } from './data.js';
 import { ItemGoal } from './item_goal.js';
 import { BuildGoal } from './build_goal.js';
-import { itemSatisfied } from './utils.js';
+import { itemSatisfied, rotateXZ } from './utils.js';
+import * as skills from '../library/skills.js';
+import * as world from '../library/world.js';
+import * as mc from '../../utils/mcdata.js';
 
 
 export class NPCContoller {
@@ -53,14 +56,52 @@ export class NPCContoller {
             if (!this.agent.isIdle()) return;
 
             // Persue goal
-            if (!this.agent.coder.resume_func)
+            if (!this.agent.coder.resume_func) {
                 this.executeNext();
+                this.agent.history.save();
+            }
         });
     }
 
     async executeNext() {
+        if (!this.agent.isIdle()) return;
+
+        if (this.agent.bot.time.timeOfDay < 12000) { 
+            // Exit any buildings
+            let building = this.currentBuilding();
+            if (building) {
+                let door_pos = this.getBuildingDoor(building);
+                if (door_pos) {
+                    await this.agent.coder.execute(async () => {
+                        await skills.useDoor(this.agent.bot, door_pos);
+                    });
+                }
+            }
+
+            // Work towards goals
+            await this.executeGoal();
+
+        } else {
+            // Return to home
+            let building = this.currentBuilding();
+            if (this.data.home !== null && (building === null || building != this.data.home)) {
+                let door_pos = this.getBuildingDoor(this.data.home);
+                await this.agent.coder.execute(async () => {
+                    await skills.useDoor(this.agent.bot, door_pos);
+                });
+            }
+
+            // Go to bed
+            await this.agent.coder.execute(async () => {
+                await skills.goToBed(this.agent.bot);
+            });
+        }
+    }
+
+    async executeGoal() {
         // If we need more blocks to complete a building, get those first
         let goals = this.temp_goals.concat(this.data.goals);
+        this.temp_goals = [];
 
         for (let goal of goals) {
 
@@ -89,7 +130,9 @@ export class NPCContoller {
                         orientation: res.orientation
                     };
                 }
-                this.temp_goals = [];
+                if (Object.keys(res.missing).length === 0) {
+                    this.data.home = goal.name;
+                }
                 for (let block_name in res.missing) {
                     this.temp_goals.push({
                         name: block_name,
@@ -102,5 +145,58 @@ export class NPCContoller {
 
         if (this.agent.isIdle())
             this.agent.bot.emit('idle');
+    }
+
+    currentBuilding() {
+        let bot_pos = this.agent.bot.entity.position;
+        for (let name in this.data.built) {
+            let pos = this.data.built[name].position;
+            let offset = this.constructions[name].offset;
+            let sizex = this.constructions[name].blocks[0][0].length;
+            let sizez = this.constructions[name].blocks[0].length;
+            let sizey = this.constructions[name].blocks.length;
+            if (this.data.built[name].orientation % 2 === 1) [sizex, sizez] = [sizez, sizex];
+            if (bot_pos.x >= pos.x && bot_pos.x < pos.x + sizex &&
+                bot_pos.y >= pos.y + offset && bot_pos.y < pos.y + sizey + offset &&
+                bot_pos.z >= pos.z && bot_pos.z < pos.z + sizez) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    getBuildingDoor(name) {
+        if (name === null || this.data.built[name] === undefined) return null;
+        let door_x = null;
+        let door_z = null;
+        let door_y = null;
+        for (let y = 0; y < this.constructions[name].blocks.length; y++) {
+            for (let z = 0; z < this.constructions[name].blocks[y].length; z++) {
+                for (let x = 0; x < this.constructions[name].blocks[y][z].length; x++) {
+                    if (this.constructions[name].blocks[y][z][x] !== null &&
+                        this.constructions[name].blocks[y][z][x].includes('door')) {
+                        door_x = x;
+                        door_z = z;
+                        door_y = y;
+                        break;
+                    }
+                }
+                if (door_x !== null) break;
+            }
+            if (door_x !== null) break;
+        }
+        if (door_x === null) return null;
+        
+        let sizex = this.constructions[name].blocks[0][0].length;
+        let sizez = this.constructions[name].blocks[0].length;
+        let orientation = this.data.built[name].orientation;
+        [door_x, door_z] = rotateXZ(door_x, door_z, orientation, sizex, sizez);
+        door_y += this.constructions[name].offset;
+
+        return {
+            x: this.data.built[name].position.x + door_x,
+            y: this.data.built[name].position.y + door_y,
+            z: this.data.built[name].position.z + door_z
+        };
     }
 }
