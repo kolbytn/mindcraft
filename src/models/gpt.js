@@ -16,8 +16,7 @@ export class GPT {
             };
         }
         else {
-            console.error('OpenAI API key missing! Make sure you set OPENAI_API_KEY and OPENAI_ORG_ID (optional) environment variables.');
-            process.exit(1);
+            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY environment variable.');
         }
 
         this.openai = new OpenAIApi(openAiConfig);
