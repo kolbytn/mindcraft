@@ -8,7 +8,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [OpenAI API Subscription](https://openai.com/blog/openai-api) or [Gemini API Subscription](https://aistudio.google.com/app/apikey)
+- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), or [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude)
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc)
 - [Node.js](https://nodejs.org/) (at least v14)
 
@@ -17,6 +17,7 @@ This project allows an AI model to write/execute code on your computer that may 
 Add one of these environment variables:
   - `OPENAI_API_KEY` (and optionally `OPENAI_ORG_ID`)
   - `GEMINI_API_KEY`
+  - `ANTHROPIC_API_KEY` (and optionally `OPENAI_API_KEY` for embeddings. not necessary, but without embeddings performance will suffer)
 
 Clone/Download this repository
 

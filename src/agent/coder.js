@@ -99,9 +99,16 @@ export class Coder {
                 return {success: true, message: null, interrupted: true, timedout: false};
             console.log(messages)
             let res = await this.agent.prompter.promptCoding(messages);
-            console.log('Code generation response:', res)
             let contains_code = res.indexOf('```') !== -1;
             if (!contains_code) {
+                if (res.indexOf('!newAction') !== -1) {
+                    messages.push({
+                        role: 'assistant', 
+                        content: res.substring(0, res.indexOf('!newAction'))
+                    });
+                    continue; // using newaction will continue the loop
+                }
+
                 if (code_return) {
                     agent_history.add('system', code_return.message);
                     agent_history.add(this.agent.name, res);

@@ -3,8 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export class Gemini {
     constructor(model_name) {
         if (!process.env.GEMINI_API_KEY) {
-            console.error('Gemini API key missing! Make sure you set your GEMINI_API_KEY environment variable.');
-            process.exit(1);
+            throw new Error('Gemini API key missing! Make sure you set your GEMINI_API_KEY environment variable.');
         }
         this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
