@@ -534,7 +534,6 @@ export async function placeBlock(bot, blockType, x, y, z) {
         // too far
         let pos = targetBlock.position;
         let movements = new pf.Movements(bot);
-        movements.canDig = false;
         bot.pathfinder.setMovements(movements);
         await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
     }
@@ -699,10 +698,6 @@ export async function goToPlayer(bot, username, distance=3) {
     }
 
     const move = new pf.Movements(bot);
-    move.canDig = true;
-    move.canPlaceOn = true;
-    move.canOpenDoors = true;
-    move.allow1by1towers = true;
     bot.pathfinder.setMovements(move);
     await bot.pathfinder.goto(new pf.goals.GoalFollow(player, distance), true);
 
@@ -724,10 +719,6 @@ export async function followPlayer(bot, username, distance=4) {
         return false;
 
     const move = new pf.Movements(bot);
-    move.canDig = true;
-    move.canPlaceOn = true;
-    move.canOpenDoors = true;
-    move.allow1by1towers = true;
     bot.pathfinder.setMovements(move);
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
