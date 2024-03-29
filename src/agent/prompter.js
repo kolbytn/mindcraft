@@ -1,11 +1,13 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
-import { Gemini } from '../models/gemini.js';
-import { GPT } from '../models/gpt.js';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+
+import { Gemini } from '../models/gemini.js';
+import { GPT } from '../models/gpt.js';
+import { Claude } from '../models/claude.js';
 
 
 export class Prompter {
@@ -26,6 +28,8 @@ export class Prompter {
             this.model = new Gemini(model_name);
         else if (model_name.includes('gpt'))
             this.model = new GPT(model_name);
+        else if (model_name.includes('claude'))
+            this.model = new Claude(model_name);
         else
             throw new Error('Unknown model ' + model_name);
     }
