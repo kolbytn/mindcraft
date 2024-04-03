@@ -54,6 +54,10 @@ export class Prompter {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
         }
+        if (prompt.includes('$INVENTORY')) {
+            let inventory = await getCommand('!inventory').perform(this.agent);
+            prompt = prompt.replaceAll('$INVENTORY', inventory);
+        }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
@@ -68,7 +72,7 @@ export class Prompter {
         // check if there are any remaining placeholders with syntax $<word>
         let remaining = prompt.match(/\$[A-Z_]+/g);
         if (remaining !== null) {
-            console.warn('Unknown prompt placeholders:', remaining);
+            console.warn('Unknown prompt placeholders:', remaining.join(', '));
         }
         return prompt;
     }

@@ -491,12 +491,27 @@ export async function placeBlock(bot, blockType, x, y, z) {
      * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y - 1, position.x);
      **/
     console.log('placing block...')
-    const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
-    const empty_blocks = ['air', 'water', 'lava', 'grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
-    const targetBlock = bot.blockAt(target_dest);
-    if (!empty_blocks.includes(targetBlock.name)) {
-        log(bot, `Cannot place block at ${targetBlock.position} because ${targetBlock.name} is in the way.`);
+    let block = bot.inventory.items().find(item => item.name === blockType);
+    if (!block) {
+        log(bot, `Don't have any ${blockType} to place.`);
         return false;
+    }
+
+    const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
+    const targetBlock = bot.blockAt(target_dest);
+    if (targetBlock.name === blockType) {
+        log(bot, `${blockType} already at ${targetBlock.position}.`);
+        return false;
+    }
+    const empty_blocks = ['air', 'water', 'lava', 'grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
+    if (!empty_blocks.includes(targetBlock.name)) {
+        log(bot, `${blockType} in the way at ${targetBlock.position}.`);
+        const removed = await breakBlockAt(bot, x, y, z);
+        if (!removed) {
+            log(bot, `Cannot place ${blockType} at ${targetBlock.position}: block in the way.`);
+            return false;
+        }
+        await new Promise(resolve => setTimeout(resolve, 200)); // wait for block to break
     }
     // get the buildoffblock and facevec based on whichever adjacent block is not empty
     let buildOffBlock = null;
@@ -515,11 +530,6 @@ export async function placeBlock(bot, blockType, x, y, z) {
         return false;
     }
 
-    let block = bot.inventory.items().find(item => item.name === blockType);
-    if (!block) {
-        log(bot, `Don't have any ${blockType} to place.`);
-        return false;
-    }
     const pos = bot.entity.position;
     const pos_above = pos.plus(Vec3(0,1,0));
     const dont_move_for = ['torch', 'redstone_torch', 'redstone', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire', 'water_bucket'];
