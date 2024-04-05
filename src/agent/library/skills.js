@@ -503,7 +503,7 @@ export async function placeBlock(bot, blockType, x, y, z) {
         log(bot, `${blockType} already at ${targetBlock.position}.`);
         return false;
     }
-    const empty_blocks = ['air', 'water', 'lava', 'grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
+    const empty_blocks = ['air', 'water', 'lava', 'grass', 'short_grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
     if (!empty_blocks.includes(targetBlock.name)) {
         log(bot, `${blockType} in the way at ${targetBlock.position}.`);
         const removed = await breakBlockAt(bot, x, y, z);
