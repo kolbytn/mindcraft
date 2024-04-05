@@ -8,6 +8,7 @@ import { getCommand } from './commands/index.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { Ollama } from '../models/ollama.js';
 
 
 export class Prompter {
@@ -30,6 +31,8 @@ export class Prompter {
             this.model = new GPT(model_name);
         else if (model_name.includes('claude'))
             this.model = new Claude(model_name);
+        else if (model_name.includes('ollama'))
+            this.model = new Ollama(model_name);
         else
             throw new Error('Unknown model ' + model_name);
     }
