@@ -29,7 +29,7 @@ export class Claude {
                 msg.role = 'user';
                 msg.content = 'SYSTEM: ' + msg.content;
             }
-            if (msg.role === prev_role && msg.role === 'assitant') {
+            if (msg.role === prev_role && msg.role === 'assistant') {
                 // insert empty user message to separate assistant messages
                 messages.push(filler);
                 messages.push(msg);
