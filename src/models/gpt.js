@@ -4,22 +4,13 @@ export class GPT {
     constructor(model_name) {
         this.model_name = model_name;
         let openAiConfig = null;
-        if (process.env.OPENAI_ORG_ID) {
-            openAiConfig = {
-                organization: process.env.OPENAI_ORG_ID,
-                apiKey: process.env.OPENAI_API_KEY,
-            };
-        } 
-        else if (process.env.OPENAI_API_KEY) {
-            openAiConfig = {
-                apiKey: process.env.OPENAI_API_KEY,
-            };
-        }
-        else {
-            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY environment variable.');
-        }
 
-        this.openai = new OpenAIApi(openAiConfig);
+        this.openai = new OpenAIApi(
+            {
+                apiKey: process.env.OPENAI_API_KEY,
+                baseURL: process.env.OPENAI_API_BASE,
+            }
+        );
     }
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
