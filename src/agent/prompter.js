@@ -8,6 +8,7 @@ import { getCommand } from './commands/index.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { local } from '../models/local.js';
 
 
 export class Prompter {
@@ -31,7 +32,7 @@ export class Prompter {
         else if (model_name.includes('claude'))
             this.model = new Claude(model_name);
         else
-            throw new Error('Unknown model ' + model_name);
+            this.model = new local(model_name);
     }
 
     getName() {
