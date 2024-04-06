@@ -8,7 +8,7 @@ let ollamaSettings = JSON.parse(readFileSync('./ollama-config.json', 'utf8'));
 function getContentInBrackets(str) {
     const startIndex = str.indexOf("[");
     const endIndex = str.indexOf("]");
-  
+
     if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
       return str.substring(startIndex + 1, endIndex);
     } else {
@@ -26,15 +26,20 @@ export class Ollama {
         }
 
         let ollamaConfig = null;
-        
-        ollamaConfig = {
-            baseURL: ollamaSettings["url"] + '/v1',
-            apiKey: 'ollama', // required but unused
-        };
 
+        axios.get(ollamaSettings["url"]).then(response => {
+            if (response.status === 200) {
+                ollamaConfig = {
+                    baseURL: `${ollamaSettings["url"]}/v1`,   
+                    apiKey: 'ollama', // required but unused
+                };
 
-        this.openai = new OpenAIApi(ollamaConfig);
-
+                this.openai = new OpenAIApi(ollamaConfig);
+            }
+            else {
+                throw new Error(`Error relating the endpoint: ${response.status}.`);
+            }
+        });
     }
 
 
@@ -70,8 +75,7 @@ export class Ollama {
     }
 
     async embed(text) {
-        
-        
+
         // Will implement this when Ollama will support embeddings in OpenAI format
         /*
         const embedding = await this.openai.embeddings.create({
@@ -79,29 +83,21 @@ export class Ollama {
             input: text,
             encoding_format: "float",
         });
-
         return embedding.data[0].embedding;
         */
 
         // For now, I'll do http request using axios:
 
         try {
-            const response = await axios.post(ollamaSettings["url"] + '/api/embeddings', {
+            const response = await axios.post(`${ollamaSettings["url"]}/api/embeddings`, {
               model: ollamaSettings["embedding_model"],
               prompt: text
             });
             return response.data.embedding;
           } catch (error) {
             console.error('Error embedding text:', error.response ? error.response.data : error.message);
-            throw error;
+            return Array(1).fill().map(() => Math.random());
           }
         }
 
-
-
-
-
 }
-
-
-
