@@ -17,7 +17,12 @@ function getContentInBrackets(str) {
 
 export class Ollama {
     constructor(model_name) {
+        this.model_name = getContentInBrackets(model_name);
         let ollamaConfig = null;
+
+        if (this.model_name == "") {
+            throw new Error('Model is not specified! Please ensure you input the model in the following format: ollama[model]. For example, for Mistral, use: ollama[mistral]');
+        }
 
         axios.get(ollamaSettings["url"]).then(response => {
 
@@ -26,12 +31,6 @@ export class Ollama {
                     baseURL: `${ollamaSettings["url"]}/v1`,   
                     apiKey: 'ollama', // required but unused
                 };
-
-                this.model_name = getContentInBrackets(model_name);
-
-                if (this.model_name = "") {
-                    throw new Error('Model is not specified! Please ensure you input the model in the following format: ollama[model]. For example, for Mistral, use: ollama[mistral]');
-                }
 
                 this.openai = new OpenAIApi(ollamaConfig);
             } 
@@ -46,15 +45,15 @@ export class Ollama {
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
 
-        let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-
         console.log(this.model_name)
+        let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
         let res = null;
         try {
-            console.log('Awaiting openai api response...')
+            console.log(`Awaiting ollama response... (model: ${this.model_name})`)
             console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
+                
                 model: this.model_name,
                 messages: messages,
                 stop: stop_seq,

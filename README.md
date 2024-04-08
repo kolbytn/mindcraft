@@ -23,7 +23,7 @@ Add one of these environment variables:
 
   Or you can also use Ollama.
   To install the models used by default (generation and embedding), execute the following script:
-  `ollama pull mistral && ollama pull nomic-embed-text`
+  `ollama pull mistral:instruct && ollama pull nomic-embed-text`
 
 Then, clone/download this repository
 
