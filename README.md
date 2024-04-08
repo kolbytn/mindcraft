@@ -8,7 +8,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), or [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude)
+- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude), or [Ollama](https://ollama.com/download)
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc)
 - [Node.js](https://nodejs.org/) (at least v14)
 
@@ -21,8 +21,11 @@ Add one of these environment variables:
 
 ⭐[How do I add the API key as an environment variable?](https://phoenixnap.com/kb/windows-set-environment-variable)⭐
 
+  Or you can also use Ollama.
+  To install the models used by default (generation and embedding), execute the following script:
+  `ollama pull mistral && ollama pull nomic-embed-text`
 
-Clone/Download this repository
+Then, clone/download this repository
 
 Run `npm install`
 
@@ -35,6 +38,8 @@ Start a minecraft world and open it to LAN on localhost port `55916`
 Run `node main.js`
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json`.
+
+You can configure ollama in `ollama-config.json`.
 
 You can configure project details in `settings.json`. 
 
