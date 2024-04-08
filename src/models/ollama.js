@@ -2,7 +2,6 @@ import OpenAIApi from 'openai';
 import axios from 'axios';
 import { readFileSync } from 'fs';
 
-
 let ollamaSettings = JSON.parse(readFileSync('./ollama-config.json', 'utf8'));
 
 function getContentInBrackets(str) {
@@ -14,46 +13,49 @@ function getContentInBrackets(str) {
     } else {
       return "";
     }
-  }
+}
 
 export class Ollama {
-
     constructor(model_name) {
-        this.model_name = getContentInBrackets(model_name);
-
-        if (this.model_name = "") {
-            throw new Error('Model is not specified! Please ensure you input the model in the following format: ollama[model]. For example, for Mistral, use: ollama[mistral]');
-        }
-
         let ollamaConfig = null;
 
         axios.get(ollamaSettings["url"]).then(response => {
+
             if (response.status === 200) {
                 ollamaConfig = {
                     baseURL: `${ollamaSettings["url"]}/v1`,   
                     apiKey: 'ollama', // required but unused
                 };
 
+                this.model_name = getContentInBrackets(model_name);
+
+                if (this.model_name = "") {
+                    throw new Error('Model is not specified! Please ensure you input the model in the following format: ollama[model]. For example, for Mistral, use: ollama[mistral]');
+                }
+
                 this.openai = new OpenAIApi(ollamaConfig);
-            }
+            } 
             else {
                 throw new Error(`Error relating the endpoint: ${response.status}.`);
             }
-        });
-    }
 
+        });
+    
+        
+    }
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
 
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
+        console.log(this.model_name)
+
         let res = null;
         try {
-            console.log('Awaiting ollama response...')
+            console.log('Awaiting openai api response...')
             console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
-                //model: this.model_name,
-                model: "mistral",
+                model: this.model_name,
                 messages: messages,
                 stop: stop_seq,
             });
@@ -98,6 +100,9 @@ export class Ollama {
             console.error('Error embedding text:', error.response ? error.response.data : error.message);
             return Array(1).fill().map(() => Math.random());
           }
-        }
+    }
 
 }
+
+
+

@@ -1,4 +1,4 @@
 {
-    "url": "http://localhost:11434",
+    "url": "http://10.0.0.26:11434",
     "embedding_model": "nomic-embed-text"
 }
