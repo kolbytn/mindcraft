@@ -22,8 +22,8 @@ export class Agent {
 
         initModes(this);
 
-        this.bot.on('login', async () => {
-            console.log(`${this.name} logged in.`);
+        this.bot.once('spawn', async () => {
+            console.log(`${this.name} spawned.`);
             this.coder.clear();
             
             const ignore_messages = [
