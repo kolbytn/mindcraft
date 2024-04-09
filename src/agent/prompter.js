@@ -27,12 +27,10 @@ export class Prompter {
 
         if (model_name.includes('gemini'))
             this.model = new Gemini(model_name);
-        else if (model_name.includes('gpt'))
-            this.model = new GPT(model_name);
         else if (model_name.includes('claude'))
             this.model = new Claude(model_name);
         else
-            this.model = new local(model_name);
+            this.model = new GPT(model_name);
     }
 
     getName() {

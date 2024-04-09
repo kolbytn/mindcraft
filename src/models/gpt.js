@@ -4,7 +4,13 @@ export class GPT {
     constructor(model_name) {
         this.model_name = model_name;
         let openAiConfig = null;
-        if (process.env.OPENAI_ORG_ID) {
+        if (!model_name.includes('gpt')) {
+            openAiConfig = {
+                apiKey: process.env.OPENAI_API_KEY,
+                baseURL: process.env.OPENAI_API_BASE,
+            };
+        }
+        else if (process.env.OPENAI_ORG_ID) {
             openAiConfig = {
                 organization: process.env.OPENAI_ORG_ID,
                 apiKey: process.env.OPENAI_API_KEY,
