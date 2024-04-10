@@ -19,17 +19,17 @@ export class Local {
     constructor(model_name) {
         this.model_name = getContentInBrackets(model_name);
         let localConfig = null;
-        let endpoint = localSettings["url"].replace("/v1", "");
+        localSettings["url"] = localSettings["url"].replace("/v1", "");
 
         if (this.model_name == "") {
             throw new Error('Model is not specified! Please ensure you input the model in the following format: ollama[model]. For example, for Mistral instruct, use: ollama[mistral:instruct]');
         }
 
-        axios.get(endpoint).then(response => {
+        axios.get(localSettings["url"]).then(response => {
 
             if (response.status === 200) {
                 localConfig = {
-                    baseURL: `${endpoint}/v1`,
+                    baseURL: `${localSettings["url"]}/v1`,
                     apiKey: localSettings["api_key"],
                 };
 
@@ -78,7 +78,7 @@ export class Local {
 
         try {
             if (localSettings["api_key"] == "ollama") { //Embedding if it is Ollama (temporary)
-                const response = await axios.post(`${endpoint}/api/embeddings`, {
+                const response = await axios.post(`${localSettings["url"]}/api/embeddings`, {
                     model: localSettings["embedding_model"],
                     prompt: text
                 });
