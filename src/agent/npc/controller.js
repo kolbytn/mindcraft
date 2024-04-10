@@ -50,9 +50,25 @@ export class NPCContoller {
             }
         }
 
+        for (let name in this.constructions) {
+            let sizez = this.constructions[name].blocks[0].length;
+            let sizex = this.constructions[name].blocks[0][0].length;
+            let max_size = Math.max(sizex, sizez);
+            for (let y = 0; y < this.constructions[name].blocks.length; y++) {
+                for (let z = 0; z < max_size; z++) {
+                    if (z >= this.constructions[name].blocks[y].length)
+                        this.constructions[name].blocks[y].push([]);
+                    for (let x = 0; x < max_size; x++) {
+                        if (x >= this.constructions[name].blocks[y][z].length)
+                            this.constructions[name].blocks[y][z].push('');
+                    }
+                }
+            }
+        }
+
         this.agent.bot.on('idle', async () => {
             // Wait a while for inputs before acting independently
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 5000));
             if (!this.agent.isIdle()) return;
 
             // Persue goal
@@ -65,15 +81,19 @@ export class NPCContoller {
 
     async executeNext() {
         if (!this.agent.isIdle()) return;
+        await this.agent.coder.execute(async () => {
+            await skills.moveAway(this.agent.bot, 2);
+        });
 
-        if (this.agent.bot.time.timeOfDay < 12000) { 
+        if (this.agent.bot.time.timeOfDay < 13000) { 
             // Exit any buildings
             let building = this.currentBuilding();
-            if (building) {
+            if (building == this.data.home) {
                 let door_pos = this.getBuildingDoor(building);
                 if (door_pos) {
                     await this.agent.coder.execute(async () => {
                         await skills.useDoor(this.agent.bot, door_pos);
+                        await skills.moveAway(this.agent.bot, 2); // If the bot is too close to the building it will try to enter again
                     });
                 }
             }
@@ -96,6 +116,9 @@ export class NPCContoller {
                 await skills.goToBed(this.agent.bot);
             });
         }
+
+        if (this.agent.isIdle())
+            this.agent.bot.emit('idle');
     }
 
     async executeGoal() {
@@ -142,9 +165,6 @@ export class NPCContoller {
                 if (res.acted) break;
             }
         }
-
-        if (this.agent.isIdle())
-            this.agent.bot.emit('idle');
     }
 
     currentBuilding() {
@@ -186,10 +206,11 @@ export class NPCContoller {
             if (door_x !== null) break;
         }
         if (door_x === null) return null;
-        
+
         let sizex = this.constructions[name].blocks[0][0].length;
         let sizez = this.constructions[name].blocks[0].length;
-        let orientation = this.data.built[name].orientation;
+        let orientation = 4 - this.data.built[name].orientation; // this conversion is opposite
+        if (orientation == 4) orientation = 0;
         [door_x, door_z] = rotateXZ(door_x, door_z, orientation, sizex, sizez);
         door_y += this.constructions[name].offset;
 

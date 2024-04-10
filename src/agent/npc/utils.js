@@ -77,6 +77,8 @@ export function blockSatisfied(target_name, block) {
         return block.name.endsWith(target_name);
     } else if (target_name == 'bed') {
         return block.name.endsWith('bed');
+    } else if (target_name == 'torch') {
+        return block.name.includes('torch');
     }
     return block.name == target_name;
 }
