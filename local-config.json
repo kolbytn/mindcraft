@@ -1,0 +1,5 @@
+{
+    "url": "http://localhost:11434",
+    "api_key": "ollama",
+    "embedding_model": "nomic-embed-text"
+}
