@@ -16,6 +16,23 @@ import * as mc from '../utils/mcdata.js';
 // to perform longer actions, use the execute function which won't block the update loop
 const modes = [
     {
+        name: 'cowardice',
+        description: 'Automatically run away from enemies. Interrupts other actions.',
+        interrupts: ['all'], // Todo: don't interrupt attack actions
+        dont_interrupt: ['followPlayer'],
+        on: true,
+        active: false,
+        update: async function (agent) {
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
+            if (enemy && await world.isClearPath(agent.bot, enemy)) {
+                agent.bot.chat(`Aaa! A ${enemy.name}!`);
+                execute(this, agent, async () => {
+                    await skills.avoidEnemies(agent.bot, 16);
+                });
+            }
+        }
+    },
+    {
         name: 'self_defense',
         description: 'Automatically attack nearby enemies. Interrupts other actions.',
         interrupts: ['all'],
@@ -87,7 +104,7 @@ const modes = [
             // TODO: check light level instead of nearby torches, block.light is broken
             const near_torch = world.getNearestBlock(agent.bot, 'torch', 6);
             if (!near_torch) {
-                let torches = agent.bot.inventory.items().filter(item => item.name.includes('torch'));
+                let torches = agent.bot.inventory.items().filter(item => item.name === 'torch');
                 if (torches.length > 0) {
                     const torch = torches[0];
                     const pos = agent.bot.entity.position;
