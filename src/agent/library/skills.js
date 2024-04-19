@@ -869,3 +869,27 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
     }
     return true;
 }
+
+export async function activateNearestBlock(bot, type) {
+    /**
+     * Activate the nearest block of the given type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} type, the type of block to activate.
+     * @returns {Promise<boolean>} true if the block was activated, false otherwise.
+     * @example
+     * await skills.activateNearestBlock(bot, "lever");
+     * **/
+    let block = world.getNearestBlock(bot, type, 16);
+    if (!block) {
+        log(bot, `Could not find any ${type} to activate.`);
+        return false;
+    }
+    if (bot.entity.position.distanceTo(block.position) > 4.5) {
+        let pos = block.position;
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+    }
+    await bot.activateBlock(block);
+    log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
+    return true;
+}

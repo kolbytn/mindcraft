@@ -183,6 +183,14 @@ export const actionsList = [
         })
     },
     {
+        name: '!activate',
+        description: 'Activate the nearest object of a given type.',
+        params: {'type': '(string) The type of object to activate.'},
+        perform: wrapExecution(async (agent, type) => {
+            await skills.activateNearestBlock(agent.bot, type);
+        })
+    },
+    {
         name: '!stay',
         description: 'Stay in the current location no matter what. Pauses all modes.',
         perform: wrapExecution(async (agent) => {
