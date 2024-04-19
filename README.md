@@ -8,7 +8,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [OpenAI API Subscription](https://openai.com/blog/openai-api) or [Gemini API Subscription](https://aistudio.google.com/app/apikey)
+- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), or [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude)
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc)
 - [Node.js](https://nodejs.org/) (at least v14)
 
@@ -17,14 +17,18 @@ This project allows an AI model to write/execute code on your computer that may 
 Add one of these environment variables:
   - `OPENAI_API_KEY` (and optionally `OPENAI_ORG_ID`)
   - `GEMINI_API_KEY`
+  - `ANTHROPIC_API_KEY` (and optionally `OPENAI_API_KEY` for embeddings. not necessary, but without embeddings performance will suffer)
+
+⭐[How do I add the API key as an environment variable?](https://phoenixnap.com/kb/windows-set-environment-variable)⭐
+
 
 Clone/Download this repository
 
 Run `npm install`
 
-Install the minecraft version specified in `settings.json`, currently supports up to 1.20.2
+Install the minecraft version specified in `settings.json`, currently supports up to 1.20.4
 
-## Run
+## Running Locally
 
 Start a minecraft world and open it to LAN on localhost port `55916`
 
@@ -32,17 +36,21 @@ Run `node main.js`
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json`.
 
+You can configure project details in `settings.json`. 
 
-You can configure project details in `settings.json`. Here is an example settings for connecting to a non-local server:
+
+## Online Servers
+To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here is an example settings for this:
 ```
 {
-    "minecraft_version": "1.20.1",
+    "minecraft_version": "1.20.4",
     "host": "111.222.333.444",
     "port": 55920,
     "auth": "microsoft",
     "allow_insecure_coding": false
 }
 ```
+‼️Make sure your bot's name in the profile.json matches the account name! Otherwise the bot will spam talk to itself.
 
 ## Patches
 

@@ -1,11 +1,13 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
-import { Gemini } from '../models/gemini.js';
-import { GPT } from '../models/gpt.js';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+
+import { Gemini } from '../models/gemini.js';
+import { GPT } from '../models/gpt.js';
+import { Claude } from '../models/claude.js';
 
 
 export class Prompter {
@@ -26,6 +28,8 @@ export class Prompter {
             this.model = new Gemini(model_name);
         else if (model_name.includes('gpt'))
             this.model = new GPT(model_name);
+        else if (model_name.includes('claude'))
+            this.model = new Claude(model_name);
         else
             throw new Error('Unknown model ' + model_name);
     }
@@ -50,6 +54,10 @@ export class Prompter {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
         }
+        if (prompt.includes('$INVENTORY')) {
+            let inventory = await getCommand('!inventory').perform(this.agent);
+            prompt = prompt.replaceAll('$INVENTORY', inventory);
+        }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
@@ -64,7 +72,7 @@ export class Prompter {
         // check if there are any remaining placeholders with syntax $<word>
         let remaining = prompt.match(/\$[A-Z_]+/g);
         if (remaining !== null) {
-            console.warn('Unknown prompt placeholders:', remaining);
+            console.warn('Unknown prompt placeholders:', remaining.join(', '));
         }
         return prompt;
     }

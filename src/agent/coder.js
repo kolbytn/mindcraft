@@ -94,14 +94,24 @@ export class Coder {
 
         let code_return = null;
         let failures = 0;
+        const interrupt_return = {success: true, message: null, interrupted: true, timedout: false};
         for (let i=0; i<5; i++) {
             if (this.agent.bot.interrupt_code)
-                return {success: true, message: null, interrupted: true, timedout: false};
+                return interrupt_return;
             console.log(messages)
             let res = await this.agent.prompter.promptCoding(messages);
-            console.log('Code generation response:', res)
+            if (this.agent.bot.interrupt_code)
+                return interrupt_return;
             let contains_code = res.indexOf('```') !== -1;
             if (!contains_code) {
+                if (res.indexOf('!newAction') !== -1) {
+                    messages.push({
+                        role: 'assistant', 
+                        content: res.substring(0, res.indexOf('!newAction'))
+                    });
+                    continue; // using newaction will continue the loop
+                }
+
                 if (code_return) {
                     agent_history.add('system', code_return.message);
                     agent_history.add(this.agent.name, res);

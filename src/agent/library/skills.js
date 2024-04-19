@@ -18,8 +18,7 @@ async function autoLight(bot) {
             if (has_torch) {
                 try {
                     log(bot, `Placing torch at ${bot.entity.position}.`);
-                    await placeBlock(bot, 'torch', bot.entity.position.x, bot.entity.position.y, bot.entity.position.z);
-                    return true;
+                    return await placeBlock(bot, 'torch', bot.entity.position.x, bot.entity.position.y, bot.entity.position.z);
                 } catch (err) {return true;}
             }
         }
@@ -491,12 +490,28 @@ export async function placeBlock(bot, blockType, x, y, z) {
      * let position = world.getPosition(bot);
      * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y - 1, position.x);
      **/
-    const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
-    const empty_blocks = ['air', 'water', 'lava', 'grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
-    const targetBlock = bot.blockAt(target_dest);
-    if (!empty_blocks.includes(targetBlock.name)) {
-        log(bot, `Cannot place block at ${targetBlock.position} because ${targetBlock.name} is in the way.`);
+    console.log('placing block...')
+    let block = bot.inventory.items().find(item => item.name === blockType);
+    if (!block) {
+        log(bot, `Don't have any ${blockType} to place.`);
         return false;
+    }
+
+    const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
+    const targetBlock = bot.blockAt(target_dest);
+    if (targetBlock.name === blockType) {
+        log(bot, `${blockType} already at ${targetBlock.position}.`);
+        return false;
+    }
+    const empty_blocks = ['air', 'water', 'lava', 'grass', 'short_grass', 'tall_grass', 'snow', 'dead_bush', 'fern'];
+    if (!empty_blocks.includes(targetBlock.name)) {
+        log(bot, `${blockType} in the way at ${targetBlock.position}.`);
+        const removed = await breakBlockAt(bot, x, y, z);
+        if (!removed) {
+            log(bot, `Cannot place ${blockType} at ${targetBlock.position}: block in the way.`);
+            return false;
+        }
+        await new Promise(resolve => setTimeout(resolve, 200)); // wait for block to break
     }
     // get the buildoffblock and facevec based on whichever adjacent block is not empty
     let buildOffBlock = null;
@@ -515,14 +530,9 @@ export async function placeBlock(bot, blockType, x, y, z) {
         return false;
     }
 
-    let block = bot.inventory.items().find(item => item.name === blockType);
-    if (!block) {
-        log(bot, `Don't have any ${blockType} to place.`);
-        return false;
-    }
     const pos = bot.entity.position;
     const pos_above = pos.plus(Vec3(0,1,0));
-    const dont_move_for = ['torch', 'redstone_torch', 'redstone', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire'];
+    const dont_move_for = ['torch', 'redstone_torch', 'redstone', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire', 'water_bucket'];
     if (!dont_move_for.includes(blockType) && (pos.distanceTo(targetBlock.position) < 1 || pos_above.distanceTo(targetBlock.position) < 1)) {
         // too close
         let goal = new pf.goals.GoalNear(targetBlock.position.x, targetBlock.position.y, targetBlock.position.z, 2);
@@ -533,7 +543,8 @@ export async function placeBlock(bot, blockType, x, y, z) {
     if (bot.entity.position.distanceTo(targetBlock.position) > 4.5) {
         // too far
         let pos = targetBlock.position;
-        bot.pathfinder.setMovements(new pf.Movements(bot));
+        let movements = new pf.Movements(bot);
+        bot.pathfinder.setMovements(movements);
         await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
     }
     
@@ -695,8 +706,9 @@ export async function goToPlayer(bot, username, distance=3) {
         log(bot, `Could not find ${username}.`);
         return false;
     }
-    
-    bot.pathfinder.setMovements(new pf.Movements(bot));
+
+    const move = new pf.Movements(bot);
+    bot.pathfinder.setMovements(move);
     await bot.pathfinder.goto(new pf.goals.GoalFollow(player, distance), true);
 
     log(bot, `You have reached ${username}.`);
@@ -716,7 +728,8 @@ export async function followPlayer(bot, username, distance=4) {
     if (!player)
         return false;
 
-    bot.pathfinder.setMovements(new pf.Movements(bot));
+    const move = new pf.Movements(bot);
+    bot.pathfinder.setMovements(move);
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
@@ -836,5 +849,66 @@ export async function goToBed(bot) {
         await new Promise(resolve => setTimeout(resolve, 500));
     }
     log(bot, `You have woken up.`);
+    return true;
+}
+
+export async function tillAndSow(bot, x, y, z, seedType=null) {
+    /**
+     * Till the ground at the given position and plant the given seed type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} x, the x coordinate to till.
+     * @param {number} y, the y coordinate to till.
+     * @param {number} z, the z coordinate to till.
+     * @param {string} plantType, the type of plant to plant. Defaults to none, which will only till the ground.
+     * @returns {Promise<boolean>} true if the ground was tilled, false otherwise.
+     * @example
+     * let position = world.getPosition(bot);
+     * await skills.till(bot, position.x, position.y - 1, position.x);
+     **/
+    console.log(x, y, z)
+    x = Math.round(x);
+    y = Math.round(y);
+    z = Math.round(z);
+    let block = bot.blockAt(new Vec3(x, y, z));
+    console.log(x, y, z)
+    if (block.name !== 'grass_block' && block.name !== 'dirt' && block.name !== 'farmland') {
+        log(bot, `Cannot till ${block.name}, must be grass_block or dirt.`);
+        return false;
+    }
+    let above = bot.blockAt(new Vec3(x, y+1, z));
+    if (above.name !== 'air') {
+        log(bot, `Cannot till, there is ${above.name} above the block.`);
+        return false;
+    }
+    // if distance is too far, move to the block
+    if (bot.entity.position.distanceTo(block.position) > 4.5) {
+        let pos = block.position;
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+    }
+    if (block.name !== 'farmland') {
+        let hoe = bot.inventory.items().find(item => item.name.includes('hoe'));
+        if (!hoe) {
+            log(bot, `Cannot till, no hoes.`);
+            return false;
+        }
+        await bot.equip(hoe, 'hand');
+        await bot.activateBlock(block);
+        log(bot, `Tilled block x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
+    }
+    
+    if (seedType) {
+        if (seedType.endsWith('seed') && !seedType.endsWith('seeds'))
+            seedType += 's'; // fixes common mistake
+        let seeds = bot.inventory.items().find(item => item.name === seedType);
+        if (!seeds) {
+            log(bot, `No ${seedType} to plant.`);
+            return false;
+        }
+        await bot.equip(seeds, 'hand');
+
+        await bot.placeBlock(block, new Vec3(0, -1, 0));
+        log(bot, `Planted ${seedType} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
+    }
     return true;
 }

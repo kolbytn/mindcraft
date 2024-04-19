@@ -1,9 +1,10 @@
 {
     "type": "module",
     "dependencies": {
+        "@anthropic-ai/sdk": "^0.17.1",
         "@google/generative-ai": "^0.2.1",
         "minecraft-data": "^3.46.2",
-        "mineflayer": "^4.14.0",
+        "mineflayer": "^4.20.0",
         "mineflayer-armor-manager": "^2.0.1",
         "mineflayer-auto-eat": "^3.3.6",
         "mineflayer-collectblock": "^1.4.1",
@@ -11,6 +12,7 @@
         "mineflayer-pvp": "^1.3.2",
         "openai": "^4.4.0",
         "patch-package": "^8.0.0",
+        "vec3": "^0.1.10",
         "yargs": "^17.7.2"
     },
     "scripts": {
