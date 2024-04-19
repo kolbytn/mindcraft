@@ -8,7 +8,7 @@ import { getCommand } from './commands/index.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
-
+import { Llama3 } from '../models/llama3.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -30,6 +30,8 @@ export class Prompter {
             this.model = new GPT(model_name);
         else if (model_name.includes('claude'))
             this.model = new Claude(model_name);
+        else if (model_name.includes('llama3'))
+            this.model = new Llama3();
         else
             throw new Error('Unknown model ' + model_name);
     }
