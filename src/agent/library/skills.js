@@ -806,6 +806,49 @@ export async function stay(bot) {
     return true;
 }
 
+export async function useDoor(bot, door_pos=null) {
+    /**
+     * Use the door at the given position.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {Vec3} door_pos, the position of the door to use. If null, the nearest door will be used.
+     * @returns {Promise<boolean>} true if the door was used, false otherwise.
+     * @example
+     * let door = world.getNearestBlock(bot, "oak_door", 16).position;
+     * await skills.useDoor(bot, door);
+     **/
+    if (!door_pos) {
+        for (let door_type of ['oak_door', 'spruce_door', 'birch_door', 'jungle_door', 'acacia_door', 'dark_oak_door',
+                               'mangrove_door', 'cherry_door', 'bamboo_door', 'crimson_door', 'warped_door']) {
+            door_pos = world.getNearestBlock(bot, door_type, 16).position;
+            if (door_pos) break;
+        }
+    } else {
+        door_pos = Vec3(door_pos.x, door_pos.y, door_pos.z);
+    }
+    if (!door_pos) {
+        log(bot, `Could not find a door to use.`);
+        return false;
+    }
+
+    bot.pathfinder.setGoal(new pf.goals.GoalNear(door_pos.x, door_pos.y, door_pos.z, 1));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    while (bot.pathfinder.isMoving()) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    
+    let door_block = bot.blockAt(door_pos);
+    await bot.lookAt(door_pos);
+    if (!door_block._properties.open)
+        await bot.activateBlock(door_block);
+    
+    bot.setControlState("forward", true);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    bot.setControlState("forward", false);
+    await bot.activateBlock(door_block);
+
+    log(bot, `Used door at ${door_pos}.`);
+    return true;
+}
 
 export async function goToBed(bot) {
     /**
@@ -896,5 +939,29 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
         await bot.placeBlock(block, new Vec3(0, -1, 0));
         log(bot, `Planted ${seedType} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
     }
+    return true;
+}
+
+export async function activateNearestBlock(bot, type) {
+    /**
+     * Activate the nearest block of the given type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} type, the type of block to activate.
+     * @returns {Promise<boolean>} true if the block was activated, false otherwise.
+     * @example
+     * await skills.activateNearestBlock(bot, "lever");
+     * **/
+    let block = world.getNearestBlock(bot, type, 16);
+    if (!block) {
+        log(bot, `Could not find any ${type} to activate.`);
+        return false;
+    }
+    if (bot.entity.position.distanceTo(block.position) > 4.5) {
+        let pos = block.position;
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+    }
+    await bot.activateBlock(block);
+    log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }

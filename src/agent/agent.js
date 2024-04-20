@@ -4,6 +4,7 @@ import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
+import { NPCContoller } from './npc/controller.js';
 
 
 export class Agent {
@@ -12,6 +13,8 @@ export class Agent {
         this.name = this.prompter.getName();
         this.history = new History(this);
         this.coder = new Coder(this);
+        this.npc = new NPCContoller(this);
+
         await this.prompter.initExamples();
 
         if (load_mem)
@@ -177,6 +180,9 @@ export class Agent {
             this.coder.executeResume();
         });
 
+        // Init NPC controller
+        this.npc.init();
+
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
         const INTERVAL = 300;
         setTimeout(async () => {
@@ -189,6 +195,8 @@ export class Agent {
                 }
             }
         }, INTERVAL);
+
+        this.bot.emit('idle');
     }
 
     isIdle() {
