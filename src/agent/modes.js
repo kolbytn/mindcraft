@@ -16,8 +16,41 @@ import * as mc from '../utils/mcdata.js';
 // to perform longer actions, use the execute function which won't block the update loop
 const modes = [
     {
+        name: 'self_preservation',
+        description: 'Respond to drowning, burning, and damage at low health.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        update: async function (agent) {
+            let block = agent.bot.blockAt(agent.bot.entity.position);
+            let blockAbove = agent.bot.blockAt(agent.bot.entity.position.offset(0, 1, 0));
+            if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
+                // does not call execute so does not interrupt other actions
+                agent.bot.setControlState('jump', true);
+            }
+            if (block.name === 'lava' || block.name === 'flowing_lava' || block.name === 'fire') {
+                execute(this, agent, async () => {
+                    let nearestWater = world.getNearestBlock(agent.bot, 'water', 20);
+                    if (nearestWater) {
+                        let pos = nearestWater.position;
+                        bot.pathfinder.setMovements(new pf.Movements(bot));
+                        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+                    }
+                    else {
+                        await skills.moveAway(agent.bot, 10);
+                    }
+                });
+            }
+            else if (agent.bot.health < 5 && agent.bot.lastDamageTime < Date.now() - 3000) {
+                execute(this, agent, async () => {
+                    await skills.moveAway(agent.bot, 20);
+                });
+            }
+        }
+    },
+    {
         name: 'cowardice',
-        description: 'Automatically run away from enemies. Interrupts other actions.',
+        description: 'Run away from enemies. Interrupts other actions.',
         interrupts: ['all'], // Todo: don't interrupt attack actions
         dont_interrupt: ['followPlayer'],
         on: true,
@@ -34,7 +67,7 @@ const modes = [
     },
     {
         name: 'self_defense',
-        description: 'Automatically attack nearby enemies. Interrupts other actions.',
+        description: 'Attack nearby enemies. Interrupts other actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -50,7 +83,7 @@ const modes = [
     },
     {
         name: 'hunting',
-        description: 'Automatically hunt nearby animals when idle.',
+        description: 'Hunt nearby animals when idle.',
         interrupts: ['defaults'],
         on: true,
         active: false,
@@ -66,7 +99,7 @@ const modes = [
     },
     {
         name: 'item_collecting',
-        description: 'Automatically collect nearby items when idle.',
+        description: 'Collect nearby items when idle.',
         interrupts: ['followPlayer'],
         on: true,
         active: false,
@@ -96,7 +129,7 @@ const modes = [
     },
     {
         name: 'torch_placing',
-        description: 'Automatically place torches when idle and there are no torches nearby.',
+        description: 'Place torches when idle and there are no torches nearby.',
         interrupts: ['followPlayer'],
         on: true,
         active: false,
@@ -117,7 +150,7 @@ const modes = [
     },
     {
         name: 'idle_staring',
-        description: 'Non-functional animation to look around at entities when idle.',
+        description: 'Animation to look around at entities when idle.',
         interrupts: [],
         on: true,
         active: false,
