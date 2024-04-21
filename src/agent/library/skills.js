@@ -257,7 +257,7 @@ export async function attackNearest(bot, mobType, kill=true) {
      * await skills.attackNearest(bot, "zombie", true);
      **/
     bot.modes.pause('cowardice');
-    const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
+    const mob = world.getNearbyEntities(bot, 24).find(entity => entity.name === mobType);
     if (mob) {
         return await attackEntity(bot, mob, kill);
     }
@@ -290,7 +290,7 @@ export async function attackEntity(bot, entity, kill=true) {
     }
     else {
         bot.pvp.attack(entity);
-        while (world.getNearbyEntities(bot, 16).includes(entity)) {
+        while (world.getNearbyEntities(bot, 24).includes(entity)) {
             await new Promise(resolve => setTimeout(resolve, 1000));
             if (bot.interrupt_code) {
                 bot.pvp.stop();
@@ -703,6 +703,7 @@ export async function goToPlayer(bot, username, distance=3) {
      * await skills.goToPlayer(bot, "player");
      **/
     bot.modes.pause('self_defense');
+    bot.modes.pause('cowardice');
     let player = bot.players[username].entity
     if (!player) {
         log(bot, `Could not find ${username}.`);
@@ -795,6 +796,7 @@ export async function stay(bot) {
      * @example
      * await skills.stay(bot);
      **/
+    bot.modes.pause('self_preservation');
     bot.modes.pause('cowardice');
     bot.modes.pause('self_defense');
     bot.modes.pause('hunting');

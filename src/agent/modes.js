@@ -17,42 +17,56 @@ import * as mc from '../utils/mcdata.js';
 const modes = [
     {
         name: 'self_preservation',
-        description: 'Respond to drowning, burning, and damage at low health.',
+        description: 'Respond to drowning, burning, and damage at low health. Interrupts other actions.',
         interrupts: ['all'],
         on: true,
         active: false,
+        fall_blocks: ['sand', 'gravel', 'concrete_powder'], // includes matching substrings like 'sandstone' and 'red_sand'
         update: async function (agent) {
-            let block = agent.bot.blockAt(agent.bot.entity.position);
-            let blockAbove = agent.bot.blockAt(agent.bot.entity.position.offset(0, 1, 0));
+            const bot = agent.bot;
+            const block = bot.blockAt(bot.entity.position);
+            const blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
             if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
                 // does not call execute so does not interrupt other actions
-                agent.bot.setControlState('jump', true);
+                if (!bot.pathfinder.goal) {
+                    bot.setControlState('jump', true);
+                }
             }
-            if (block.name === 'lava' || block.name === 'flowing_lava' || block.name === 'fire') {
+            else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
                 execute(this, agent, async () => {
-                    let nearestWater = world.getNearestBlock(agent.bot, 'water', 20);
+                    await skills.moveAway(bot, 2);
+                });
+            }
+            else if (block.name === 'lava' || block.name === 'flowing_lava' || block.name === 'fire' ||
+                blockAbove.name === 'lava' || blockAbove.name === 'flowing_lava' || blockAbove.name === 'fire') {
+                bot.chat('I\'m on fire!'); // TODO: gets stuck in lava
+                execute(this, agent, async () => {
+                    let nearestWater = world.getNearestBlock(bot, 'water', 20);
                     if (nearestWater) {
-                        let pos = nearestWater.position;
-                        bot.pathfinder.setMovements(new pf.Movements(bot));
-                        await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
+                        const pos = nearestWater.position;
+                        await skills.goToPosition(bot, pos.x, pos.y, pos.z, 0.2);
+                        bot.chat('Ahhhh that\'s better!');
                     }
                     else {
-                        await skills.moveAway(agent.bot, 10);
+                        await skills.moveAway(bot, 5);
                     }
                 });
             }
-            else if (agent.bot.health < 5 && agent.bot.lastDamageTime < Date.now() - 3000) {
+            else if (Date.now() - bot.lastDamageTime < 3000 && (bot.health < 5 || bot.lastDamageTaken >= bot.health)) {
+                bot.chat('I\'m dying!');
                 execute(this, agent, async () => {
-                    await skills.moveAway(agent.bot, 20);
+                    await skills.moveAway(bot, 20);
                 });
+            }
+            else if (agent.isIdle()) {
+                bot.clearControlStates(); // clear jump if not in danger or doing anything else
             }
         }
     },
     {
         name: 'cowardice',
         description: 'Run away from enemies. Interrupts other actions.',
-        interrupts: ['all'], // Todo: don't interrupt attack actions
-        dont_interrupt: ['followPlayer'],
+        interrupts: ['all'],
         on: true,
         active: false,
         update: async function (agent) {
@@ -249,6 +263,22 @@ class ModeController {
                 await mode.update(this.agent);
             }
             if (mode.active) break;
+        }
+    }
+
+    getJson() {
+        let res = {};
+        for (let mode of this.modes_list) {
+            res[mode.name] = mode.on;
+        }
+        return res;
+    }
+
+    loadJson(json) {
+        for (let mode of this.modes_list) {
+            if (json[mode.name] != undefined) {
+                mode.on = json[mode.name];
+            }
         }
     }
 }
