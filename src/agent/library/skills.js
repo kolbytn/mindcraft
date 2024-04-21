@@ -477,7 +477,7 @@ export async function breakBlockAt(bot, x, y, z) {
 }
 
 
-export async function placeBlock(bot, blockType, x, y, z) {
+export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom') {
     /**
      * Place the given block type at the given position. It will build off from any adjacent blocks. Will fail if there is a block in the way or nothing to build off of.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -485,10 +485,12 @@ export async function placeBlock(bot, blockType, x, y, z) {
      * @param {number} x, the x coordinate of the block to place.
      * @param {number} y, the y coordinate of the block to place.
      * @param {number} z, the z coordinate of the block to place.
+     * @param {string} placeOn, the preferred side of the block to place on. Can be 'top', 'bottom', 'north', 'south', 'east', 'west', or 'side'. Defaults to bottom. Will place on first available side if not possible.
      * @returns {Promise<boolean>} true if the block was placed, false otherwise.
      * @example
-     * let position = world.getPosition(bot);
-     * await skills.placeBlock(bot, "oak_log", position.x + 1, position.y - 1, position.x);
+     * let p = world.getPosition(bot);
+     * await skills.placeBlock(bot, "oak_log", p.x + 2, p.y, p.x);
+     * await skills.placeBlock(bot, "torch", p.x + 1, p.y, p.x, 'side');
      **/
     console.log('placing block...')
     let block = bot.inventory.items().find(item => item.name === blockType);
@@ -516,12 +518,33 @@ export async function placeBlock(bot, blockType, x, y, z) {
     // get the buildoffblock and facevec based on whichever adjacent block is not empty
     let buildOffBlock = null;
     let faceVec = null;
-    const dirs = [Vec3(0, -1, 0), Vec3(0, 1, 0), Vec3(1, 0, 0), Vec3(-1, 0, 0), Vec3(0, 0, 1), Vec3(0, 0, -1)];
+    // const dirs = [Vec3(0, -1, 0), Vec3(0, 1, 0), Vec3(1, 0, 0), Vec3(-1, 0, 0), Vec3(0, 0, 1), Vec3(0, 0, -1)];
+    const dir_map = {
+        'top': Vec3(0, 1, 0),
+        'bottom': Vec3(0, -1, 0),
+        'north': Vec3(0, 0, -1),
+        'south': Vec3(0, 0, 1),
+        'east': Vec3(1, 0, 0),
+        'west': Vec3(-1, 0, 0),
+    }
+    let dirs = [];
+    if (placeOn === 'side') {
+        dirs.push(dir_map['north'], dir_map['south'], dir_map['east'], dir_map['west']);
+    }
+    else if (dir_map[placeOn] !== undefined) {
+        dirs.push(dir_map[placeOn]);
+    }
+    else {
+        dirs.push(dir_map['bottom']);
+        log(bot, `Unknown placeOn value "${placeOn}". Defaulting to bottom.`);
+    }
+    dirs.push(...Object.values(dir_map).filter(d => !dirs.includes(d)));
+
     for (let d of dirs) {
         const block = bot.blockAt(target_dest.plus(d));
         if (!empty_blocks.includes(block.name)) {
             buildOffBlock = block;
-            faceVec = new Vec3(-d.x, -d.y, -d.z);
+            faceVec = new Vec3(-d.x, -d.y, -d.z); // invert
             break;
         }
     }
