@@ -54,6 +54,28 @@ export class Coder {
         return await import('../..' + this.fp + filename);
     }
 
+
+    removeIIFE(codeString) {
+        // This function attempts to remove IIFE (Immediately Invoked Function Expression) patterns from generated code.
+        // ex of IIFE: (async () => {console.log('hello');})()
+        // IIFEs break the await pattern we use, where behaviors continue running after the code has "finished" executing
+        // This is actually a pretty big issue, as there is no way to force the code to be awaited, but this is a simple fix for now.
+        const iifePatterns = [
+            /^\s*\(\s*async\s*\(\s*\)\s*=>\s*{([\s\S]*?)}\s*\)\s*\(\s*\)\s*;?\s*$/, // AI generated regex
+            /^\s*\(\s*async\s+function\s*\(\s*\)\s*{([\s\S]*?)}\s*\)\s*\(\s*\)\s*;?\s*$/,
+        ]; // will not catch nested IIFEs, ones with arguments, or ones that are not async
+        
+        for (const pattern of iifePatterns) {
+            const match = codeString.match(pattern);
+            if (match) {
+                console.warn('IIFE detected in generated code. Attempted automatic fix.');
+                return match[1].trim();
+            }
+        }
+
+        return codeString.trim();
+    }
+
     sanitizeCode(code) {
         code = code.trim();
         const remove_strs = ['Javascript', 'javascript', 'js']
@@ -63,6 +85,7 @@ export class Coder {
                 return code;
             }
         }
+        code = this.removeIIFE(code);
         return code;
     }
 
