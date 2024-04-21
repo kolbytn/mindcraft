@@ -44,6 +44,9 @@ export class Claude {
             prev_role = msg.role;
             
         }
+        if (messages.length > 0 && messages[0].role !== 'user') {
+            messages.unshift(filler); // anthropic requires user message to start
+        }
         if (messages.length === 0) {
             messages.push(filler);
         }
