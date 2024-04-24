@@ -13,6 +13,7 @@ export class GPT {
         else if (process.env.OPENAI_API_KEY) {
             openAiConfig = {
                 apiKey: process.env.OPENAI_API_KEY,
+				baseURL: process.env.OPENAI_API_BASE,
             };
         }
         else {
