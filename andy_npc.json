@@ -16,16 +16,13 @@
         "do_set_goal": true,
         "goals": [
             "wooden_pickaxe",
-            "hole",
-            "stone_axe",
+            "dirt_shelter",
             "stone_pickaxe",
             "stone_axe",
-            "house",
+            "small_wood_house",
             "furnace",
             "iron_pickaxe",
-            "iron_axe",
-            "iron_sword",
-            "iron_armor"
+            "iron_sword"
         ]
     },
 

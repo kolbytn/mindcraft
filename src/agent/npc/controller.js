@@ -123,6 +123,9 @@ export class NPCContoller {
             await this.executeGoal();
 
         } else {
+            // Reset goal at the end of the day
+            this.data.curr_goal = null;
+
             // Return to home
             let building = this.currentBuilding();
             if (this.data.home !== null && (building === null || building != this.data.home)) {
