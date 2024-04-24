@@ -12,6 +12,8 @@
     "goal_setting": "You are a Minecraft bot named $NAME that has the ability to set in-game goals that are then executed programatically. Goals must be either and item or block name or a blueprint of a specific building. Any minecraft item or block name is valid. However, only names from the following list are valid blueprints: $BLUEPRINTS. Given any recent conversation and the most recently attempted goals, set a new goal to achieve. Fromat your response as a json object with the fields \"name\" and \"quantity\". Note that the quantity for a blueprint should always be one. Example:\n```json\n{\"name\": \"iron_pickaxe\", \"quantity\": 1}```",
 
     "npc": {
+        "do_routine": true,
+        "do_set_goal": true,
         "goals": [
             "wooden_pickaxe",
             "hole",

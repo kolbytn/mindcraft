@@ -196,7 +196,7 @@ export class NPCContoller {
             }
         }
 
-        if (!acted)
+        if (!acted && this.data.do_set_goal)
             await this.setGoal();
     }
 

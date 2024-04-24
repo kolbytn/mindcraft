@@ -5,6 +5,7 @@ export class NPCData {
         this.built = {};
         this.home = null;
         this.do_routine = true;
+        this.do_set_goal = true;
     }
 
     toObject() {
@@ -18,6 +19,7 @@ export class NPCData {
         if (this.home)
             obj.home = this.home;
         obj.do_routine = this.do_routine;
+        obj.do_set_goal = this.do_set_goal;
         return obj;
     }
 
@@ -41,6 +43,8 @@ export class NPCData {
             npc.home = obj.home;
         if (obj.do_routine !== undefined)
             npc.do_routine = obj.do_routine;
+        if (obj.do_set_goal !== undefined)
+            npc.do_set_goal = obj.do_set_goal;
         return npc;
     }
 }
