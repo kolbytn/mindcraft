@@ -95,4 +95,9 @@ export class Prompter {
         prompt = await this.replaceStrings(prompt, null, null, prev_mem, to_summarize);
         return await this.model.sendRequest([], prompt);
     }
+
+    async promptGoalSetting(messages, last_goals) {
+        // TODO
+        return {name: '', quantity: 0};
+    }
 }
