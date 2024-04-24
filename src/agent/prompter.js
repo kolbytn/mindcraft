@@ -48,7 +48,7 @@ export class Prompter {
         console.log('Examples loaded.');
     }
 
-    async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[]) {
+    async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
 
         if (prompt.includes('$STATS')) {
@@ -69,6 +69,27 @@ export class Prompter {
             prompt = prompt.replaceAll('$MEMORY', prev_memory ? prev_memory : 'None.');
         if (prompt.includes('$TO_SUMMARIZE'))
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
+        if (prompt.includes('$CONVO'))
+            prompt = prompt.replaceAll('$CONVO', 'Recent conversation:\n' + stringifyTurns(messages));
+        if (prompt.includes('$LAST_GOALS')) {
+            let goal_text = '';
+            for (let goal in last_goals) {
+                if (last_goals[goal])
+                    goal_text += `You recently successfully completed the goal ${goal}.\n`
+                else
+                    goal_text += `You recently failed to complete the goal ${goal}.\n`
+            }
+            prompt = prompt.replaceAll('$LAST_GOALS', goal_text.trim());
+        }
+        if (prompt.includes('$BLUEPRINTS')) {
+            if (this.agent.npc.constructions) {
+                let blueprints = '';
+                for (let blueprint in this.agent.npc.constructions) {
+                    blueprints += blueprint + ', ';
+                }
+                prompt = prompt.replaceAll('$BLUEPRINTS', blueprints.slice(0, -2));
+            }
+        }
 
         // check if there are any remaining placeholders with syntax $<word>
         let remaining = prompt.match(/\$[A-Z_]+/g);
@@ -97,7 +118,28 @@ export class Prompter {
     }
 
     async promptGoalSetting(messages, last_goals) {
-        // TODO
-        return {name: '', quantity: 0};
+        let system_message = this.prompts.goal_setting;
+        system_message = await this.replaceStrings(system_message, messages);
+
+        let user_message = 'Use the below info to determine what goal to target next\n\n';
+        user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
+        user_message = await this.replaceStrings(user_message, messages, null, null, null, last_goals);
+        let user_messages = [{role: 'user', content: user_message}];
+
+        let res = await this.model.sendRequest(user_messages, system_message);
+
+        let goal = null;
+        try {
+            let data = res.split('```')[1].replace('json', '').trim();
+            goal = JSON.parse(data);
+        } catch (err) {
+            console.log('Failed to parse goal:', res, err);
+        }
+        if (!goal || !goal.name || !goal.quantity || isNaN(parseInt(goal.quantity))) {
+            console.log('Failed to set goal:', res);
+            return null;
+        }
+        goal.quantity = parseInt(goal.quantity);
+        return goal;
     }
 }

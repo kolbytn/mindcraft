@@ -80,14 +80,18 @@ export class NPCContoller {
         });
     }
 
-    setGoal(name=null, quantity=1) {
+    async setGoal(name=null, quantity=1) {
         this.last_goals = {};
         if (name) {
             this.data.curr_goal = {name: name, quantity: quantity};
             return;
         }
         
-        let res = this.agent.prompter.promptGoalSetting(this.agent.history.getHistory(), this.last_goals);
+        let past_goals = {...this.last_goals};
+        for (let goal in this.data.goals) {
+            if (past_goals[goal.name] === undefined) past_goals[goal.name] = true;
+        }
+        let res = await this.agent.prompter.promptGoalSetting(this.agent.history.getHistory(), past_goals);
         if (res) {
             this.data.curr_goal = res;
             console.log('Set new goal: ', res.name, ' x', res.quantity);
@@ -140,7 +144,9 @@ export class NPCContoller {
 
     async executeGoal() {
         // If we need more blocks to complete a building, get those first
-        let goals = this.temp_goals.concat(this.data.goals).concat([this.data.curr_goal]);
+        let goals = this.temp_goals.concat(this.data.goals);
+        if (this.data.curr_goal)
+            goals = goals.concat([this.data.curr_goal])
         this.temp_goals = [];
 
         let acted = false;
@@ -190,9 +196,8 @@ export class NPCContoller {
             }
         }
 
-        if (!acted) {
-            this.setGoal();
-        }
+        if (!acted)
+            await this.setGoal();
     }
 
     currentBuilding() {
