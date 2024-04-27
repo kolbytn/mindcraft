@@ -26,14 +26,14 @@ export class Coder {
         code = code.replaceAll('console.log(', 'log(bot,');
         code = code.replaceAll('log("', 'log(bot,"');
 
+        console.log(`Generated code: """${code}"""`);
+
         // this may cause problems in callback functions
         code = code.replaceAll(';\n', '; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}\n');
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
         src = this.code_template.replace('/* CODE HERE */', src);
-
-        console.log("writing to file...", src)
 
         let filename = this.file_counter + '.js';
         // if (this.file_counter > 0) {

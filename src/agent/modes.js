@@ -16,8 +16,72 @@ import * as mc from '../utils/mcdata.js';
 // to perform longer actions, use the execute function which won't block the update loop
 const modes = [
     {
+        name: 'self_preservation',
+        description: 'Respond to drowning, burning, and damage at low health. Interrupts other actions.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        fall_blocks: ['sand', 'gravel', 'concrete_powder'], // includes matching substrings like 'sandstone' and 'red_sand'
+        update: async function (agent) {
+            const bot = agent.bot;
+            const block = bot.blockAt(bot.entity.position);
+            const blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
+            if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
+                // does not call execute so does not interrupt other actions
+                if (!bot.pathfinder.goal) {
+                    bot.setControlState('jump', true);
+                }
+            }
+            else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
+                execute(this, agent, async () => {
+                    await skills.moveAway(bot, 2);
+                });
+            }
+            else if (block.name === 'lava' || block.name === 'flowing_lava' || block.name === 'fire' ||
+                blockAbove.name === 'lava' || blockAbove.name === 'flowing_lava' || blockAbove.name === 'fire') {
+                bot.chat('I\'m on fire!'); // TODO: gets stuck in lava
+                execute(this, agent, async () => {
+                    let nearestWater = world.getNearestBlock(bot, 'water', 20);
+                    if (nearestWater) {
+                        const pos = nearestWater.position;
+                        await skills.goToPosition(bot, pos.x, pos.y, pos.z, 0.2);
+                        bot.chat('Ahhhh that\'s better!');
+                    }
+                    else {
+                        await skills.moveAway(bot, 5);
+                    }
+                });
+            }
+            else if (Date.now() - bot.lastDamageTime < 3000 && (bot.health < 5 || bot.lastDamageTaken >= bot.health)) {
+                bot.chat('I\'m dying!');
+                execute(this, agent, async () => {
+                    await skills.moveAway(bot, 20);
+                });
+            }
+            else if (agent.isIdle()) {
+                bot.clearControlStates(); // clear jump if not in danger or doing anything else
+            }
+        }
+    },
+    {
+        name: 'cowardice',
+        description: 'Run away from enemies. Interrupts other actions.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        update: async function (agent) {
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
+            if (enemy && await world.isClearPath(agent.bot, enemy)) {
+                agent.bot.chat(`Aaa! A ${enemy.name}!`);
+                execute(this, agent, async () => {
+                    await skills.avoidEnemies(agent.bot, 16);
+                });
+            }
+        }
+    },
+    {
         name: 'self_defense',
-        description: 'Automatically attack nearby enemies. Interrupts other actions.',
+        description: 'Attack nearby enemies. Interrupts other actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -33,7 +97,7 @@ const modes = [
     },
     {
         name: 'hunting',
-        description: 'Automatically hunt nearby animals when idle.',
+        description: 'Hunt nearby animals when idle.',
         interrupts: ['defaults'],
         on: true,
         active: false,
@@ -49,7 +113,7 @@ const modes = [
     },
     {
         name: 'item_collecting',
-        description: 'Automatically collect nearby items when idle.',
+        description: 'Collect nearby items when idle.',
         interrupts: ['followPlayer'],
         on: true,
         active: false,
@@ -79,7 +143,7 @@ const modes = [
     },
     {
         name: 'torch_placing',
-        description: 'Automatically place torches when idle and there are no torches nearby.',
+        description: 'Place torches when idle and there are no torches nearby.',
         interrupts: ['followPlayer'],
         on: true,
         active: false,
@@ -100,7 +164,7 @@ const modes = [
     },
     {
         name: 'idle_staring',
-        description: 'Non-functional animation to look around at entities when idle.',
+        description: 'Animation to look around at entities when idle.',
         interrupts: [],
         on: true,
         active: false,
@@ -199,6 +263,22 @@ class ModeController {
                 await mode.update(this.agent);
             }
             if (mode.active) break;
+        }
+    }
+
+    getJson() {
+        let res = {};
+        for (let mode of this.modes_list) {
+            res[mode.name] = mode.on;
+        }
+        return res;
+    }
+
+    loadJson(json) {
+        for (let mode of this.modes_list) {
+            if (json[mode.name] != undefined) {
+                mode.on = json[mode.name];
+            }
         }
     }
 }

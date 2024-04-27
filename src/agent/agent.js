@@ -17,15 +17,18 @@ export class Agent {
 
         await this.prompter.initExamples();
 
-        if (load_mem)
-            this.history.load();
-
         console.log('Logging in...');
         this.bot = initBot(this.name);
 
         initModes(this);
 
+        if (load_mem)
+            this.history.load();
+
         this.bot.once('spawn', async () => {
+            // wait for a bit so stats are not undefined
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
             console.log(`${this.name} spawned.`);
             this.coder.clear();
             
@@ -148,11 +151,17 @@ export class Agent {
             else if (this.bot.time.timeOfDay == 18000)
             this.bot.emit('midnight');
         });
-        this.bot.on('health', () => {
-            if (this.bot.health < 20)
-            this.bot.emit('damaged');
-        });
 
+        let prev_health = this.bot.health;
+        this.bot.lastDamageTime = 0;
+        this.bot.lastDamageTaken = 0;
+        this.bot.on('health', () => {
+            if (this.bot.health < prev_health) {
+                this.bot.lastDamageTime = Date.now();
+                this.bot.lastDamageTaken = prev_health - this.bot.health;
+            }
+            prev_health = this.bot.health;
+        });
         // Logging callbacks
         this.bot.on('error' , (err) => {
             console.error('Error event!', err);
@@ -176,6 +185,7 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
+            this.bot.clearControlStates();
             this.bot.modes.unPauseAll();
             this.coder.executeResume();
         });
