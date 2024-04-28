@@ -18,4 +18,8 @@ export class MemoryBank {
 	loadJson(json) {
 		this.memory = json;
 	}
+
+	getKeys() {
+		return Object.keys(this.memory).join(', ')
+	}
 }

@@ -127,7 +127,7 @@ export const queryList = [
         name: '!savedPlaces',
         description: 'List all saved locations.',
         perform: async function (agent) {
-            return "Saved place names: " + Object.keys(agent.memory_bank.places).join(', ');
+            return "Saved place names: " + agent.memory_bank.getKeys();
         }
     }
 ];
