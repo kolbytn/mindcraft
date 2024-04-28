@@ -58,6 +58,9 @@ export class History {
         const modes = this.agent.bot.modes.getJson();
         if (modes !== null)
             data.modes = modes;
+        const memory_bank = this.agent.memory_bank.getJson();
+        if (memory_bank !== null)
+            data.memory_bank = memory_bank;
         const json_data = JSON.stringify(data, null, 4);
         writeFileSync(this.memory_fp, json_data, (err) => {
             if (err) {
@@ -76,6 +79,8 @@ export class History {
             this.agent.npc.data = NPCData.fromObject(obj.npc);
             if (obj.modes)
                 this.agent.bot.modes.loadJson(obj.modes);
+            if (obj.memory_bank)
+                this.agent.memory_bank.loadJson(obj.memory_bank);
             this.turns = obj.turns;
         } catch (err) {
             console.error(`Error reading ${this.name}'s memory file: ${err.message}`);

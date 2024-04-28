@@ -122,5 +122,12 @@ export const queryList = [
         perform: function (agent) {
             return agent.bot.modes.getStr();
         }
+    },
+    {
+        name: '!savedPlaces',
+        description: 'List all saved locations.',
+        perform: async function (agent) {
+            return "Saved place names: " + Object.keys(agent.memory_bank.places).join(', ');
+        }
     }
 ];
