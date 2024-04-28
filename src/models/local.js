@@ -1,20 +1,20 @@
 export class Local {
-    constructor(model_name) {
+    constructor(model_name, url) {
         this.model_name = model_name;
-        this.embedding_model = 'nomic-embed-text';
-        this.url = 'http://localhost:11434';
+        this.url = url || 'http://localhost:11434';
         this.chat_endpoint = '/api/chat';
         this.embedding_endpoint = '/api/embeddings';
     }
 
     async sendRequest(turns, systemMessage) {
+        let model = this.model_name || 'llama3';
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
         let res = null;
         try {
-            console.log(`Awaiting local response... (model: ${this.model_name})`)
+            console.log(`Awaiting local response... (model: ${model})`)
             console.log('Messages:', messages);
-            res = await this.send(this.chat_endpoint, {model: this.model_name, messages: messages, stream: false});
+            res = await this.send(this.chat_endpoint, {model: model, messages: messages, stream: false});
             if (res)
                 res = res['message']['content'];
         }
@@ -31,11 +31,11 @@ export class Local {
     }
 
     async embed(text) {
-        let body = {model: this.embedding_model, prompt: text};
+        let model = this.model_name || 'nomic-embed-text';
+        let body = {model: model, prompt: text};
         let res = await this.send(this.embedding_endpoint, body);
         return res['embedding']
     }
-
 
     async send(endpoint, body) {
         const url = new URL(endpoint, this.url);

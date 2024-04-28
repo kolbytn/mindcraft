@@ -13,10 +13,57 @@ import { Local } from '../models/local.js';
 
 export class Prompter {
     constructor(agent, fp) {
-        this.prompts = JSON.parse(readFileSync(fp, 'utf8'));
-        let name = this.prompts.name;
         this.agent = agent;
-        let model_name = this.prompts.model;
+        this.prompts = JSON.parse(readFileSync(fp, 'utf8'));
+        this.convo_examples = null;
+        this.coding_examples = null;
+
+        let name = this.prompts.name;
+        let chat = this.prompts.model;
+        if (typeof chat === 'string' || chat instanceof String) {
+            chat = {model: chat};
+            if (chat.model.includes('gemini'))
+                chat.api = 'google';
+            else if (chat.model.includes('gpt'))
+                chat.api = 'openai';
+            else if (chat.model.includes('claude'))
+                chat.api = 'anthropic';
+            else
+                chat.api = 'ollama';
+        }
+
+        console.log('Using chat settings:', chat);
+
+        if (chat.api == 'google')
+            this.chat_model = new Gemini(chat.model, chat.url);
+        else if (chat.api == 'openai')
+            this.chat_model = new GPT(chat.model, chat.url);
+        else if (chat.api == 'anthropic')
+            this.chat_model = new Claude(chat.model, chat.url);
+        else if (chat.api == 'ollama')
+            this.chat_model = new Local(chat.model, chat.url);
+        else
+            throw new Error('Unknown API:', api);
+
+        let embedding = this.prompts.embedding;
+        if (embedding === undefined)
+            embedding = {api: chat.api};
+        else if (typeof embedding === 'string' || embedding instanceof String)
+            embedding = {api: embedding};
+
+        console.log('Using embedding settings:', embedding);
+
+        if (embedding.api == 'google')
+            this.embedding_model = new Gemini(embedding.model, embedding.url);
+        else if (embedding.api == 'openai')
+            this.embedding_model = new GPT(embedding.model, embedding.url);
+        else if (embedding.api == 'ollama')
+            this.embedding_model = new Local(embedding.model, embedding.url);
+        else {
+            this.embedding_model = null;
+            console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
+        }
+
         mkdirSync(`./bots/${name}`, { recursive: true });
         writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.prompts, null, 4), (err) => {
             if (err) {
@@ -24,15 +71,6 @@ export class Prompter {
             }
             console.log("Copy profile saved.");
         });
-
-        if (model_name.includes('gemini'))
-            this.model = new Gemini(model_name);
-        else if (model_name.includes('gpt'))
-            this.model = new GPT(model_name);
-        else if (model_name.includes('claude'))
-            this.model = new Claude(model_name);
-        else
-            this.model = new Local(model_name);
     }
 
     getName() {
@@ -41,9 +79,9 @@ export class Prompter {
 
     async initExamples() {
         console.log('Loading examples...')
-        this.convo_examples = new Examples(this.model);
+        this.convo_examples = new Examples(this.embedding_model);
         await this.convo_examples.load(this.prompts.conversation_examples);
-        this.coding_examples = new Examples(this.model);
+        this.coding_examples = new Examples(this.embedding_model);
         await this.coding_examples.load(this.prompts.coding_examples);
         console.log('Examples loaded.');
     }
@@ -102,19 +140,19 @@ export class Prompter {
     async promptConvo(messages) {
         let prompt = this.prompts.conversing;
         prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
-        return await this.model.sendRequest(messages, prompt);
+        return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptCoding(messages) {
         let prompt = this.prompts.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
-        return await this.model.sendRequest(messages, prompt);
+        return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptMemSaving(prev_mem, to_summarize) {
         let prompt = this.prompts.saving_memory;
         prompt = await this.replaceStrings(prompt, null, null, prev_mem, to_summarize);
-        return await this.model.sendRequest([], prompt);
+        return await this.chat_model.sendRequest([], prompt);
     }
 
     async promptGoalSetting(messages, last_goals) {
