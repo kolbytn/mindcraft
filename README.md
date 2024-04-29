@@ -22,7 +22,7 @@ Add one of these environment variables:
 ⭐[How do I add the API key as an environment variable?](https://phoenixnap.com/kb/windows-set-environment-variable)⭐
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
-`ollama pull phi3 && ollama pull nomic-embed-text`
+`ollama pull llama3 && ollama pull nomic-embed-text`
 
 Then, clone/download this repository
 
