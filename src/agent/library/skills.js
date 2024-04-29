@@ -256,7 +256,8 @@ export async function attackNearest(bot, mobType, kill=true) {
      * @example
      * await skills.attackNearest(bot, "zombie", true);
      **/
-    const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
+    bot.modes.pause('cowardice');
+    const mob = world.getNearbyEntities(bot, 24).find(entity => entity.name === mobType);
     if (mob) {
         return await attackEntity(bot, mob, kill);
     }
@@ -289,7 +290,7 @@ export async function attackEntity(bot, entity, kill=true) {
     }
     else {
         bot.pvp.attack(entity);
-        while (world.getNearbyEntities(bot, 16).includes(entity)) {
+        while (world.getNearbyEntities(bot, 24).includes(entity)) {
             await new Promise(resolve => setTimeout(resolve, 1000));
             if (bot.interrupt_code) {
                 bot.pvp.stop();
@@ -312,6 +313,7 @@ export async function defendSelf(bot, range=9) {
      * await skills.defendSelf(bot);
      * **/
     bot.modes.pause('self_defense');
+    bot.modes.pause('cowardice');
     let attacked = false;
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
     while (enemy) {
@@ -701,6 +703,7 @@ export async function goToPlayer(bot, username, distance=3) {
      * await skills.goToPlayer(bot, "player");
      **/
     bot.modes.pause('self_defense');
+    bot.modes.pause('cowardice');
     let player = bot.players[username].entity
     if (!player) {
         log(bot, `Could not find ${username}.`);
@@ -759,6 +762,32 @@ export async function moveAway(bot, distance) {
     return true;
 }
 
+export async function avoidEnemies(bot, distance=16) {
+    /**
+     * Move a given distance away from all nearby enemy mobs.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     * @example
+     * await skills.avoidEnemies(bot, 8);
+     **/
+
+    let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
+    while (enemy) {
+        const follow = new pf.goals.GoalFollow(enemy, distance+1); // move a little further away
+        const inverted_goal = new pf.goals.GoalInvert(follow);
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        bot.pathfinder.setGoal(inverted_goal, true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
+        if (bot.interrupt_code) {
+            return false;
+        }
+    }
+    log(bot, `Moved ${distance} away from enemies.`);
+    return true;
+}
+
 export async function stay(bot) {
     /**
      * Stay in the current position until interrupted. Disables all modes.
@@ -767,6 +796,8 @@ export async function stay(bot) {
      * @example
      * await skills.stay(bot);
      **/
+    bot.modes.pause('self_preservation');
+    bot.modes.pause('cowardice');
     bot.modes.pause('self_defense');
     bot.modes.pause('hunting');
     bot.modes.pause('torch_placing');

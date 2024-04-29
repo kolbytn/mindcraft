@@ -55,6 +55,9 @@ export class History {
         };
         if (this.agent.npc.data !== null)
             data.npc = this.agent.npc.data.toObject();
+        const modes = this.agent.bot.modes.getJson();
+        if (modes !== null)
+            data.modes = modes;
         const json_data = JSON.stringify(data, null, 4);
         writeFileSync(this.memory_fp, json_data, (err) => {
             if (err) {
@@ -71,9 +74,11 @@ export class History {
             const obj = JSON.parse(data);
             this.memory = obj.memory;
             this.agent.npc.data = NPCData.fromObject(obj.npc);
+            if (obj.modes)
+                this.agent.bot.modes.loadJson(obj.modes);
             this.turns = obj.turns;
         } catch (err) {
-            console.error(`No memory file '${this.memory_fp}' for agent ${this.name}.`);
+            console.error(`Error reading ${this.name}'s memory file: ${err.message}`);
         }
     }
 

@@ -6,34 +6,54 @@ export class Examples {
         this.examples = [];
         this.model = model;
         this.select_num = select_num;
+        this.embeddings = {};
+    }
+
+    turnsToText(turns) {
+        let messages = '';
+        for (let turn of turns) {
+            if (turn.role !== 'assistant')
+                messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
+        }
+        return messages.trim();
+    }
+
+    getWords(text) {
+        return text.replace(/[^a-zA-Z ]/g, '').toLowerCase().split(' ');
+    }
+
+    wordOverlapScore(text1, text2) {
+        const words1 = this.getWords(text1);
+        const words2 = this.getWords(text2);
+        const intersection = words1.filter(word => words2.includes(word));
+        return intersection.length / (words1.length + words2.length - intersection.length);
     }
 
     async load(examples) {
-        this.examples = [];
-        let promises = examples.map(async (example) => {
-            let messages = '';
-            for (let turn of example) {
-                if (turn.role === 'user')
-                    messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
+        this.examples = examples;
+        if (this.model !== null) {
+            for (let example of this.examples) {
+                let turn_text = this.turnsToText(example);
+                this.embeddings[turn_text] = await this.model.embed(turn_text);
             }
-            messages = messages.trim();
-            const embedding = await this.model.embed(messages);
-            return {'embedding': embedding, 'turns': example};
-        });
-        this.examples = await Promise.all(promises);
+        }
     }
 
     async getRelevant(turns) {
-        let messages = '';
-        for (let turn of turns) {
-            if (turn.role != 'assistant')
-                messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
+        let turn_text = this.turnsToText(turns);
+        if (this.model !== null) {
+            let embedding = await this.model.embed(turn_text);
+            this.examples.sort((a, b) => 
+                cosineSimilarity(embedding, this.embeddings[this.turnsToText(b)]) -
+                cosineSimilarity(embedding, this.embeddings[this.turnsToText(a)])
+            );
         }
-        messages = messages.trim();
-        const embedding = await this.model.embed(messages);
-        this.examples.sort((a, b) => {
-            return cosineSimilarity(b.embedding, embedding) - cosineSimilarity(a.embedding, embedding);
-        });
+        else {
+            this.examples.sort((a, b) => 
+                this.wordOverlapScore(turn_text, this.turnsToText(b)) -
+                this.wordOverlapScore(turn_text, this.turnsToText(a))
+            );
+        }
         let selected = this.examples.slice(0, this.select_num);
         return JSON.parse(JSON.stringify(selected)); // deep copy
     }
@@ -43,13 +63,13 @@ export class Examples {
 
         console.log('selected examples:');
         for (let example of selected_examples) {
-            console.log(example.turns[0].content)
+            console.log(example[0].content)
         }
 
         let msg = 'Examples of how to respond:\n';
         for (let i=0; i<selected_examples.length; i++) {
             let example = selected_examples[i];
-            msg += `Example ${i+1}:\n${stringifyTurns(example.turns)}\n\n`;
+            msg += `Example ${i+1}:\n${stringifyTurns(example)}\n\n`;
         }
         return msg;
     }

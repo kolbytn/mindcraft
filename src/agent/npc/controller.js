@@ -16,6 +16,7 @@ export class NPCContoller {
         this.item_goal = new ItemGoal(agent, this.data);
         this.build_goal = new BuildGoal(agent);
         this.constructions = {};
+        this.last_goals = {};
     }
 
     getBuiltPositions() {
@@ -79,13 +80,33 @@ export class NPCContoller {
         });
     }
 
+    async setGoal(name=null, quantity=1) {
+        this.last_goals = {};
+        if (name) {
+            this.data.curr_goal = {name: name, quantity: quantity};
+            return;
+        }
+        
+        let past_goals = {...this.last_goals};
+        for (let goal in this.data.goals) {
+            if (past_goals[goal.name] === undefined) past_goals[goal.name] = true;
+        }
+        let res = await this.agent.prompter.promptGoalSetting(this.agent.history.getHistory(), past_goals);
+        if (res) {
+            this.data.curr_goal = res;
+            console.log('Set new goal: ', res.name, ' x', res.quantity);
+        } else {
+            console.log('Error setting new goal.');
+        }
+    }
+
     async executeNext() {
         if (!this.agent.isIdle()) return;
         await this.agent.coder.execute(async () => {
             await skills.moveAway(this.agent.bot, 2);
         });
 
-        if (this.agent.bot.time.timeOfDay < 13000) { 
+        if (!this.data.do_routine || this.agent.bot.time.timeOfDay < 13000) { 
             // Exit any buildings
             let building = this.currentBuilding();
             if (building == this.data.home) {
@@ -102,6 +123,9 @@ export class NPCContoller {
             await this.executeGoal();
 
         } else {
+            // Reset goal at the end of the day
+            this.data.curr_goal = null;
+
             // Return to home
             let building = this.currentBuilding();
             if (this.data.home !== null && (building === null || building != this.data.home)) {
@@ -124,14 +148,19 @@ export class NPCContoller {
     async executeGoal() {
         // If we need more blocks to complete a building, get those first
         let goals = this.temp_goals.concat(this.data.goals);
+        if (this.data.curr_goal)
+            goals = goals.concat([this.data.curr_goal])
         this.temp_goals = [];
 
+        let acted = false;
         for (let goal of goals) {
 
             // Obtain goal item or block
             if (this.constructions[goal.name] === undefined) {
                 if (!itemSatisfied(this.agent.bot, goal.name, goal.quantity)) {
-                    await this.item_goal.executeNext(goal.name, goal.quantity);
+                    let res = await this.item_goal.executeNext(goal.name, goal.quantity);
+                    this.last_goals[goal.name] = res;
+                    acted = true;
                     break;
                 }
             }
@@ -162,9 +191,16 @@ export class NPCContoller {
                         quantity: res.missing[block_name]
                     })
                 }
-                if (res.acted) break;
+                if (res.acted) {
+                    acted = true;
+                    this.last_goals[goal.name] = Object.keys(res.missing).length === 0;
+                    break;
+                }
             }
         }
+
+        if (!acted && this.data.do_set_goal)
+            await this.setGoal();
     }
 
     currentBuilding() {

@@ -1,23 +1,19 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GPT } from './gpt.js';
+
 
 export class Claude {
-    constructor(model_name) {
+    constructor(model_name, url) {
         this.model_name = model_name;
-        if (!process.env.ANTHROPIC_API_KEY) {
+
+        let config = {};
+        if (url)
+            config.baseURL = url;
+        if (process.env.ANTHROPIC_API_KEY)
+            config.apiKey = process.env["ANTHROPIC_API_KEY"];
+        else
             throw new Error('Anthropic API key missing! Make sure you set your ANTHROPIC_API_KEY environment variable.');
-        }
 
-        this.anthropic = new Anthropic({
-            apiKey: process.env["ANTHROPIC_API_KEY"]
-          });
-
-        this.gpt = undefined;
-        try {
-            this.gpt = new GPT(); // use for embeddings, ignore model
-        } catch (err) {
-            console.warn('Claude uses the OpenAI API for embeddings, but no OPENAI_API_KEY env variable was found. Claude will still work, but performance will suffer.');
-        }
+        this.anthropic = new Anthropic(config);
     }
 
     async sendRequest(turns, systemMessage) {
@@ -44,6 +40,9 @@ export class Claude {
             prev_role = msg.role;
             
         }
+        if (messages.length > 0 && messages[0].role !== 'user') {
+            messages.unshift(filler); // anthropic requires user message to start
+        }
         if (messages.length === 0) {
             messages.push(filler);
         }
@@ -53,7 +52,7 @@ export class Claude {
             console.log('Awaiting anthropic api response...')
             console.log('Messages:', messages);
             const resp = await this.anthropic.messages.create({
-                model: this.model_name,
+                model: this.model_name || "claude-3-sonnet-20240229",
                 system: systemMessage,
                 max_tokens: 2048,
                 messages: messages,
@@ -69,11 +68,7 @@ export class Claude {
     }
 
     async embed(text) {
-        if (this.gpt) {
-            return await this.gpt.embed(text);
-        }
-        // if no gpt, just return random embedding
-        return Array(1).fill().map(() => Math.random());
+        throw new Error('Embeddings are not supported by Claude.');
     }
 }
 

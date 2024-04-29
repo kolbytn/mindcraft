@@ -1,25 +1,21 @@
 import OpenAIApi from 'openai';
 
-export class GPT {
-    constructor(model_name) {
-        this.model_name = model_name;
-        let openAiConfig = null;
-        if (process.env.OPENAI_ORG_ID) {
-            openAiConfig = {
-                organization: process.env.OPENAI_ORG_ID,
-                apiKey: process.env.OPENAI_API_KEY,
-            };
-        } 
-        else if (process.env.OPENAI_API_KEY) {
-            openAiConfig = {
-                apiKey: process.env.OPENAI_API_KEY,
-            };
-        }
-        else {
-            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY environment variable.');
-        }
 
-        this.openai = new OpenAIApi(openAiConfig);
+export class GPT {
+    constructor(model_name, url) {
+        this.model_name = model_name;
+
+        let config = {};
+        if (url)
+            config.baseURL = url;
+        if (process.env.OPENAI_ORG_ID)
+            config.organization = process.env.OPENAI_ORG_ID
+        if (process.env.OPENAI_API_KEY)
+            config.apiKey = process.env.OPENAI_API_KEY
+        else
+            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY environment variable.');
+
+        this.openai = new OpenAIApi(config);
     }
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
@@ -31,7 +27,7 @@ export class GPT {
             console.log('Awaiting openai api response...')
             console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
-                model: this.model_name,
+                model: this.model_name || "gpt-3.5-turbo",
                 messages: messages,
                 stop: stop_seq,
             });
@@ -54,7 +50,7 @@ export class GPT {
 
     async embed(text) {
         const embedding = await this.openai.embeddings.create({
-            model: "text-embedding-ada-002",
+            model: this.model_name || "text-embedding-ada-002",
             input: text,
             encoding_format: "float",
         });
