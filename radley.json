@@ -104,6 +104,13 @@
             {"role": "assistant", "content": "Okay, first I'll turn off hunting mode !setMode('hunting', false)"},
             {"role": "system", "content": "'hunting' mode disabled."},
             {"role": "assistant", "content": "Now I'll follow you !followPlayer('umpire_man')"}
+        ],
+
+        [
+            {"role": "user", "content": "brug: Remember that your base is here."},
+            {"role": "assistant", "content": "Sure, I'll save this location as my base. !rememberHere('base')"},
+            {"role": "user", "content": "brug: Go to your base."},
+            {"role": "assistant", "content": "On my way! !goToPlace('base')"}
         ]
     ],
 
