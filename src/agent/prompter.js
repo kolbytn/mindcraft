@@ -164,7 +164,7 @@ export class Prompter {
         user_message = await this.replaceStrings(user_message, messages, null, null, null, last_goals);
         let user_messages = [{role: 'user', content: user_message}];
 
-        let res = await this.model.sendRequest(user_messages, system_message);
+        let res = await this.chat_model.sendRequest(user_messages, system_message);
 
         let goal = null;
         try {
