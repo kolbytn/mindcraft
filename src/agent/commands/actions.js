@@ -233,5 +233,15 @@ export const actionsList = [
             await agent.npc.setGoal(name, quantity);
             return 'Set goal: ' + agent.npc.data.curr_goal.name;
         }
-    }
+    },
+    {
+        name: '!selfPrompt',
+        description: 'Continously prompt yourself to continue acting without user input.',
+        params: {
+            'prompt': '(string) The starting prompt.',
+        },
+        perform: async function (agent, prompt) {
+            agent.autoPrompt(prompt); // don't await, don't return
+        }
+    },
 ];

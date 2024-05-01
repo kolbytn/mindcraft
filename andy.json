@@ -111,6 +111,11 @@
             {"role": "assistant", "content": "Sure, I'll save this location as my base. !rememberHere('base')"},
             {"role": "user", "content": "brug: Go to your base."},
             {"role": "assistant", "content": "On my way! !goToPlace('base')"}
+        ],
+
+        [
+            {"role": "user", "content": "user43: Act on your own without me asking for it."},
+            {"role": "assistant", "content": "Sure, I'll self prompt until you interrupt me. !selfPrompt('Explore, collect, and build on my own without player input.')"}
         ]
     ],
 

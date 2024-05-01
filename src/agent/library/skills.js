@@ -358,6 +358,8 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
         return false;
     }
     let blocktypes = [blockType];
+    if (blockType === 'coal' || blockType === 'diamond' || blockType === 'emerald' || blockType === 'iron' || blockType === 'gold' || blockType === 'lapis_lazuli' || blockType === 'redstone')
+        blocktypes.push(blockType+'_ore');
     if (blockType.endsWith('ore'))
         blocktypes.push('deepslate_'+blockType);
     if (blockType === 'dirt')

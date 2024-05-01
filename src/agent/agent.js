@@ -3,7 +3,7 @@ import { Coder } from './coder.js';
 import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 
@@ -26,6 +26,10 @@ export class Agent {
 
         if (load_mem)
             this.history.load();
+
+        this.auto_prompting = false;
+        this.last_user_prompted_action = 0;
+        this.interrupt_auto_prompt = false;
 
         this.bot.once('spawn', async () => {
             // wait for a bit so stats are not undefined
@@ -60,7 +64,7 @@ export class Agent {
             };
 
             if (init_message) {
-                this.handleMessage('system', init_message);
+                this.handleMessage('system', init_message, true);
             } else {
                 this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
@@ -76,30 +80,42 @@ export class Agent {
         return this.bot.chat(message);
     }
 
-    async handleMessage(source, message) {
+    async handleMessage(source, message, self_prompt=false) {
         if (!!source && !!message)
             await this.history.add(source, message);
 
-        const user_command_name = containsCommand(message);
-        if (user_command_name) {
-            if (!commandExists(user_command_name)) {
-                this.bot.chat(`Command '${user_command_name}' does not exist.`);
-                return;
-            }
-            this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
-            let execute_res = await executeCommand(this, message);
-            if (user_command_name === '!newAction') {
-                // all user initiated commands are ignored by the bot except for this one
-                // add the preceding message to the history to give context for newAction
-                let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
-                this.history.add(source, truncated_msg);
-            }
-            if (execute_res) 
-                this.cleanChat(execute_res);
-            return;
-        }
+        let used_command = false;
 
-        for (let i=0; i<5; i++) {
+        if (source !== 'system' && source !== this.name && !self_prompt) {
+            const user_command_name = containsCommand(message);
+            if (user_command_name) {
+                if (!commandExists(user_command_name)) {
+                    this.bot.chat(`Command '${user_command_name}' does not exist.`);
+                    return false;
+                }
+                this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
+                let execute_res = await executeCommand(this, message);
+                if (user_command_name === '!newAction') {
+                    // all user initiated commands are ignored by the bot except for this one
+                    // add the preceding message to the history to give context for newAction
+                    let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
+                    this.history.add(source, truncated_msg);
+                }
+                if (execute_res) 
+                    this.cleanChat(execute_res);
+                if (isAction(user_command_name)) {
+                    this.last_user_prompted_action = Date.now();
+                    if (this.auto_prompting) {
+                        this.interrupt_auto_prompt = true;
+                        this.bot.chat('User initiated action. Stopping auto-prompting.');
+                    }
+                }
+                return true;
+            }
+        }
+        const MAX_ATTEMPTS = 5;
+        for (let i=0; i<MAX_ATTEMPTS; i++) {
+            if (self_prompt && this.interrupt_auto_prompt) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
@@ -120,9 +136,20 @@ export class Agent {
                     chat_message = `${pre_message}  ${chat_message}`;
                 this.cleanChat(chat_message);
 
+                if (!self_prompt && isAction(command_name)) {
+                    console.log('User initiated action.');
+                    this.last_user_prompted_action = Date.now();
+                    if (this.auto_prompting) {
+                        this.interrupt_auto_prompt = true;
+                        this.bot.chat('User initiated action. Stopping auto-prompting.');
+                    }
+                }
+                if (self_prompt && this.interrupt_auto_prompt) break;
+
                 let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
+                used_command = true;
 
                 if (execute_res)
                     this.history.add('system', execute_res);
@@ -139,6 +166,52 @@ export class Agent {
 
         this.history.save();
         this.bot.emit('finished_executing');
+        return used_command;
+    }
+
+    async autoPrompt(prompt) {
+        if (this.auto_prompting) {
+            return 'Agent is already auto-prompting. Ignoring request.';
+        }
+        this.auto_prompting = true;
+        let first = true;
+        let no_command_count = 0;
+        const MAX_NO_COMMAND = 3;
+        while (!this.interrupt_auto_prompt) {
+            let msg;
+            if (first) {
+                msg = prompt;
+                first = false;
+            }
+            else {
+                msg = `You are self-prompting with the intial message: '${prompt}'. Your next response MUST contain a command !likeThis. Respond:`;
+            }
+            
+            let used_command = await this.handleMessage('system', msg, true);
+
+            if (!used_command) {
+                no_command_count++;
+                if (no_command_count >= MAX_NO_COMMAND) {
+                    let out = `Agent did not use command in the last ${MAX_NO_COMMAND} auto-prompts. Stopping auto-prompting.`;
+                    this.bot.chat(out);
+                    console.warn(out);
+                    break;
+                }
+            }
+            else
+                no_command_count = 0;
+        }
+        this.auto_prompting = false;
+        this.interrupt_auto_prompt = false;
+        return 'Auto-prompting finished.';
+    }
+
+    async waitStopAutoPrompt() {
+        while (this.auto_prompting) {
+            this.interrupt_auto_prompt = true;
+            await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+        this.interrupt_auto_prompt = false;
     }
 
     startEvents() {
