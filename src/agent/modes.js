@@ -70,11 +70,11 @@ const modes = [
         on: true,
         active: false,
         update: async function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Aaa! A ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.avoidEnemies(agent.bot, 16);
+                    await skills.avoidEnemies(agent.bot, 24);
                 });
             }
         }
