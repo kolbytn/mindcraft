@@ -24,8 +24,8 @@ export class NPCData {
     }
 
     static fromObject(obj) {
-        if (!obj) return null;
         let npc = new NPCData();
+        if (!obj) return npc;
         if (obj.goals) {
             npc.goals = [];
             for (let goal of obj.goals) {
