@@ -5,6 +5,7 @@ import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
+import { MemoryBank } from './memory_bank.js';
 
 
 export class Agent {
@@ -14,6 +15,7 @@ export class Agent {
         this.history = new History(this);
         this.coder = new Coder(this);
         this.npc = new NPCContoller(this);
+        this.memory_bank = new MemoryBank();
 
         await this.prompter.initExamples();
 

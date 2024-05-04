@@ -26,13 +26,13 @@ const modes = [
             const bot = agent.bot;
             const block = bot.blockAt(bot.entity.position);
             const blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
-            if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
+            if (blockAbove && (blockAbove.name === 'water' || blockAbove.name === 'flowing_water')) {
                 // does not call execute so does not interrupt other actions
                 if (!bot.pathfinder.goal) {
                     bot.setControlState('jump', true);
                 }
             }
-            else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
+            else if (blockAbove && this.fall_blocks.some(name => blockAbove.name.includes(name))) {
                 execute(this, agent, async () => {
                     await skills.moveAway(bot, 2);
                 });
