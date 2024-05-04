@@ -202,22 +202,13 @@ const modes = [
 ];
 
 async function execute(mode, agent, func, timeout=-1) {
-    let was_auto_prompting = agent.auto_prompting;
-    if (was_auto_prompting) agent.interrupt_auto_prompt = true;
+    if (agent.self_prompter.on)
+        agent.self_prompter.stopLoop();
     mode.active = true;
     let code_return = await agent.coder.execute(async () => {
         await func();
     }, timeout);
     mode.active = false;
-    if (was_auto_prompting) {
-        setTimeout(() => { // don't await
-            if (agent.isIdle()) { // not gonna work if another action is triggered because auto_prompting will be false. need to fix
-                let output = agent.bot.output;
-                let reprompt = `Agent was interrupted by ${mode.name} mode. Code output: "${output}". Continue self prompting:`;
-                agent.autoPrompt(reprompt);
-            }
-        }, 1000); // wait 1 second before re-enabling auto_prompt bc often another action will be triggered
-    }
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
 }
 

@@ -37,7 +37,10 @@ export const actionsList = [
             agent.coder.clear();
             agent.coder.cancelResume();
             agent.bot.emit('idle');
-            return 'Agent stopped.';
+            let msg = 'Agent stopped.';
+            if (agent.self_prompter.on)
+                msg += ' Self-prompting still active.';
+            return msg;
         }
     },
     {
@@ -241,7 +244,15 @@ export const actionsList = [
             'prompt': '(string) The starting prompt.',
         },
         perform: async function (agent, prompt) {
-            agent.autoPrompt(prompt); // don't await, don't return
+            agent.self_prompter.start(prompt); // don't await, don't return
         }
     },
+    {
+        name: '!stopSelfPrompt',
+        description: 'Stop current action and self-prompting.',
+        perform: async function (agent) {
+            agent.self_prompter.stop(); // will stop and 
+            return 'Self-prompting stopped.';
+        }
+    }
 ];

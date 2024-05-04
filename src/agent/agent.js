@@ -6,6 +6,7 @@ import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
+import { SelfPrompter } from './self_prompter.js';
 
 
 export class Agent {
@@ -16,6 +17,7 @@ export class Agent {
         this.coder = new Coder(this);
         this.npc = new NPCContoller(this);
         this.memory_bank = new MemoryBank();
+        this.self_prompter = new SelfPrompter(this);
 
         await this.prompter.initExamples();
 
@@ -26,10 +28,6 @@ export class Agent {
 
         if (load_mem)
             this.history.load();
-
-        this.auto_prompting = false;
-        this.last_user_prompted_action = 0;
-        this.interrupt_auto_prompt = false;
 
         this.bot.once('spawn', async () => {
             // wait for a bit so stats are not undefined
@@ -103,19 +101,14 @@ export class Agent {
                 }
                 if (execute_res) 
                     this.cleanChat(execute_res);
-                if (isAction(user_command_name)) {
-                    this.last_user_prompted_action = Date.now();
-                    if (this.auto_prompting) {
-                        this.interrupt_auto_prompt = true;
-                        this.bot.chat('User initiated action. Stopping auto-prompting.');
-                    }
-                }
                 return true;
             }
         }
-        const MAX_ATTEMPTS = 5;
+        let MAX_ATTEMPTS = 5;
+        if (!self_prompt && this.self_prompter.on)
+            MAX_ATTEMPTS = 1; // immediately respond to this message, then let self-prompting take over
         for (let i=0; i<MAX_ATTEMPTS; i++) {
-            if (self_prompt && this.interrupt_auto_prompt) break;
+            if (self_prompt && this.self_prompter.on && this.self_prompter.interrupt) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
@@ -127,24 +120,27 @@ export class Agent {
                 this.history.add(this.name, res);
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
-                    console.log('Agent hallucinated command:', command_name)
+                    console.warn('Agent hallucinated command:', command_name)
                     continue;
                 }
-                let pre_message = res.substring(0, res.indexOf(command_name)).trim();
-                let chat_message = `*used ${command_name.substring(1)}*`;
-                if (pre_message.length > 0)
-                    chat_message = `${pre_message}  ${chat_message}`;
-                this.cleanChat(chat_message);
-
-                if (!self_prompt && isAction(command_name)) {
-                    console.log('User initiated action.');
-                    this.last_user_prompted_action = Date.now();
-                    if (this.auto_prompting) {
-                        this.interrupt_auto_prompt = true;
-                        this.bot.chat('User initiated action. Stopping auto-prompting.');
-                    }
+                if (command_name === '!stopSelfPrompt' && self_prompt) {
+                    this.history.add('system', `Cannot stopSelfPrompt unless requested by user.`);
+                    continue;
                 }
-                if (self_prompt && this.interrupt_auto_prompt) break;
+
+
+                // let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+                // let chat_message = `*used ${command_name.substring(1)}*`;
+                // if (pre_message.length > 0)
+                //     chat_message = `${pre_message}  ${chat_message}`;
+                this.cleanChat(res);
+
+                if (self_prompt && this.self_prompter.on && this.self_prompter.interrupt) break;
+
+                if (isAction(command_name) && !self_prompt && this.self_prompter.on) {
+                    this.self_prompter.stopLoop(); // so agent doesn't respond from self-prompting loop
+                    // will be automatically restarted by self-prompter
+                }
 
                 let execute_res = await executeCommand(this, res);
 
@@ -167,51 +163,6 @@ export class Agent {
         this.history.save();
         this.bot.emit('finished_executing');
         return used_command;
-    }
-
-    async autoPrompt(prompt) {
-        if (this.auto_prompting) {
-            return 'Agent is already auto-prompting. Ignoring request.';
-        }
-        this.auto_prompting = true;
-        let first = true;
-        let no_command_count = 0;
-        const MAX_NO_COMMAND = 3;
-        while (!this.interrupt_auto_prompt) {
-            let msg;
-            if (first) {
-                msg = prompt;
-                first = false;
-            }
-            else {
-                msg = `You are self-prompting with the intial message: '${prompt}'. Your next response MUST contain a command !likeThis. Respond:`;
-            }
-            
-            let used_command = await this.handleMessage('system', msg, true);
-
-            if (!used_command) {
-                no_command_count++;
-                if (no_command_count >= MAX_NO_COMMAND) {
-                    let out = `Agent did not use command in the last ${MAX_NO_COMMAND} auto-prompts. Stopping auto-prompting.`;
-                    this.bot.chat(out);
-                    console.warn(out);
-                    break;
-                }
-            }
-            else
-                no_command_count = 0;
-        }
-        this.auto_prompting = false;
-        this.interrupt_auto_prompt = false;
-        return 'Auto-prompting finished.';
-    }
-
-    async waitStopAutoPrompt() {
-        while (this.auto_prompting) {
-            this.interrupt_auto_prompt = true;
-            await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-        this.interrupt_auto_prompt = false;
     }
 
     startEvents() {
@@ -270,18 +221,25 @@ export class Agent {
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
         const INTERVAL = 300;
+        let last = Date.now();
         setTimeout(async () => {
             while (true) {
                 let start = Date.now();
-                await this.bot.modes.update();
+                await this.update(start - last);
                 let remaining = INTERVAL - (Date.now() - start);
                 if (remaining > 0) {
                     await new Promise((resolve) => setTimeout(resolve, remaining));
                 }
+                last = start;
             }
         }, INTERVAL);
 
         this.bot.emit('idle');
+    }
+
+    async update(delta) {
+        await this.bot.modes.update();
+        await this.self_prompter.update(delta);
     }
 
     isIdle() {
