@@ -188,6 +188,7 @@ export class Agent {
         });
         this.bot.on('idle', () => {
             this.bot.clearControlStates();
+            this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
             this.coder.executeResume();
         });
