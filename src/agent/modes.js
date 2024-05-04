@@ -74,7 +74,7 @@ const modes = [
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Aaa! A ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.avoidEnemies(agent.bot, 16);
+                    await skills.avoidEnemies(agent.bot, 24);
                 });
             }
         }
@@ -86,11 +86,11 @@ const modes = [
         on: true,
         active: false,
         update: async function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 9);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.defendSelf(agent.bot, 9);
+                    await skills.defendSelf(agent.bot, 8);
                 });
             }
         }
@@ -155,9 +155,12 @@ const modes = [
                 if (torches.length > 0) {
                     const torch = torches[0];
                     const pos = agent.bot.entity.position;
-                    execute(this, agent, async () => {
-                        await skills.placeBlock(agent.bot, torch.name, pos.x, pos.y, pos.z);
-                    });
+                    const curr_block = agent.bot.blockAt(pos);
+                    if (curr_block.name === 'air') {
+                        execute(this, agent, async () => {
+                            await skills.placeBlock(agent.bot, torch.name, pos.x, pos.y, pos.z);
+                        });
+                    }
                 }
             }
         }

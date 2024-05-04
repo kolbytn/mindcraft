@@ -15,7 +15,8 @@ async function autoLight(bot) {
         let nearest_torch = world.getNearestBlock(bot, 'torch', 6);
         if (!nearest_torch) {
             let has_torch = bot.inventory.items().find(item => item.name === 'torch');
-            if (has_torch) {
+            const curr_block = agent.bot.blockAt(pos);
+            if (has_torch && curr_block.name === 'air') {
                 try {
                     log(bot, `Placing torch at ${bot.entity.position}.`);
                     return await placeBlock(bot, 'torch', bot.entity.position.x, bot.entity.position.y, bot.entity.position.z);
@@ -771,7 +772,7 @@ export async function avoidEnemies(bot, distance=16) {
      * @example
      * await skills.avoidEnemies(bot, 8);
      **/
-
+    bot.modes.pause('self_preservation'); // prevents damage-on-low-health from interrupting the bot
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
     while (enemy) {
         const follow = new pf.goals.GoalFollow(enemy, distance+1); // move a little further away
@@ -781,9 +782,10 @@ export async function avoidEnemies(bot, distance=16) {
         await new Promise(resolve => setTimeout(resolve, 500));
         enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
         if (bot.interrupt_code) {
-            return false;
+            break;
         }
     }
+    bot.pathfinder.stop();
     log(bot, `Moved ${distance} away from enemies.`);
     return true;
 }

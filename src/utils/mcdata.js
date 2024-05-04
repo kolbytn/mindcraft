@@ -68,7 +68,7 @@ export function initBot(username) {
 
 export function isHuntable(mob) {
     if (!mob || !mob.name) return false;
-    const animals = ['chicken', 'cod', 'cow', 'llama', 'mooshroom', 'pig', 'pufferfish', 'rabbit', 'salmon', 'sheep', 'squid', 'tropical_fish', 'turtle'];
+    const animals = ['chicken', 'cow', 'llama', 'mooshroom', 'pig', 'rabbit', 'sheep'];
     return animals.includes(mob.name.toLowerCase()) && !mob.metadata[16]; // metadata 16 is not baby
 }
 
