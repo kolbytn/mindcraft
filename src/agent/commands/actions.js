@@ -230,6 +230,7 @@ export const actionsList = [
         },
         perform: async function (agent, name=null, quantity=1) {
             await agent.npc.setGoal(name, quantity);
+            agent.bot.emit('idle');  // to trigger the goal
             return 'Set goal: ' + agent.npc.data.curr_goal.name;
         }
     }
