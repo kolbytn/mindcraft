@@ -104,6 +104,28 @@ export const actionsList = [
         })
     },
     {
+        name: '!rememberHere',
+        description: 'Save the current location with a given name.',
+        params: {'name': '(string) The name to remember the location as.'},
+        perform: async function (agent, name) {
+            const pos = agent.bot.entity.position;
+            agent.memory_bank.rememberPlace(name, pos.x, pos.y, pos.z);
+        }
+    },
+    {
+        name: '!goToPlace',
+        description: 'Go to a saved location.',
+        params: {'name': '(string) The name of the location to go to.'},
+        perform: wrapExecution(async (agent, name) => {
+            const pos = agent.memory_bank.recallPlace(name);
+            if (!pos) {
+                skills.log(agent.bot, `No location named "${name}" saved.`);
+                return;
+            }
+            await skills.goToPosition(agent.bot, pos[0], pos[1], pos[2], 1);
+        })
+    },
+    {
         name: '!givePlayer',
         description: 'Give the specified item to the given player.',
         params: { 
