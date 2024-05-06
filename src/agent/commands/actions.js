@@ -233,5 +233,13 @@ export const actionsList = [
             await agent.npc.setGoal(name, quantity);
             return 'Set goal: ' + agent.npc.data.curr_goal.name;
         }
+    },
+    {
+        name: '!Fish',
+        description: 'Use fishing rode to catch fishes',
+        params: {'count': '(number) How many fishes to catch'},
+        perform: wrapExecution(async (agent, count) => {
+            await skills.Fish(agent.bot, count);
+        })
     }
 ];
