@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import { toSinglePrompt } from './helper.js';
 
 export class Gemini {
     constructor(model_name, url) {
@@ -13,6 +13,7 @@ export class Gemini {
     }
 
     async sendRequest(turns, systemMessage) {
+        let model;
         if (this.url) {
             model = this.genAI.getGenerativeModel(
                 {model: this.model_name || "gemini-pro"},
@@ -24,23 +25,19 @@ export class Gemini {
             );
         }
 
-        const messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-        let prompt = "";
-        let role = "";
-        messages.forEach((message) => {
-            role = message.role;
-            if (role === 'assistant') role = 'model';
-            prompt += `${role}: ${message.content}\n`;
-        });
-        if (role !== "model") // if the last message was from the user/system, add a prompt for the model. otherwise, pretend we are extending the model's own message
-            prompt += "model: ";
+        const stop_seq = '***';
+        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         console.log(prompt)
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        return response.text();
+        const text = response.text();
+        if (!text.includes(stop_seq)) return text;
+        const idx = text.indexOf(stop_seq);
+        return text.slice(0, idx);
     }
 
     async embed(text) {
+        let model;
         if (this.url) {
             model = this.genAI.getGenerativeModel(
                 {model: this.model_name || "embedding-001"},
