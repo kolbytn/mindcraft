@@ -6,13 +6,16 @@ export class SelfPrompter {
         this.interrupt = false;
         this.prompt = '';
         this.idle_time = 0;
-        this.restart_after = 1000;
+        this.cooldown = 2000;
     }
 
     start(prompt) {
         console.log('Self-prompting started.');
+        if (!prompt) {
+            return 'No prompt specified. Ignoring request.';
+        }
         if (this.on) {
-            return 'Agent is already self-prompting. Ignoring request.';
+            this.prompt = prompt;
         }
         this.on = true;
         this.prompt = prompt;
@@ -42,8 +45,10 @@ export class SelfPrompter {
                     break;
                 }
             }
-            else
+            else {
                 no_command_count = 0;
+                await new Promise(r => setTimeout(r, this.cooldown));
+            }
         }
         console.log('self prompt loop stopped')
         this.loop_active = false;
@@ -58,8 +63,8 @@ export class SelfPrompter {
             else
                 this.idle_time = 0;
 
-            if (this.idle_time >= this.restart_after) {
-                this.agent.bot.chat('Restarting self-prompting...');
+            if (this.idle_time >= this.cooldown) {
+                console.log('Restarting self-prompting...');
                 this.startLoop();
                 this.idle_time = 0;
             }
@@ -68,6 +73,7 @@ export class SelfPrompter {
 
     async stopLoop() {
         // you can call this without await if you don't need to wait for it to finish
+        console.log('stopping self-prompt loop')
         this.interrupt = true;
         while (this.loop_active) {
             await new Promise(r => setTimeout(r, 500));

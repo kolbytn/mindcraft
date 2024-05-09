@@ -26,8 +26,10 @@ export class Agent {
 
         initModes(this);
 
-        if (load_mem)
-            this.history.load();
+        let save_data = null;
+        if (load_mem) {
+            save_data = this.history.load();
+        }
 
         this.bot.once('spawn', async () => {
             // wait for a bit so stats are not undefined
@@ -61,9 +63,16 @@ export class Agent {
                 bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
             };
 
-            if (init_message) {
+            if (save_data && save_data.self_prompt) {
+                let prompt = save_data.self_prompt;
+                if (init_message)
+                    prompt = `${init_message}\n${prompt}`;
+                this.self_prompter.start(prompt);
+            }
+            else if (init_message) {
                 this.handleMessage('system', init_message, true);
-            } else {
+            }
+            else {
                 this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
             }
@@ -194,7 +203,7 @@ export class Agent {
         });
         this.bot.on('end', (reason) => {
             console.warn('Bot disconnected! Killing agent process.', reason)
-            process.exit(1);
+            this.cleanKill('Bot disconnected!');
         });
         this.bot.on('death', () => {
             this.coder.cancelResume();
@@ -202,7 +211,7 @@ export class Agent {
         });
         this.bot.on('kicked', (reason) => {
             console.warn('Bot kicked!', reason);
-            process.exit(1);
+            this.cleanKill('Bot kicked!');
         });
         this.bot.on('messagestr', async (message, _, jsonMsg) => {
             if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {
@@ -246,4 +255,11 @@ export class Agent {
     isIdle() {
         return !this.coder.executing && !this.coder.generating;
     }
+
+    cleanKill(msg='Killing agent process...') {
+        this.history.add('system', msg);
+        this.history.save();
+        process.exit(1);
+    }
 }
+
