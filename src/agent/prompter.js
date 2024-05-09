@@ -8,6 +8,7 @@ import { getCommand } from './commands/index.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { LMStudio } from '../models/lm-studio.js'
 import { Local } from '../models/local.js';
 
 
@@ -20,6 +21,9 @@ export class Prompter {
 
         let name = this.prompts.name;
         let chat = this.prompts.model;
+        let local = this.prompts.local;
+        let local_model = this.prompts.model.model;
+        let local_url = this.prompts.model.url;
         if (typeof chat === 'string' || chat instanceof String) {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
@@ -28,10 +32,15 @@ export class Prompter {
                 chat.api = 'openai';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
+            else if (local.includes('lm-studio'))
+                chat.api = 'lm-studio';
             else
                 chat.api = 'ollama';
         }
 
+        console.log('Local Model: ', local_model);
+        console.log('Local Base URL: ', local_url);
+        console.log('API: ', chat.api);
         console.log('Using chat settings:', chat);
 
         if (chat.api == 'google')
@@ -40,6 +49,8 @@ export class Prompter {
             this.chat_model = new GPT(chat.model, chat.url);
         else if (chat.api == 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
+        else if (chat.api == 'lm-studio')
+            this.chat_model = new LMStudio(local_model, local_url);
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
         else
@@ -57,6 +68,8 @@ export class Prompter {
             this.embedding_model = new Gemini(embedding.model, embedding.url);
         else if (embedding.api == 'openai')
             this.embedding_model = new GPT(embedding.model, embedding.url);
+        else if (embedding.api == 'lm-studio')
+            this.embedding_model = new LMStudio(embedding.model, embedding.url);
         else if (embedding.api == 'ollama')
             this.embedding_model = new Local(embedding.model, embedding.url);
         else {
