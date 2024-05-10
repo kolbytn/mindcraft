@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { toSinglePrompt } from './helper.js';
+import { toSinglePrompt } from '../utils/text.js';
 
 export class Gemini {
     constructor(model_name, url) {
@@ -27,7 +27,6 @@ export class Gemini {
 
         const stop_seq = '***';
         const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
-        console.log(prompt)
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();

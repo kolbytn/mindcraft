@@ -1,5 +1,5 @@
 import Replicate from 'replicate';
-import { toSinglePrompt } from './helper.js';
+import { toSinglePrompt } from '../utils/text.js';
 
 // llama, mistral
 export class ReplicateAPI {
@@ -24,7 +24,8 @@ export class ReplicateAPI {
 		const stop_seq = '***';
 		let prompt_template;
 		const prompt = toSinglePrompt(turns, systemMessage, stop_seq);
-		if (this.model_name.includes('llama')) { // llama
+		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
+		if (model_name.includes('llama')) { // llama
 			prompt_template = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 		}
 		else { // mistral
@@ -36,7 +37,7 @@ export class ReplicateAPI {
 		try {
 			console.log('Awaiting Replicate API response...');
 			let result = '';
-			for await (const event of this.replicate.stream(this.model_name, { input })) {
+			for await (const event of this.replicate.stream(model_name, { input })) {
 				result += event;
 				if (result === '') break;
 				if (result.includes(stop_seq)) {
