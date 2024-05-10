@@ -63,7 +63,7 @@ export class Agent {
                 bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
             };
 
-            if (save_data && save_data.self_prompt) {
+            if (save_data && save_data.self_prompt) { // if we're loading memory and self-prompting was on, restart it, ignore init_message
                 let prompt = save_data.self_prompt;
                 if (init_message)
                     prompt = `${init_message}\n${prompt}`;
@@ -114,7 +114,7 @@ export class Agent {
             }
         }
         let MAX_ATTEMPTS = 5;
-        if (!self_prompt && this.self_prompter.on)
+        if (!self_prompt && this.self_prompter.on) // message from user during self-prompting
             MAX_ATTEMPTS = 1; // immediately respond to this message, then let self-prompting take over
         for (let i=0; i<MAX_ATTEMPTS; i++) {
             if (self_prompt && this.self_prompter.on && this.self_prompter.interrupt) break;

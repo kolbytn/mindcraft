@@ -250,7 +250,7 @@ export const actionsList = [
         name: '!stopSelfPrompt',
         description: 'Stop current action and self-prompting.',
         perform: async function (agent) {
-            agent.self_prompter.stop(); // will stop and 
+            agent.self_prompter.stop();
             return 'Self-prompting stopped.';
         }
     }

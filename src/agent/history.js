@@ -46,7 +46,7 @@ export class History {
         }
     }
 
-    async save() {
+    save() {
         // save history object to json file
         let data = {
             'name': this.name,
