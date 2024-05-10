@@ -137,7 +137,7 @@ export class Agent {
                     continue;
                 }
 
-
+                // commented for now, maybe should add a 'verbose' option to settings.json to enable cleaner output
                 // let pre_message = res.substring(0, res.indexOf(command_name)).trim();
                 // let chat_message = `*used ${command_name.substring(1)}*`;
                 // if (pre_message.length > 0)
