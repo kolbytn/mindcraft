@@ -80,12 +80,15 @@ export class NPCContoller {
     }
 
     async setGoal(name=null, quantity=1) {
+        this.data.curr_goal = null;
         this.last_goals = {};
         if (name) {
             this.data.curr_goal = {name: name, quantity: quantity};
             return;
         }
-        
+
+        if (!this.data.do_set_goal) return;
+
         let past_goals = {...this.last_goals};
         for (let goal in this.data.goals) {
             if (past_goals[goal.name] === undefined) past_goals[goal.name] = true;
