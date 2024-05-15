@@ -4,8 +4,8 @@ export class NPCData {
         this.curr_goal = null;
         this.built = {};
         this.home = null;
-        this.do_routine = true;
-        this.do_set_goal = true;
+        this.do_routine = false;
+        this.do_set_goal = false;
     }
 
     toObject() {
@@ -24,8 +24,8 @@ export class NPCData {
     }
 
     static fromObject(obj) {
-        if (!obj) return null;
         let npc = new NPCData();
+        if (!obj) return npc;
         if (obj.goals) {
             npc.goals = [];
             for (let goal of obj.goals) {

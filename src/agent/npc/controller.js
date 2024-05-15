@@ -39,8 +39,6 @@ export class NPCContoller {
     }
 
     init() {
-        if (this.data === null) return;
-
         for (let file of readdirSync('src/agent/npc/construction')) {
             if (file.endsWith('.json')) {
                 try {
@@ -68,6 +66,7 @@ export class NPCContoller {
         }
 
         this.agent.bot.on('idle', async () => {
+            if (this.data.goals.length === 0 && !this.data.curr_goal) return;
             // Wait a while for inputs before acting independently
             await new Promise((resolve) => setTimeout(resolve, 5000));
             if (!this.agent.isIdle()) return;
@@ -81,12 +80,15 @@ export class NPCContoller {
     }
 
     async setGoal(name=null, quantity=1) {
+        this.data.curr_goal = null;
         this.last_goals = {};
         if (name) {
             this.data.curr_goal = {name: name, quantity: quantity};
             return;
         }
-        
+
+        if (!this.data.do_set_goal) return;
+
         let past_goals = {...this.last_goals};
         for (let goal in this.data.goals) {
             if (past_goals[goal.name] === undefined) past_goals[goal.name] = true;
