@@ -17,10 +17,11 @@ export const queryList = [
             let pos = bot.entity.position;
             // display position to 2 decimal places
             res += `\n- Position: x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`;
+            res += `\n- Gamemode: ${bot.game.gameMode}`;
             res += `\n- Health: ${Math.round(bot.health)} / 20`;
             res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
             res += `\n- Biome: ${world.getBiomeName(bot)}`;
-            let weather = "clear";
+            let weather = "Clear";
             if (bot.rainState > 0)
                 weather = "Rain";
             if (bot.thunderState > 0)
@@ -59,6 +60,9 @@ export const queryList = [
             }
             if (res == 'INVENTORY') {
                 res += ': none';
+            }
+            if (agent.bot.game.gameMode === 'creative') {
+                res += '\n(You have infinite items in creative mode)';
             }
             return pad(res);
         }
