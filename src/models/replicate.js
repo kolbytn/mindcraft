@@ -22,17 +22,10 @@ export class ReplicateAPI {
 
 	async sendRequest(turns, systemMessage) {
 		const stop_seq = '***';
-		let prompt_template;
-		const prompt = toSinglePrompt(turns, systemMessage, stop_seq);
+		const prompt = toSinglePrompt(turns, null, stop_seq);
 		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
-		if (model_name.includes('llama')) { // llama
-			prompt_template = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-		}
-		else { // mistral
-			prompt_template = "<s>[INST] {prompt} [/INST] "
-		}
 
-		const input = { prompt, prompt_template };
+		const input = { prompt, system_prompt: systemMessage };
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');
