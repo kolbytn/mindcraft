@@ -14,11 +14,9 @@ export function stringifyTurns(turns) {
 }
 
 export function toSinglePrompt(turns, system=null, stop_seq='***', model_nickname='assistant') {
-    let messages = turns;
-    if (system) messages.unshift({role: 'system', content: system});
-    let prompt = "";
-    let role = "";
-    messages.forEach((message) => {
+    let prompt = system ? `${system}${stop_seq}` : '';
+    let role = '';
+    turns.forEach((message) => {
         role = message.role;
         if (role === 'assistant') role = model_nickname;
         prompt += `${role}: ${message.content}${stop_seq}`;
