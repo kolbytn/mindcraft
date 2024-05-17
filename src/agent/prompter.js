@@ -8,6 +8,7 @@ import { getCommand } from './commands/index.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
 
 
@@ -28,6 +29,8 @@ export class Prompter {
                 chat.api = 'openai';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
+            else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
+                chat.api = 'replicate';
             else
                 chat.api = 'ollama';
         }
@@ -40,6 +43,8 @@ export class Prompter {
             this.chat_model = new GPT(chat.model, chat.url);
         else if (chat.api == 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
+        else if (chat.api == 'replicate')
+            this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
         else
@@ -57,6 +62,8 @@ export class Prompter {
             this.embedding_model = new Gemini(embedding.model, embedding.url);
         else if (embedding.api == 'openai')
             this.embedding_model = new GPT(embedding.model, embedding.url);
+        else if (embedding.api == 'replicate') 
+            this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
         else if (embedding.api == 'ollama')
             this.embedding_model = new Local(embedding.model, embedding.url);
         else {
