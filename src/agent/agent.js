@@ -65,8 +65,8 @@ export class Agent {
 
             if (save_data && save_data.self_prompt) { // if we're loading memory and self-prompting was on, restart it, ignore init_message
                 let prompt = save_data.self_prompt;
-                if (init_message)
-                    prompt = `${init_message}\n${prompt}`;
+                // add initial message to history
+                this.history.add('system', prompt);
                 this.self_prompter.start(prompt);
             }
             else if (init_message) {
