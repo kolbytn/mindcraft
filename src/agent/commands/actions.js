@@ -229,8 +229,8 @@ export const actionsList = [
             'quantity': '(number) The quantity of the goal to set. Default is 1.'
         },
         perform: async function (agent, name=null, quantity=1) {
-            if (!agent.npc.data) return 'NPC module is not loaded.';
             await agent.npc.setGoal(name, quantity);
+            agent.bot.emit('idle');  // to trigger the goal
             return 'Set goal: ' + agent.npc.data.curr_goal.name;
         }
     }
