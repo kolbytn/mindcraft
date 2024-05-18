@@ -463,7 +463,7 @@ export async function breakBlockAt(bot, x, y, z) {
             bot.pathfinder.setMovements(movements);
             await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
         }
-        if (bot.gameMode !== 'creative') {
+        if (bot.game.gameMode !== 'creative') {
             await bot.tool.equipForBlock(block);
             const itemId = bot.heldItem ? bot.heldItem.type : null
             if (!block.canHarvest(itemId)) {
