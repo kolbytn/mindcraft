@@ -19,7 +19,7 @@ const modes = [
         name: 'self_preservation',
         description: 'Respond to drowning, burning, and damage at low health. Interrupts other actions.',
         interrupts: ['all'],
-        on: true,
+        on: false,
         active: false,
         fall_blocks: ['sand', 'gravel', 'concrete_powder'], // includes matching substrings like 'sandstone' and 'red_sand'
         update: async function (agent) {
@@ -69,7 +69,7 @@ const modes = [
         name: 'cowardice',
         description: 'Run away from enemies. Interrupts other actions.',
         interrupts: ['all'],
-        on: true,
+        on: false,
         active: false,
         update: async function (agent) {
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
@@ -85,7 +85,7 @@ const modes = [
         name: 'self_defense',
         description: 'Attack nearby enemies. Interrupts other actions.',
         interrupts: ['all'],
-        on: true,
+        on: false,
         active: false,
         update: async function (agent) {
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
@@ -101,7 +101,7 @@ const modes = [
         name: 'hunting',
         description: 'Hunt nearby animals when idle.',
         interrupts: ['defaults'],
-        on: true,
+        on: false,
         active: false,
         update: async function (agent) {
             const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
@@ -147,7 +147,7 @@ const modes = [
         name: 'torch_placing',
         description: 'Place torches when idle and there are no torches nearby.',
         interrupts: ['followPlayer'],
-        on: true,
+        on: false,
         active: false,
         update: function (agent) {
             // TODO: check light level instead of nearby torches, block.light is broken

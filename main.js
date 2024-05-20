@@ -1,7 +1,10 @@
 import { AgentProcess } from './src/process/agent-process.js';
 
-let profile = './andy.json';
+let profiles = ['./profiles/gpt.json', './profiles/claude.json', './profiles/llama.json', './profiles/gemini.json'];
+
+profiles = ['./profiles/llama.json'];
 let load_memory = false;
 let init_message = 'Say hello world and your name.';
 
-new AgentProcess().start(profile, load_memory, init_message);
+for (let profile of profiles)
+    new AgentProcess().start(profile, load_memory, init_message);

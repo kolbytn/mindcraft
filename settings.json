@@ -3,5 +3,5 @@
     "host": "127.0.0.1",
     "port": 55916,
     "auth": "offline",
-    "allow_insecure_coding": false
+    "allow_insecure_coding": true
 }
