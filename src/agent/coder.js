@@ -240,7 +240,7 @@ export class Coder {
             console.log('waiting for code to finish executing...');
             await new Promise(resolve => setTimeout(resolve, 1000));
             if (Date.now() - start > 10 * 1000) {
-                process.exit(1); // force exit program after 10 seconds of failing to stop
+                this.agent.cleanKill('Code execution refused stop after 10 seconds. Killing process.');
             }
         }
     }
@@ -255,19 +255,8 @@ export class Coder {
         return setTimeout(async () => {
             console.warn(`Code execution timed out after ${TIMEOUT_MINS} minutes. Attempting force stop.`);
             this.timedout = true;
-            this.agent.bot.output += `\nAction performed for ${TIMEOUT_MINS} minutes and then timed out and stopped. You may want to continue or do something else.`;
-            this.stop(); // last attempt to stop
-            await new Promise(resolve => setTimeout(resolve, 5 * 1000)); // wait 5 seconds
-            if (this.executing) {
-                console.error(`Failed to stop. Killing process. Goodbye.`);
-                this.agent.bot.output += `\nForce stop failed! Process was killed and will be restarted. Goodbye world.`;
-                this.agent.bot.chat('Goodbye world.');
-                let output = this.formatOutput(this.agent.bot);
-                this.agent.history.add('system', output);
-                this.agent.history.save();
-                process.exit(1); // force exit program
-            }
-            console.log('Code execution stopped successfully.');
+            this.agent.history.add('system', `Code execution timed out after ${TIMEOUT_MINS} minutes. Attempting force stop.`);
+            await this.stop(); // last attempt to stop
         }, TIMEOUT_MINS*60*1000);
     }
 }
