@@ -45,7 +45,7 @@ export const actionsList = [
         description: 'Restart the agent process.',
         perform: async function (agent) {
             await agent.history.save();
-            process.exit(1);
+            agent.cleanKill();
         }
     },
     {
