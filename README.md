@@ -14,17 +14,14 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Installation
 
-Add the environment variable for the model you want to use:
-
-| API | Env Variable | Example Model name | Docs |
+Rename `config.example.json` to `config.json` and fill in the desired API keys
+| API | Config Variable | Example Model name | Docs |
 |------|------|------|------|
 | OpenAI | `OPENAI_API_KEY` | `gpt-3.5-turbo` | [docs](https://platform.openai.com/docs/models) | (optionally add `OPENAI_ORG_ID`)
 | Google | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | Replicate | `REPLICATE_API_KEY` | `meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
 | Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
-
-⭐[How do I add the API key as an environment variable?](https://phoenixnap.com/kb/windows-set-environment-variable)⭐
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3 && ollama pull nomic-embed-text`
