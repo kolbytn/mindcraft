@@ -1,5 +1,6 @@
 import Replicate from 'replicate';
 import { toSinglePrompt } from '../utils/text.js';
+import configJson from "../../config.json" assert { type: "json" };
 
 // llama, mistral
 export class ReplicateAPI {
@@ -11,12 +12,12 @@ export class ReplicateAPI {
 			console.warn('Replicate API does not support custom URLs. Ignoring provided URL.');
 		}
 
-		if (!process.env.REPLICATE_API_KEY) {
-			throw new Error('Replicate API key missing! Make sure you set your REPLICATE_API_KEY environment variable.');
+		if (!configJson.REPLICATE_API_KEY) {
+			throw new Error('Replicate API key missing! Make sure you set your REPLICATE_API_KEY in your config.json.');
 		}
 
 		this.replicate = new Replicate({
-			auth: process.env.REPLICATE_API_KEY,
+			auth: configJson.REPLICATE_API_KEY,
 		});
 	}
 

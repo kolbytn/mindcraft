@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import configJson from "../../config.json" assert { type: "json" };
 
 
 export class Claude {
@@ -8,10 +9,10 @@ export class Claude {
         let config = {};
         if (url)
             config.baseURL = url;
-        if (process.env.ANTHROPIC_API_KEY)
-            config.apiKey = process.env["ANTHROPIC_API_KEY"];
+        if (configJson.ANTHROPIC_API_KEY)
+            config.apiKey = configJson.ANTHROPIC_API_KEY;
         else
-            throw new Error('Anthropic API key missing! Make sure you set your ANTHROPIC_API_KEY environment variable.');
+            throw new Error('Anthropic API key missing! Make sure you set your ANTHROPIC_API_KEY in your config.json.');
 
         this.anthropic = new Anthropic(config);
     }
