@@ -24,8 +24,8 @@ const modes = [
         fall_blocks: ['sand', 'gravel', 'concrete_powder'], // includes matching substrings like 'sandstone' and 'red_sand'
         update: async function (agent) {
             const bot = agent.bot;
-            const block = bot.blockAt(bot.entity.position);
-            const blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
+            let block = bot.blockAt(bot.entity.position);
+            let blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
             if (!block) block = {name: 'air'}; // hacky fix when blocks are not loaded
             if (!blockAbove) blockAbove = {name: 'air'};
             if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
