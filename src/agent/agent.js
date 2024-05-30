@@ -6,7 +6,7 @@ import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
-import settings from '../settings.js';
+import settings from '../../settings.js';
 
 
 export class Agent {

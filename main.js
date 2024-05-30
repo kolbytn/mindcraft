@@ -1,5 +1,5 @@
 import { AgentProcess } from './src/process/agent-process.js';
-import settings from './src/settings.js';
+import settings from './settings.js';
 
 let profiles = settings.profiles;
 let load_memory = settings.load_memory;
