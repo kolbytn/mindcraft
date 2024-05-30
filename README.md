@@ -4,7 +4,7 @@ Crafting minds for Minecraft with Language Models and Mineflayer!
 
 #### ‼️Warning‼️
 
-This project allows an AI model to write/execute code on your computer that may be insecure, dangerous, and vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.json`. Enable only on local or private servers, **never** on public servers. Ye be warned.
+This project allows an AI model to write/execute code on your computer that may be insecure, dangerous, and vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. Enable only on local or private servers, **never** on public servers. Ye be warned.
 
 ## Requirements
 
@@ -31,9 +31,9 @@ If you use Ollama, to install the models used by default (generation and embeddi
 
 Then, clone/download this repository
 
-Run `npm install`
+Run `npm install` from the installed directory
 
-Install the minecraft version specified in `settings.json`, currently supports up to 1.20.4
+Install the minecraft version specified in `settings.js`, currently supports up to 1.20.4
 
 ### Running Locally
 
@@ -43,18 +43,16 @@ Run `node main.js`
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json`.
 
-You can configure project details in `settings.json`.
+You can configure project details in `settings.js`. [See file for more details](settings.js)
 
 ### Online Servers
-To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here is an example settings for this:
+To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here are example settings for this:
 ```
-{
-    "minecraft_version": "1.20.4",
-    "host": "111.222.333.444",
-    "port": 55920,
-    "auth": "microsoft",
-    "allow_insecure_coding": false
-}
+"host": "111.222.333.444",
+"port": 55920,
+"auth": "microsoft",
+
+// rest is same...
 ```
 ‼️Make sure your bot's name in the profile.json matches the account name! Otherwise the bot will spam talk to itself.
 
