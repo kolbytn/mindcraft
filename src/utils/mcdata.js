@@ -1,5 +1,5 @@
 import minecraftData from 'minecraft-data';
-import settings from '../settings.js';
+import settings from '../../settings.js';
 import { createBot } from 'mineflayer';
 import { pathfinder } from 'mineflayer-pathfinder';
 import { plugin as pvp } from 'mineflayer-pvp';

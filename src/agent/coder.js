@@ -138,7 +138,7 @@ export class Coder {
             }
             code_return = await this.execute(async ()=>{
                 return await execution_file.main(this.agent.bot);
-            });
+            }, settings.code_timeout_mins);
 
             if (code_return.interrupted && !code_return.timedout)
                 return {success: false, message: null, interrupted: true, timedout: false};
