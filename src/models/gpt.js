@@ -1,5 +1,5 @@
 import OpenAIApi from 'openai';
-import configJson from "../../config.json" assert { type: "json" };
+import configJson from "../../keys.json" assert { type: "json" };
 
 export class GPT {
     constructor(model_name, url) {
@@ -8,12 +8,18 @@ export class GPT {
         let config = {};
         if (url)
             config.baseURL = url;
+
         if (configJson.OPENAI_ORG_ID)
-            config.organization = configJson.OPENAI_ORG_ID;
+            config.apiKey = configJson.OPENAI_ORG_ID;
+        else if (process.env.OPENAI_ORG_ID)
+            config.apiKey = process.env.OPENAI_ORG_ID;
+
         if (configJson.OPENAI_API_KEY)
             config.apiKey = configJson.OPENAI_API_KEY;
+        else if (process.env.OPENAI_API_KEY)
+            config.apiKey = process.env.OPENAI_API_KEY;
         else
-            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY in your config.json.');
+            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY in your keys.json.');
 
         this.openai = new OpenAIApi(config);
     }
