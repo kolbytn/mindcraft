@@ -3,5 +3,14 @@
     "host": "127.0.0.1",
     "port": 55916,
     "auth": "offline",
-    "allow_insecure_coding": true
+    "allow_insecure_coding": true,
+    "code_timeout_mins": 10,
+    
+    "profiles": [
+        "./profiles/gpt.json",
+        "./profiles/llama.json"
+    ],
+    "load_memory": false,
+    "init_message": "Say hello world and your name"
+
 }

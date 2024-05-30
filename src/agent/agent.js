@@ -6,6 +6,7 @@ import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
+import settings from '../settings.js';
 
 
 export class Agent {
@@ -42,7 +43,8 @@ export class Agent {
                 "Set the weather to",
                 "Gamerule "
             ];
-            this.bot.on('whisper', (username, message) => {
+            const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
+            this.bot.on(eventname, (username, message) => {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
