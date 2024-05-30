@@ -1,5 +1,5 @@
 import OpenAIApi from 'openai';
-import configJson from "../../keys.json" assert { type: "json" };
+import { getKey, hasKey } from '../utils/keys.js';
 
 export class GPT {
     constructor(model_name, url) {
@@ -9,17 +9,10 @@ export class GPT {
         if (url)
             config.baseURL = url;
 
-        if (configJson.OPENAI_ORG_ID)
-            config.apiKey = configJson.OPENAI_ORG_ID;
-        else if (process.env.OPENAI_ORG_ID)
-            config.apiKey = process.env.OPENAI_ORG_ID;
+        if (hasKey('OPENAI_ORG_ID'))
+            config.organization = getKey('OPENAI_ORG_ID');
 
-        if (configJson.OPENAI_API_KEY)
-            config.apiKey = configJson.OPENAI_API_KEY;
-        else if (process.env.OPENAI_API_KEY)
-            config.apiKey = process.env.OPENAI_API_KEY;
-        else
-            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY in your keys.json.');
+        config.apiKey = getKey('OPENAI_API_KEY');
 
         this.openai = new OpenAIApi(config);
     }

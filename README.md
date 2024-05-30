@@ -14,7 +14,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Installation
 
-Rename `keys.example.json` to `keys.json` and fill in the desired API keys
+Rename `keys.example.json` to `keys.json` and fill in your API keys, and you can set the desired model in `andy.json` or other profiles.
 | API | Config Variable | Example Model name | Docs |
 |------|------|------|------|
 | OpenAI | `OPENAI_API_KEY` | `gpt-3.5-turbo` | [docs](https://platform.openai.com/docs/models) | (optionally add `OPENAI_ORG_ID`)
