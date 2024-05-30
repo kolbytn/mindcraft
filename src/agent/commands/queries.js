@@ -58,10 +58,10 @@ export const queryList = [
                 if (inventory[item] && inventory[item] > 0)
                     res += `\n- ${item}: ${inventory[item]}`;
             }
-            if (res == 'INVENTORY') {
+            if (res === 'INVENTORY') {
                 res += ': none';
             }
-            if (agent.bot.game.gameMode === 'creative') {
+            else if (agent.bot.game.gameMode === 'creative') {
                 res += '\n(You have infinite items in creative mode)';
             }
             return pad(res);

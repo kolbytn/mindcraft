@@ -468,11 +468,13 @@ export async function breakBlockAt(bot, x, y, z) {
             bot.pathfinder.setMovements(movements);
             await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
         }
-        await bot.tool.equipForBlock(block);
-        const itemId = bot.heldItem ? bot.heldItem.type : null
-        if (!block.canHarvest(itemId)) {
-            log(bot, `Don't have right tools to break ${block.name}.`);
-            return false;
+        if (bot.game.gameMode !== 'creative') {
+            await bot.tool.equipForBlock(block);
+            const itemId = bot.heldItem ? bot.heldItem.type : null
+            if (!block.canHarvest(itemId)) {
+                log(bot, `Don't have right tools to break ${block.name}.`);
+                return false;
+            }
         }
         await bot.dig(block, true);
         log(bot, `Broke ${block.name} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);

@@ -203,7 +203,7 @@ export class Agent {
         });
         this.bot.on('end', (reason) => {
             console.warn('Bot disconnected! Killing agent process.', reason)
-            this.cleanKill('Bot disconnected!');
+            this.cleanKill('Bot disconnected! Killing agent process.');
         });
         this.bot.on('death', () => {
             this.coder.cancelResume();
@@ -211,7 +211,7 @@ export class Agent {
         });
         this.bot.on('kicked', (reason) => {
             console.warn('Bot kicked!', reason);
-            this.cleanKill('Bot kicked!');
+            this.cleanKill('Bot kicked! Killing agent process.');
         });
         this.bot.on('messagestr', async (message, _, jsonMsg) => {
             if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {
@@ -255,9 +255,10 @@ export class Agent {
     isIdle() {
         return !this.coder.executing && !this.coder.generating;
     }
-
+    
     cleanKill(msg='Killing agent process...') {
         this.history.add('system', msg);
+        this.bot.chat('Goodbye world.')
         this.history.save();
         process.exit(1);
     }

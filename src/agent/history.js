@@ -22,7 +22,7 @@ export class History {
 
     async storeMemories(turns) {
         console.log("Storing memories...");
-        this.memory = await this.agent.prompter.promptMemSaving(this.memory, turns);
+        this.memory = await this.agent.prompter.promptMemSaving(this.getHistory(), turns);
         console.log("Memory updated to: ", this.memory);
     }
 

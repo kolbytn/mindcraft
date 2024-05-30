@@ -1,0 +1,17 @@
+diff --git a/node_modules/mineflayer-pathfinder/lib/movements.js b/node_modules/mineflayer-pathfinder/lib/movements.js
+index a7e3505..77e428f 100644
+--- a/node_modules/mineflayer-pathfinder/lib/movements.js
++++ b/node_modules/mineflayer-pathfinder/lib/movements.js
+@@ -143,7 +143,11 @@ class Movements {
+     for (const id of this.scafoldingBlocks) {
+       for (const j in items) {
+         const item = items[j]
+-        if (item.type === id) count += item.count
++        if (item.type === id) {
++          count += item.count
++          if (this.bot.game.gameMode === 'creative')
++            count = 1000
++        }
+       }
+     }
+     return count

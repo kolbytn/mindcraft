@@ -91,6 +91,7 @@ export class Coder {
 
     async generateCodeLoop(agent_history) {
         let messages = agent_history.getHistory();
+        messages.push({role: 'system', content: 'Code generation started. Write code in codeblock in your response:'});
 
         let code_return = null;
         let failures = 0;
@@ -99,7 +100,7 @@ export class Coder {
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
             console.log(messages)
-            let res = await this.agent.prompter.promptCoding(messages);
+            let res = await this.agent.prompter.promptCoding(JSON.parse(JSON.stringify(messages)));
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
             let contains_code = res.indexOf('```') !== -1;
