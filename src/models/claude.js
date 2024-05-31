@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-
+import { getKey } from '../utils/keys.js';
 
 export class Claude {
     constructor(model_name, url) {
@@ -8,10 +8,8 @@ export class Claude {
         let config = {};
         if (url)
             config.baseURL = url;
-        if (process.env.ANTHROPIC_API_KEY)
-            config.apiKey = process.env["ANTHROPIC_API_KEY"];
-        else
-            throw new Error('Anthropic API key missing! Make sure you set your ANTHROPIC_API_KEY environment variable.');
+        
+        config.apiKey = getKey('ANTHROPIC_API_KEY');
 
         this.anthropic = new Anthropic(config);
     }

@@ -1,15 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { toSinglePrompt } from '../utils/text.js';
+import { getKey } from '../utils/keys.js';
 
 export class Gemini {
     constructor(model_name, url) {
         this.model_name = model_name;
         this.url = url;
 
-        if (!process.env.GEMINI_API_KEY) {
-            throw new Error('Gemini API key missing! Make sure you set your GEMINI_API_KEY environment variable.');
-        }
-        this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        this.genAI = new GoogleGenerativeAI(getKey('GEMINI_API_KEY'));
     }
 
     async sendRequest(turns, systemMessage) {
