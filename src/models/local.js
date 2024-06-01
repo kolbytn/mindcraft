@@ -15,7 +15,6 @@ export class Local {
         let res = null;
         try {
             console.log(`Awaiting local response... (model: ${model})`)
-            console.log('Messages:', messages);
             res = await this.send(this.chat_endpoint, {model: model, messages: messages, stream: false});
             if (res)
                 res = res['message']['content'];
