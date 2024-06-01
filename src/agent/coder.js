@@ -1,5 +1,5 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-
+import settings from '../../settings.js';
 
 export class Coder {
     constructor(agent) {
