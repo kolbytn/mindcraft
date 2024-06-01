@@ -62,7 +62,7 @@ export class Agent {
             };
 
             if (init_message) {
-                this.handleMessage('system', init_message);
+                this.handleMessage('MINECRAFT', init_message);
             } else {
                 this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
