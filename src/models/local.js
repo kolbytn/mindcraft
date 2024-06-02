@@ -1,3 +1,5 @@
+import { strictFormat } from '../utils/text.js';
+
 export class Local {
     constructor(model_name, url) {
         this.model_name = model_name;
@@ -8,12 +10,11 @@ export class Local {
 
     async sendRequest(turns, systemMessage) {
         let model = this.model_name || 'llama3';
-        let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-
+        let messages = strictFormat(turns);
+        messages.unshift({role: 'system', content: systemMessage});
         let res = null;
         try {
             console.log(`Awaiting local response... (model: ${model})`)
-            console.log('Messages:', messages);
             res = await this.send(this.chat_endpoint, {model: model, messages: messages, stream: false});
             if (res)
                 res = res['message']['content'];

@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Claude {
@@ -15,36 +16,7 @@ export class Claude {
     }
 
     async sendRequest(turns, systemMessage) {
-        let prev_role = null;
-        let messages = [];
-        let filler = {role: 'user', content: '_'};
-        for (let msg of turns) {
-            if (msg.role === 'system') {
-                msg.role = 'user';
-                msg.content = 'SYSTEM: ' + msg.content;
-            }
-            if (msg.role === prev_role && msg.role === 'assistant') {
-                // insert empty user message to separate assistant messages
-                messages.push(filler);
-                messages.push(msg);
-            }
-            else if (msg.role === prev_role) {
-                // combine new message with previous message instead of adding a new one
-                messages[messages.length-1].content += '\n' + msg.content;
-            }
-            else {
-                messages.push(msg);
-            }
-            prev_role = msg.role;
-            
-        }
-        if (messages.length > 0 && messages[0].role !== 'user') {
-            messages.unshift(filler); // anthropic requires user message to start
-        }
-        if (messages.length === 0) {
-            messages.push(filler);
-        }
-        
+        const messages = strictFormat(turns);
         let res = null;
         try {
             console.log('Awaiting anthropic api response...')

@@ -51,8 +51,12 @@ export class Prompter {
             throw new Error('Unknown API:', api);
 
         let embedding = this.prompts.embedding;
-        if (embedding === undefined)
-            embedding = {api: chat.api};
+        if (embedding === undefined) {
+            if (chat.api !== 'ollama')
+                embedding = {api: chat.api};
+            else
+                embedding = {api: 'none'};
+        }
         else if (typeof embedding === 'string' || embedding instanceof String)
             embedding = {api: embedding};
 
