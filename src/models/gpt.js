@@ -1,6 +1,5 @@
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
-import { strictFormat } from '../utils/text.js';
 
 export class GPT {
     constructor(model_name, url) {
