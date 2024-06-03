@@ -11,7 +11,7 @@ import * as mc from '../../utils/mcdata.js';
 export class NPCContoller {
     constructor(agent) {
         this.agent = agent;
-        this.data = NPCData.fromObject(agent.prompter.prompts.npc);
+        this.data = NPCData.fromObject(agent.prompter.profile.npc);
         this.temp_goals = [];
         this.item_goal = new ItemGoal(agent, this.data);
         this.build_goal = new BuildGoal(agent);
