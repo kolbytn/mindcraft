@@ -20,7 +20,7 @@ export class Claude {
         let res = null;
         try {
             console.log('Awaiting anthropic api response...')
-            console.log('Messages:', messages);
+            // console.log('Messages:', messages);
             const resp = await this.anthropic.messages.create({
                 model: this.model_name || "claude-3-sonnet-20240229",
                 system: systemMessage,

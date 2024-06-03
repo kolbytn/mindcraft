@@ -79,9 +79,6 @@ export class Agent {
     }
 
     async handleMessage(source, message) {
-        if (!!source && !!message)
-            await this.history.add(source, message);
-
         const user_command_name = containsCommand(message);
         if (user_command_name) {
             if (!commandExists(user_command_name)) {
@@ -100,6 +97,8 @@ export class Agent {
                 this.cleanChat(execute_res);
             return;
         }
+
+        await this.history.add(source, message);
 
         for (let i=0; i<5; i++) {
             let history = this.history.getHistory();

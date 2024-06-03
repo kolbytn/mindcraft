@@ -1,5 +1,6 @@
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
+import { strictFormat } from '../utils/text.js';
 
 export class GPT {
     constructor(model_name, url) {
@@ -24,7 +25,7 @@ export class GPT {
         let res = null;
         try {
             console.log('Awaiting openai api response...')
-            console.log('Messages:', messages);
+            // console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
                 model: this.model_name || "gpt-3.5-turbo",
                 messages: messages,
