@@ -503,6 +503,7 @@ export async function placeBlock(bot, blockType, x, y, z, no_cheat=false) {
      * @param {number} x, the x coordinate of the block to place.
      * @param {number} y, the y coordinate of the block to place.
      * @param {number} z, the z coordinate of the block to place.
+     * @param {boolean} no_cheat, overrides cheat mode to place the block normally. Defaults to false.
      * @returns {Promise<boolean>} true if the block was placed, false otherwise.
      * @example
      * let position = world.getPosition(bot);
