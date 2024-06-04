@@ -152,7 +152,7 @@ const modes = [
         cooldown: 5,
         last_place: Date.now(),
         update: function (agent) {
-            if (skills.shouldPlaceTorch(agent.bot)) {
+            if (world.shouldPlaceTorch(agent.bot)) {
                 if (Date.now() - this.last_place < this.cooldown * 1000) return;
                 execute(this, agent, async () => {
                     const pos = agent.bot.entity.position;

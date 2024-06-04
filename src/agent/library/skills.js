@@ -10,21 +10,8 @@ export function log(bot, message, chat=false) {
         bot.chat(message);
 }
 
-export function shouldPlaceTorch(bot) {
-    if (!bot.modes.isOn('torch_placing') || bot.interrupt_code) return false;
-    const pos = world.getPosition(bot);
-    // TODO: check light level instead of nearby torches, block.light is broken
-    let nearest_torch = world.getNearestBlock(bot, 'torch', 6);
-    if (!nearest_torch) {
-        const block = bot.blockAt(pos);
-        let has_torch = bot.inventory.items().find(item => item.name === 'torch');
-        return has_torch && block.name === 'air';
-    }
-    return false;
-}
-
 async function autoLight(bot) {
-    if (shouldPlaceTorch(bot)) {
+    if (world.shouldPlaceTorch(bot)) {
         try {
             const pos = world.getPosition(bot);
             return await placeBlock(bot, 'torch', pos.x, pos.y, pos.z, true);
