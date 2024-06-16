@@ -17,6 +17,7 @@
         "yargs": "^17.7.2"
     },
     "scripts": {
-        "postinstall": "patch-package"
+        "postinstall": "patch-package",
+        "start": "node main.js"
     }
 }
