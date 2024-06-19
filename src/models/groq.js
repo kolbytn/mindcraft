@@ -1,11 +1,11 @@
-const Groq = require('groq-sdk');
+import Groq from 'groq-sdk'
 import { getKey } from '../utils/keys.js';
 
 export class Mixtral {
     constructor(model_name, url) {
         this.model_name = model_name;
         this.url = url;
-        this.groq = new Groq(getKey('GROQ_API_KEY'));
+        this.groq = new Groq({ apiKey: getKey('GROQ_API_KEY')});
     }
 
     async sendRequest(turns, systemMessage, stop_seq="***") {
