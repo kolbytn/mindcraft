@@ -16,7 +16,7 @@ export class Mixtral {
             let completion = await this.groq.chat.completions.create({
                 "messages": messages,
                 "model": this.model_name || "mixtral-8x7b-32768",
-                "temperature": 0.85,
+                "temperature": 0.45,
                 "max_tokens": 8192,
                 "top_p": 1,
                 "stream": true,
