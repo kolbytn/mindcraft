@@ -14,7 +14,8 @@
         "patch-package": "^8.0.0",
         "replicate": "^0.29.4",
         "vec3": "^0.1.10",
-        "yargs": "^17.7.2"
+        "yargs": "^17.7.2",
+        "groq-sdk": "^0.5.0"
     },
     "scripts": {
         "postinstall": "patch-package"
