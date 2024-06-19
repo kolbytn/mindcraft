@@ -39,34 +39,6 @@ export class Mixtral {
     }
 
     async embed(text) {
-      /* GPT's embed:
-              const embedding = await this.openai.embeddings.create({
-            model: this.model_name || "text-embedding-ada-002",
-            input: text,
-            encoding_format: "float",
-        });
-        return embedding.data[0].embedding;
-      */
-
-      // lol no embeddings for u
-      // l
-      console.log("big oof, embeds on groq dont is not thing");
-      
+      console.log("There is no support for embeddings here.");
     }
-}
-
-async function definitelynotmain() {
-  const chatCompletion = await groq.chat.completions.create({
-    "messages": "",
-    "model": "mixtral-8x7b-32768",
-    "temperature": 0.85,
-    "max_tokens": 8192,
-    "top_p": 1,
-    "stream": true,
-    "stop": "***"
-  });
-
-  for await (const chunk of chatCompletion) {
-    process.stdout.write(chunk.choices[0]?.delta?.content || '');
-  }
 }
