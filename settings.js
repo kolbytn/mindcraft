@@ -14,6 +14,6 @@ export default
     ],
     "load_memory": false, // load memory from previous session
     "init_message": "Say hello world and your name", // sends to all on spawn
-    "allow_insecure_coding": false, // disable at own risk
+    "allow_insecure_coding": false, // enable at own risk
     "code_timeout_mins": 10, // -1 for no timeout
 }
