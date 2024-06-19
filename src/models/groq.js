@@ -17,7 +17,7 @@ export class Mixtral {
                 "messages": messages,
                 "model": this.model_name || "mixtral-8x7b-32768",
                 "temperature": 0.45,
-                "max_tokens": 8192,
+                "max_tokens": 16384,
                 "top_p": 1,
                 "stream": true,
                 "stop": stop_seq
