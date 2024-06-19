@@ -1,4 +1,5 @@
 const Groq = require('groq-sdk');
+import { getKey } from '../utils/keys.js';
 
 const groq = new Groq();
 async function main() {
