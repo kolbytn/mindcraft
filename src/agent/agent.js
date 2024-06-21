@@ -7,7 +7,7 @@ import { containsCommand, commandExists, executeCommand, truncCommandMessage } f
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import settings from '../../settings.js';
-
+import { mineflayer as mineflayerViewer } from 'prismarine-viewer';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null) {
@@ -31,6 +31,8 @@ export class Agent {
         this.bot.once('spawn', async () => {
             // wait for a bit so stats are not undefined
             await new Promise((resolve) => setTimeout(resolve, 1000));
+            
+            mineflayerViewer(this.bot, { port: 55920, firstPerson: false })
 
             console.log(`${this.name} spawned.`);
             this.coder.clear();
