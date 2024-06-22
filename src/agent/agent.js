@@ -5,6 +5,8 @@ import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
+import { MemoryBank } from './memory_bank.js';
+import settings from '../../settings.js';
 
 
 export class Agent {
@@ -14,18 +16,22 @@ export class Agent {
         this.history = new History(this);
         this.coder = new Coder(this);
         this.npc = new NPCContoller(this);
+        this.memory_bank = new MemoryBank();
 
         await this.prompter.initExamples();
-
-        if (load_mem)
-            this.history.load();
 
         console.log('Logging in...');
         this.bot = initBot(this.name);
 
         initModes(this);
 
+        if (load_mem)
+            this.history.load();
+
         this.bot.once('spawn', async () => {
+            // wait for a bit so stats are not undefined
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
             console.log(`${this.name} spawned.`);
             this.coder.clear();
             
@@ -37,7 +43,8 @@ export class Agent {
                 "Set the weather to",
                 "Gamerule "
             ];
-            this.bot.on('chat', (username, message) => {
+            const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
+            this.bot.on(eventname, (username, message) => {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
@@ -72,9 +79,6 @@ export class Agent {
     }
 
     async handleMessage(source, message) {
-        if (!!source && !!message)
-            await this.history.add(source, message);
-
         const user_command_name = containsCommand(message);
         if (user_command_name) {
             if (!commandExists(user_command_name)) {
@@ -82,17 +86,18 @@ export class Agent {
                 return;
             }
             this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
-            let execute_res = await executeCommand(this, message);
             if (user_command_name === '!newAction') {
                 // all user initiated commands are ignored by the bot except for this one
                 // add the preceding message to the history to give context for newAction
-                let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
-                this.history.add(source, truncated_msg);
+                this.history.add(source, message);
             }
+            let execute_res = await executeCommand(this, message);
             if (execute_res) 
                 this.cleanChat(execute_res);
             return;
         }
+
+        await this.history.add(source, message);
 
         for (let i=0; i<5; i++) {
             let history = this.history.getHistory();
@@ -148,18 +153,24 @@ export class Agent {
             else if (this.bot.time.timeOfDay == 18000)
             this.bot.emit('midnight');
         });
-        this.bot.on('health', () => {
-            if (this.bot.health < 20)
-            this.bot.emit('damaged');
-        });
 
+        let prev_health = this.bot.health;
+        this.bot.lastDamageTime = 0;
+        this.bot.lastDamageTaken = 0;
+        this.bot.on('health', () => {
+            if (this.bot.health < prev_health) {
+                this.bot.lastDamageTime = Date.now();
+                this.bot.lastDamageTaken = prev_health - this.bot.health;
+            }
+            prev_health = this.bot.health;
+        });
         // Logging callbacks
         this.bot.on('error' , (err) => {
             console.error('Error event!', err);
         });
         this.bot.on('end', (reason) => {
             console.warn('Bot disconnected! Killing agent process.', reason)
-            process.exit(1);
+            this.cleanKill('Bot disconnected! Killing agent process.');
         });
         this.bot.on('death', () => {
             this.coder.cancelResume();
@@ -167,7 +178,7 @@ export class Agent {
         });
         this.bot.on('kicked', (reason) => {
             console.warn('Bot kicked!', reason);
-            process.exit(1);
+            this.cleanKill('Bot kicked! Killing agent process.');
         });
         this.bot.on('messagestr', async (message, _, jsonMsg) => {
             if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {
@@ -176,6 +187,8 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
+            this.bot.clearControlStates();
+            this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
             this.coder.executeResume();
         });
@@ -201,5 +214,12 @@ export class Agent {
 
     isIdle() {
         return !this.coder.executing && !this.coder.generating;
+    }
+    
+    cleanKill(msg='Killing agent process...') {
+        this.history.add('system', msg);
+        this.bot.chat('Goodbye world.')
+        this.history.save();
+        process.exit(1);
     }
 }

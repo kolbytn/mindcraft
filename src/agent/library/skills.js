@@ -11,17 +11,11 @@ export function log(bot, message, chat=false) {
 }
 
 async function autoLight(bot) {
-    if (bot.modes.isOn('torch_placing') && !bot.interrupt_code) {
-        let nearest_torch = world.getNearestBlock(bot, 'torch', 6);
-        if (!nearest_torch) {
-            let has_torch = bot.inventory.items().find(item => item.name === 'torch');
-            if (has_torch) {
-                try {
-                    log(bot, `Placing torch at ${bot.entity.position}.`);
-                    return await placeBlock(bot, 'torch', bot.entity.position.x, bot.entity.position.y, bot.entity.position.z);
-                } catch (err) {return true;}
-            }
-        }
+    if (world.shouldPlaceTorch(bot)) {
+        try {
+            const pos = world.getPosition(bot);
+            return await placeBlock(bot, 'torch', pos.x, pos.y, pos.z, 'bottom', true);
+        } catch (err) {return false;}
     }
     return false;
 }
@@ -256,7 +250,8 @@ export async function attackNearest(bot, mobType, kill=true) {
      * @example
      * await skills.attackNearest(bot, "zombie", true);
      **/
-    const mob = bot.nearestEntity(entity => entity.name && entity.name.toLowerCase() === mobType.toLowerCase());
+    bot.modes.pause('cowardice');
+    const mob = world.getNearbyEntities(bot, 24).find(entity => entity.name === mobType);
     if (mob) {
         return await attackEntity(bot, mob, kill);
     }
@@ -289,7 +284,7 @@ export async function attackEntity(bot, entity, kill=true) {
     }
     else {
         bot.pvp.attack(entity);
-        while (world.getNearbyEntities(bot, 16).includes(entity)) {
+        while (world.getNearbyEntities(bot, 24).includes(entity)) {
             await new Promise(resolve => setTimeout(resolve, 1000));
             if (bot.interrupt_code) {
                 bot.pvp.stop();
@@ -312,6 +307,7 @@ export async function defendSelf(bot, range=9) {
      * await skills.defendSelf(bot);
      * **/
     bot.modes.pause('self_defense');
+    bot.modes.pause('cowardice');
     let attacked = false;
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
     while (enemy) {
@@ -452,6 +448,13 @@ export async function breakBlockAt(bot, x, y, z) {
     if (x == null || y == null || z == null) throw new Error('Invalid position to break block at.');
     let block = bot.blockAt(Vec3(x, y, z));
     if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
+        if (bot.modes.isOn('cheat')) {
+            let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' air';
+            bot.chat(msg);
+            log(bot, `Used /setblock to break block at ${x}, ${y}, ${z}.`);
+            return true;
+        }
+
         if (bot.entity.position.distanceTo(block.position) > 4.5) {
             let pos = block.position;
             let movements = new pf.Movements(bot);
@@ -460,11 +463,13 @@ export async function breakBlockAt(bot, x, y, z) {
             bot.pathfinder.setMovements(movements);
             await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
         }
-        await bot.tool.equipForBlock(block);
-        const itemId = bot.heldItem ? bot.heldItem.type : null
-        if (!block.canHarvest(itemId)) {
-            log(bot, `Don't have right tools to break ${block.name}.`);
-            return false;
+        if (bot.game.gameMode !== 'creative') {
+            await bot.tool.equipForBlock(block);
+            const itemId = bot.heldItem ? bot.heldItem.type : null
+            if (!block.canHarvest(itemId)) {
+                log(bot, `Don't have right tools to break ${block.name}.`);
+                return false;
+            }
         }
         await bot.dig(block, true);
         log(bot, `Broke ${block.name} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
@@ -477,7 +482,7 @@ export async function breakBlockAt(bot, x, y, z) {
 }
 
 
-export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom') {
+export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dontCheat=false) {
     /**
      * Place the given block type at the given position. It will build off from any adjacent blocks. Will fail if there is a block in the way or nothing to build off of.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -486,20 +491,60 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom') {
      * @param {number} y, the y coordinate of the block to place.
      * @param {number} z, the z coordinate of the block to place.
      * @param {string} placeOn, the preferred side of the block to place on. Can be 'top', 'bottom', 'north', 'south', 'east', 'west', or 'side'. Defaults to bottom. Will place on first available side if not possible.
+     * @param {boolean} dontCheat, overrides cheat mode to place the block normally. Defaults to false.
      * @returns {Promise<boolean>} true if the block was placed, false otherwise.
      * @example
      * let p = world.getPosition(bot);
      * await skills.placeBlock(bot, "oak_log", p.x + 2, p.y, p.x);
      * await skills.placeBlock(bot, "torch", p.x + 1, p.y, p.x, 'side');
      **/
-    console.log('placing block...')
+    if (!mc.getBlockId(blockType)) {
+        log(bot, `Invalid block type: ${blockType}.`);
+        return false;
+    }
+
+    const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
+    if (bot.modes.isOn('cheat') && !dontCheat) {
+        // invert the facing direction
+        let face = placeOn === 'north' ? 'south' : placeOn === 'south' ? 'north' : placeOn === 'east' ? 'west' : 'east';
+        if (blockType.includes('torch') && placeOn !== 'bottom') {
+            // insert wall_ before torch
+            blockType = blockType.replace('torch', 'wall_torch');
+            if (placeOn !== 'side' && placeOn !== 'top') {
+                blockType += `[facing=${face}]`;
+            }
+        }
+        if (blockType.includes('button') || blockType === 'lever') {
+            if (placeOn === 'top') {
+                blockType += `[face=ceiling]`;
+            }
+            else if (placeOn === 'bottom') {
+                blockType += `[face=floor]`;
+            }
+            else {
+                blockType += `[facing=${face}]`;
+            }
+        }
+        if (blockType === 'repeater' || blockType === 'comparator') {
+            blockType += `[facing=${face}]`;
+        }
+
+        let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' ' + blockType;
+        bot.chat(msg);
+        if (blockType.includes('door'))
+            bot.chat('/setblock ' + Math.floor(x) + ' ' + Math.floor(y+1) + ' ' + Math.floor(z) + ' ' + blockType + '[half=top]');
+        if (blockType.includes('bed'))
+            bot.chat('/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z-1) + ' ' + blockType + '[part=head]');
+        log(bot, `Used /setblock to place ${blockType} at ${target_dest}.`);
+        return true;
+    }
+
     let block = bot.inventory.items().find(item => item.name === blockType);
     if (!block) {
         log(bot, `Don't have any ${blockType} to place.`);
         return false;
     }
 
-    const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
     const targetBlock = bot.blockAt(target_dest);
     if (targetBlock.name === blockType) {
         log(bot, `${blockType} already at ${targetBlock.position}.`);
@@ -706,6 +751,11 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
         log(bot, `Missing coordinates, given x:${x} y:${y} z:${z}`);
         return false;
     }
+    if (bot.modes.isOn('cheat')) {
+        bot.chat('/tp @s ' + x + ' ' + y + ' ' + z);
+        log(bot, `Teleported to ${x}, ${y}, ${z}.`);
+        return true;
+    }
     bot.pathfinder.setMovements(new pf.Movements(bot));
     await bot.pathfinder.goto(new pf.goals.GoalNear(x, y, z, min_distance));
     log(bot, `You have reached at ${x}, ${y}, ${z}.`);
@@ -723,7 +773,15 @@ export async function goToPlayer(bot, username, distance=3) {
      * @example
      * await skills.goToPlayer(bot, "player");
      **/
+
+    if (bot.modes.isOn('cheat')) {
+        bot.chat('/tp @s ' + username);
+        log(bot, `Teleported to ${username}.`);
+        return true;
+    }
+
     bot.modes.pause('self_defense');
+    bot.modes.pause('cowardice');
     let player = bot.players[username].entity
     if (!player) {
         log(bot, `Could not find ${username}.`);
@@ -776,9 +834,50 @@ export async function moveAway(bot, distance) {
     let goal = new pf.goals.GoalNear(pos.x, pos.y, pos.z, distance);
     let inverted_goal = new pf.goals.GoalInvert(goal);
     bot.pathfinder.setMovements(new pf.Movements(bot));
+
+    if (bot.modes.isOn('cheat')) {
+        const path = await bot.pathfinder.getPathTo(move, inverted_goal, 10000);
+        let last_move = path.path[path.path.length-1];
+        console.log(last_move);
+        if (last_move) {
+            let x = Math.floor(last_move.x);
+            let y = Math.floor(last_move.y);
+            let z = Math.floor(last_move.z);
+            bot.chat('/tp @s ' + x + ' ' + y + ' ' + z);
+            return true;
+        }
+    }
+
     await bot.pathfinder.goto(inverted_goal);
     let new_pos = bot.entity.position;
     log(bot, `Moved away from nearest entity to ${new_pos}.`);
+    return true;
+}
+
+export async function avoidEnemies(bot, distance=16) {
+    /**
+     * Move a given distance away from all nearby enemy mobs.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     * @example
+     * await skills.avoidEnemies(bot, 8);
+     **/
+    bot.modes.pause('self_preservation'); // prevents damage-on-low-health from interrupting the bot
+    let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
+    while (enemy) {
+        const follow = new pf.goals.GoalFollow(enemy, distance+1); // move a little further away
+        const inverted_goal = new pf.goals.GoalInvert(follow);
+        bot.pathfinder.setMovements(new pf.Movements(bot));
+        bot.pathfinder.setGoal(inverted_goal, true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
+        if (bot.interrupt_code) {
+            break;
+        }
+    }
+    bot.pathfinder.stop();
+    log(bot, `Moved ${distance} away from enemies.`);
     return true;
 }
 
@@ -790,6 +889,8 @@ export async function stay(bot) {
      * @example
      * await skills.stay(bot);
      **/
+    bot.modes.pause('self_preservation');
+    bot.modes.pause('cowardice');
     bot.modes.pause('self_defense');
     bot.modes.pause('hunting');
     bot.modes.pause('torch_placing');

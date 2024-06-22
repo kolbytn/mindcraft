@@ -16,24 +16,90 @@ import * as mc from '../utils/mcdata.js';
 // to perform longer actions, use the execute function which won't block the update loop
 const modes = [
     {
-        name: 'self_defense',
-        description: 'Automatically attack nearby enemies. Interrupts other actions.',
+        name: 'self_preservation',
+        description: 'Respond to drowning, burning, and damage at low health. Interrupts other actions.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        fall_blocks: ['sand', 'gravel', 'concrete_powder'], // includes matching substrings like 'sandstone' and 'red_sand'
+        update: async function (agent) {
+            const bot = agent.bot;
+            let block = bot.blockAt(bot.entity.position);
+            let blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
+            if (!block) block = {name: 'air'}; // hacky fix when blocks are not loaded
+            if (!blockAbove) blockAbove = {name: 'air'};
+            if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
+                // does not call execute so does not interrupt other actions
+                if (!bot.pathfinder.goal) {
+                    bot.setControlState('jump', true);
+                }
+            }
+            else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
+                execute(this, agent, async () => {
+                    await skills.moveAway(bot, 2);
+                });
+            }
+            else if (block.name === 'lava' || block.name === 'flowing_lava' || block.name === 'fire' ||
+                blockAbove.name === 'lava' || blockAbove.name === 'flowing_lava' || blockAbove.name === 'fire') {
+                bot.chat('I\'m on fire!'); // TODO: gets stuck in lava
+                execute(this, agent, async () => {
+                    let nearestWater = world.getNearestBlock(bot, 'water', 20);
+                    if (nearestWater) {
+                        const pos = nearestWater.position;
+                        await skills.goToPosition(bot, pos.x, pos.y, pos.z, 0.2);
+                        bot.chat('Ahhhh that\'s better!');
+                    }
+                    else {
+                        await skills.moveAway(bot, 5);
+                    }
+                });
+            }
+            else if (Date.now() - bot.lastDamageTime < 3000 && (bot.health < 5 || bot.lastDamageTaken >= bot.health)) {
+                bot.chat('I\'m dying!');
+                execute(this, agent, async () => {
+                    await skills.moveAway(bot, 20);
+                });
+            }
+            else if (agent.isIdle()) {
+                bot.clearControlStates(); // clear jump if not in danger or doing anything else
+            }
+        }
+    },
+    {
+        name: 'cowardice',
+        description: 'Run away from enemies. Interrupts other actions.',
         interrupts: ['all'],
         on: true,
         active: false,
         update: async function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 9);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
+            if (enemy && await world.isClearPath(agent.bot, enemy)) {
+                agent.bot.chat(`Aaa! A ${enemy.name}!`);
+                execute(this, agent, async () => {
+                    await skills.avoidEnemies(agent.bot, 24);
+                });
+            }
+        }
+    },
+    {
+        name: 'self_defense',
+        description: 'Attack nearby enemies. Interrupts other actions.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        update: async function (agent) {
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
                 agent.bot.chat(`Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
-                    await skills.defendSelf(agent.bot, 9);
+                    await skills.defendSelf(agent.bot, 8);
                 });
             }
         }
     },
     {
         name: 'hunting',
-        description: 'Automatically hunt nearby animals when idle.',
+        description: 'Hunt nearby animals when idle.',
         interrupts: ['defaults'],
         on: true,
         active: false,
@@ -49,7 +115,7 @@ const modes = [
     },
     {
         name: 'item_collecting',
-        description: 'Automatically collect nearby items when idle.',
+        description: 'Collect nearby items when idle.',
         interrupts: ['followPlayer'],
         on: true,
         active: false,
@@ -79,28 +145,26 @@ const modes = [
     },
     {
         name: 'torch_placing',
-        description: 'Automatically place torches when idle and there are no torches nearby.',
+        description: 'Place torches when idle and there are no torches nearby.',
         interrupts: ['followPlayer'],
         on: true,
         active: false,
+        cooldown: 5,
+        last_place: Date.now(),
         update: function (agent) {
-            // TODO: check light level instead of nearby torches, block.light is broken
-            const near_torch = world.getNearestBlock(agent.bot, 'torch', 6);
-            if (!near_torch) {
-                let torches = agent.bot.inventory.items().filter(item => item.name === 'torch');
-                if (torches.length > 0) {
-                    const torch = torches[0];
+            if (world.shouldPlaceTorch(agent.bot)) {
+                if (Date.now() - this.last_place < this.cooldown * 1000) return;
+                execute(this, agent, async () => {
                     const pos = agent.bot.entity.position;
-                    execute(this, agent, async () => {
-                        await skills.placeBlock(agent.bot, torch.name, pos.x, pos.y, pos.z);
-                    });
-                }
+                    await skills.placeBlock(agent.bot, 'torch', pos.x, pos.y, pos.z, 'bottom', true);
+                });
+                this.last_place = Date.now();
             }
         }
     },
     {
         name: 'idle_staring',
-        description: 'Non-functional animation to look around at entities when idle.',
+        description: 'Animation to look around at entities when idle.',
         interrupts: [],
         on: true,
         active: false,
@@ -135,6 +199,14 @@ const modes = [
             }
         }
     },
+    {
+        name: 'cheat',
+        description: 'Use cheats to instantly place blocks and teleport.',
+        interrupts: [],
+        on: false,
+        active: false,
+        update: function (agent) { /* do nothing */ }
+    }
 ];
 
 async function execute(mode, agent, func, timeout=-1) {
@@ -201,9 +273,29 @@ class ModeController {
             if (mode.active) break;
         }
     }
+
+    getJson() {
+        let res = {};
+        for (let mode of this.modes_list) {
+            res[mode.name] = mode.on;
+        }
+        return res;
+    }
+
+    loadJson(json) {
+        for (let mode of this.modes_list) {
+            if (json[mode.name] != undefined) {
+                mode.on = json[mode.name];
+            }
+        }
+    }
 }
 
 export function initModes(agent) {
     // the mode controller is added to the bot object so it is accessible from anywhere the bot is used
     agent.bot.modes = new ModeController(agent);
+    let modes = agent.prompter.getInitModes();
+    if (modes) {
+        agent.bot.modes.loadJson(modes);
+    }
 }

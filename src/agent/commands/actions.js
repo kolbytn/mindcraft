@@ -1,5 +1,5 @@
 import * as skills from '../library/skills.js';
-import settings from '../../settings.js';
+import settings from '../../../settings.js';
 
 function wrapExecution(func, timeout=-1, resume_name=null) {
     return async function (agent, ...args) {
@@ -36,6 +36,7 @@ export const actionsList = [
             await agent.coder.stop();
             agent.coder.clear();
             agent.coder.cancelResume();
+            agent.bot.emit('idle');
             return 'Agent stopped.';
         }
     },
@@ -43,7 +44,8 @@ export const actionsList = [
         name: '!restart',
         description: 'Restart the agent process.',
         perform: async function (agent) {
-            process.exit(1);
+            await agent.history.save();
+            agent.cleanKill();
         }
     },
     {
@@ -99,6 +101,28 @@ export const actionsList = [
         params: {'distance': '(number) The distance to move away.'},
         perform: wrapExecution(async (agent, distance) => {
             await skills.moveAway(agent.bot, distance);
+        })
+    },
+    {
+        name: '!rememberHere',
+        description: 'Save the current location with a given name.',
+        params: {'name': '(string) The name to remember the location as.'},
+        perform: async function (agent, name) {
+            const pos = agent.bot.entity.position;
+            agent.memory_bank.rememberPlace(name, pos.x, pos.y, pos.z);
+        }
+    },
+    {
+        name: '!goToPlace',
+        description: 'Go to a saved location.',
+        params: {'name': '(string) The name of the location to go to.'},
+        perform: wrapExecution(async (agent, name) => {
+            const pos = agent.memory_bank.recallPlace(name);
+            if (!pos) {
+                skills.log(agent.bot, `No location named "${name}" saved.`);
+                return;
+            }
+            await skills.goToPosition(agent.bot, pos[0], pos[1], pos[2], 1);
         })
     },
     {
@@ -196,5 +220,18 @@ export const actionsList = [
         perform: wrapExecution(async (agent) => {
             await skills.stay(agent.bot);
         })
+    },
+    {
+        name: '!goal',
+        description: 'Set a goal to automatically work towards.',
+        params: {
+            'name': '(string) The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.',
+            'quantity': '(number) The quantity of the goal to set. Default is 1.'
+        },
+        perform: async function (agent, name=null, quantity=1) {
+            await agent.npc.setGoal(name, quantity);
+            agent.bot.emit('idle');  // to trigger the goal
+            return 'Set goal: ' + agent.npc.data.curr_goal.name;
+        }
     }
 ];

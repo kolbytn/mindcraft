@@ -1,6 +1,8 @@
 .vscode/
 node_modules/
 package-lock.json
+code_records/
 scratch.js
 bots/**/action-code/**
 bots/**/
+keys.json

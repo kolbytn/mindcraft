@@ -1,7 +1,0 @@
-{
-    "minecraft_version": "1.20.4",
-    "host": "localhost",
-    "port": 55916,
-    "auth": "offline",
-    "allow_insecure_coding": false
-}

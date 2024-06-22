@@ -25,7 +25,7 @@ export class AgentProcess {
                     process.exit(1);
                 }
                 console.log('Restarting agent...');
-                this.start(profile, true, 'Agent process restarted. Notify the user and decide what to do.');
+                this.start(profile, true, 'Agent process restarted.');
                 last_restart = Date.now();
             }
         });
