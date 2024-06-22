@@ -86,13 +86,12 @@ export class Agent {
                 return;
             }
             this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
-            let execute_res = await executeCommand(this, message);
             if (user_command_name === '!newAction') {
                 // all user initiated commands are ignored by the bot except for this one
                 // add the preceding message to the history to give context for newAction
-                let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
-                this.history.add(source, truncated_msg);
+                this.history.add(source, message);
             }
+            let execute_res = await executeCommand(this, message);
             if (execute_res) 
                 this.cleanChat(execute_res);
             return;
