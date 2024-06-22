@@ -525,7 +525,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
                 blockType += `[facing=${face}]`;
             }
         }
-        if (blockType === 'repeater' || blockType === 'comparator') {
+        if (blockType === 'ladder' || blockType === 'repeater' || blockType === 'comparator') {
             blockType += `[facing=${face}]`;
         }
 
@@ -540,6 +540,10 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     }
 
     let block = bot.inventory.items().find(item => item.name === blockType);
+    if (!block && bot.game.gameMode === 'creative') {
+        await bot.creative.setInventorySlot(36, mc.makeItem(blockType, 1)); // 36 is first hotbar slot
+        block = bot.inventory.items().find(item => item.name === blockType);
+    }
     if (!block) {
         log(bot, `Don't have any ${blockType} to place.`);
         return false;
