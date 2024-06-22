@@ -567,7 +567,6 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     // get the buildoffblock and facevec based on whichever adjacent block is not empty
     let buildOffBlock = null;
     let faceVec = null;
-    // const dirs = [Vec3(0, -1, 0), Vec3(0, 1, 0), Vec3(1, 0, 0), Vec3(-1, 0, 0), Vec3(0, 0, 1), Vec3(0, 0, -1)];
     const dir_map = {
         'top': Vec3(0, 1, 0),
         'bottom': Vec3(0, -1, 0),
