@@ -1,5 +1,5 @@
 import OpenAIApi from 'openai';
-
+import { getKey, hasKey } from '../utils/keys.js';
 
 export class GPT {
     constructor(model_name, url) {
@@ -8,12 +8,11 @@ export class GPT {
         let config = {};
         if (url)
             config.baseURL = url;
-        if (process.env.OPENAI_ORG_ID)
-            config.organization = process.env.OPENAI_ORG_ID
-        if (process.env.OPENAI_API_KEY)
-            config.apiKey = process.env.OPENAI_API_KEY
-        else
-            throw new Error('OpenAI API key missing! Make sure you set your OPENAI_API_KEY environment variable.');
+
+        if (hasKey('OPENAI_ORG_ID'))
+            config.organization = getKey('OPENAI_ORG_ID');
+
+        config.apiKey = getKey('OPENAI_API_KEY');
 
         this.openai = new OpenAIApi(config);
     }
@@ -25,7 +24,7 @@ export class GPT {
         let res = null;
         try {
             console.log('Awaiting openai api response...')
-            console.log('Messages:', messages);
+            // console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
                 model: this.model_name || "gpt-3.5-turbo",
                 messages: messages,

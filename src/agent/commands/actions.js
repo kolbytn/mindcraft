@@ -1,5 +1,5 @@
 import * as skills from '../library/skills.js';
-import settings from '../../settings.js';
+import settings from '../../../settings.js';
 
 function wrapExecution(func, timeout=-1, resume_name=null) {
     return async function (agent, ...args) {

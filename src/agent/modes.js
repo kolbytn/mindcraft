@@ -24,8 +24,8 @@ const modes = [
         fall_blocks: ['sand', 'gravel', 'concrete_powder'], // includes matching substrings like 'sandstone' and 'red_sand'
         update: async function (agent) {
             const bot = agent.bot;
-            const block = bot.blockAt(bot.entity.position);
-            const blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
+            let block = bot.blockAt(bot.entity.position);
+            let blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
             if (!block) block = {name: 'air'}; // hacky fix when blocks are not loaded
             if (!blockAbove) blockAbove = {name: 'air'};
             if (blockAbove.name === 'water' || blockAbove.name === 'flowing_water') {
@@ -149,21 +149,16 @@ const modes = [
         interrupts: ['followPlayer'],
         on: true,
         active: false,
+        cooldown: 5,
+        last_place: Date.now(),
         update: function (agent) {
-            // TODO: check light level instead of nearby torches, block.light is broken
-            const near_torch = world.getNearestBlock(agent.bot, 'torch', 6);
-            if (!near_torch) {
-                let torches = agent.bot.inventory.items().filter(item => item.name === 'torch');
-                if (torches.length > 0) {
-                    const torch = torches[0];
+            if (world.shouldPlaceTorch(agent.bot)) {
+                if (Date.now() - this.last_place < this.cooldown * 1000) return;
+                execute(this, agent, async () => {
                     const pos = agent.bot.entity.position;
-                    const curr_block = agent.bot.blockAt(pos);
-                    if (curr_block.name === 'air') {
-                        execute(this, agent, async () => {
-                            await skills.placeBlock(agent.bot, torch.name, pos.x, pos.y, pos.z);
-                        });
-                    }
-                }
+                    await skills.placeBlock(agent.bot, 'torch', pos.x, pos.y, pos.z, true);
+                });
+                this.last_place = Date.now();
             }
         }
     },
@@ -204,6 +199,14 @@ const modes = [
             }
         }
     },
+    {
+        name: 'cheat',
+        description: 'Use cheats to instantly place blocks and teleport.',
+        interrupts: [],
+        on: false,
+        active: false,
+        update: function (agent) { /* do nothing */ }
+    }
 ];
 
 async function execute(mode, agent, func, timeout=-1) {
@@ -293,4 +296,8 @@ class ModeController {
 export function initModes(agent) {
     // the mode controller is added to the bot object so it is accessible from anywhere the bot is used
     agent.bot.modes = new ModeController(agent);
+    let modes = agent.prompter.getInitModes();
+    if (modes) {
+        agent.bot.modes.loadJson(modes);
+    }
 }

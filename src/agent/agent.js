@@ -7,6 +7,7 @@ import { containsCommand, commandExists, executeCommand, truncCommandMessage, is
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
+import settings from '../../settings.js';
 
 
 export class Agent {
@@ -46,7 +47,8 @@ export class Agent {
                 "Set the weather to",
                 "Gamerule "
             ];
-            this.bot.on('chat', (username, message) => {
+            const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
+            this.bot.on(eventname, (username, message) => {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
@@ -88,9 +90,6 @@ export class Agent {
     }
 
     async handleMessage(source, message, self_prompt=false) {
-        if (!!source && !!message)
-            await this.history.add(source, message);
-
         let used_command = false;
 
         if (source !== 'system' && source !== this.name && !self_prompt) {
@@ -101,13 +100,12 @@ export class Agent {
                     return false;
                 }
                 this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
-                let execute_res = await executeCommand(this, message);
                 if (user_command_name === '!newAction') {
                     // all user initiated commands are ignored by the bot except for this one
                     // add the preceding message to the history to give context for newAction
-                    let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
-                    this.history.add(source, truncated_msg);
+                    this.history.add(source, message);
                 }
+                let execute_res = await executeCommand(this, message);
                 if (execute_res) 
                     this.cleanChat(execute_res);
                 return true;

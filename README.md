@@ -4,7 +4,7 @@ Crafting minds for Minecraft with Language Models and Mineflayer!
 
 #### ‼️Warning‼️
 
-This project allows an AI model to write/execute code on your computer that may be insecure, dangerous, and vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.json`. Enable only on local or private servers, **never** on public servers. Ye be warned.
+This project allows an AI model to write/execute code on your computer that may be insecure, dangerous, and vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. Enable only on local or private servers, **never** on public servers. Ye be warned.
 
 ## Requirements
 
@@ -14,9 +14,8 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Installation
 
-Add the environment variable for the model you want to use:
-
-| API | Env Variable | Example Model name | Docs |
+Rename `keys.example.json` to `keys.json` and fill in your API keys, and you can set the desired model in `andy.json` or other profiles.
+| API | Config Variable | Example Model name | Docs |
 |------|------|------|------|
 | OpenAI | `OPENAI_API_KEY` | `gpt-3.5-turbo` | [docs](https://platform.openai.com/docs/models) | (optionally add `OPENAI_ORG_ID`)
 | Google | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
@@ -24,16 +23,14 @@ Add the environment variable for the model you want to use:
 | Replicate | `REPLICATE_API_KEY` | `meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
 | Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
 
-⭐[How do I add the API key as an environment variable?](https://phoenixnap.com/kb/windows-set-environment-variable)⭐
-
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3 && ollama pull nomic-embed-text`
 
 Then, clone/download this repository
 
-Run `npm install`
+Run `npm install` from the installed directory
 
-Install the minecraft version specified in `settings.json`, currently supports up to 1.20.4
+Install the minecraft version specified in `settings.js`, currently supports up to 1.20.4
 
 ### Running Locally
 
@@ -43,18 +40,16 @@ Run `node main.js`
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json`.
 
-You can configure project details in `settings.json`.
+You can configure project details in `settings.js`. [See file for more details](settings.js)
 
 ### Online Servers
-To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here is an example settings for this:
+To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here are example settings for this:
 ```
-{
-    "minecraft_version": "1.20.4",
-    "host": "111.222.333.444",
-    "port": 55920,
-    "auth": "microsoft",
-    "allow_insecure_coding": false
-}
+"host": "111.222.333.444",
+"port": 55920,
+"auth": "microsoft",
+
+// rest is same...
 ```
 ‼️Make sure your bot's name in the profile.json matches the account name! Otherwise the bot will spam talk to itself.
 

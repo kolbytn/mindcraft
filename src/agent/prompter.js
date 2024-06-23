@@ -15,12 +15,12 @@ import { Local } from '../models/local.js';
 export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
-        this.prompts = JSON.parse(readFileSync(fp, 'utf8'));
+        this.profile = JSON.parse(readFileSync(fp, 'utf8'));
         this.convo_examples = null;
         this.coding_examples = null;
 
-        let name = this.prompts.name;
-        let chat = this.prompts.model;
+        let name = this.profile.name;
+        let chat = this.profile.model;
         if (typeof chat === 'string' || chat instanceof String) {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
@@ -50,9 +50,13 @@ export class Prompter {
         else
             throw new Error('Unknown API:', api);
 
-        let embedding = this.prompts.embedding;
-        if (embedding === undefined)
-            embedding = {api: chat.api};
+        let embedding = this.profile.embedding;
+        if (embedding === undefined) {
+            if (chat.api !== 'ollama')
+                embedding = {api: chat.api};
+            else
+                embedding = {api: 'none'};
+        }
         else if (typeof embedding === 'string' || embedding instanceof String)
             embedding = {api: embedding};
 
@@ -72,7 +76,7 @@ export class Prompter {
         }
 
         mkdirSync(`./bots/${name}`, { recursive: true });
-        writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.prompts, null, 4), (err) => {
+        writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {
             if (err) {
                 throw err;
             }
@@ -81,15 +85,19 @@ export class Prompter {
     }
 
     getName() {
-        return this.prompts.name;
+        return this.profile.name;
+    }
+
+    getInitModes() {
+        return this.profile.modes;
     }
 
     async initExamples() {
         console.log('Loading examples...')
         this.convo_examples = new Examples(this.embedding_model);
-        await this.convo_examples.load(this.prompts.conversation_examples);
+        await this.convo_examples.load(this.profile.conversation_examples);
         this.coding_examples = new Examples(this.embedding_model);
-        await this.coding_examples.load(this.prompts.coding_examples);
+        await this.coding_examples.load(this.profile.coding_examples);
         console.log('Examples loaded.');
     }
 
@@ -145,25 +153,25 @@ export class Prompter {
     }
 
     async promptConvo(messages) {
-        let prompt = this.prompts.conversing;
+        let prompt = this.profile.conversing;
         prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptCoding(messages) {
-        let prompt = this.prompts.coding;
+        let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptMemSaving(prev_mem, to_summarize) {
-        let prompt = this.prompts.saving_memory;
+        let prompt = this.profile.saving_memory;
         prompt = await this.replaceStrings(prompt, null, null, prev_mem, to_summarize);
         return await this.chat_model.sendRequest([], prompt);
     }
 
     async promptGoalSetting(messages, last_goals) {
-        let system_message = this.prompts.goal_setting;
+        let system_message = this.profile.goal_setting;
         system_message = await this.replaceStrings(system_message, messages);
 
         let user_message = 'Use the below info to determine what goal to target next\n\n';
