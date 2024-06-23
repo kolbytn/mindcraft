@@ -1009,3 +1009,31 @@ export async function activateNearestBlock(bot, type) {
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }
+
+export async function Fish(bot, count) {
+    for (let i = 0; i < count; i++) {
+        try {
+            const nearestWaterBlock = world.getNearestBlock(bot, 'water', 20);
+            if (nearestWaterBlock) {
+                const fishingRod = bot.inventory.items().find(item => item.name.includes('fishing_rod'));;
+                if (fishingRod) {
+                    bot.equip(fishingRod, 'hand');
+                    bot.lookAt(nearestWaterBlock.position);
+                    await bot.waitForTicks(30);
+                    await bot.fish();
+                } else {
+                    log(bot, 'No fishing rod found in inventory.');
+                    return;
+                }
+            } else {
+                log(bot, 'No water block found nearby: ', nearestWaterBlock);
+                return;
+            }
+        } catch (err) {
+            console.error(err);
+            log(bot, 'Error while fishing:', err.message);
+            return;
+        }
+    }
+    log(bot, 'Succesfuly finished fishing.');
+}
