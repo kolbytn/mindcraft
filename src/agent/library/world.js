@@ -261,6 +261,8 @@ export function shouldPlaceTorch(bot) {
     const pos = getPosition(bot);
     // TODO: check light level instead of nearby torches, block.light is broken
     let nearest_torch = getNearestBlock(bot, 'torch', 6);
+    if (!nearest_torch)
+        nearest_torch = getNearestBlock(bot, 'wall_torch', 6);
     if (!nearest_torch) {
         const block = bot.blockAt(pos);
         let has_torch = bot.inventory.items().find(item => item.name === 'torch');

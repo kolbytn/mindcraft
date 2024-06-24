@@ -153,8 +153,8 @@
             {"role": "assistant", "content": "I found an oak log and I am now standing next to it. What next?"}
         ],
         [
-            {"role": "user", "content": "234jeb: build a little tower"},
-            {"role": "assistant", "content": "```let pos = bot.entity.position;\nfor (let i = 0; i < 5; i++) {\n    await skills.placeBlock(bot, 'dirt', pos.x, pos.y + i, pos.z);\n}\n```"},
+            {"role": "user", "content": "234jeb: build a little tower with a torch on the side"},
+            {"role": "assistant", "content": "```let pos = bot.entity.position;\nfor (let i = 0; i < 5; i++) {\n    await skills.placeBlock(bot, 'dirt', pos.x, pos.y + i, pos.z);\n}\nawait skills.placeBlock(bot, 'torch', pos.x + 1, pos.y + 4, pos.z, 'side');\n```"},
             {"role": "system", "content": "Successfully placed 5 dirt."},
             {"role": "assistant", "content": "I built a little tower!"}
         ],
