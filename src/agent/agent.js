@@ -72,7 +72,7 @@ export class Agent {
                 this.self_prompter.start(prompt);
             }
             else if (init_message) {
-                this.handleMessage('system', init_message, true);
+                this.handleMessage('system', init_message, 2);
             }
             else {
                 this.bot.chat('Hello world! I am ' + this.name);
@@ -89,10 +89,12 @@ export class Agent {
         return this.bot.chat(message);
     }
 
-    async handleMessage(source, message, self_prompt=false) {
+    async handleMessage(source, message, max_responses=5) {
         let used_command = false;
 
-        if (source !== 'system' && source !== this.name && !self_prompt) {
+        let self_prompt = source === 'system' || source === this.name;
+
+        if (!self_prompt) {
             const user_command_name = containsCommand(message);
             if (user_command_name) {
                 if (!commandExists(user_command_name)) {
@@ -111,11 +113,14 @@ export class Agent {
                 return true;
             }
         }
-        let MAX_ATTEMPTS = 5;
-        if (!self_prompt && this.self_prompter.on) // message from user during self-prompting
-            MAX_ATTEMPTS = 1; // immediately respond to this message, then let self-prompting take over
-        for (let i=0; i<MAX_ATTEMPTS; i++) {
-            if (self_prompt && this.self_prompter.on && this.self_prompter.interrupt) break;
+
+        await this.history.add(source, message);
+        this.history.save();
+
+        if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
+            max_responses = 1; // force only respond to this message, then let self-prompting take over
+        for (let i=0; i<max_responses; i++) {
+            if (this.self_prompter.shouldInterrupt(self_prompt)) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
@@ -126,7 +131,7 @@ export class Agent {
                 res = truncCommandMessage(res); // everything after the command is ignored
                 this.history.add(this.name, res);
                 if (!commandExists(command_name)) {
-                    this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
+                    this.history.add('system', `Command ${command_name} does not exist.`);
                     console.warn('Agent hallucinated command:', command_name)
                     continue;
                 }
@@ -135,18 +140,18 @@ export class Agent {
                     continue;
                 }
 
-                // commented for now, maybe should add a 'verbose' option to settings.json to enable cleaner output
-                // let pre_message = res.substring(0, res.indexOf(command_name)).trim();
-                // let chat_message = `*used ${command_name.substring(1)}*`;
-                // if (pre_message.length > 0)
-                //     chat_message = `${pre_message}  ${chat_message}`;
-                this.cleanChat(res);
+                if (this.self_prompter.shouldInterrupt(self_prompt)) break;
+                this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
-                if (self_prompt && this.self_prompter.on && this.self_prompter.interrupt) break;
-
-                if (isAction(command_name) && !self_prompt && this.self_prompter.on) {
-                    this.self_prompter.stopLoop(); // so agent doesn't respond from self-prompting loop
-                    // will be automatically restarted by self-prompter
+                if (settings.verbose_commands) {
+                    this.cleanChat(res);
+                }
+                else { // only output command name
+                    let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+                    let chat_message = `*used ${command_name.substring(1)}*`;
+                    if (pre_message.length > 0)
+                        chat_message = `${pre_message}  ${chat_message}`;
+                    this.cleanChat(res);
                 }
 
                 let execute_res = await executeCommand(this, res);

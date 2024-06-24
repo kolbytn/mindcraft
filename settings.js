@@ -14,4 +14,5 @@ export default
     "init_message": "Say hello world and your name", // sends to all on spawn
     "allow_insecure_coding": false, // disable at own risk
     "code_timeout_mins": 10, // -1 for no timeout
+    "verbose_commands": true, // show full command syntax
 }
