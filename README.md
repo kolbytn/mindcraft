@@ -32,6 +32,8 @@ Run `npm install` from the installed directory
 
 Install the minecraft version specified in `settings.js`, currently supports up to 1.20.4
 
+You will also need to run `npm install prismarine-viewer`
+
 ### Running Locally
 
 Start a minecraft world and open it to LAN on localhost port `55916`
