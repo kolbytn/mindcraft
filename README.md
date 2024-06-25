@@ -8,7 +8,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude), [Replicate API Subscription](https://replicate.com/) or [Ollama Installed](https://ollama.com/download)
+- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude), [Replicate API Subscription](https://replicate.com/), [Ollama Installed](https://ollama.com/download), or, a [Groq Account & API Key](https://console.groq.com/keys)
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc)
 - [Node.js](https://nodejs.org/) (at least v14)
 

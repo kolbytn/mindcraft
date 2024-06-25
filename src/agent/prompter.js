@@ -10,6 +10,7 @@ import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
+import { Mixtral } from '../models/groq.js';
 
 
 export class Prompter {
@@ -31,6 +32,8 @@ export class Prompter {
                 chat.api = 'anthropic';
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
+            else if (chat.model.includes('mixtral'))
+                chat.api = 'groq';
             else
                 chat.api = 'ollama';
         }
@@ -47,6 +50,8 @@ export class Prompter {
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api == 'groq')
+            this.chat_model = new Mixtral(chat.model, chat.url)
         else
             throw new Error('Unknown API:', api);
 
