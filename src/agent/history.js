@@ -61,6 +61,9 @@ export class History {
         const memory_bank = this.agent.memory_bank.getJson();
         if (memory_bank !== null)
             data.memory_bank = memory_bank;
+        if (this.agent.self_prompter.on) {
+            data.self_prompt = this.agent.self_prompter.prompt;
+        }
         const json_data = JSON.stringify(data, null, 4);
         writeFileSync(this.memory_fp, json_data, (err) => {
             if (err) {
@@ -82,9 +85,11 @@ export class History {
             if (obj.memory_bank)
                 this.agent.memory_bank.loadJson(obj.memory_bank);
             this.turns = obj.turns;
+            return obj;
         } catch (err) {
             console.error(`Error reading ${this.name}'s memory file: ${err.message}`);
         }
+        return null;
     }
 
     clear() {

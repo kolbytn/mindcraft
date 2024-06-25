@@ -210,6 +210,8 @@ const modes = [
 ];
 
 async function execute(mode, agent, func, timeout=-1) {
+    if (agent.self_prompter.on)
+        agent.self_prompter.stopLoop();
     mode.active = true;
     let code_return = await agent.coder.execute(async () => {
         await func();

@@ -68,6 +68,10 @@ export function truncCommandMessage(message) {
     return message;
 }
 
+export function isAction(name) {
+    return actionsList.find(action => action.name === name) !== undefined;
+}
+
 function numParams(command) {
     if (!command.params)
         return 0;

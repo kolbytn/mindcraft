@@ -37,7 +37,10 @@ export const actionsList = [
             agent.coder.clear();
             agent.coder.cancelResume();
             agent.bot.emit('idle');
-            return 'Agent stopped.';
+            let msg = 'Agent stopped.';
+            if (agent.self_prompter.on)
+                msg += ' Self-prompting still active.';
+            return msg;
         }
     },
     {
@@ -232,6 +235,24 @@ export const actionsList = [
             await agent.npc.setGoal(name, quantity);
             agent.bot.emit('idle');  // to trigger the goal
             return 'Set goal: ' + agent.npc.data.curr_goal.name;
+        }
+    },
+    {
+        name: '!selfPrompt',
+        description: 'Continously prompt yourself to continue acting without user input.',
+        params: {
+            'prompt': '(string) The starting prompt.',
+        },
+        perform: async function (agent, prompt) {
+            agent.self_prompter.start(prompt); // don't await, don't return
+        }
+    },
+    {
+        name: '!stopSelfPrompt',
+        description: 'Stop current action and self-prompting.',
+        perform: async function (agent) {
+            agent.self_prompter.stop();
+            return 'Self-prompting stopped.';
         }
     }
 ];
