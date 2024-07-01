@@ -1,7 +1,7 @@
 {
-    "OPENAI_API_KEY": "",
-    "OPENAI_ORG_ID": "",
-    "GEMINI_API_KEY": "",
-    "ANTHROPIC_API_KEY": "",
-    "REPLICATE_API_KEY": ""
+    "OPENAI_API_KEY": "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",
+    "OPENAI_ORG_ID": "org-Sv7KY6BlpdoI2KY0BaVgOMI4",
+    "GEMINI_API_KEY": "AIzaSyBn8goHh5mqC_5rCa3gqbzfm7q7H7f-eY4",
+    "ANTHROPIC_API_KEY": "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",
+    "REPLICATE_API_KEY": "sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"
 }
