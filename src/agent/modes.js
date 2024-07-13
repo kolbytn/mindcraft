@@ -156,7 +156,7 @@ const modes = [
                 if (Date.now() - this.last_place < this.cooldown * 1000) return;
                 execute(this, agent, async () => {
                     const pos = agent.bot.entity.position;
-                    await skills.placeBlock(agent.bot, 'torch', pos.x, pos.y, pos.z, true);
+                    await skills.placeBlock(agent.bot, 'torch', pos.x, pos.y, pos.z, 'bottom', true);
                 });
                 this.last_place = Date.now();
             }
