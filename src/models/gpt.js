@@ -21,9 +21,16 @@ export class GPT {
 
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
+        // rate limit this entire function to 1 request per second
+        // this is to prevent hitting the openai rate limit
+        // if you need more throughput, you can increase this
+        // but be aware that it will increase the likelihood of hitting the rate limit
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
         let res = null;
         try {
             console.log('Awaiting openai api response...')
+
             // console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create({
                 model: this.model_name || "gpt-3.5-turbo",

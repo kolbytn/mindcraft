@@ -1,0 +1,4 @@
+- [ ] Get working with Llama3
+- [ ] Add some additional buildings examples to the library
+- [ ] Add "mural generator" to generate block-formatted murals
+- [ ] Write function for replacing a wall with a mural

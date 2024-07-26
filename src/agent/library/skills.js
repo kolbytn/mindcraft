@@ -1063,3 +1063,5 @@ export async function activateNearestBlock(bot, type) {
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }
+
+
