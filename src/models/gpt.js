@@ -46,6 +46,11 @@ export class GPT {
 
         while (!this.requestQueue.isEmpty()) {
             const { element: { turns, systemMessage, stop_seq, resolve, reject }, priority } = this.requestQueue.dequeue();
+            // if it's more than 30 seconds old, don't process it
+            if (Date.now() - priority > 30000) {
+                console.log('Request is too old, skipping.');
+                continue;
+            }
 
             try {
                 const result = await this.sendRequestInternal(turns, systemMessage, stop_seq);
