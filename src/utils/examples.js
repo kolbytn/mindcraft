@@ -29,13 +29,15 @@ export class Examples {
         return intersection.length / (words1.length + words2.length - intersection.length);
     }
 
+    //Handle all embedded tasks simultaneously for faster loading
     async load(examples) {
         this.examples = examples;
         if (this.model !== null) {
-            for (let example of this.examples) {
+            const embeddingPromises = this.examples.map(async (example) => {
                 let turn_text = this.turnsToText(example);
                 this.embeddings[turn_text] = await this.model.embed(turn_text);
-            }
+            });
+            await Promise.all(embeddingPromises);
         }
     }
 
