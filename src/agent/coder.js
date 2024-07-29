@@ -1,5 +1,6 @@
-import { writeFile, readFile, mkdirSync } from 'fs';
+import { writeFile, readFile, mkdirSync, copyFileSync, lstatSync, readdirSync, existsSync } from 'fs';
 import settings from '../../settings.js';
+import path from 'path';
 
 export class Coder {
     constructor(agent) {
@@ -10,6 +11,7 @@ export class Coder {
         this.generating = false;
         this.code_template = '';
         this.timedout = false;
+        this.new_func_code = ''; //生成的新代码
 
         readFile('./bots/template.js', 'utf8', (err, data) => {
             if (err) throw err;
@@ -17,6 +19,44 @@ export class Coder {
         });
 
         mkdirSync('.' + this.fp, { recursive: true });
+        // Copy the base file, and finally Boolean parameters control whether to replace the existing file.
+        const targetLibraryPath = './bots/' + agent.name + '/library';
+        if (!existsSync(targetLibraryPath)) {
+            this.copyFolderRecursiveSync('./src/agent/library', targetLibraryPath,false);
+        }
+        // Copy the base file, and finally Boolean parameters control whether to replace the existing file.Replace-true.
+        const targetUtilsPath = './bots/utils';
+        if (!existsSync(targetUtilsPath)) {
+            this.copyFolderRecursiveSync('./src/utils', targetUtilsPath,true);
+        }
+    }
+    // Recursively copies the folder and its contents
+    copyFolderRecursiveSync(source, target, shouldReplace) {
+        // If shouldReplace is true, delete the target folder and its contents
+        if (shouldReplace && existsSync(target)) {
+            rmSync(target, { recursive: true, force: true });
+        }
+
+        // Ensure the target path exists
+        if (!existsSync(target)) {
+            mkdirSync(target, { recursive: true });
+        }
+
+        // Read the contents of the source folder
+        if (lstatSync(source).isDirectory()) {
+            let files = readdirSync(source);
+            files.forEach((file) => {
+                let curSource = path.join(source, file);
+                let curTarget = path.join(target, file);
+                if (lstatSync(curSource).isDirectory()) {
+                    // Recursively copy subfolders
+                    copyFolderRecursiveSync(curSource, curTarget, false);
+                } else {
+                    // Copy the file to the target folder
+                    copyFileSync(curSource, curTarget);
+                }
+            });
+        }
     }
 
     // write custom code to file and import it
@@ -33,6 +73,14 @@ export class Coder {
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
+
+        console.log(`The cleaned code: """${src}"""`);
+        //Copy src into the variable new fuc code
+        this.new_func_code = '\nexport '+src.trim();
+        // Delete last line,such as "await buildHouseAndGarden(bot);"
+        this.new_func_code = this.new_func_code.substring(0, this.new_func_code.lastIndexOf('\n'));
+
+
         src = this.code_template.replace('/* CODE HERE */', src);
 
         let filename = this.file_counter + '.js';
@@ -46,7 +94,7 @@ export class Coder {
         this.file_counter++;
 
         let write_result = await this.writeFilePromise('.' + this.fp + filename, src)
-        
+
         if (write_result) {
             console.error('Error writing code execution file: ' + result);
             return null;
@@ -107,7 +155,7 @@ export class Coder {
             if (!contains_code) {
                 if (res.indexOf('!newAction') !== -1) {
                     messages.push({
-                        role: 'assistant', 
+                        role: 'assistant',
                         content: res.substring(0, res.indexOf('!newAction'))
                     });
                     continue; // using newaction will continue the loop
@@ -117,13 +165,22 @@ export class Coder {
                     agent_history.add('system', code_return.message);
                     agent_history.add(this.agent.name, res);
                     this.agent.bot.chat(res);
+                    //Write the new func code to the file
+                    let targetPath = './bots/' + this.agent.name + '/library/skills.js';
+                    //Write in append mode
+                    writeFile(targetPath, this.new_func_code, {flag: 'a'}, (err) => {
+                        if (err) {
+                            console.error('Failed to write code to file:', err);
+                            return null;
+                        }
+                    });
                     return {success: true, message: null, interrupted: false, timedout: false};
                 }
                 if (failures >= 1) {
                     return {success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false};
                 }
                 messages.push({
-                    role: 'system', 
+                    role: 'system',
                     content: 'Error: no code provided. Write code in codeblock in your response. ``` // example ```'}
                 );
                 failures++;

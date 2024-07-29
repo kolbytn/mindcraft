@@ -6,7 +6,7 @@ export class GPT {
         this.model_name = model_name;
 
         let config = {};
-        if (url)
+        if (url && url !== '')
             config.baseURL = url;
 
         if (hasKey('OPENAI_ORG_ID'))
@@ -49,7 +49,7 @@ export class GPT {
 
     async embed(text) {
         const embedding = await this.openai.embeddings.create({
-            model: this.model_name || "text-embedding-ada-002",
+            model: this.model_name || "text-embedding-3-large",
             input: text,
             encoding_format: "float",
         });

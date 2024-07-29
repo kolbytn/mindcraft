@@ -1,7 +1,7 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from './commands/index.js';
-import { getSkillDocs } from './library/index.js';
+// import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
 
@@ -40,7 +40,10 @@ export class Prompter {
         if (chat.api == 'google')
             this.chat_model = new Gemini(chat.model, chat.url);
         else if (chat.api == 'openai')
+        {
+            chat.url = this.profile.url; // Add this line to set the url for the GPT model
             this.chat_model = new GPT(chat.model, chat.url);
+        }
         else if (chat.api == 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
         else if (chat.api == 'replicate')
@@ -64,8 +67,10 @@ export class Prompter {
 
         if (embedding.api == 'google')
             this.embedding_model = new Gemini(embedding.model, embedding.url);
-        else if (embedding.api == 'openai')
+        else if (embedding.api == 'openai') {
+            embedding.url = this.profile.url; // Add this line to set the url for the GPT model
             this.embedding_model = new GPT(embedding.model, embedding.url);
+        }
         else if (embedding.api == 'replicate') 
             this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
         else if (embedding.api == 'ollama')
@@ -83,7 +88,18 @@ export class Prompter {
             console.log("Copy profile saved.");
         });
     }
-
+    //Add a new asynchronous method to dynamically import getSkillDocs
+    async loadSkillDocs() {
+        try {
+            // 构造基于 agent.name 的路径
+            let moduleName = `../../bots/${this.agent.name}/library/index.js`;
+            let skillModule = await import(moduleName);
+            return skillModule.getSkillDocs;
+        } catch (error) {
+            console.error('Failed to load skill docs:', error);
+            throw error;  // 抛出错误或处理错误
+        }
+    }
     getName() {
         return this.profile.name;
     }
@@ -121,7 +137,7 @@ export class Prompter {
 
     async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
-
+        const getSkillDocs = await this.loadSkillDocs();
         if (prompt.includes('$STATS')) {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
