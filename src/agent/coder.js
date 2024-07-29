@@ -35,6 +35,8 @@ export class Coder {
         }
         src = this.code_template.replace('/* CODE HERE */', src);
 
+        // https://projects.themultiverse.school/project/mindcraft-expanding-civilization-of-agents/us/3?kanban-status=14
+        // right here - if we ask the bot to name the function we can save it as a more readable, reusable name
         let filename = this.file_counter + '.js';
         // if (this.file_counter > 0) {
         //     let prev_filename = this.fp + (this.file_counter-1) + '.js';

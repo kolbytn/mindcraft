@@ -21,6 +21,9 @@ export class Prompter {
 
         let name = this.profile.name;
         let chat = this.profile.model;
+        let router_model = this.profile.router_model;
+        let dumb_model = this.profile.dumb_model;
+        
         if (typeof chat === 'string' || chat instanceof String) {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
@@ -37,19 +40,34 @@ export class Prompter {
 
         console.log('Using chat settings:', chat);
 
-        if (chat.api == 'google')
+        if (chat.api == 'google') {
             this.chat_model = new Gemini(chat.model, chat.url);
-        else if (chat.api == 'openai')
+            this.router_model = new Gemini(router_model, chat.url);
+            this.dumb_model = new Gemini(dumb_model, chat.url);
+        } else if (chat.api == 'openai') {
+
             this.chat_model = new GPT(chat.model, chat.url);
-        
-        else if (chat.api == 'anthropic')
+            this.router_model = new GPT(router_model, chat.url);
+            this.dumb_model = new GPT(dumb_model, chat.url);
+        } else if (chat.api == 'anthropic') {
+
             this.chat_model = new Claude(chat.model, chat.url);
-        else if (chat.api == 'replicate')
+            this.router_model = new Claude(router_model, chat.url);
+            this.dumb_model = new Claude(dumb_model, chat.url);
+        } else if (chat.api == 'replicate') {
+
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
-        else if (chat.api == 'ollama')
+            this.router_model = new ReplicateAPI(router_model, chat.url);
+            this.dumb_model = new ReplicateAPI(dumb_model, chat.url);
+        } else if (chat.api == 'ollama') {
+
             this.chat_model = new Local(chat.model, chat.url);
-        else
+            this.router_model = new Local(router_model, chat.url);
+            this.dumb_model = new Local(dumb_model, chat.url);
+        } else {
+
             throw new Error('Unknown API:', api);
+        }
 
         let embedding = this.profile.embedding;
         if (embedding === undefined) {
@@ -151,6 +169,25 @@ export class Prompter {
             console.warn('Unknown prompt placeholders:', remaining.join(', '));
         }
         return prompt;
+    }
+
+    async shouldRespond(messages) {
+        // returns true or false
+        // sends the specific last message to the chat model to determine if the bot should respond at all or not
+        // ask the dumb_model if we should respond
+        let prompt = this.profile.should_respond;
+        prompt = await this.replaceStrings(prompt, messages);
+        let res = await this.dumb_model.sendRequest(messages, prompt);
+
+        let lowered_res = res.toLowerCase();
+        if (lowered_res === 'y') {
+            return true;
+        } else if (lowered_res === 'n') {
+            return false;
+        } else {
+            console.log('Unknown response from dumb model, defaulting to yes:', res);
+            return true;
+        }
     }
 
     async promptConvo(messages) {

@@ -50,6 +50,25 @@ export class Agent {
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 console.log('received message from', username, ':', message);
+                
+                // if we're being @'d, we should always respond
+                if (message.includes(this.name)) {
+                    console.log('Responding to direct message:', message);
+                    this.handleMessage(username, message);
+                    return;
+                }
+
+                // ask a simpler model (3.5-turbo) to decide whether or not to respond
+                // if it decides to respond, then we can use the larger model to generate a response
+                // this is to prevent the larger model from generating responses to every message
+                // which can be expensive
+
+                let shouldRespond = this.prompter.shouldRespond(message);
+
+                if (!shouldRespond) {
+                    console.log('Ignoring message:', message);
+                    return;
+                }
     
                 this.handleMessage(username, message);
             });
