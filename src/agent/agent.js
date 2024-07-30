@@ -7,6 +7,8 @@ import { containsCommand, commandExists, executeCommand, truncCommandMessage } f
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import settings from '../../settings.js';
+import { mineflayer } from 'prismarine-viewer'
+
 
 
 export class Agent {
@@ -31,6 +33,8 @@ export class Agent {
         this.bot.once('spawn', async () => {
             // wait for a bit so stats are not undefined
             await new Promise((resolve) => setTimeout(resolve, 1000));
+            const mineFlayerViewer = mineflayer
+            mineFlayerViewer(this.bot, { port: 3007, firstPerson: true })
 
             console.log(`${this.name} spawned.`);
             this.coder.clear();
@@ -50,7 +54,7 @@ export class Agent {
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 console.log('received message from', username, ':', message);
-                
+
                 // if we're being @'d, we should always respond
                 if (message.includes(this.name)) {
                     console.log('Responding to direct message:', message);
