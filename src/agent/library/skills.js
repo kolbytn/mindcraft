@@ -834,12 +834,14 @@ export async function moveAway(bot, distance) {
      * await skills.moveAway(bot, 8);
      **/
     const pos = bot.entity.position;
+    let defaultMovements = new pf.Movements(bot)
     let goal = new pf.goals.GoalNear(pos.x, pos.y, pos.z, distance);
     let inverted_goal = new pf.goals.GoalInvert(goal);
-    bot.pathfinder.setMovements(new pf.Movements(bot));
+    bot.pathfinder.setMovements(defaultMovements);
+
 
     if (bot.modes.isOn('cheat')) {
-        const path = await bot.pathfinder.getPathTo(move, inverted_goal, 10000);
+        const path = await bot.pathfinder.getPathTo(defaultMovements, inverted_goal, 10000);
         let last_move = path.path[path.path.length-1];
         console.log(last_move);
         if (last_move) {
