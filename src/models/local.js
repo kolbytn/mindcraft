@@ -1,7 +1,7 @@
 import { strictFormat } from '../utils/text.js';
 
 export class Local {
-    constructor(model_name, url) {
+    constructor(model_name, url, folder="bot_log") {
         this.model_name = model_name;
         this.url = url || 'http://127.0.0.1:11434';
         this.chat_endpoint = '/api/chat';
@@ -48,6 +48,7 @@ export class Local {
             const res = await fetch(request);
             if (res.ok) {
                 data = await res.json();
+                this.logChatCompletion(body.messages, data.message.content);
             } else {
                 throw new Error(`Ollama Status: ${res.status}`);
             }
@@ -56,5 +57,19 @@ export class Local {
             console.error(err);
         }
         return data;
+    }
+    async logChatCompletion(messages, completion) {
+        // async Log the completion in a session folder in a timestamp.json file
+        const timestamp = Date.now();
+        // get the day for the folder so that everything from the same day is in the same folder
+        const day = new Date(timestamp).toISOString().split('T')[0];
+        const folder = `bots/${this.folder}/sessions/${day}`;
+        // async check to make sure the folder exists
+        await fs.access(folder).catch(() => fs.mkdir(folder, { recursive: true }));
+        // async write the log file
+        const data = { messages, completion };
+        await fs.writeFile(`${folder}/${timestamp}.json`, JSON.stringify(data, null, 2));
+
+        return timestamp;
     }
 }

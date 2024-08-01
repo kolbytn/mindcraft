@@ -41,29 +41,29 @@ export class Prompter {
         console.log('Using chat settings:', chat);
 
         if (chat.api == 'google') {
-            this.chat_model = new Gemini(chat.model, chat.url);
-            this.router_model = new Gemini(router_model, chat.url);
-            this.dumb_model = new Gemini(dumb_model, chat.url);
+            this.chat_model = new Gemini(chat.model, chat.url, agent.name);
+            this.router_model = new Gemini(router_model, chat.url, agent.name);
+            this.dumb_model = new Gemini(dumb_model, chat.url, agent.name);
         } else if (chat.api == 'openai') {
 
-            this.chat_model = new GPT(chat.model, chat.url);
-            this.router_model = new GPT(router_model, chat.url);
-            this.dumb_model = new GPT(dumb_model, chat.url);
+            this.chat_model = new GPT(chat.model, chat.url, agent.name);
+            this.router_model = new GPT(router_model, chat.url, agent.name);
+            this.dumb_model = new GPT(dumb_model, chat.url, agent.name);
         } else if (chat.api == 'anthropic') {
 
-            this.chat_model = new Claude(chat.model, chat.url);
-            this.router_model = new Claude(router_model, chat.url);
-            this.dumb_model = new Claude(dumb_model, chat.url);
+            this.chat_model = new Claude(chat.model, chat.url, agent.name);
+            this.router_model = new Claude(router_model, chat.url, agent.name);
+            this.dumb_model = new Claude(dumb_model, chat.url, agent.name);
         } else if (chat.api == 'replicate') {
 
-            this.chat_model = new ReplicateAPI(chat.model, chat.url);
-            this.router_model = new ReplicateAPI(router_model, chat.url);
-            this.dumb_model = new ReplicateAPI(dumb_model, chat.url);
+            this.chat_model = new ReplicateAPI(chat.model, chat.url, agent.name);
+            this.router_model = new ReplicateAPI(router_model, chat.url, agent.name);
+            this.dumb_model = new ReplicateAPI(dumb_model, chat.url, agent.name);
         } else if (chat.api == 'ollama') {
 
-            this.chat_model = new Local(chat.model, chat.url);
-            this.router_model = new Local(router_model, chat.url);
-            this.dumb_model = new Local(dumb_model, chat.url);
+            this.chat_model = new Local(chat.model, chat.url, agent.name);
+            this.router_model = new Local(router_model, chat.url, agent.name);
+            this.dumb_model = new Local(dumb_model, chat.url, agent.name);
         } else {
 
             throw new Error('Unknown API:', api);
@@ -82,13 +82,13 @@ export class Prompter {
         console.log('Using embedding settings:', embedding);
 
         if (embedding.api == 'google')
-            this.embedding_model = new Gemini(embedding.model, embedding.url);
+            this.embedding_model = new Gemini(embedding.model, embedding.url, agent.name + '_embed');
         else if (embedding.api == 'openai')
-            this.embedding_model = new GPT(embedding.model, embedding.url);
+            this.embedding_model = new GPT(embedding.model, embedding.url, agent.name + '_embed');
         else if (embedding.api == 'replicate') 
-            this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
+            this.embedding_model = new ReplicateAPI(embedding.model, embedding.url, agent.name + '_embed');
         else if (embedding.api == 'ollama')
-            this.embedding_model = new Local(embedding.model, embedding.url);
+            this.embedding_model = new Local(embedding.model, embedding.url, agent.name + '_embed');
         else {
             this.embedding_model = null;
             console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
@@ -175,19 +175,20 @@ export class Prompter {
         // returns true or false
         // sends the specific last message to the chat model to determine if the bot should respond at all or not
         // ask the dumb_model if we should respond
-        let prompt = this.profile.should_respond;
-        prompt = await this.replaceStrings(prompt, messages);
-        let res = await this.dumb_model.sendRequest(messages, prompt);
+        // let prompt = this.profile.should_respond;
+        // prompt = await this.replaceStrings(prompt, messages);
+        // let res = await this.dumb_model.sendRequest(messages, prompt);
 
-        let lowered_res = res.toLowerCase();
-        if (lowered_res === 'y') {
-            return true;
-        } else if (lowered_res === 'n') {
-            return false;
-        } else {
-            console.log('Unknown response from dumb model, defaulting to yes:', res);
-            return true;
-        }
+        // let lowered_res = res.toLowerCase();
+        // if (lowered_res === 'y') {
+        //     return true;
+        // } else if (lowered_res === 'n') {
+        //     return false;
+        // } else {
+        //     console.log('Unknown response from dumb model, defaulting to yes:', res);
+        //     return true;
+        // }
+        return true;
     }
 
     async promptConvo(messages) {

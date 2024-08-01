@@ -1,4 +1,5 @@
 import OpenAIApi from 'openai';
+import fs from 'fs/promises';
 import { getKey, hasKey } from '../utils/keys.js';
 
 class PriorityQueue {
@@ -22,11 +23,12 @@ class PriorityQueue {
 }
 
 export class GPT {
-    constructor(model_name, url) {
+    constructor(model_name, url, folder="bot_log") {
         this.model_name = model_name;
         this.current_requests = 0;
         this.requestQueue = new PriorityQueue();
         this.processing = false;
+        this.folder = folder
 
         let config = {};
         if (url)
@@ -82,12 +84,13 @@ export class GPT {
             console.log('Awaiting openai api response...');
             await new Promise((resolve) => setTimeout(resolve, 3000));
             console.log("finished waiting 3 seconds, sending request to openai");
-
-            let completion = await this.openai.chat.completions.create({
+            let options = {
                 model: this.model_name || "gpt-3.5-turbo",
                 messages: messages,
                 stop: stop_seq,
-            });
+            }
+            let completion = await this.openai.chat.completions.create(options);
+            this.logChatCompletion(messages, completion);
             if (completion.choices[0].finish_reason == 'length')
                 throw new Error('Context length exceeded'); 
             console.log('Received.');
@@ -113,4 +116,21 @@ export class GPT {
         });
         return embedding.data[0].embedding;
     }
+
+    async logChatCompletion(messages, completion) {
+        // async Log the completion in a session folder in a timestamp.json file
+        const timestamp = Date.now();
+        // get the day for the folder so that everything from the same day is in the same folder
+        const day = new Date(timestamp).toISOString().split('T')[0];
+        const folder = `bots/${this.folder}/sessions/${day}`;
+        // async check to make sure the folder exists
+        await fs.access(folder).catch(() => fs.mkdir(folder, { recursive: true }));
+        // async write the log file
+        const data = { messages, completion };
+        await fs.writeFile(`${folder}/${timestamp}.json`, JSON.stringify(data, null, 2));
+
+        return timestamp;
+    }
+
+
 }
