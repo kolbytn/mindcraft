@@ -148,8 +148,11 @@ export class Prompter {
         }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
-        if (prompt.includes('$CODE_DOCS'))
+        if (prompt.includes('$CODE_DOCS')) {
+            // console.log("====================================================================================================");
+            // getSkillDocs().then(docstring => console.log(docstring));
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
+        }
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))

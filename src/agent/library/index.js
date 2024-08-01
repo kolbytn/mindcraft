@@ -35,6 +35,8 @@ export async function getSkillDocs() {
     ]);
 
     let docstring = "\n*SKILL DOCS\nThese skills are JavaScript functions that can be called when writing actions and skills.\n";
+    let skillLevelDocs = 'Skill Level:basic、intermediate、advanced and expert\n';
+    docstring += skillLevelDocs;
     docstring += await docHelper(Object.values(skills), 'skills');
     docstring += await docHelper(Object.values(world), 'world');
     return docstring + '*\n';

@@ -35,6 +35,7 @@ async function equipHighestAttack(bot) {
 
 export async function craftRecipe(bot, itemName, num=1) {
     /**
+     * @level basic
      * Attempt to craft the given item name from a recipe. May craft many items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item name to craft.
@@ -94,6 +95,7 @@ export async function craftRecipe(bot, itemName, num=1) {
 
 export async function smeltItem(bot, itemName, num=1) {
     /**
+     * @level basic
      * Puts 1 coal in furnace and smelts the given item name, waits until the furnace runs out of fuel or input items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item name to smelt. Ores must contain "raw" like raw_iron.
@@ -207,6 +209,7 @@ export async function smeltItem(bot, itemName, num=1) {
 
 export async function clearNearestFurnace(bot) {
     /**
+     * @level basic
      * Clears the nearest furnace of all items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @returns {Promise<boolean>} true if the furnace was cleared, false otherwise.
@@ -242,6 +245,7 @@ export async function clearNearestFurnace(bot) {
 
 export async function attackNearest(bot, mobType, kill=true) {
     /**
+     * @level basic
      * Attack mob of the given type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} mobType, the type of mob to attack.
@@ -261,6 +265,7 @@ export async function attackNearest(bot, mobType, kill=true) {
 
 export async function attackEntity(bot, entity, kill=true) {
     /**
+     * @level basic
      * Attack mob of the given type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {Entity} entity, the entity to attack.
@@ -299,6 +304,7 @@ export async function attackEntity(bot, entity, kill=true) {
 
 export async function defendSelf(bot, range=9) {
     /**
+     * @level basic
      * Defend yourself from all nearby hostile mobs until there are no more.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} range, the range to look for mobs. Defaults to 8.
@@ -339,6 +345,7 @@ export async function defendSelf(bot, range=9) {
 
 export async function collectBlock(bot, blockType, num=1, exclude=null) {
     /**
+     * @level basic
      * Collect one of the given block type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} blockType, the type of block to collect.
@@ -407,6 +414,7 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
 
 export async function pickupNearbyItems(bot) {
     /**
+     * @level basic
      * Pick up all nearby items.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @returns {Promise<boolean>} true if the items were picked up, false otherwise.
@@ -435,6 +443,7 @@ export async function pickupNearbyItems(bot) {
 
 export async function breakBlockAt(bot, x, y, z) {
     /**
+     * @level basic
      * Break the block at the given position. Will use the bot's equipped item.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} x, the x coordinate of the block to break.
@@ -484,6 +493,7 @@ export async function breakBlockAt(bot, x, y, z) {
 
 export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dontCheat=false) {
     /**
+     * @level basic
      * Place the given block type at the given position. It will build off from any adjacent blocks. Will fail if there is a block in the way or nothing to build off of.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} blockType, the type of block to place.
@@ -636,6 +646,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
 
 export async function equip(bot, itemName, bodyPart) {
     /**
+     * @level basic
      * Equip the given item to the given body part, like tools or armor.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item or block name to equip.
@@ -656,6 +667,7 @@ export async function equip(bot, itemName, bodyPart) {
 
 export async function discard(bot, itemName, num=-1) {
     /**
+     * @level basic
      * Discard the given item.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item or block name to discard.
@@ -687,6 +699,7 @@ export async function discard(bot, itemName, num=-1) {
 
 export async function eat(bot, foodName="") {
     /**
+     * @level basic
      * Eat the given item. If no item is given, it will eat the first food item in the bot's inventory.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} item, the item to eat.
@@ -716,6 +729,7 @@ export async function eat(bot, foodName="") {
 
 export async function giveToPlayer(bot, itemType, username, num=1) {
     /**
+     * @level basic
      * Give one of the specified item to the specified player
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemType, the name of the item to give.
@@ -739,6 +753,7 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
 
 export async function goToPosition(bot, x, y, z, min_distance=2) {
     /**
+     * @level basic
      * Navigate to the given position.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} x, the x coordinate to navigate to. If null, the bot's current x coordinate will be used.
@@ -768,6 +783,7 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
 
 export async function goToPlayer(bot, username, distance=3) {
     /**
+     * @level basic
      * Navigate to the given player.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} username, the username of the player to navigate to.
@@ -801,6 +817,7 @@ export async function goToPlayer(bot, username, distance=3) {
 
 export async function followPlayer(bot, username, distance=4) {
     /**
+     * @level basic
      * Follow the given player endlessly. Will not return until the code is manually stopped.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} username, the username of the player to follow.
@@ -826,6 +843,7 @@ export async function followPlayer(bot, username, distance=4) {
 
 export async function moveAway(bot, distance) {
     /**
+     * @level basic
      * Move away from current position in any direction.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} distance, the distance to move away.
@@ -859,6 +877,7 @@ export async function moveAway(bot, distance) {
 
 export async function avoidEnemies(bot, distance=16) {
     /**
+     * @level basic
      * Move a given distance away from all nearby enemy mobs.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} distance, the distance to move away.
@@ -886,6 +905,7 @@ export async function avoidEnemies(bot, distance=16) {
 
 export async function stay(bot) {
     /**
+     * @level basic
      * Stay in the current position until interrupted. Disables all modes.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @returns {Promise<boolean>} true if the bot stayed, false otherwise.
@@ -906,6 +926,7 @@ export async function stay(bot) {
 
 export async function useDoor(bot, door_pos=null) {
     /**
+     * @level basic
      * Use the door at the given position.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {Vec3} door_pos, the position of the door to use. If null, the nearest door will be used.
@@ -950,6 +971,7 @@ export async function useDoor(bot, door_pos=null) {
 
 export async function goToBed(bot) {
     /**
+     * @level basic
      * Sleep in the nearest bed.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @returns {Promise<boolean>} true if the bed was found, false otherwise.
@@ -981,6 +1003,7 @@ export async function goToBed(bot) {
 
 export async function tillAndSow(bot, x, y, z, seedType=null) {
     /**
+     * @level basic
      * Till the ground at the given position and plant the given seed type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} x, the x coordinate to till.
@@ -1042,6 +1065,7 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
 
 export async function activateNearestBlock(bot, type) {
     /**
+     * @level basic
      * Activate the nearest block of the given type.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} type, the type of block to activate.
@@ -1063,3 +1087,39 @@ export async function activateNearestBlock(bot, type) {
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }
+
+export async function buildGarden(bot) {
+    /**
+     * @level intermediate
+     * Build a small garden with oak fences and plant poppies.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<void>}
+     * @example
+     * await buildGarden(bot); if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+     **/
+
+    const position = bot.entity.position; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    const startX = position.x; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    const startY = position.y; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    const startZ = position.z; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    const gardenWidth = 5; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    const gardenDepth = 5; if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+
+    // Build the fence around the garden
+    for (let x = startX; x < startX + gardenWidth; x++) {
+        await placeBlock(bot, 'oak_fence', x, startY, startZ); if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+        await placeBlock(bot, 'oak_fence', x, startY, startZ + gardenDepth - 1); if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    }
+    for (let z = startZ; z < startZ + gardenDepth; z++) {
+        await placeBlock(bot, 'oak_fence', startX, startY, z); if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+        await placeBlock(bot, 'oak_fence', startX + gardenWidth - 1, startY, z); if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+    }
+
+    // Plant poppies inside the garden
+    for (let x = startX + 1; x < startX + gardenWidth - 1; x++) {
+        for (let z = startZ + 1; z < startZ + gardenDepth - 1; z++) {
+            await placeBlock(bot, 'poppy', x, startY, z); if(bot.interrupt_code) {log(bot, "Code interrupted.");return;}
+        }
+    }
+}
+

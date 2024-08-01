@@ -76,7 +76,17 @@ export class Coder {
 
         console.log(`The cleaned code: """${src}"""`);
         //Copy src into the variable new fuc code
-        this.new_func_code = '\nexport '+src.trim();
+        const regex = /async function[\s\S]*/;
+        let match = src.match(regex);
+        if (match) {
+            // 将匹配结果赋值给 new_func_code
+            match = match[0];
+        } else {
+            console.error("The string 'async function' was not found.");
+        }
+        this.new_func_code = '\nexport '+match.trim();
+        this.new_func_code = this.new_func_code.replace(/skills\./g, '');
+        console.log(`The new function code: """${this.new_func_code}"""`);
         // Delete last line,such as "await buildHouseAndGarden(bot);"
         this.new_func_code = this.new_func_code.substring(0, this.new_func_code.lastIndexOf('\n'));
 
@@ -189,11 +199,15 @@ export class Coder {
             let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
             const execution_file = await this.stageCode(code);
+            // const execution_file = await import('../../bots/gpt/action-code/testCode.js');
+
             if (!execution_file) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
             code_return = await this.execute(async ()=>{
+                console.log("=====================================================")
+                console.log(execution_file)
                 return await execution_file.main(this.agent.bot);
             }, settings.code_timeout_mins);
 
