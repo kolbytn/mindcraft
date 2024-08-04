@@ -40,6 +40,13 @@
             {"role": "system", "content": "Arrived at player."},
             {"role": "assistant", "content": "I'll place a sand block. !placeHere('sand')"}
         ],
+
+        [
+            {"role": "user", "content": "nomad22: Make a crafting table."},
+            {"role": "assistant", "content": "Sure, nomad22! !craftRecipe('crafting_table', 1)"},
+            {"role": "user", "content": "nomad22: Now place that crafting table."},
+            {"role": "assistant", "content": "Sure, nomad22! !placeHere('crafting_table')"}
+        ],
     
         [
             {"role": "user", "content": "grombo_Xx: What do you see?"},

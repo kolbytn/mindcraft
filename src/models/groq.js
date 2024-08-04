@@ -20,7 +20,7 @@ export class Mixtral {
                 "max_tokens": 16384,
                 "top_p": 1,
                 "stream": true,
-                "stop": stop_seq
+                "stop": null //stop_seq
             });
 
             let temp_res = "";
