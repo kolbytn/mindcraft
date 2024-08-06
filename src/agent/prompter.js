@@ -18,6 +18,7 @@ export class Prompter {
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
         this.convo_examples = null;
         this.coding_examples = null;
+        this.code_docs = null;
 
         let name = this.profile.name;
         let chat = this.profile.model;
@@ -89,17 +90,22 @@ export class Prompter {
         });
     }
     //Add a new asynchronous method to dynamically import getSkillDocs
-    async loadSkillDocs() {
+    async loadSkillDocsFunc() {
+
         try {
-            // 构造基于 agent.name 的路径
+            //1.Import the getSkillDocs function dynamically
+            // Construct a path based on agent.name
             let moduleName = `../../bots/${this.agent.name}/library/index.js`;
             let skillModule = await import(moduleName);
-            return skillModule.getSkillDocs;
+            // get skillModule.getSkillDocs;
+            const getSkillDocs = skillModule.getSkillDocs;
+            return getSkillDocs;
         } catch (error) {
             console.error('Failed to load skill docs:', error);
             throw error;  // 抛出错误或处理错误
         }
     }
+
     getName() {
         return this.profile.name;
     }
@@ -121,13 +127,17 @@ export class Prompter {
         // Create Examples instances
         this.convo_examples = new Examples(this.embedding_model);
         this.coding_examples = new Examples(this.embedding_model);
-
+        this.code_docs = new Examples(this.embedding_model,5);
+        this.loadSkillDocs = await this.loadSkillDocsFunc(); // Dynamically import getSkillDocs
         // Use Promise.all to load examples concurrently
+        // console.log(`Loading conversation and coding examples...`);
+        // console.log(await this.loadSkillDocs());
         await Promise.all([
             this.convo_examples.load(this.profile.conversation_examples),
-            this.coding_examples.load(this.profile.coding_examples)
+            this.coding_examples.load(this.profile.coding_examples),
+            this.code_docs.load(await this.loadSkillDocs())
         ]);
-
+        // console.log('this.code_docs.embeddings:',this.code_docs.embeddings);
         const endTime = new Date();
         console.log(`Examples loaded. ${formatTime(endTime)}`);
 
@@ -137,7 +147,7 @@ export class Prompter {
 
     async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
-        const getSkillDocs = await this.loadSkillDocs();
+        // const loadSkillDocs = await this.loadSkillDocsFunc();
         if (prompt.includes('$STATS')) {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
@@ -149,9 +159,10 @@ export class Prompter {
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS')) {
-            // console.log("====================================================================================================");
-            // getSkillDocs().then(docstring => console.log(docstring));
-            prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
+            console.log("====================================================================================================");
+            let code_docs = await this.code_docs.getRelevantSkillDocs(messages);
+            console.log(code_docs)
+            prompt = prompt.replaceAll('$CODE_DOCS',code_docs);
         }
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
@@ -186,6 +197,8 @@ export class Prompter {
         if (remaining !== null) {
             console.warn('Unknown prompt placeholders:', remaining.join(', '));
         }
+        // console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        // console.log(prompt)
         return prompt;
     }
 

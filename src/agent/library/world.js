@@ -4,7 +4,8 @@ import * as mc from '../../utils/mcdata.js';
 
 export function getNearestFreeSpace(bot, size=1, distance=8) {
     /**
-     * Get the nearest empty space with solid blocks beneath it of the given size.
+     * @level basic
+     * @description Get the nearest empty space with solid blocks beneath it of the given size.
      * @param {Bot} bot - The bot to get the nearest free space for.
      * @param {number} size - The (size x size) of the space to find, default 1.
      * @param {number} distance - The maximum distance to search, default 8.
@@ -41,7 +42,8 @@ export function getNearestFreeSpace(bot, size=1, distance=8) {
 
 export function getNearestBlocks(bot, block_types=null, distance=16, count=10000) {
     /**
-     * Get a list of the nearest blocks of the given types.
+     * @level basic
+     * @description Get a list of the nearest blocks of the given types.
      * @param {Bot} bot - The bot to get the nearest block for.
      * @param {string[]} block_types - The names of the blocks to search for.
      * @param {number} distance - The maximum distance to search, default 16.
@@ -82,7 +84,8 @@ export function getNearestBlocks(bot, block_types=null, distance=16, count=10000
 
 export function getNearestBlock(bot, block_type, distance=16) {
      /**
-     * Get the nearest block of the given type.
+      *  @level basic
+     * @description Get the nearest block of the given type.
      * @param {Bot} bot - The bot to get the nearest block for.
      * @param {string} block_type - The name of the block to search for.
      * @param {number} distance - The maximum distance to search, default 16.
@@ -150,7 +153,8 @@ export function getInventoryStacks(bot) {
 
 export function getInventoryCounts(bot) {
     /**
-     * Get an object representing the bot's inventory.
+     * @level basic
+     * @description Get an object representing the bot's inventory.
      * @param {Bot} bot - The bot to get the inventory for.
      * @returns {object} - An object with item names as keys and counts as values.
      * @example
@@ -173,7 +177,8 @@ export function getInventoryCounts(bot) {
 
 export function getPosition(bot) {
     /**
-     * Get your position in the world (Note that y is vertical).
+     * @level basic
+     * @description Get your position in the world (Note that y is vertical).
      * @param {Bot} bot - The bot to get the position for.
      * @returns {Vec3} - An object with x, y, and x attributes representing the position of the bot.
      * @example
@@ -186,7 +191,8 @@ export function getPosition(bot) {
 
 export function getNearbyEntityTypes(bot) {
     /**
-     * Get a list of all nearby mob types.
+     * @level basic
+     * @description Get a list of all nearby mob types.
      * @param {Bot} bot - The bot to get nearby mobs for.
      * @returns {string[]} - A list of all nearby mobs.
      * @example
@@ -205,7 +211,8 @@ export function getNearbyEntityTypes(bot) {
 
 export function getNearbyPlayerNames(bot) {
     /**
-     * Get a list of all nearby player names.
+     * @level basic
+     * @description Get a list of all nearby player names.
      * @param {Bot} bot - The bot to get nearby players for.
      * @returns {string[]} - A list of all nearby players.
      * @example
@@ -224,7 +231,8 @@ export function getNearbyPlayerNames(bot) {
 
 export function getNearbyBlockTypes(bot, distance=16) {
     /**
-     * Get a list of all nearby block names.
+     * @level basic
+     * @description Get a list of all nearby block names.
      * @param {Bot} bot - The bot to get nearby blocks for.
      * @param {number} distance - The maximum distance to search, default 16.
      * @returns {string[]} - A list of all nearby blocks.
@@ -243,7 +251,8 @@ export function getNearbyBlockTypes(bot, distance=16) {
 
 export async function isClearPath(bot, target) {
     /**
-     * Check if there is a path to the target that requires no digging or placing blocks.
+     * @level basic
+     * @description Check if there is a path to the target that requires no digging or placing blocks.
      * @param {Bot} bot - The bot to get the path for.
      * @param {Entity} target - The target to path to.
      * @returns {boolean} - True if there is a clear path, false otherwise.
@@ -273,7 +282,8 @@ export function shouldPlaceTorch(bot) {
 
 export function getBiomeName(bot) {
     /**
-     * Get the name of the biome the bot is in.
+     * @level basic
+     * @description Get the name of the biome the bot is in.
      * @param {Bot} bot - The bot to get the biome for.
      * @returns {string} - The name of the biome.
      * @example
