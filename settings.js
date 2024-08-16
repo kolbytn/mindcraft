@@ -1,8 +1,8 @@
 export default 
 {
     "minecraft_version": "1.20.4", // supports up to 1.20.4
-    "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
-    "port": 55916,
+    "host": "Gamerqoiqiq.aternos.me", // or "localhost", "your.ip.address.here"
+    "port":63100,
     "auth": "offline", // or "microsoft"
     
     "profiles": [
