@@ -50,10 +50,11 @@ export async function craftRecipe(bot, itemName, num=1) {
     // get recipes that don't require a crafting table
     let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
     let craftingTable = null;
+    const craftingTableRange = 32;
     if (!recipes || recipes.length === 0) {
 
         // Look for crafting table
-        craftingTable = world.getNearestBlock(bot, 'crafting_table', 8);
+        craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
         if (craftingTable === null){
 
             // Try to place crafting table
@@ -61,7 +62,7 @@ export async function craftRecipe(bot, itemName, num=1) {
             if (hasTable) {
                 let pos = world.getNearestFreeSpace(bot, 1, 6);
                 await placeBlock(bot, 'crafting_table', pos.x, pos.y, pos.z);
-                craftingTable = world.getNearestBlock(bot, 'crafting_table', 8);
+                craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
                 if (craftingTable) {
                     recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
                     placedTable = true;
@@ -82,6 +83,10 @@ export async function craftRecipe(bot, itemName, num=1) {
             await collectBlock(bot, 'crafting_table', 1);
         }
         return false;
+    }
+    
+    if (craftingTable && bot.entity.position.distanceTo(craftingTable.position) > 4) {
+        await goToNearestBlock(bot, 'crafting_table', 4, craftingTableRange);
     }
 
     const recipe = recipes[0];
@@ -114,20 +119,24 @@ export async function smeltItem(bot, itemName, num=1) {
 
     let placedFurnace = false;
     let furnaceBlock = undefined;
-    furnaceBlock = world.getNearestBlock(bot, 'furnace', 6);
+    const furnaceRange = 32;
+    furnaceBlock = world.getNearestBlock(bot, 'furnace', furnaceRange);
     if (!furnaceBlock){
         // Try to place furnace
         let hasFurnace = world.getInventoryCounts(bot)['furnace'] > 0;
         if (hasFurnace) {
-            let pos = world.getNearestFreeSpace(bot, 1, 6);
+            let pos = world.getNearestFreeSpace(bot, 1, furnaceRange);
             await placeBlock(bot, 'furnace', pos.x, pos.y, pos.z);
-            furnaceBlock = world.getNearestBlock(bot, 'furnace', 6);
+            furnaceBlock = world.getNearestBlock(bot, 'furnace', furnaceRange);
             placedFurnace = true;
         }
     }
     if (!furnaceBlock){
         log(bot, `There is no furnace nearby and you have no furnace.`)
         return false;
+    }
+    if (bot.entity.position.distanceTo(furnaceBlock.position) > 4) {
+        await goToNearestBlock(bot, 'furnace', 4, furnaceRange);
     }
     await bot.lookAt(furnaceBlock.position);
 
@@ -630,7 +639,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     // will throw error if an entity is in the way, and sometimes even if the block was placed
     try {
         await bot.placeBlock(buildOffBlock, faceVec);
-        log(bot, `Successfully placed ${blockType} at ${target_dest}.`);
+        log(bot, `Placed ${blockType} at ${target_dest}.`);
         await new Promise(resolve => setTimeout(resolve, 200));
         return true;
     } catch (err) {
@@ -770,6 +779,32 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
     return true;
 }
 
+export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64) {
+    /**
+     * Navigate to the nearest block of the given type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} blockType, the type of block to navigate to.
+     * @param {number} min_distance, the distance to keep from the block. Defaults to 2.
+     * @param {number} range, the range to look for the block. Defaults to 64.
+     * @returns {Promise<boolean>} true if the block was reached, false otherwise.
+     * @example
+     * await skills.goToNearestBlock(bot, "oak_log", 64, 2);
+     * **/
+    const MAX_RANGE = 512;
+    if (range > MAX_RANGE) {
+        log(bot, `Maximum search range capped at ${MAX_RANGE}. `);
+        range = MAX_RANGE;
+    }
+    let block = world.getNearestBlock(bot, blockType, range);
+    if (!block) {
+        log(bot, `Could not find any ${blockType} in ${range} blocks.`);
+        return false;
+    }
+    log(bot, `Found ${blockType} at ${block.position}.`);
+    await goToPosition(bot, block.position.x, block.position.y, block.position.z, min_distance);
+    return true;
+    
+}
 
 export async function goToPlayer(bot, username, distance=3) {
     /**
@@ -824,6 +859,10 @@ export async function followPlayer(bot, username, distance=4) {
 
     while (!bot.interrupt_code) {
         await new Promise(resolve => setTimeout(resolve, 500));
+        // in cheat mode, if the distance is too far, teleport to the player
+        if (bot.modes.isOn('cheat') && bot.entity.position.distanceTo(player.position) > 100 && player.isOnGround) {
+            await goToPlayer(bot, username);
+        }
     }
     return true;
 }
@@ -844,6 +883,7 @@ export async function moveAway(bot, distance) {
     bot.pathfinder.setMovements(new pf.Movements(bot));
 
     if (bot.modes.isOn('cheat')) {
+        const move = new pf.Movements(bot);
         const path = await bot.pathfinder.getPathTo(move, inverted_goal, 10000);
         let last_move = path.path[path.path.length-1];
         console.log(last_move);

@@ -8,7 +8,7 @@
         "mineflayer-armor-manager": "^2.0.1",
         "mineflayer-auto-eat": "^3.3.6",
         "mineflayer-collectblock": "^1.4.1",
-        "mineflayer-pathfinder": "^2.4.4",
+        "mineflayer-pathfinder": "^2.4.5",
         "mineflayer-pvp": "^1.3.2",
         "openai": "^4.4.0",
         "patch-package": "^8.0.0",

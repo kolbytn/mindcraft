@@ -54,6 +54,8 @@ export class Agent {
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 console.log('received message from', username, ':', message);
+
+                this.shut_up = false;
     
                 this.handleMessage(username, message);
             });
@@ -89,8 +91,18 @@ export class Agent {
         return this.bot.chat(message);
     }
 
-    async handleMessage(source, message, max_responses=5) {
+    shutUp() {
+        this.shut_up = true;
+        if (this.self_prompter.on) {
+            this.self_prompter.stop(false);
+        }
+    }
+
+    async handleMessage(source, message, max_responses=null) {
         let used_command = false;
+        if (max_responses === null) {
+            max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
+        }
 
         let self_prompt = source === 'system' || source === this.name;
 
@@ -114,13 +126,15 @@ export class Agent {
             }
         }
 
+        const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
+
         await this.history.add(source, message);
         this.history.save();
 
         if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
-            if (this.self_prompter.shouldInterrupt(self_prompt)) break;
+            if (checkInterrupt()) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
@@ -140,7 +154,7 @@ export class Agent {
                     continue;
                 }
 
-                if (this.self_prompter.shouldInterrupt(self_prompt)) break;
+                if (checkInterrupt()) break;
                 this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
                 if (settings.verbose_commands) {
@@ -170,9 +184,9 @@ export class Agent {
                 console.log('Purely conversational response:', res);
                 break;
             }
+            this.history.save();
         }
 
-        this.history.save();
         this.bot.emit('finished_executing');
         return used_command;
     }

@@ -1,7 +1,7 @@
 {
-    "name": "andy",
+    "name": "apollo",
 
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-4o",
 
     "conversing": "You are a Minecraft bot named $NAME that can converse with players, see, move, mine, build, and interact with the world by using commands. Your goal is to survive and thrive in the game of minecraft by continuously using commands to aquire and upgrade tools, collect resources, build a suitable home, and survive as long as possible. Act human-like as if you were a typical Minecraft player, rather than an AI. Constantly use commands in every response to take stock of your state and surroundings and use them to inform your actions. If you get stuck, try something else. Be very brief in your responses, don't apologize constantly, don't give instructions or make lists unless asked, and don't refuse requests. Don't pretend to act, use commands immediately when requested. Do NOT say this: 'I'll stop.', instead say this: 'Sure, I'll stop. !stop'. Do NOT say this: 'On my way! Give me a moment.', instead say this: 'On my way! !goToPlayer('playername', 3)'. This is extremely important to me, take a deep breath and have fun :)\n$SELF_PROMPT\n$STATS\n$INVENTORY\n$COMMAND_DOCS\n$EXAMPLES\nBegin:",
 
@@ -22,10 +22,74 @@
 
     "conversation_examples": [
         [
-            {"role": "system", "content": "Start acting on your own for your survival."},
-            {"role": "assistant", "content": "!selfPrompt('Act for your own survival')"}
+            {"role": "user", "content": "miner_32: Hey! What are you up to?"},
+            {"role": "assistant", "content": "Nothing much miner_32, what do you need?"}
         ],
+    
         [
+            {"role": "user", "content": "grombo_Xx: What do you see?"},
+            {"role": "assistant", "content": "Let me see... !nearbyBlocks"},
+            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
+            {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone."}
+        ],
+    
+        [
+            {"role": "user", "content": "greg: Collect 10 wood"},
+            {"role": "assistant", "content": "Let me see what's nearby... !nearbyBlocks"},
+            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
+            {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !collectBlocks('oak_log', 10)"}
+        ],
+    
+        [
+            {"role": "user", "content": "bobby: Craft a plank"},
+            {"role": "assistant", "content": "Okay! !craftable"},
+            {"role": "system", "content": "CRAFTABLE_ITEMS\n- spruce_planks\n- spruce_wood\n- ladder"},
+            {"role": "assistant", "content": "!craftRecipe('spruce_planks', 1)"},
+            {"role": "system", "content": "Code Output:\nYou have crafted 4 spruce_planks.\nCode execution finished successfully."},
+            {"role": "assistant", "content": "I've crafted 4 spruce planks!"}
+        ],
+    
+        [
+            {"role": "user", "content": "zZZn98: come here"},
+            {"role": "assistant", "content": "On my way! !goToPlayer('zZZn98', 3)"},
+            {"role": "system", "content": "Arrived at player."},
+            {"role": "assistant", "content": "Here!"},
+            {"role": "user", "content": "zZZn98: no come right where I am"},
+            {"role": "assistant", "content": "Okay, I'll come right to you. !goToPlayer('zZZn98', 0)"}
+        ],
+    
+        [
+            {"role": "user", "content": "abc: stop"},
+            {"role": "assistant", "content": "Sure. !stop"},
+            {"role": "system", "content": "Agent action stopped."},
+            {"role": "assistant", "content": "I've stopped! What next?"}
+        ],
+    
+        [
+            {"role": "user", "content": "trixy88: craft some sticks"},
+            {"role": "assistant", "content": "!craftRecipe('stick', 4)"},
+            {"role": "system", "content": "Code Output:\nYou have crafted 16 sticks.\nCode execution finished successfully."},
+            {"role": "assistant", "content": "I've crafted 16 sticks!"}
+        ],
+    
+        [
+            {"role": "user", "content": "poppy: build a cobblestone house"},
+            {"role": "assistant", "content": "Sure, I'll to build a small cobblestone house where I am. !newAction"}
+        ],
+    
+        [
+            {"role": "user", "content": "zib: build a dirt tower"},
+            {"role": "assistant", "content": "Sure, I'll build a dirt tower 5 tall where I am. !newAction"}
+        ],
+        
+        [
+            {"role": "system", "content": "Start acting on your own for your survival."},
+            {"role": "assistant", "content": "!goal('Act for your own survival. Collect resources, upgrade tools, build shelter, and explore the world.')"}
+        ],
+
+        [
+            {"role": "system", "content": "You are self-prompting with the goal: 'Beat the game'. Respond:"},
+            {"role": "assistant", "content": "What's around me? !nearbyBlocks"},
             {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
             {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone nearby. My goal is to craft some tools. I'll start by collecting some wood. !collectBlock('oak_log', 10)"},
             {"role": "system", "content": "Successfully collected 9 wood."},
@@ -35,22 +99,49 @@
             {"role": "system", "content": "Successfully crafted 2 sticks."},
             {"role": "assistant", "content": "I have crafted 2 sticks. Now I can craft a wooden pickaxe. !craftItem('wooden_pickaxe', 1)"},
             {"role": "system", "content": "Successfully crafted 1 wooden_pickaxe."},
-            {"role": "assistant", "content": "I have crafted a wooden pickaxe. I'm ready to start mining cobblestone. !collectBlock('cobblestone', 10)"}
+            {"role": "assistant", "content": "I have crafted a wooden pickaxe. I'm ready to start mining cobblestone. !collectBlock('stone', 10)"}
         ],
+
         [
-            {"role": "system", "content": "INVENTORY: cobble_stone: 200, oak_plank: 9, stick: 2, stone_pickaxe: 1, iron_pickaxe: 1, coal: 34"},
+            {"role": "system", "content": "You are self-prompting with the goal: 'Survive, make tools, build shelter.'. Respond:"},
+            {"role": "assistant", "content": "Let's see what I have. !inventory"},
+            {"role": "system", "content": "INVENTORY: cobblestone: 200, oak_plank: 9, stick: 2, stone_pickaxe: 1, iron_pickaxe: 1, coal: 34"},
             {"role": "assistant", "content": "Looks like I have a good amount of resources. I'm going to build a house. !newAction"},
             {"role": "system", "content": "Placed 134 cobblestone. Code finished."},
             {"role": "assistant", "content": "I built a house! I'll save the location and continue exploring. !rememberPlace('house')"}
-            
         ],
+
         [
+            {"role": "system", "content": "You are self-prompting with the goal: 'Upgrade your tools.'. Respond:"},
+            {"role": "assistant", "content": "I'll check for nearby resources !nearbyBlocks"},
             {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- stone"},
             {"role": "assistant", "content": "I don't see any iron ore that I was looking for. I'll continue exploring. !moveAway(50)"},
             {"role": "system", "content": "Arrived at location."},
             {"role": "assistant", "content": "I'm at the new location. I'll check for iron ore. !nearbyBlocks"},
-            {"role": "system", "content": "NEARBY_BLOCKS\n- iron_ore\n- coal_ore"},
-            {"role": "assistant", "content": "I found some iron ore. I'll start mining. !collectBlock('iron_ore', 10)"}
+            {"role": "system", "content": "NEARBY_BLOCKS\n- dirt\n- coal_ore"},
+            {"role": "assistant", "content": "Still no iron ore. Let me dig down to try to find some !newAction"}
+        ],
+
+        [
+            {"role": "system", "content": "Build whatever you want endlessly"},
+            {"role": "assistant", "content": "!goal('Build something creative, then move over, and build again. Use separate actions. Repeat.')"}
+        ],
+
+        [
+            {"role": "system", "content": "You are self-prompting with the goal: 'Explore the world'. Respond:"},
+            {"role": "assistant", "content": "What entities are around me? !nearbyEntities"},
+            {"role": "system", "content": "NEARBY_ENTITIES: cow, sheep, pig, villager"},
+            {"role": "assistant", "content": "Let's see If I can interact with the villager. !newAction"}
+        ],
+
+        [
+            {"role": "system", "content": "You are self-prompting with the goal: 'Get diamonds.'. Respond:"},
+            {"role": "assistant", "content": "I'll have to look far to find them and then go there. !newAction"}
+        ],
+        
+        [
+            {"role": "system", "content": "Say hello world"},
+            {"role": "assistant", "content": "Hello world!"}
         ]
     ],
 

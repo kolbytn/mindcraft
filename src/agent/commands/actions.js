@@ -44,6 +44,15 @@ export const actionsList = [
         }
     },
     {
+        name: '!stfu',
+        description: 'Stop all chatting and self prompting, but continue current action.',
+        perform: async function (agent) {
+            agent.bot.chat('Shutting up.');
+            agent.shutUp();
+            return;
+        }
+    },
+    {
         name: '!restart',
         description: 'Restart the agent process.',
         perform: async function (agent) {
@@ -57,23 +66,6 @@ export const actionsList = [
         perform: async function (agent) {
             agent.history.clear();
             return agent.name + "'s chat history was cleared, starting new conversation from scratch.";
-        }
-    },
-    {
-        name: '!setMode',
-        description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment.',
-        params: {
-            'mode_name': '(string) The name of the mode to enable.',
-            'on': '(bool) Whether to enable or disable the mode.'
-        },
-        perform: async function (agent, mode_name, on) {
-            const modes = agent.bot.modes;
-            if (!modes.exists(mode_name))
-                return `Mode ${mode_name} does not exist.` + modes.getStr();
-            if (modes.isOn(mode_name) === on)
-                return `Mode ${mode_name} is already ${on ? 'on' : 'off'}.`;
-            modes.setOn(mode_name, on);
-            return `Mode ${mode_name} is now ${on ? 'on' : 'off'}.`;
         }
     },
     {
@@ -99,6 +91,18 @@ export const actionsList = [
         }, -1, 'followPlayer')
     },
     {
+        name: '!goToBlock',
+        description: 'Go to the nearest block of a given type.',
+        params: {
+            'type': '(string) The block type to go to.',
+            'closeness': '(number) How close to get to the block.',
+            'search_range': '(number) The distance to search for the block.'
+        },
+        perform: wrapExecution(async (agent, type, closeness, range) => {
+            await skills.goToNearestBlock(agent.bot, type, closeness, range);
+        })
+    },
+    {
         name: '!moveAway',
         description: 'Move away from the current location in any direction by a given distance.',
         params: {'distance': '(number) The distance to move away.'},
@@ -113,6 +117,7 @@ export const actionsList = [
         perform: async function (agent, name) {
             const pos = agent.bot.entity.position;
             agent.memory_bank.rememberPlace(name, pos.x, pos.y, pos.z);
+            return `Location saved as "${name}".`;
         }
     },
     {
@@ -181,9 +186,18 @@ export const actionsList = [
             'item_name': '(string) The name of the input item to smelt.',
             'num': '(number) The number of times to smelt the item.'
         },
-        perform: wrapExecution(async (agent, recipe_name, num) => {
-            await skills.smeltItem(agent.bot, recipe_name, num);
-        })
+        perform: async function (agent, item_name, num) {
+            let response = await wrapExecution(async (agent) => {
+                console.log('smelting item');
+                return await skills.smeltItem(agent.bot, item_name, num);
+            })(agent);
+            if (response.indexOf('Successfully') !== -1) {
+                // there is a bug where the bot's inventory is not updated after smelting
+                // only updates after a restart
+                agent.cleanKill(response + ' Safely restarting to update inventory.');
+            }
+            return response;
+        }
     },
     {
         name: '!placeHere',
@@ -225,8 +239,43 @@ export const actionsList = [
         })
     },
     {
+        name: '!setMode',
+        description: 'Set a mode to on or off. A mode is an automatic behavior that constantly checks and responds to the environment.',
+        params: {
+            'mode_name': '(string) The name of the mode to enable.',
+            'on': '(bool) Whether to enable or disable the mode.'
+        },
+        perform: async function (agent, mode_name, on) {
+            const modes = agent.bot.modes;
+            if (!modes.exists(mode_name))
+                return `Mode ${mode_name} does not exist.` + modes.getDocs();
+            if (modes.isOn(mode_name) === on)
+                return `Mode ${mode_name} is already ${on ? 'on' : 'off'}.`;
+            modes.setOn(mode_name, on);
+            return `Mode ${mode_name} is now ${on ? 'on' : 'off'}.`;
+        }
+    },
+    {
         name: '!goal',
-        description: 'Set a goal to automatically work towards.',
+        description: 'Set a goal prompt to endlessly work towards with continuous self-prompting.',
+        params: {
+            'selfPrompt': '(string) The goal prompt.',
+        },
+        perform: async function (agent, prompt) {
+            agent.self_prompter.start(prompt); // don't await, don't return
+        }
+    },
+    {
+        name: '!endGoal',
+        description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
+        perform: async function (agent) {
+            agent.self_prompter.stop();
+            return 'Self-prompting stopped.';
+        }
+    },
+    {
+        name: '!npcGoal',
+        description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
         params: {
             'name': '(string) The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.',
             'quantity': '(number) The quantity of the goal to set. Default is 1.'
@@ -234,25 +283,7 @@ export const actionsList = [
         perform: async function (agent, name=null, quantity=1) {
             await agent.npc.setGoal(name, quantity);
             agent.bot.emit('idle');  // to trigger the goal
-            return 'Set goal: ' + agent.npc.data.curr_goal.name;
+            return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
         }
     },
-    {
-        name: '!selfPrompt',
-        description: 'Continously prompt yourself to continue acting without user input.',
-        params: {
-            'prompt': '(string) The starting prompt.',
-        },
-        perform: async function (agent, prompt) {
-            agent.self_prompter.start(prompt); // don't await, don't return
-        }
-    },
-    {
-        name: '!stopSelfPrompt',
-        description: 'Stop current action and self-prompting.',
-        perform: async function (agent) {
-            agent.self_prompter.stop();
-            return 'Self-prompting stopped.';
-        }
-    }
 ];
