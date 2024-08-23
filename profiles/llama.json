@@ -59,10 +59,8 @@
         ],
     
         [
-            {"role": "user", "content": "hanky: collect some sand and give it to me please"},
-            {"role": "assistant", "content": "Collecting sand... !newAction"},
-            {"role": "system", "content": "Code Output:\nYou have reached player hanky.\nCode execution finished successfully."},
-            {"role": "assistant", "content": "Here!"}
+            {"role": "user", "content": "hanky: collect some cobblestone"},
+            {"role": "assistant", "content": "Sure, I can do that by collecting stone. !collectBlocks('stone', 10)"}
         ],
     
         [
@@ -87,10 +85,8 @@
         ],
     
         [
-            {"role": "user", "content": "maya: go to the nearest oak log"},
-            {"role": "assistant", "content": "!newAction`"},
-            {"role": "system", "content": "Code output:\n!!Code threw exception!!  Error: ReferenceError: nearestOakLog is not defined\n Write code to fix the problem and try again."},
-            {"role": "assistant", "content": "Apologies, I made an error. Would you like me to try again?"}
+            {"role": "system", "content": "Code output: Action failed."},
+            {"role": "assistant", "content": "Apologies, I made an error. Let me try again. !newAction"}
         ],
     
         [
