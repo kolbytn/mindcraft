@@ -93,6 +93,7 @@ export class Coder {
         let messages = agent_history.getHistory();
         messages.push({role: 'system', content: 'Code generation started. Write code in codeblock in your response:'});
 
+        let code = null;
         let code_return = null;
         let failures = 0;
         const interrupt_return = {success: true, message: null, interrupted: true, timedout: false};
@@ -112,13 +113,7 @@ export class Coder {
                     });
                     continue; // using newaction will continue the loop
                 }
-
-                if (code_return) {
-                    agent_history.add('system', code_return.message);
-                    agent_history.add(this.agent.name, res);
-                    this.agent.bot.chat(res);
-                    return {success: true, message: null, interrupted: false, timedout: false};
-                }
+                
                 if (failures >= 1) {
                     return {success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false};
                 }
@@ -129,7 +124,7 @@ export class Coder {
                 failures++;
                 continue;
             }
-            let code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+            code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
             const execution_file = await this.stageCode(code);
             if (!execution_file) {
@@ -144,13 +139,18 @@ export class Coder {
                 return {success: false, message: null, interrupted: true, timedout: false};
             console.log("Code generation result:", code_return.success, code_return.message);
 
+            if (code_return.success) {
+                const summary = "Summary of newAction\nAgent wrote this code: \n```" + this.sanitizeCode(code) + "```\nCode Output:\n" + code_return.message;
+                return {success: true, message: summary, interrupted: false, timedout: false};
+            }
+
             messages.push({
                 role: 'assistant',
                 content: res
             });
             messages.push({
                 role: 'system',
-                content: code_return.message
+                content: code_return.message + '\nCode failed. Please try again:'
             });
         }
         return {success: false, message: null, interrupted: false, timedout: true};
@@ -161,7 +161,7 @@ export class Coder {
             this.resume_func = func;
             this.resume_name = name;
         }
-        if (this.resume_func != null && this.agent.isIdle()) {
+        if (this.resume_func != null && this.agent.isIdle() && !this.agent.self_prompter.on) {
             console.log('resuming code...')
             this.interruptible = true;
             let res = await this.execute(this.resume_func, timeout);
