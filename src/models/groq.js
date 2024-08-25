@@ -5,10 +5,10 @@ export class Mixtral {
     constructor(model_name, url) {
         this.model_name = model_name;
         this.url = url;
-        this.groq = new Groq({ apiKey: getKey('GROQ_API_KEY')});
+        this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY')});
     }
 
-    async sendRequest(turns, systemMessage, stop_seq="***") {
+    async sendRequest(turns, systemMessage, stop_seq=null) {
         let messages = [{"role": "system", "content": systemMessage}].concat(turns);
         let res = null;
         try {
@@ -20,7 +20,7 @@ export class Mixtral {
                 "max_tokens": 16384,
                 "top_p": 1,
                 "stream": true,
-                "stop": null //stop_seq
+                "stop": stop_seq // "***"
             });
 
             let temp_res = "";
@@ -39,6 +39,6 @@ export class Mixtral {
     }
 
     async embed(text) {
-      console.log("There is no support for embeddings here.");
+      console.log("There is no support for embeddings in Groq support. However, the following text was provided: " + text);
     }
 }
