@@ -8,7 +8,8 @@ import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import settings from '../../settings.js';
-
+import translate from 'google-translate-api-x';
+const preferred_lang = settings.preferred_language;
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null) {
@@ -48,16 +49,18 @@ export class Agent {
                 "Gamerule "
             ];
             const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
-            this.bot.on(eventname, (username, message) => {
+            this.bot.on(eventname, async (username, message) => {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                console.log('received message from', username, ':', message);
+                var translation = await this.handleTranslation(message, "en");
+
+                console.log('received message from', username, ':', translation);
 
                 this.shut_up = false;
     
-                this.handleMessage(username, message);
+                this.handleMessage(username, translation);
             });
 
             // set the bot to automatically eat food when hungry
@@ -77,7 +80,9 @@ export class Agent {
                 this.handleMessage('system', init_message, 2);
             }
             else {
-                this.bot.chat('Hello world! I am ' + this.name);
+		const translation = await this.handleTranslation("Hello world! I am", `${preferred_lang}`);
+		print(translation)
+                this.bot.chat(translation+" "+this.name);
                 this.bot.emit('finished_executing');
             }
 
@@ -85,10 +90,26 @@ export class Agent {
         });
     }
 
-    cleanChat(message) {
+    async handleTranslation(message, lang) {
+    	try {
+        	lang = String(lang); // Ensure lang is a string
+
+        	const translation = await translate(message, { to: lang });
+        	return translation.text || message; // Ensure translation.text is a string
+    	} catch (error) {
+        	console.error('Error translating message:', error);
+        	return message; // Fallback to the original message if translation fails
+    	}
+   }
+
+
+
+    async cleanChat(message) {
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', '  ');
-        return this.bot.chat(message);
+	const preferred_lang = settings.preferred_language;
+	var translation = await this.handleTranslation(message, `${preferred_lang}`);
+        return this.bot.chat(translation);
     }
 
     shutUp() {
@@ -280,4 +301,3 @@ export class Agent {
         process.exit(1);
     }
 }
-
