@@ -1,12 +1,14 @@
 export default 
 {
     "minecraft_version": "1.20.4", // supports up to 1.20.4
-    "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
+    "host": "localhost", // or "localhost", "your.ip.address.here"
     "port": 55916,
     "auth": "offline", // or "microsoft"
     
     "profiles": [
-        "./andy.json",
+        //"./andy.json",
+        "./profiles/dolphin.json" // Groq support, mixtral model
+        
         // add more profiles here, check ./profiles/ for more
         // more than 1 profile will require you to /msg each bot indivually
     ],
@@ -19,4 +21,5 @@ export default
     "max_commands": -1, // max number of commands to use in a response. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
+    "preferred_language": "english", // the bot will respond/message in this language. Secondly all language names are based on google translate's names.
 }
