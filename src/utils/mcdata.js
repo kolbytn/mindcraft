@@ -1,6 +1,7 @@
 import minecraftData from 'minecraft-data';
 import settings from '../../settings.js';
 import { createBot } from 'mineflayer';
+import prismarine_items from 'prismarine-item';
 import { pathfinder } from 'mineflayer-pathfinder';
 import { plugin as pvp } from 'mineflayer-pvp';
 import { plugin as collectblock } from 'mineflayer-collectblock';
@@ -10,7 +11,7 @@ const armorManager = plugin;
 
 const mc_version = settings.minecraft_version;
 const mcdata = minecraftData(mc_version);
-
+const Item = prismarine_items(mc_version);
 
 export const WOOD_TYPES = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak'];
 export const MATCHING_WOOD_BLOCKS = [
@@ -236,4 +237,8 @@ export function getBlockTool(blockName) {
         return null;
     }
     return getItemName(Object.keys(block.harvestTools)[0]);  // Double check first tool is always simplest
+}
+
+export function makeItem(name, amount=1) {
+    return new Item(getItemId(name), amount);
 }

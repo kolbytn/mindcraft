@@ -3,9 +3,10 @@ import { Coder } from './coder.js';
 import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
+import { SelfPrompter } from './self_prompter.js';
 import settings from '../../settings.js';
 
 
@@ -17,6 +18,7 @@ export class Agent {
         this.coder = new Coder(this);
         this.npc = new NPCContoller(this);
         this.memory_bank = new MemoryBank();
+        this.self_prompter = new SelfPrompter(this);
 
         await this.prompter.initExamples();
 
@@ -25,8 +27,10 @@ export class Agent {
 
         initModes(this);
 
-        if (load_mem)
-            this.history.load();
+        let save_data = null;
+        if (load_mem) {
+            save_data = this.history.load();
+        }
 
         this.bot.once('spawn', async () => {
             // wait for a bit so stats are not undefined
@@ -50,6 +54,8 @@ export class Agent {
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 console.log('received message from', username, ':', message);
+
+                this.shut_up = false;
     
                 this.handleMessage(username, message);
             });
@@ -61,9 +67,16 @@ export class Agent {
                 bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
             };
 
-            if (init_message) {
-                this.handleMessage('system', init_message);
-            } else {
+            if (save_data && save_data.self_prompt) { // if we're loading memory and self-prompting was on, restart it, ignore init_message
+                let prompt = save_data.self_prompt;
+                // add initial message to history
+                this.history.add('system', prompt);
+                this.self_prompter.start(prompt);
+            }
+            else if (init_message) {
+                this.handleMessage('system', init_message, 2);
+            }
+            else {
                 this.bot.chat('Hello world! I am ' + this.name);
                 this.bot.emit('finished_executing');
             }
@@ -78,29 +91,50 @@ export class Agent {
         return this.bot.chat(message);
     }
 
-    async handleMessage(source, message) {
-        const user_command_name = containsCommand(message);
-        if (user_command_name) {
-            if (!commandExists(user_command_name)) {
-                this.bot.chat(`Command '${user_command_name}' does not exist.`);
-                return;
-            }
-            this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
-            let execute_res = await executeCommand(this, message);
-            if (user_command_name === '!newAction') {
-                // all user initiated commands are ignored by the bot except for this one
-                // add the preceding message to the history to give context for newAction
-                let truncated_msg = message.substring(0, message.indexOf(user_command_name)).trim();
-                this.history.add(source, truncated_msg);
-            }
-            if (execute_res) 
-                this.cleanChat(execute_res);
-            return;
+    shutUp() {
+        this.shut_up = true;
+        if (this.self_prompter.on) {
+            this.self_prompter.stop(false);
+        }
+    }
+
+    async handleMessage(source, message, max_responses=null) {
+        let used_command = false;
+        if (max_responses === null) {
+            max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
         }
 
-        await this.history.add(source, message);
+        let self_prompt = source === 'system' || source === this.name;
 
-        for (let i=0; i<5; i++) {
+        if (!self_prompt) {
+            const user_command_name = containsCommand(message);
+            if (user_command_name) {
+                if (!commandExists(user_command_name)) {
+                    this.bot.chat(`Command '${user_command_name}' does not exist.`);
+                    return false;
+                }
+                this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
+                if (user_command_name === '!newAction') {
+                    // all user initiated commands are ignored by the bot except for this one
+                    // add the preceding message to the history to give context for newAction
+                    this.history.add(source, message);
+                }
+                let execute_res = await executeCommand(this, message);
+                if (execute_res) 
+                    this.cleanChat(execute_res);
+                return true;
+            }
+        }
+
+        const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
+
+        await this.history.add(source, message);
+        this.history.save();
+
+        if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
+            max_responses = 1; // force only respond to this message, then let self-prompting take over
+        for (let i=0; i<max_responses; i++) {
+            if (checkInterrupt()) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
@@ -111,19 +145,33 @@ export class Agent {
                 res = truncCommandMessage(res); // everything after the command is ignored
                 this.history.add(this.name, res);
                 if (!commandExists(command_name)) {
-                    this.history.add('system', `Command ${command_name} does not exist. Use !newAction to perform custom actions.`);
-                    console.log('Agent hallucinated command:', command_name)
+                    this.history.add('system', `Command ${command_name} does not exist.`);
+                    console.warn('Agent hallucinated command:', command_name)
                     continue;
                 }
-                let pre_message = res.substring(0, res.indexOf(command_name)).trim();
-                let chat_message = `*used ${command_name.substring(1)}*`;
-                if (pre_message.length > 0)
-                    chat_message = `${pre_message}  ${chat_message}`;
-                this.cleanChat(chat_message);
+                if (command_name === '!stopSelfPrompt' && self_prompt) {
+                    this.history.add('system', `Cannot stopSelfPrompt unless requested by user.`);
+                    continue;
+                }
+
+                if (checkInterrupt()) break;
+                this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
+
+                if (settings.verbose_commands) {
+                    this.cleanChat(res);
+                }
+                else { // only output command name
+                    let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+                    let chat_message = `*used ${command_name.substring(1)}*`;
+                    if (pre_message.length > 0)
+                        chat_message = `${pre_message}  ${chat_message}`;
+                    this.cleanChat(res);
+                }
 
                 let execute_res = await executeCommand(this, res);
 
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
+                used_command = true;
 
                 if (execute_res)
                     this.history.add('system', execute_res);
@@ -136,10 +184,11 @@ export class Agent {
                 console.log('Purely conversational response:', res);
                 break;
             }
+            this.history.save();
         }
 
-        this.history.save();
         this.bot.emit('finished_executing');
+        return used_command;
     }
 
     startEvents() {
@@ -199,18 +248,25 @@ export class Agent {
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
         const INTERVAL = 300;
+        let last = Date.now();
         setTimeout(async () => {
             while (true) {
                 let start = Date.now();
-                await this.bot.modes.update();
+                await this.update(start - last);
                 let remaining = INTERVAL - (Date.now() - start);
                 if (remaining > 0) {
                     await new Promise((resolve) => setTimeout(resolve, remaining));
                 }
+                last = start;
             }
         }, INTERVAL);
 
         this.bot.emit('idle');
+    }
+
+    async update(delta) {
+        await this.bot.modes.update();
+        await this.self_prompter.update(delta);
     }
 
     isIdle() {
@@ -224,3 +280,4 @@ export class Agent {
         process.exit(1);
     }
 }
+

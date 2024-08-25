@@ -129,6 +129,10 @@ export class Prompter {
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
         if (prompt.includes('$CONVO'))
             prompt = prompt.replaceAll('$CONVO', 'Recent conversation:\n' + stringifyTurns(messages));
+        if (prompt.includes('$SELF_PROMPT')) {
+            let self_prompt = this.agent.self_prompter.on ? `Use this self-prompt to guide your behavior: "${this.agent.self_prompter.prompt}"\n` : '';
+            prompt = prompt.replaceAll('$SELF_PROMPT', self_prompt);
+        }
         if (prompt.includes('$LAST_GOALS')) {
             let goal_text = '';
             for (let goal in last_goals) {
