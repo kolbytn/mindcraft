@@ -84,6 +84,7 @@ export class Agent {
 		print(translation)
                 this.bot.chat(translation+" "+this.name);
                 this.bot.emit('finished_executing');
+
             }
 
             this.startEvents();
@@ -91,11 +92,20 @@ export class Agent {
     }
 
     async handleTranslation(message, lang) {
-    	try {
-        	lang = String(lang); // Ensure lang is a string
 
-        	const translation = await translate(message, { to: lang });
-        	return translation.text || message; // Ensure translation.text is a string
+	const preferred_lang = settings.preferred_language;
+
+    	try {
+		if (preferred_lang.toLowerCase() == "en" || preferred_lang.toLowerCase() == "english"){
+			return message;
+		}
+		else{
+        		lang = String(lang); // Ensure lang is a string
+
+        		const translation = await translate(message, { to: lang });
+        		return translation.text || message; // Ensure translation.text is a string
+		}
+
     	} catch (error) {
         	console.error('Error translating message:', error);
         	return message; // Fallback to the original message if translation fails
