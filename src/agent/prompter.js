@@ -93,12 +93,15 @@ export class Prompter {
     }
 
     async initExamples() {
-        console.log('Loading examples...')
+        // Using Promise.all to implement concurrent processing
+        // Create Examples instances
         this.convo_examples = new Examples(this.embedding_model);
-        await this.convo_examples.load(this.profile.conversation_examples);
         this.coding_examples = new Examples(this.embedding_model);
-        await this.coding_examples.load(this.profile.coding_examples);
-        console.log('Examples loaded.');
+        // Use Promise.all to load examples concurrently
+        await Promise.all([
+            this.convo_examples.load(this.profile.conversation_examples),
+            this.coding_examples.load(this.profile.coding_examples),
+        ]);
     }
 
     async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[], last_goals=null) {
