@@ -1,8 +1,5 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
 
 function wrapExecution(func, timeout=-1, resume_name=null) {
     return async function (agent, ...args) {
@@ -288,39 +285,6 @@ export const actionsList = [
             agent.bot.emit('idle');  // to trigger the goal
             return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
         }
-    },
-    {
-    name: '!setPreferredLanguage',
-    description: 'Change the preferred language in settings.js to a specified language.',
-    params: {
-        'language': '(string) The language code to set as the preferred language. Example Perameters: "english", "spanish", "french".'
-    },
-    perform: async function (agent, language) {
-        try {
-
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            const settingsPath = path.join(__dirname, '../../../settings.js');
-            const settingsUrl = pathToFileURL(settingsPath).href;  // Convert to file:// URL
-            const settingsModule = await import(settingsUrl);
-            const settings = settingsModule.default;
-
-            
-            if (typeof language !== 'string' || !language.trim()) {
-                throw new Error('Invalid language code provided.');
-            }
-
-            
-            settings.preferred_language = language;
-
-            fs.writeFileSync(settingsPath, `export default ${JSON.stringify(settings, null, 4)};`, 'utf8');
-
-            return `Preferred language changed to ${language}.`;
-        } catch (error) {
-            return `Error: ${error.message}`;
-        }
     }
-}
-
 
 ];
