@@ -8,8 +8,7 @@ import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import settings from '../../settings.js';
-import translate from 'google-translate-api-x';
-const preferred_lang = settings.preferred_language;
+import { handleTranslation, handleEnglishTranslation } from './translator.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null) {
@@ -54,7 +53,7 @@ export class Agent {
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                var translation = await this.handleTranslation(message, "en");
+                let translation = await handleEnglishTranslation(message);
 
                 console.log('received message from', username, ':', translation);
 
@@ -80,8 +79,7 @@ export class Agent {
                 this.handleMessage('system', init_message, 2);
             }
             else {
-		const translation = await this.handleTranslation("Hello world! I am", `${preferred_lang}`);
-		print(translation)
+		const translation = await handleTranslation("Hello world! I am");
                 this.bot.chat(translation+" "+this.name);
                 this.bot.emit('finished_executing');
 
@@ -91,34 +89,12 @@ export class Agent {
         });
     }
 
-    async handleTranslation(message, lang) {
-
-	const preferred_lang = settings.preferred_language;
-
-    	try {
-		if (preferred_lang.toLowerCase() == "en" || preferred_lang.toLowerCase() == "english"){
-			return message;
-		}
-		else{
-        		lang = String(lang); // Ensure lang is a string
-
-        		const translation = await translate(message, { to: lang });
-        		return translation.text || message; // Ensure translation.text is a string
-		}
-
-    	} catch (error) {
-        	console.error('Error translating message:', error);
-        	return message; // Fallback to the original message if translation fails
-    	}
-   }
-
-
 
     async cleanChat(message) {
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', '  ');
 	const preferred_lang = settings.preferred_language;
-	var translation = await this.handleTranslation(message, `${preferred_lang}`);
+	let translation = await handleTranslation(message);
         return this.bot.chat(translation);
     }
 
