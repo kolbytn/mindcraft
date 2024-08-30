@@ -2,29 +2,7 @@ import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
 import settings from '../../settings.js'
-import translate from 'google-translate-api-x';
-
-
-async function handleTranslation(message, lang) {
-
-	const preferred_lang = settings.preferred_language;
-
-    	try {
-		if (preferred_lang.toLowerCase() == "en" || preferred_lang.toLowerCase() == "english"){
-			return message;
-		}
-		else{
-        		lang = String(lang); // Ensure lang is a string
-
-        		const translation = await translate(message, { to: lang });
-        		return translation.text || message; // Ensure translation.text is a string
-		}
-
-    	} catch (error) {
-        	console.error('Error translating message:', error);
-        	return message; // Fallback to the original message if translation fails
-    	}
-   }
+import { handleTranslation, handleEnglishTranslation } from './translator.js';
 
 
 
@@ -32,7 +10,7 @@ async function handleTranslation(message, lang) {
 async function say(agent, message) {
     const preferred_lang = settings.preferred_language;
     if (agent.shut_up || !settings.narrate_behavior) return;
-    var translation = await handleTranslation(message, `${preferred_lang}`);
+    var translation = await handleTranslation(message);
     agent.bot.chat(translation);
 }
 
