@@ -175,7 +175,7 @@
             {"role": "system", "content": "Digging upwards..."},
             {"role": "system", "content": "Reached the surface."},
             {"role": "assistant", "content": "I've made it to the surface, miner_99! What should I do now?"}
-        ],
+        ]
     ],
 
     "coding_examples": [
