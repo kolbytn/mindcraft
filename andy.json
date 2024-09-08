@@ -152,7 +152,7 @@
             {"role": "assistant", "content": "Alright, lets start with the basic structure. !newAction"}
         ],
         [
-            {"role": "user", "content": "miner_42: Hey Andy, can you go strip mining?"},
+            {"role": "user", "content": "miner_42: Can you go strip mining?"},
             {"role": "assistant", "content": "Sure, I can do that! I'll start strip mining right away. !stripMine"},
             {"role": "system", "content": "Strip mining operation started."},
             {"role": "assistant", "content": "I've started strip mining. I'll let you know if I find any valuable ores!"},
@@ -170,7 +170,7 @@
             {"role": "assistant", "content": "I've finished strip mining for diamonds."}
         ],
         [
-            {"role": "user", "content": "miner_99: Andy, can you come to the surface?"},
+            {"role": "user", "content": "miner_99: Can you come to the surface?"},
             {"role": "assistant", "content": "Sure thing, miner_99! I'll start digging my way up. !goToSurface"},
             {"role": "system", "content": "Digging upwards..."},
             {"role": "system", "content": "Reached the surface."},
