@@ -286,4 +286,19 @@ export const actionsList = [
             return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
         }
     },
+    {
+        name: '!stripMine',
+        description: 'Perform strip mining operation.',
+        perform: wrapExecution(async (agent) => {
+            return await skills.stripMine(agent.bot);
+        })
+    },
+    {
+        name: '!goToSurface',
+        description: 'Dig upwards in a staircase pattern until reaching the surface.',
+        perform: wrapExecution(async (agent) => {
+            await skills.goToSurface(agent.bot);
+            return "I've reached the surface!";
+        })
+    }
 ];

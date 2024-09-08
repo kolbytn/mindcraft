@@ -2,23 +2,17 @@ import * as mc from "../../utils/mcdata.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
+import { log } from './log.js';
 
+import { breakBlockAt } from './skills/breakBlockAt.js';
+import { collectBlock } from './skills/collectBlock.js';
 
-export function log(bot, message, chat=false) {
-    bot.output += message + '\n';
-    if (chat)
-        bot.chat(message);
-}
+export * from './skills/stripMine.js';
+export * from './skills/goToSurface.js';
+export * from './skills/breakBlockAt.js';
+export * from './skills/collectBlock.js';
+export * from './skills/autoLight.js';
 
-async function autoLight(bot) {
-    if (world.shouldPlaceTorch(bot)) {
-        try {
-            const pos = world.getPosition(bot);
-            return await placeBlock(bot, 'torch', pos.x, pos.y, pos.z, 'bottom', true);
-        } catch (err) {return false;}
-    }
-    return false;
-}
 
 async function equipHighestAttack(bot) {
     let weapons = bot.inventory.items().filter(item => item.name.includes('sword') || (item.name.includes('axe') && !item.name.includes('pickaxe')));
@@ -348,77 +342,6 @@ export async function defendSelf(bot, range=9) {
 }
 
 
-
-export async function collectBlock(bot, blockType, num=1, exclude=null) {
-    /**
-     * Collect one of the given block type.
-     * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} blockType, the type of block to collect.
-     * @param {number} num, the number of blocks to collect. Defaults to 1.
-     * @returns {Promise<boolean>} true if the block was collected, false if the block type was not found.
-     * @example
-     * await skills.collectBlock(bot, "oak_log");
-     **/
-    if (num < 1) {
-        log(bot, `Invalid number of blocks to collect: ${num}.`);
-        return false;
-    }
-    let blocktypes = [blockType];
-    if (blockType === 'coal' || blockType === 'diamond' || blockType === 'emerald' || blockType === 'iron' || blockType === 'gold' || blockType === 'lapis_lazuli' || blockType === 'redstone')
-        blocktypes.push(blockType+'_ore');
-    if (blockType.endsWith('ore'))
-        blocktypes.push('deepslate_'+blockType);
-    if (blockType === 'dirt')
-        blocktypes.push('grass_block');
-
-    let collected = 0;
-
-    for (let i=0; i<num; i++) {
-        let blocks = world.getNearestBlocks(bot, blocktypes, 64);
-        if (exclude) {
-            for (let position of exclude) {
-                blocks = blocks.filter(
-                    block => block.position.x !== position.x || block.position.y !== position.y || block.position.z !== position.z
-                );
-            }
-        }
-        if (blocks.length === 0) {
-            if (collected === 0)
-                log(bot, `No ${blockType} nearby to collect.`);
-            else
-                log(bot, `No more ${blockType} nearby to collect.`);
-            break;
-        }
-        const block = blocks[0];
-        await bot.tool.equipForBlock(block);
-        const itemId = bot.heldItem ? bot.heldItem.type : null
-        if (!block.canHarvest(itemId)) {
-            log(bot, `Don't have right tools to harvest ${blockType}.`);
-            return false;
-        }
-        try {
-            await bot.collectBlock.collect(block);
-            collected++;
-            await autoLight(bot);
-        }
-        catch (err) {
-            if (err.name === 'NoChests') {
-                log(bot, `Failed to collect ${blockType}: Inventory full, no place to deposit.`);
-                break;
-            }
-            else {
-                log(bot, `Failed to collect ${blockType}: ${err}.`);
-                continue;
-            }
-        }
-        
-        if (bot.interrupt_code)
-            break;  
-    }
-    log(bot, `Collected ${collected} ${blockType}.`);
-    return collected > 0;
-}
-
 export async function pickupNearbyItems(bot) {
     /**
      * Pick up all nearby items.
@@ -443,55 +366,6 @@ export async function pickupNearbyItems(bot) {
         pickedUp++;
     }
     log(bot, `Picked up ${pickedUp} items.`);
-    return true;
-}
-
-
-export async function breakBlockAt(bot, x, y, z) {
-    /**
-     * Break the block at the given position. Will use the bot's equipped item.
-     * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {number} x, the x coordinate of the block to break.
-     * @param {number} y, the y coordinate of the block to break.
-     * @param {number} z, the z coordinate of the block to break.
-     * @returns {Promise<boolean>} true if the block was broken, false otherwise.
-     * @example
-     * let position = world.getPosition(bot);
-     * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
-     **/
-    if (x == null || y == null || z == null) throw new Error('Invalid position to break block at.');
-    let block = bot.blockAt(Vec3(x, y, z));
-    if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
-        if (bot.modes.isOn('cheat')) {
-            let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' air';
-            bot.chat(msg);
-            log(bot, `Used /setblock to break block at ${x}, ${y}, ${z}.`);
-            return true;
-        }
-
-        if (bot.entity.position.distanceTo(block.position) > 4.5) {
-            let pos = block.position;
-            let movements = new pf.Movements(bot);
-            movements.canPlaceOn = false;
-            movements.allow1by1towers = false;
-            bot.pathfinder.setMovements(movements);
-            await bot.pathfinder.goto(new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
-        }
-        if (bot.game.gameMode !== 'creative') {
-            await bot.tool.equipForBlock(block);
-            const itemId = bot.heldItem ? bot.heldItem.type : null
-            if (!block.canHarvest(itemId)) {
-                log(bot, `Don't have right tools to break ${block.name}.`);
-                return false;
-            }
-        }
-        await bot.dig(block, true);
-        log(bot, `Broke ${block.name} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
-    }
-    else {
-        log(bot, `Skipping block at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)} because it is ${block.name}.`);
-        return false;
-    }
     return true;
 }
 
@@ -803,7 +677,6 @@ export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64
     log(bot, `Found ${blockType} at ${block.position}.`);
     await goToPosition(bot, block.position.x, block.position.y, block.position.z, min_distance);
     return true;
-    
 }
 
 export async function goToPlayer(bot, username, distance=3) {
