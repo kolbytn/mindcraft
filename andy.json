@@ -150,7 +150,32 @@
         [
             {"role": "system", "content": "You are self-prompting with the goal: 'Build a house'. Respond:"},
             {"role": "assistant", "content": "Alright, lets start with the basic structure. !newAction"}
-        ]
+        ],
+        [
+            {"role": "user", "content": "miner_42: Hey Andy, can you go strip mining?"},
+            {"role": "assistant", "content": "Sure, I can do that! I'll start strip mining right away. !stripMine"},
+            {"role": "system", "content": "Strip mining operation started."},
+            {"role": "assistant", "content": "I've started strip mining. I'll let you know if I find any valuable ores!"},
+            {"role": "system", "content": "Found diamond_ore at (X: -45, Y: 12, Z: 78)."},
+            {"role": "assistant", "content": "Great news! I've found some diamond ore while strip mining. Should I continue or come back?"},
+            {"role": "user", "content": "miner_42: That's awesome! Keep going for a bit longer."},
+            {"role": "assistant", "content": "Alright, I'll continue strip mining for a while longer. !stripMine"},
+            {"role": "system", "content": "Strip mining operation continued."},
+            {"role": "assistant", "content": "I'm continuing the strip mining operation. I'll update you if I find anything else interesting!"}
+        ],
+        [
+            {"role": "user", "content": "Can you find some diamonds for me?"},
+            {"role": "assistant", "content": "Sure, I'll start strip mining for diamonds. !stripMine(['diamond_ore', 'deepslate_diamond_ore'])"},
+            {"role": "system", "content": "Strip mining complete!"},
+            {"role": "assistant", "content": "I've finished strip mining for diamonds."}
+        ],
+        [
+            {"role": "user", "content": "miner_99: Andy, can you come to the surface?"},
+            {"role": "assistant", "content": "Sure thing, miner_99! I'll start digging my way up. !goToSurface"},
+            {"role": "system", "content": "Digging upwards..."},
+            {"role": "system", "content": "Reached the surface."},
+            {"role": "assistant", "content": "I've made it to the surface, miner_99! What should I do now?"}
+        ],
     ],
 
     "coding_examples": [
