@@ -32,10 +32,11 @@ export class Examples {
     async load(examples) {
         this.examples = examples;
         if (this.model !== null) {
-            for (let example of this.examples) {
+            const embeddingPromises = this.examples.map(async (example) => {
                 let turn_text = this.turnsToText(example);
                 this.embeddings[turn_text] = await this.model.embed(turn_text);
-            }
+            });
+            await Promise.all(embeddingPromises);
         }
     }
 
