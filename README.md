@@ -52,7 +52,7 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 
 // rest is same...
 ```
-‼️Make sure your bot's name in the profile.json matches the account name! Otherwise the bot will spam talk to itself.
+‼️ Please make sure your bot's name in the profile.json matches the account name! Otherwise the bot will spam talk to itself.
 
 ### Bot Profiles
 
