@@ -2,7 +2,6 @@ import Groq from "groq-sdk";
 import {toSinglePrompt} from '../utils/text.js';
 import {getKey} from '../utils/keys.js';
 import {GoogleGenerativeAI} from "@google/generative-ai";
-import * as fs from "node:fs";
 
 // llama, mistral
 export class GroqAPI {
@@ -37,10 +36,6 @@ export class GroqAPI {
 		let model_name = this.model_name || 'llama3-8b-8192';
 
 		const input = systemMessage + "\n" + prompt;
-		fs.appendFile('message.txt', prompt+"\n++++\n"+systemMessage+"\n----\n", function (err) {
-			if (err) throw err;
-			console.log('Saved!');
-		});
 		let res = null;
 		try {
 			console.log('Awaiting Groq API response...');
