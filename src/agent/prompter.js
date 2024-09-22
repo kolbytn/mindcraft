@@ -30,7 +30,8 @@ export class Prompter {
                 chat.api = 'openai';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
-            else if (chat.model.includes('llama3'))
+            else if (chat.model.includes('llama') || chat.model.includes('llava') || chat.model.includes('mixtral')
+                || chat.model.includes('whisper') || chat.model.includes('gemma'))
                 chat.api = "groq";
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
