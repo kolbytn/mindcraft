@@ -43,7 +43,7 @@ export class Prompter {
         if (chat.api == 'google')
             this.chat_model = new Gemini(chat.model, chat.url);
         else if (chat.api == 'openai')
-            this.chat_model = new (chat.model, chat.url);
+            this.chat_model = new GPT(chat.model, chat.url);
         else if (chat.api == 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
         else if (chat.api == 'replicate')
