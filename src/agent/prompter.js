@@ -9,6 +9,7 @@ import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
+import { GroqAPI } from '../models/groq.js';
 import { Local } from '../models/local.js';
 
 
@@ -29,6 +30,8 @@ export class Prompter {
                 chat.api = 'openai';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
+            else if (chat.model.includes('llama3'))
+                chat.api = "groq";
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
             else
@@ -40,13 +43,15 @@ export class Prompter {
         if (chat.api == 'google')
             this.chat_model = new Gemini(chat.model, chat.url);
         else if (chat.api == 'openai')
-            this.chat_model = new GPT(chat.model, chat.url);
+            this.chat_model = new (chat.model, chat.url);
         else if (chat.api == 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
         else if (chat.api == 'replicate')
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api == 'groq')
+            this.chat_model = new GroqAPI(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 

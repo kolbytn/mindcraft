@@ -53,6 +53,10 @@ export class Agent {
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
+                if (!message) {
+                    console.log('Message is empty or undefined:', message);
+                    return;
+                }
                 console.log('received message from', username, ':', message);
 
                 this.shut_up = false;
