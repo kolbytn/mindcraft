@@ -3,5 +3,6 @@
     "OPENAI_ORG_ID": "",
     "GEMINI_API_KEY": "",
     "ANTHROPIC_API_KEY": "",
-    "REPLICATE_API_KEY": ""
+    "REPLICATE_API_KEY": "",
+    "GROQ_API_KEY": ""
 }
