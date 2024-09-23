@@ -8,7 +8,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude), [Replicate API Subscription](https://replicate.com/), [Groq Free Account](https://groq.com/) or [Ollama Installed](https://ollama.com/download)
+- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude), [Replicate API Subscription](https://replicate.com/), [Hugging Face Free Account](https://huggingface.co/) or [Ollama Installed](https://ollama.com/download)
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc)
 - [Node.js](https://nodejs.org/) (at least v14)
 
@@ -21,7 +21,7 @@ Rename `keys.example.json` to `keys.json` and fill in your API keys, and you can
 | Google | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | Replicate | `REPLICATE_API_KEY` | `meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
-| Groq | `GROQ_API_KEY` | `llama3-8b-8192` | [docs](https://console.groq.com/docs/models) |
+| Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/meta-llama/Meta-Llama-3-8B` | [docs](https://huggingface.co/models) |
 | Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
@@ -36,7 +36,7 @@ Install the minecraft version specified in `settings.js`, currently supports up 
 ### Running Locally
 
 Start a minecraft world and open it to LAN on localhost port `55916`
-
++
 Run `node main.js`
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json`.
