@@ -22,7 +22,7 @@ function say(agent, message) {
 const modes = [
     {
         name: 'self_preservation',
-        description: 'Respond to drowning, burning, and damage at low health. Interrupts other actions.',
+        description: 'Respond to drowning, burning, and damage at low health. Interrupts all actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -71,8 +71,37 @@ const modes = [
         }
     },
     {
+        name: 'unstuck',
+        description: 'Attempt to get unstuck when in the same place for a while. Interrupts some actions.',
+        interrupts: ['collectBlocks', 'goToPlayer', 'collectAllBlocks'],
+        on: true,
+        active: false,
+        prev_location: null,
+        stuck_time: 0,
+        last_time: Date.now(),
+        max_stuck_time: 10,
+        update: async function (agent) {
+            if (agent.isIdle()) return;
+            const bot = agent.bot;
+            if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < 1) {
+                this.stuck_time += (Date.now() - this.last_time) / 1000;
+            }
+            else {
+                this.prev_location = bot.entity.position.clone();
+                this.stuck_time = 0;
+            }
+            if (this.stuck_time > this.max_stuck_time) {
+                say(agent, 'I\'m stuck!');
+                execute(this, agent, async () => {
+                    await skills.moveAway(bot, 5);
+                });
+            }
+            this.last_time = Date.now();
+        }
+    },
+    {
         name: 'cowardice',
-        description: 'Run away from enemies. Interrupts other actions.',
+        description: 'Run away from enemies. Interrupts all actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -88,7 +117,7 @@ const modes = [
     },
     {
         name: 'self_defense',
-        description: 'Attack nearby enemies. Interrupts other actions.',
+        description: 'Attack nearby enemies. Interrupts all actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -105,7 +134,7 @@ const modes = [
     {
         name: 'hunting',
         description: 'Hunt nearby animals when idle.',
-        interrupts: ['defaults'],
+        interrupts: [],
         on: true,
         active: false,
         update: async function (agent) {
@@ -281,9 +310,8 @@ class ModeController {
             this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            let available = mode.interrupts.includes('all') || this.agent.isIdle();
-            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('defaults') || mode.interrupts.includes(this.agent.coder.resume_name));
-            if (mode.on && !mode.paused && !mode.active && (available || interruptible)) {
+            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('all') || mode.interrupts.some(i => i === this.agent.coder.cur_action_name));
+            if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
                 await mode.update(this.agent);
             }
             if (mode.active) break;
