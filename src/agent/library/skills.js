@@ -109,6 +109,11 @@ export async function craftRecipe(bot, itemName, num=1) {
     if (placedTable) {
         await collectBlock(bot, 'crafting_table', 1);
     }
+
+    //Equip any armor the bot may have crafted.
+    //There is probablly a more efficient method than checking the entire inventory but this is all mineflayer-armor-manager provides. :P
+    bot.armorManager.equipAll(); 
+
     return true;
 }
 
