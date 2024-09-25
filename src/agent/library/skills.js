@@ -44,9 +44,6 @@ export async function craftRecipe(bot, itemName, num=1) {
      **/
     let placedTable = false;
 
-    if (itemName.endsWith('plank'))
-        itemName += 's'; // catches common mistakes like "oak_plank" instead of "oak_planks"
-
     // get recipes that don't require a crafting table
     let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
     let craftingTable = null;
