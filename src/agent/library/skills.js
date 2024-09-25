@@ -91,8 +91,21 @@ export async function craftRecipe(bot, itemName, num=1) {
 
     const recipe = recipes[0];
     console.log('crafting...');
-    await bot.craft(recipe, num, craftingTable);
-    log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
+    //Check that the agent has sufficient items to use the recipe `num` times.
+    const inventory = world.getInventoryCounts(bot);
+    let limitingItem;
+    let maxNum = num;
+    for (const ingredient of recipe.ingredients) {
+        const ingredientName = mc.getItemName(ingredient.id);
+        const itemsRemaining = inventory[ingredientName] + ingredient.count * maxNum;
+        if (itemsRemaining < 0) {
+            limitingItem = ingredientName;
+            maxNum -= Math.ceil(itemsRemaining / ingredient.count);
+        }
+    }
+    await bot.craft(recipe, maxNum, craftingTable);
+    if(maxNum<num) log(bot, `Not enough ${limitingItem} to craft ${num}, crafted ${maxNum}. You now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
+    else log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
     if (placedTable) {
         await collectBlock(bot, 'crafting_table', 1);
     }
