@@ -13,6 +13,11 @@ const mc_version = settings.minecraft_version;
 const mcdata = minecraftData(mc_version);
 const Item = prismarine_items(mc_version);
 
+/**
+ * @typedef {string} ItemName
+ * @typedef {string} BlockName
+*/
+
 export const WOOD_TYPES = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak'];
 export const MATCHING_WOOD_BLOCKS = [
     'log',
