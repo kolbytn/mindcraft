@@ -32,6 +32,55 @@ async function equipHighestAttack(bot) {
         await bot.equip(weapon, 'hand');
 }
 
+/**
+ * Returns the number of ingredients required to use the recipe once.
+ * 
+ * @param {Recipe} recipe
+ * @returns {Object<mc.ItemName, number>} an object describing the number of each ingredient.
+ */
+function ingredientsFromPrismarineRecipe(recipe) {
+    let requiredIngedients = {};
+    if (recipe.inShape)
+        for (const ingredient of recipe.inShape.flat()) {
+            if(ingredient.id<0) continue; //prismarine-recipe uses id -1 as an empty crafting slot
+            const ingredientName = mc.getItemName(ingredient.id);
+            requiredIngedients[ingredientName] ??=0;
+            requiredIngedients[ingredientName] += ingredient.count;
+        }
+    if (recipe.ingredients)
+        for (const ingredient of recipe.ingredients) {
+            if(ingredient.id<0) continue;
+            const ingredientName = mc.getItemName(ingredient.id);
+            requiredIngedients[ingredientName] ??=0;
+            requiredIngedients[ingredientName] -= ingredient.count;
+            //Yes, the `-=` is intended.
+            //prismarine-recipe uses positive numbers for the shaped ingredients but negative for unshaped.
+            //Why this is the case is beyond my understanding.
+        }
+    return requiredIngedients;
+}
+
+/**
+ * Calculates the number of times an action, such as a crafing recipe, can be completed before running out of resources.
+ * @template T - doesn't have to be an item. This could be any resource.
+ * @param {Object.<T, number>} availableItems - The resources available; e.g, `{'cobble_stone': 7, 'stick': 10}`
+ * @param {Object.<T, number>} requiredItems - The resources required to complete the action once; e.g, `{'cobble_stone': 3, 'stick': 2}`
+ * @param {boolean} discrete - Is the action discrete?
+ * @returns {{num: number, limitingResource: (T | null)}} the number of times the action can be completed and the limmiting resource; e.g `{num: 2, limitingResource: 'cobble_stone'}`
+ */
+function calculateLimitingResource(availableItems, requiredItems, discrete=true) {
+    let limitingResource = null;
+    let num = Infinity;
+    for (const itemType in requiredItems) {
+        if (availableItems[itemType] < requiredItems[itemType] * num) {
+            limitingResource = itemType;
+            num = availableItems[itemType] / requiredItems[itemType];
+        }
+    }
+    if(discrete) num = Math.floor(num);
+    return {num, limitingResource}
+}
+
 
 export async function craftRecipe(bot, itemName, num=1) {
     /**
@@ -48,7 +97,9 @@ export async function craftRecipe(bot, itemName, num=1) {
     let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
     let craftingTable = null;
     const craftingTableRange = 32;
-    if (!recipes || recipes.length === 0) {
+    placeTable: if (!recipes || recipes.length === 0) {
+        recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, true);
+        if(!recipes || recipes.length === 0) break placeTable; //Don't bother going to the table if we don't have the required resources.
 
         // Look for crafting table
         craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
@@ -66,7 +117,7 @@ export async function craftRecipe(bot, itemName, num=1) {
                 }
             }
             else {
-                log(bot, `You either do not have enough resources to craft ${itemName} or it requires a crafting table.`)
+                log(bot, `Crafting ${itemName} requires a crafting table.`)
                 return false;
             }
         }
@@ -89,19 +140,12 @@ export async function craftRecipe(bot, itemName, num=1) {
     const recipe = recipes[0];
     console.log('crafting...');
     //Check that the agent has sufficient items to use the recipe `num` times.
-    const inventory = world.getInventoryCounts(bot);
-    let limitingItem;
-    let maxNum = num;
-    for (const ingredient of recipe.ingredients) {
-        const ingredientName = mc.getItemName(ingredient.id);
-        const itemsRemaining = inventory[ingredientName] + ingredient.count * maxNum;
-        if (itemsRemaining < 0) {
-            limitingItem = ingredientName;
-            maxNum -= Math.ceil(itemsRemaining / ingredient.count);
-        }
-    }
-    await bot.craft(recipe, maxNum, craftingTable);
-    if(maxNum<num) log(bot, `Not enough ${limitingItem} to craft ${num}, crafted ${maxNum}. You now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
+    const inventory = world.getInventoryCounts(bot); //Items in the agents inventory
+    const requiredIngredients = ingredientsFromPrismarineRecipe(recipe); //Items required to use the recipe once.
+    const craftLimit = calculateLimitingResource(inventory, requiredIngredients);
+    
+    await bot.craft(recipe, Math.min(craftLimit.num, num), craftingTable);
+    if(craftLimit.num<num) log(bot, `Not enough ${craftLimit.limitingResource} to craft ${num}, crafted ${craftLimit.num}. You now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
     else log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
     if (placedTable) {
         await collectBlock(bot, 'crafting_table', 1);
