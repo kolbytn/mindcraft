@@ -95,7 +95,7 @@ export async function executeCommand(agent, message) {
                 agent.coder.setCurActionName(command.name);
             const result = await command.perform(agent, ...parsed.args);
             if (is_action)
-                agent.coder.setCurActionName(command.name);
+                agent.coder.setCurActionName('');
             return result;
         }
     }
