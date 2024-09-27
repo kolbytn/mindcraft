@@ -201,6 +201,7 @@ export async function smeltItem(bot, itemName, num=1) {
             break;
         }
     }
+    await bot.closeWindow(furnace);
 
     if (placedFurnace) {
         await collectBlock(bot, 'furnace', 1);
@@ -382,6 +383,12 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
                 );
             }
         }
+        const movements = new pf.Movements(bot);
+        movements.dontMineUnderFallingBlock = false;
+        blocks = blocks.filter(
+            block => movements.safeToBreak(block)
+        );
+
         if (blocks.length === 0) {
             if (collected === 0)
                 log(bot, `No ${blockType} nearby to collect.`);
@@ -708,6 +715,94 @@ export async function discard(bot, itemName, num=-1) {
         return false;
     }
     log(bot, `Successfully discarded ${discarded} ${itemName}.`);
+    return true;
+}
+
+export async function putInChest(bot, itemName, num=-1) {
+    /**
+     * Put the given item in the nearest chest.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} itemName, the item or block name to put in the chest.
+     * @param {number} num, the number of items to put in the chest. Defaults to -1, which puts all items.
+     * @returns {Promise<boolean>} true if the item was put in the chest, false otherwise.
+     * @example
+     * await skills.putInChest(bot, "oak_log");
+     **/
+    let chest = world.getNearestBlock(bot, 'chest', 32);
+    if (!chest) {
+        log(bot, `Could not find a chest nearby.`);
+        return false;
+    }
+    let item = bot.inventory.items().find(item => item.name === itemName);
+    if (!item) {
+        log(bot, `You do not have any ${itemName} to put in the chest.`);
+        return false;
+    }
+    let to_put = num === -1 ? item.count : Math.min(num, item.count);
+    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
+    const chestContainer = await bot.openContainer(chest);
+    await chestContainer.deposit(item.type, null, to_put);
+    await chestContainer.close();
+    log(bot, `Successfully put ${to_put} ${itemName} in the chest.`);
+    return true;
+}
+
+export async function takeFromChest(bot, itemName, num=-1) {
+    /**
+     * Take the given item from the nearest chest.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} itemName, the item or block name to take from the chest.
+     * @param {number} num, the number of items to take from the chest. Defaults to -1, which takes all items.
+     * @returns {Promise<boolean>} true if the item was taken from the chest, false otherwise.
+     * @example
+     * await skills.takeFromChest(bot, "oak_log");
+     * **/
+    let chest = world.getNearestBlock(bot, 'chest', 32);
+    if (!chest) {
+        log(bot, `Could not find a chest nearby.`);
+        return false;
+    }
+    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
+    const chestContainer = await bot.openContainer(chest);
+    let item = chestContainer.containerItems().find(item => item.name === itemName);
+    if (!item) {
+        log(bot, `Could not find any ${itemName} in the chest.`);
+        await chestContainer.close();
+        return false;
+    }
+    let to_take = num === -1 ? item.count : Math.min(num, item.count);
+    await chestContainer.withdraw(item.type, null, to_take);
+    await chestContainer.close();
+    log(bot, `Successfully took ${to_take} ${itemName} from the chest.`);
+    return true;
+}
+
+export async function viewChest(bot) {
+    /**
+     * View the contents of the nearest chest.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if the chest was viewed, false otherwise.
+     * @example
+     * await skills.viewChest(bot);
+     * **/
+    let chest = world.getNearestBlock(bot, 'chest', 32);
+    if (!chest) {
+        log(bot, `Could not find a chest nearby.`);
+        return false;
+    }
+    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
+    const chestContainer = await bot.openContainer(chest);
+    let items = chestContainer.containerItems();
+    if (items.length === 0) {
+        log(bot, `The chest is empty.`);
+    }
+    else {
+        log(bot, `The chest contains:`);
+        for (let item of items) {
+            log(bot, `${item.count} ${item.name}`);
+        }
+    }
+    await chestContainer.close();
     return true;
 }
 

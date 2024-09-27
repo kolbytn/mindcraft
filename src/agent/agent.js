@@ -128,6 +128,16 @@ export class Agent {
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
 
+        let behavior_log = this.bot.modes.flushBehaviorLog();
+        if (behavior_log !== '') {
+            const MAX_LOG = 500;
+            if (behavior_log.length > MAX_LOG) {
+                behavior_log = behavior_log.substring(behavior_log.length - MAX_LOG) + '...';
+            }
+            behavior_log = 'Recent behaviors log: \n' + behavior_log.substring(behavior_log.indexOf('\n'));
+            await this.history.add('system', behavior_log);
+        }
+
         await this.history.add(source, message);
         this.history.save();
 
@@ -239,6 +249,10 @@ export class Agent {
         this.bot.on('idle', () => {
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
+            if (this.bot.currentWindow) {
+                this.bot.chat('Closing window...');
+                this.bot.closeWindow(this.bot.currentWindow);
+            }
             this.bot.modes.unPauseAll();
             this.coder.executeResume();
         });

@@ -4,6 +4,7 @@ import * as mc from '../utils/mcdata.js';
 import settings from '../../settings.js'
 
 function say(agent, message) {
+    agent.bot.modes.behavior_log += message + '\n';
     if (agent.shut_up || !settings.narrate_behavior) return;
     agent.bot.chat(message);
 }
@@ -261,6 +262,7 @@ class ModeController {
         this.agent = agent;
         this.modes_list = modes;
         this.modes_map = {};
+        this.behavior_log = '';
         for (let mode of this.modes_list) {
             this.modes_map[mode.name] = mode;
         }
@@ -318,6 +320,12 @@ class ModeController {
             }
             if (mode.active) break;
         }
+    }
+
+    flushBehaviorLog() {
+        const log = this.behavior_log;
+        this.behavior_log = '';
+        return log;
     }
 
     getJson() {

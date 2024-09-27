@@ -153,6 +153,36 @@ export const actionsList = [
         })
     },
     {
+        name: '!putInChest',
+        description: 'Put the given item in the nearest chest.',
+        params: {
+            'item_name': '(string) The name of the item to put in the chest.',
+            'num': '(number) The number of items to put in the chest.'
+        },
+        perform: wrapExecution(async (agent, item_name, num) => {
+            await skills.putInChest(agent.bot, item_name, num);
+        })
+    },
+    {
+        name: '!takeFromChest',
+        description: 'Take the given items from the nearest chest.',
+        params: {
+            'item_name': '(string) The name of the item to take.',
+            'num': '(number) The number of items to take.'
+        },
+        perform: wrapExecution(async (agent, item_name, num) => {
+            await skills.takeFromChest(agent.bot, item_name, num);
+        })
+    },
+    {
+        name: '!viewChest',
+        description: 'View the items/counts of the nearest chest.',
+        params: { },
+        perform: wrapExecution(async (agent) => {
+            await skills.viewChest(agent.bot);
+        })
+    },
+    {
         name: '!discard',
         description: 'Discard the given item from the inventory.',
         params: {
