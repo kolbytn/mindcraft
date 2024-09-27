@@ -1,17 +1,16 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 
-function wrapExecution(func, timeout=-1, resume_name=null) {
+function wrapExecution(func, resume=false, timeout=-1) {
     return async function (agent, ...args) {
         let code_return;
-        if (resume_name != null) {
-            code_return = await agent.coder.executeResume(async () => {
-                await func(agent, ...args);
-            }, resume_name, timeout);
+        const wrappedFunction = async () => {
+            await func(agent, ...args);
+        };
+        if (resume) {
+            code_return = await agent.coder.executeResume(wrappedFunction, timeout);
         } else {
-            code_return = await agent.coder.execute(async () => {
-                await func(agent, ...args);
-            }, timeout);
+            code_return = await agent.coder.execute(wrappedFunction, timeout);
         }
         if (code_return.interrupted && !code_return.timedout)
             return;
@@ -88,7 +87,7 @@ export const actionsList = [
         },
         perform: wrapExecution(async (agent, player_name, follow_dist) => {
             await skills.followPlayer(agent.bot, player_name, follow_dist);
-        }, -1, 'followPlayer')
+        }, true)
     },
     {
         name: '!goToBlock',
@@ -146,6 +145,28 @@ export const actionsList = [
         })
     },
     {
+        name: '!equip',
+        description: 'Equip the given item.',
+        params: {'item_name': '(string) The name of the item to equip.'},
+        perform: wrapExecution(async (agent, item_name) => {
+            await skills.equip(agent.bot, item_name);
+        })
+    },
+    {
+        name: '!discard',
+        description: 'Discard the given item from the inventory.',
+        params: {
+            'item_name': '(string) The name of the item to discard.',
+            'num': '(number) The number of items to discard.',
+        },
+        perform: wrapExecution(async (agent, item_name, num) => {
+            const start_loc = agent.bot.entity.position;
+            await skills.moveAway(agent.bot, 5);
+            await skills.discard(agent.bot, item_name, num);
+            await skills.goToPosition(agent.bot, start_loc.x, start_loc.y, start_loc.z, 0);
+        })
+    },
+    {
         name: '!collectBlocks',
         description: 'Collect the nearest blocks of a given type.',
         params: {
@@ -154,7 +175,7 @@ export const actionsList = [
         },
         perform: wrapExecution(async (agent, type, num) => {
             await skills.collectBlock(agent.bot, type, num);
-        }, 10) // 10 minute timeout
+        }, false, 10) // 10 minute timeout
     },
     {
         name: '!collectAllBlocks',
@@ -166,7 +187,7 @@ export const actionsList = [
             let success = await skills.collectBlock(agent.bot, type, 1);
             if (!success)
                 agent.coder.cancelResume();
-        }, 10, 'collectAllBlocks') // 10 minute timeout
+        }, true, 3) // 3 minute timeout
     },
     {
         name: '!craftRecipe',

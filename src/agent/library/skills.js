@@ -648,23 +648,35 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     }
 }
 
-export async function equip(bot, itemName, bodyPart) {
+export async function equip(bot, itemName) {
     /**
-     * Equip the given item to the given body part, like tools or armor.
+     * Equip the given item to the proper body part, like tools or armor.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item or block name to equip.
-     * @param {string} bodyPart, the body part to equip the item to.
      * @returns {Promise<boolean>} true if the item was equipped, false otherwise.
      * @example
-     * await skills.equip(bot, "iron_pickaxe", "hand");
-     * await skills.equip(bot, "diamond_chestplate", "torso");
+     * await skills.equip(bot, "iron_pickaxe");
      **/
     let item = bot.inventory.items().find(item => item.name === itemName);
     if (!item) {
         log(bot, `You do not have any ${itemName} to equip.`);
         return false;
     }
-    await bot.equip(item, bodyPart);
+    if (itemName.includes('leggings')) {
+        await bot.equip(item, 'legs');
+    }
+    else if (itemName.includes('boots')) {
+        await bot.equip(item, 'feet');
+    }
+    else if (itemName.includes('helmet')) {
+        await bot.equip(item, 'head');
+    }
+    else if (itemName.includes('chestplate')) {
+        await bot.equip(item, 'torso');
+    }
+    else {
+        await bot.equip(item, 'hand');
+    }
     return true;
 }
 

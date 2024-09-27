@@ -73,17 +73,18 @@ const modes = [
     {
         name: 'unstuck',
         description: 'Attempt to get unstuck when in the same place for a while. Interrupts some actions.',
-        interrupts: ['collectBlocks', 'goToPlayer', 'collectAllBlocks'],
+        interrupts: ['collectBlocks', 'goToPlayer', 'collectAllBlocks', 'goToPlace'],
         on: true,
         active: false,
         prev_location: null,
+        distance: 2,
         stuck_time: 0,
         last_time: Date.now(),
-        max_stuck_time: 10,
+        max_stuck_time: 20,
         update: async function (agent) {
             if (agent.isIdle()) return;
             const bot = agent.bot;
-            if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < 1) {
+            if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < this.distance) {
                 this.stuck_time += (Date.now() - this.last_time) / 1000;
             }
             else {
@@ -159,7 +160,8 @@ const modes = [
         noticed_at: -1,
         update: async function (agent) {
             let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-            if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item)) {
+            let empty_inv_slots = agent.bot.inventory.emptySlotCount();
+            if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item) && empty_inv_slots > 1) {
                 if (this.noticed_at === -1) {
                     this.noticed_at = Date.now();
                 }
@@ -310,7 +312,7 @@ class ModeController {
             this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('all') || mode.interrupts.some(i => i === this.agent.coder.cur_action_name));
+            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.coder.cur_action_name);
             if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
                 await mode.update(this.agent);
             }

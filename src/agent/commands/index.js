@@ -82,6 +82,7 @@ export async function executeCommand(agent, message) {
     let parsed = parseCommandMessage(message);
     if (parsed) {
         const command = getCommand(parsed.commandName);
+        const is_action = isAction(command.name);
         let numArgs = 0;
         if (parsed.args) {
             numArgs = parsed.args.length;
@@ -89,8 +90,14 @@ export async function executeCommand(agent, message) {
         console.log('parsed command:', parsed);
         if (numArgs !== numParams(command))
             return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
-        else
-            return await command.perform(agent, ...parsed.args);
+        else {
+            if (is_action)
+                agent.coder.setCurActionName(command.name);
+            const result = await command.perform(agent, ...parsed.args);
+            if (is_action)
+                agent.coder.setCurActionName(command.name);
+            return result;
+        }
     }
     else
         return `Command is incorrectly formatted`;

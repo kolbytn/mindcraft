@@ -10,7 +10,6 @@ export class Coder {
         this.generating = false;
         this.code_template = '';
         this.timedout = false;
-        this.interruptible = true;
         this.cur_action_name = '';
 
         readFile('./bots/template.js', 'utf8', (err, data) => {
@@ -159,14 +158,14 @@ export class Coder {
     }
 
     async executeResume(func=null, timeout=10) {
-        if (func != null) {
+        if (func != null) { // start new resume
             this.resume_func = func;
+            this.resume_name = this.cur_action_name;
         }
         if (this.resume_func != null && this.agent.isIdle() && !this.agent.self_prompter.on) {
-            console.log('resuming code...')
-            this.interruptible = true;
+            this.cur_action_name = this.resume_name;
             let res = await this.execute(this.resume_func, timeout);
-            this.interruptible = false;
+            this.cur_action_name = '';
             return res;
         } else {
             return {success: false, message: null, interrupted: false, timedout: false};
@@ -175,6 +174,7 @@ export class Coder {
 
     cancelResume() {
         this.resume_func = null;
+        this.resume_name = null;
     }
 
     setCurActionName(name) {
