@@ -249,10 +249,6 @@ export class Agent {
         this.bot.on('idle', () => {
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
-            if (this.bot.currentWindow) {
-                this.bot.chat('Closing window...');
-                this.bot.closeWindow(this.bot.currentWindow);
-            }
             this.bot.modes.unPauseAll();
             this.coder.executeResume();
         });
