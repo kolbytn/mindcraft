@@ -11,7 +11,7 @@
     
     "modes": {
         "self_preservation": true,
-        "cowardice": true,
+        "cowardice": false,
         "self_defense": true,
         "hunting": true,
         "item_collecting": true,
