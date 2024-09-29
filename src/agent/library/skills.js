@@ -964,12 +964,33 @@ export async function followPlayer(bot, username, distance=4) {
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
+    let last_time = Date.now();
+    let stuck_time = 0;
+    let last_pos = bot.entity.position.clone();
     while (!bot.interrupt_code) {
         await new Promise(resolve => setTimeout(resolve, 500));
+        const delta = Date.now() - last_time;
         // in cheat mode, if the distance is too far, teleport to the player
         if (bot.modes.isOn('cheat') && bot.entity.position.distanceTo(player.position) > 100 && player.isOnGround) {
             await goToPlayer(bot, username);
         }
+        if (bot.modes.isOn('unstuck')) {
+            const far_away = bot.entity.position.distanceTo(player.position) > distance + 1;
+            if (far_away && bot.entity.position.distanceTo(last_pos) <= 2) {
+                stuck_time += delta;
+                if (stuck_time > 10000) {
+                    log(bot, `Got stuck, attempting to move away.`);
+                    bot.pathfinder.stop();
+                    await moveAway(bot, 4);
+                    return false;
+                }
+            }
+            else {
+                stuck_time = 0;
+                last_pos = bot.entity.position.clone();
+            }
+        }
+        last_time = Date.now();
     }
     return true;
 }
