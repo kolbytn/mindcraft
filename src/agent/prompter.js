@@ -9,6 +9,8 @@ import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
+import { HuggingFace } from '../models/huggingface.js';
+import { Gradio } from '../models/gradio.js';
 import { Local } from '../models/local.js';
 
 
@@ -29,6 +31,10 @@ export class Prompter {
                 chat.api = 'openai';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
+            else if (chat.model.includes('huggingface/'))
+                chat.api = "huggingface";
+            else if (chat.model.includes('gradiospace/'))
+                chat.api = "gradio";
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
             else
@@ -37,16 +43,20 @@ export class Prompter {
 
         console.log('Using chat settings:', chat);
 
-        if (chat.api == 'google')
+        if (chat.api === 'google')
             this.chat_model = new Gemini(chat.model, chat.url);
-        else if (chat.api == 'openai')
+        else if (chat.api === 'openai')
             this.chat_model = new GPT(chat.model, chat.url);
-        else if (chat.api == 'anthropic')
+        else if (chat.api === 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
-        else if (chat.api == 'replicate')
+        else if (chat.api === 'replicate')
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
-        else if (chat.api == 'ollama')
+        else if (chat.api === 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api === 'huggingface')
+            this.chat_model = new HuggingFace(chat.model, chat.url);
+        else if (chat.api === 'gradio')
+            this.chat_model = new Gradio(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
