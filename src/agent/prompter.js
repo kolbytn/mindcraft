@@ -10,7 +10,7 @@ import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
-
+import settings from '../../settings.js'; // Adjust the path as necessary
 
 export class Prompter {
     constructor(agent, fp) {
@@ -31,6 +31,8 @@ export class Prompter {
                 chat.api = 'anthropic';
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
+            else if (chat.model.includes('predefined'))
+                chat.api = 'predefined';
             else
                 chat.api = 'ollama';
         }
@@ -47,6 +49,8 @@ export class Prompter {
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api == 'predefined')
+            this.chat_model = null;
         else
             throw new Error('Unknown API:', api);
 
@@ -160,46 +164,70 @@ export class Prompter {
     }
 
     async promptConvo(messages) {
-        let prompt = this.profile.conversing;
-        prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
-        return await this.chat_model.sendRequest(messages, prompt);
+        let prompt;
+        if (this.chat_model) {
+            prompt = this.profile.conversing;
+            prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
+            return await this.chat_model.sendRequest(messages, prompt);
+        } else {
+            prompt = settings.predefined.conversing;
+            return prompt;
+        }
     }
 
     async promptCoding(messages) {
-        let prompt = this.profile.coding;
-        prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
-        return await this.chat_model.sendRequest(messages, prompt);
+        let prompt;
+        if (this.chat_model) {
+            prompt = this.profile.coding;
+            prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
+            return await this.chat_model.sendRequest(messages, prompt);
+        } else {
+            prompt = settings.predefined.coding;
+            return prompt;
+        }
     }
 
     async promptMemSaving(prev_mem, to_summarize) {
-        let prompt = this.profile.saving_memory;
-        prompt = await this.replaceStrings(prompt, null, null, prev_mem, to_summarize);
-        return await this.chat_model.sendRequest([], prompt);
+        let prompt;
+        if (this.chat_model) {
+            prompt = this.profile.saving_memory;
+            prompt = await this.replaceStrings(prompt, null, null, prev_mem, to_summarize);
+            return await this.chat_model.sendRequest([], prompt);
+        } else {
+            prompt = settings.predefined.saving_memory;
+            return prompt;
+        }
     }
 
     async promptGoalSetting(messages, last_goals) {
-        let system_message = this.profile.goal_setting;
-        system_message = await this.replaceStrings(system_message, messages);
+        let system_message;
+        if (this.chat_model) {
+            system_message = this.profile.goal_setting;
+            system_message = await this.replaceStrings(system_message, messages);
 
-        let user_message = 'Use the below info to determine what goal to target next\n\n';
-        user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
-        user_message = await this.replaceStrings(user_message, messages, null, null, null, last_goals);
-        let user_messages = [{role: 'user', content: user_message}];
+            let user_message = 'Use the below info to determine what goal to target next\n\n';
+            user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
+            user_message = await this.replaceStrings(user_message, messages, null, null, null, last_goals);
+            let user_messages = [{role: 'user', content: user_message}];
 
-        let res = await this.chat_model.sendRequest(user_messages, system_message);
+            let res = await this.chat_model.sendRequest(user_messages, system_message);
 
-        let goal = null;
-        try {
-            let data = res.split('```')[1].replace('json', '').trim();
-            goal = JSON.parse(data);
-        } catch (err) {
-            console.log('Failed to parse goal:', res, err);
+            let goal = null;
+            try {
+                let data = res.split('```')[1].replace('json', '').trim();
+                goal = JSON.parse(data);
+            } catch (err) {
+                console.log('Failed to parse goal:', res, err);
+            }
+            if (!goal || !goal.name || !goal.quantity || isNaN(parseInt(goal.quantity))) {
+                console.log('Failed to set goal:', res);
+                return null;
+            }
+            goal.quantity = parseInt(goal.quantity);
+            return goal;
+        } else {
+            system_message = settings.predefined.goal_setting;
+            return system_message;
         }
-        if (!goal || !goal.name || !goal.quantity || isNaN(parseInt(goal.quantity))) {
-            console.log('Failed to set goal:', res);
-            return null;
-        }
-        goal.quantity = parseInt(goal.quantity);
-        return goal;
     }
 }

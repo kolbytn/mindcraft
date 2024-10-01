@@ -93,9 +93,9 @@ const modes = [
         on: true,
         active: false,
         update: async function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
+            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity) || entity.type === 'player', 8);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
-                say(agent, `Fighting ${enemy.name}!`);
+                say(agent, `Fighting ${enemy.name || enemy.username}!`);
                 execute(this, agent, async () => {
                     await skills.defendSelf(agent.bot, 8);
                 });
@@ -124,7 +124,6 @@ const modes = [
         interrupts: ['followPlayer'],
         on: true,
         active: false,
-
         wait: 2, // number of seconds to wait after noticing an item to pick it up
         prev_item: null,
         noticed_at: -1,
@@ -142,8 +141,7 @@ const modes = [
                     });
                     this.noticed_at = -1;
                 }
-            }
-            else {
+            } else {
                 this.noticed_at = -1;
             }
         }
@@ -211,6 +209,24 @@ const modes = [
         on: false,
         active: false,
         update: function (agent) { /* do nothing */ }
+    },
+    {
+        name: 'predefined',
+        description: 'Use predefined prompts from settings.json.',
+        interrupts: [],
+        on: true,
+        active: false,
+        update: async function (agent) {
+            if (agent.prompter.chat_model === null) {
+                let messages = []; // Define your messages here
+                let response = await agent.prompter.promptConvo(messages);
+                console.log('Predefined response:', response);
+
+                // Ensure self_defense and item_collecting modes are active
+                agent.bot.modes.setOn('self_defense', true);
+                agent.bot.modes.setOn('item_collecting', true);
+            }
+        }
     }
 ];
 
