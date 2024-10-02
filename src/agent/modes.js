@@ -284,6 +284,12 @@ class ModeController {
         this.modes_map[mode_name].paused = true;
     }
 
+    unPause(mode_name) {
+        if (this.exists(mode_name)) {
+            this.modes_map[mode_name].paused = false;
+        }
+    }
+
     getMiniDocs() { // no descriptions
         let res = 'Agent Modes:';
         for (let mode of this.modes_list) {

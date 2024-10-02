@@ -2,7 +2,7 @@ import * as mc from "../../utils/mcdata.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
-
+import mcData from 'minecraft-data'; // Import minecraft-data
 
 export function log(bot, message, chat=false) {
     bot.output += message + '\n';
@@ -310,44 +310,231 @@ export async function attackEntity(bot, entity, kill=true) {
     }
 }
 
-export async function defendSelf(bot, range=9) {
-    /**
-     * Defend yourself from all nearby hostile mobs until there are no more.
-     * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {number} range, the range to look for mobs. Defaults to 8.
-     * @returns {Promise<boolean>} true if the bot found any enemies and has killed them, false if no entities were found.
-     * @example
-     * await skills.defendSelf(bot);
-     * **/
-    bot.modes.pause('self_defense');
+/**
+ * Defend against hostile mobs and players within a certain radius using mineflayer-pvp.
+ * @param {MinecraftBot} bot - Reference to the Minecraft bot.
+ * @param {number} radius - Detection radius for hostile entities.
+ * @returns {Promise<boolean>} - True if engaged in combat, false otherwise.
+ * @example
+ * await skills.defendSelf(bot, 16);
+ */
+export async function defendSelf(bot, radius = 32) {
+    // Pause conflicting modes
     bot.modes.pause('cowardice');
-    let attacked = false;
-    let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
-    while (enemy) {
-        await equipHighestAttack(bot);
-        if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
-            try {
-                bot.pathfinder.setMovements(new pf.Movements(bot));
-                await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 2), true);
-            } catch (err) {/* might error if entity dies, ignore */}
-        }
+    bot.modes.pause('self_preservation');
+
+    // Equip the best weapon and armor
+    await equipBestWeapon(bot);
+    await equipBestArmorAndShield(bot);
+
+    // Find all hostile entities (mobs and players) within the radius
+    const enemies = Object.values(bot.entities).filter(entity => {
+        // Exclude the bot itself
+        if (entity.type === 'player' && entity.username === bot.username) return false;
+
+        const isHostileMob = mc.isHostile(entity);
+        const isEnemyPlayer = entity.type === 'player' && isPlayerEnemy(bot, entity);
+
+        return entity.position.distanceTo(bot.entity.position) <= radius && (isHostileMob || isEnemyPlayer);
+    });
+
+    if (enemies.length === 0) {
+        log(bot, `No hostile entities detected within radius ${radius}.`);
+        // Resume modes
+        bot.modes.unPause('cowardice');
+        bot.modes.unPause('self_preservation');
+        return false;
+    }
+
+    // Prioritize enemies (optional)
+    //enemies.sort((a, b) => prioritizeEnemy(a) - prioritizeEnemy(b));
+
+    // Engage each enemy
+    for (const enemy of enemies) {
+        if (!enemy.isValid) continue;
+
+        log(bot, `Engaging ${enemy.name || enemy.username} at ${enemy.position}.`);
+
+        // Use mineflayer-pvp to attack the enemy
         bot.pvp.attack(enemy);
-        attacked = true;
-        await new Promise(resolve => setTimeout(resolve, 500));
-        enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
-        if (bot.interrupt_code) {
-            bot.pvp.stop();
-            return false;
+
+        // Monitor combat and handle disengagement
+        const combatMonitor = () => {
+            if (bot.health < 10) {
+                log(bot, `Health is low (${bot.health}). Disengaging.`);
+                bot.pvp.stop();
+                bot.modes.unPause('cowardice');
+                bot.modes.unPause('self_preservation');
+                bot.off('health', combatMonitor);
+            }
+        };
+
+        const enemyDeathListener = (victim) => {
+            if (victim === enemy) {
+                log(bot, `${enemy.name || enemy.username} defeated.`);
+                bot.pvp.stop();
+                bot.off('health', combatMonitor);
+                bot.off('entityDeath', enemyDeathListener);
+            }
+        };
+
+        bot.on('health', combatMonitor);
+        bot.on('entityDeath', enemyDeathListener);
+
+        // Wait for combat to finish
+        await new Promise(resolve => {
+            const checkCombatEnd = setInterval(() => {
+                if (!enemy.isValid || !bot.pvp.target) {
+                    clearInterval(checkCombatEnd);
+                    bot.off('health', combatMonitor);
+                    bot.off('entityDeath', enemyDeathListener);
+                    resolve();
+                }
+            }, 100);
+        });
+
+        // Stop combat if health is low
+        if (bot.health < 10) {
+            break;
         }
     }
-    bot.pvp.stop();
-    if (attacked)
-        log(bot, `Successfully defended self.`);
-    else
-        log(bot, `No enemies nearby to defend self from.`);
-    return attacked;
+
+    // Resume modes
+    bot.modes.unPause('cowardice');
+    bot.modes.unPause('self_preservation');
+
+    return true;
 }
 
+// Supporting function to determine if a player is an enemy
+function isPlayerEnemy(bot, playerEntity) {
+    const friendlyPlayers = bot.friendlyPlayers || [];
+    return !friendlyPlayers.includes(playerEntity.username);
+}
+
+// Function to prioritize enemies
+function prioritizeEnemy(entity) {
+    const mobPriority = { 'creeper': 1, 'skeleton': 2, 'zombie': 3, 'spider': 4 };
+    if (entity.type === 'player') {
+        return 0; // Highest priority
+    } else {
+        return mobPriority[entity.name] || 5;
+    }
+}
+
+async function equipBestWeapon(bot) {
+    /**
+     * Equip the best weapon available in the bot's inventory.
+     * @param {MinecraftBot} bot - Reference to the Minecraft bot.
+     * @returns {Promise<void>}
+     */
+
+    // Get the correct mcData version for the bot
+    const mcDataVersion = mcData(bot.version);
+
+    const weaponItems = [
+        'netherite_sword',
+        'diamond_sword',
+        'iron_sword',
+        'stone_sword',
+        'wooden_sword',
+        'netherite_axe',
+        'diamond_axe',
+        'iron_axe',
+        'stone_axe',
+        'wooden_axe',
+    ];
+
+    for (const weaponName of weaponItems) {
+        const weaponItem = mcDataVersion.itemsByName[weaponName];
+        if (!weaponItem) continue; // Item doesn't exist in this version
+
+        const weapon = bot.inventory.items().find(item => item.type === weaponItem.id);
+        if (weapon) {
+            try {
+                await bot.equip(weapon, 'hand');
+                log(bot, `Equipped ${weapon.displayName || weapon.name} as weapon.`);
+                return;
+            } catch (err) {
+                log(bot, `Failed to equip ${weapon.displayName || weapon.name}: ${err.message}`);
+            }
+        }
+    }
+
+    log(bot, `No suitable weapon found. Proceeding unarmed.`);
+}
+
+/**
+ * Equip the best available armor and shield.
+ * @param {MinecraftBot} bot - Reference to the Minecraft bot.
+ * @returns {Promise<void>}
+ */
+export async function equipBestArmorAndShield(bot) {
+    // Equip the best armor pieces
+    const armorTypes = ['helmet', 'chestplate', 'leggings', 'boots'];
+    for (const armorType of armorTypes) {
+        await equipBestArmor(bot, armorType);
+    }
+
+    // Equip shield if available
+    await equipShield(bot);
+}
+
+/**
+ * Equip the best armor piece for a given type.
+ * @param {MinecraftBot} bot - Reference to the Minecraft bot.
+ * @param {string} armorType - The type of armor to equip (helmet, chestplate, leggings, boots).
+ * @returns {Promise<void>}
+ */
+async function equipBestArmor(bot, armorType) {
+    const armorMaterials = ['netherite', 'diamond', 'iron', 'chainmail', 'golden', 'leather'];
+    const slotMap = {
+        'helmet': 'head',
+        'chestplate': 'torso',
+        'leggings': 'legs',
+        'boots': 'feet'
+    };
+
+    const equipmentSlot = slotMap[armorType];
+    if (!equipmentSlot) {
+        log(bot, `Invalid armor type: ${armorType}.`);
+        return;
+    }
+
+    for (const material of armorMaterials) {
+        const armorName = `${material}_${armorType}`;
+        const armorItem = bot.inventory.items().find(item => item.name === armorName);
+        if (armorItem) {
+            try {
+                await bot.equip(armorItem, equipmentSlot);
+                log(bot, `Equipped ${armorName} on ${equipmentSlot}.`);
+                return;
+            } catch (err) {
+                log(bot, `Failed to equip ${armorName}: ${err.message}`);
+            }
+        }
+    }
+    log(bot, `No ${armorType} found to equip.`);
+}
+
+/**
+ * Equip a shield if available.
+ * @param {MinecraftBot} bot - Reference to the Minecraft bot.
+ * @returns {Promise<void>}
+ */
+async function equipShield(bot) {
+    const shield = bot.inventory.items().find(item => item.name === 'shield');
+    if (shield) {
+        try {
+            await bot.equip(shield, 'off-hand');
+            log(bot, `Equipped shield in off-hand.`);
+        } catch (err) {
+            log(bot, `Failed to equip shield: ${err.message}`);
+        }
+    } else {
+        log(bot, `No shield found to equip.`);
+    }
+}
 
 
 export async function collectBlock(bot, blockType, num=1, exclude=null) {
