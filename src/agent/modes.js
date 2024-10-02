@@ -6,6 +6,7 @@ import { handleTranslation } from '../utils/translator.js';
 
 
 async function say(agent, message) {
+    agent.bot.modes.behavior_log += message + '\n';
     if (agent.shut_up || !settings.narrate_behavior) return;
     let translation = await handleTranslation(message);
     agent.bot.chat(translation);
@@ -25,7 +26,7 @@ async function say(agent, message) {
 const modes = [
     {
         name: 'self_preservation',
-        description: 'Respond to drowning, burning, and damage at low health. Interrupts other actions.',
+        description: 'Respond to drowning, burning, and damage at low health. Interrupts all actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -74,8 +75,38 @@ const modes = [
         }
     },
     {
+        name: 'unstuck',
+        description: 'Attempt to get unstuck when in the same place for a while. Interrupts some actions.',
+        interrupts: ['collectBlocks', 'goToPlayer', 'collectAllBlocks', 'goToPlace'],
+        on: true,
+        active: false,
+        prev_location: null,
+        distance: 2,
+        stuck_time: 0,
+        last_time: Date.now(),
+        max_stuck_time: 20,
+        update: async function (agent) {
+            if (agent.isIdle()) return;
+            const bot = agent.bot;
+            if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < this.distance) {
+                this.stuck_time += (Date.now() - this.last_time) / 1000;
+            }
+            else {
+                this.prev_location = bot.entity.position.clone();
+                this.stuck_time = 0;
+            }
+            if (this.stuck_time > this.max_stuck_time) {
+                say(agent, 'I\'m stuck!');
+                execute(this, agent, async () => {
+                    await skills.moveAway(bot, 5);
+                });
+            }
+            this.last_time = Date.now();
+        }
+    },
+    {
         name: 'cowardice',
-        description: 'Run away from enemies. Interrupts other actions.',
+        description: 'Run away from enemies. Interrupts all actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -91,7 +122,7 @@ const modes = [
     },
     {
         name: 'self_defense',
-        description: 'Attack nearby enemies. Interrupts other actions.',
+        description: 'Attack nearby enemies. Interrupts all actions.',
         interrupts: ['all'],
         on: true,
         active: false,
@@ -108,7 +139,7 @@ const modes = [
     {
         name: 'hunting',
         description: 'Hunt nearby animals when idle.',
-        interrupts: ['defaults'],
+        interrupts: [],
         on: true,
         active: false,
         update: async function (agent) {
@@ -133,7 +164,8 @@ const modes = [
         noticed_at: -1,
         update: async function (agent) {
             let item = world.getNearestEntityWhere(agent.bot, entity => entity.name === 'item', 8);
-            if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item)) {
+            let empty_inv_slots = agent.bot.inventory.emptySlotCount();
+            if (item && item !== this.prev_item && await world.isClearPath(agent.bot, item) && empty_inv_slots > 1) {
                 if (this.noticed_at === -1) {
                     this.noticed_at = Date.now();
                 }
@@ -233,6 +265,7 @@ class ModeController {
         this.agent = agent;
         this.modes_list = modes;
         this.modes_map = {};
+        this.behavior_log = '';
         for (let mode of this.modes_list) {
             this.modes_map[mode.name] = mode;
         }
@@ -284,13 +317,18 @@ class ModeController {
             this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            let available = mode.interrupts.includes('all') || this.agent.isIdle();
-            let interruptible = this.agent.coder.interruptible && (mode.interrupts.includes('defaults') || mode.interrupts.includes(this.agent.coder.resume_name));
-            if (mode.on && !mode.paused && !mode.active && (available || interruptible)) {
+            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.coder.cur_action_name);
+            if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
                 await mode.update(this.agent);
             }
             if (mode.active) break;
         }
+    }
+
+    flushBehaviorLog() {
+        const log = this.behavior_log;
+        this.behavior_log = '';
+        return log;
     }
 
     getJson() {
