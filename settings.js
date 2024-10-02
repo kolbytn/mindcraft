@@ -7,12 +7,13 @@ export default
     
     "profiles": [
         "./andy.json",
-        
         // add more profiles here, check ./profiles/ for more
         // more than 1 profile will require you to /msg each bot indivually
     ],
     "load_memory": false, // load memory from previous session
     "init_message": "Say hello world and your name", // sends to all on spawn
+
+    "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
     "code_timeout_mins": 10, // minutes code is allowed to run. -1 for no timeout
@@ -20,5 +21,4 @@ export default
     "max_commands": -1, // max number of commands to use in a response. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
-    "language": "spanish", // the bot will respond/message in this language. All language names are based on google translate's names.
 }

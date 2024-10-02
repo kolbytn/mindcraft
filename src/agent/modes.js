@@ -2,13 +2,10 @@ import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
 import settings from '../../settings.js'
-import { handleTranslation, handleEnglishTranslation } from './translator.js';
-
-
+import { handleTranslation } from '../utils/translator.js';
 
 
 async function say(agent, message) {
-    const preferred_lang = settings.preferred_language;
     if (agent.shut_up || !settings.narrate_behavior) return;
     var translation = await handleTranslation(message);
     agent.bot.chat(translation);

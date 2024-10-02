@@ -8,7 +8,7 @@ import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import settings from '../../settings.js';
-import { handleTranslation, handleEnglishTranslation } from './translator.js';
+import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null) {
@@ -79,8 +79,8 @@ export class Agent {
                 this.handleMessage('system', init_message, 2);
             }
             else {
-		const translation = await handleTranslation("Hello world! I am");
-                this.bot.chat(translation+" "+this.name);
+				const translation = await handleTranslation("Hello world! I am "+this.name);
+                this.bot.chat(translation);
                 this.bot.emit('finished_executing');
 
             }
@@ -90,12 +90,17 @@ export class Agent {
     }
 
 
-    async cleanChat(message) {
+    async cleanChat(message, translate_up_to=-1) {
+		let to_translate = message;
+		let remainging = '';
+		if (translate_up_to != -1) {
+			to_translate = to_translate.substring(0, translate_up_to);
+			remainging = message.substring(translate_up_to);
+		}
+		message = (await handleTranslation(to_translate)).trim() + " " + remainging;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
-        message = message.replaceAll('\n', '  ');
-	const preferred_lang = settings.preferred_language;
-	let translation = await handleTranslation(message);
-        return this.bot.chat(translation);
+        message = message.replaceAll('\n', ' ');
+        return this.bot.chat(message);
     }
 
     shutUp() {
@@ -165,10 +170,10 @@ export class Agent {
                 this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
                 if (settings.verbose_commands) {
-                    this.cleanChat(res);
+                    this.cleanChat(res, res.indexOf(command_name));
                 }
                 else { // only output command name
-                    let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+					let pre_message = res.substring(0, res.indexOf(command_name)).trim();
                     let chat_message = `*used ${command_name.substring(1)}*`;
                     if (pre_message.length > 0)
                         chat_message = `${pre_message}  ${chat_message}`;

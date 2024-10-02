@@ -285,6 +285,5 @@ export const actionsList = [
             agent.bot.emit('idle');  // to trigger the goal
             return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
         }
-    }
-
+    },
 ];
