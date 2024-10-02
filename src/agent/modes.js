@@ -7,7 +7,7 @@ import { handleTranslation } from '../utils/translator.js';
 
 async function say(agent, message) {
     if (agent.shut_up || !settings.narrate_behavior) return;
-    var translation = await handleTranslation(message);
+    let translation = await handleTranslation(message);
     agent.bot.chat(translation);
 }
 

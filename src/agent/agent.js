@@ -79,10 +79,9 @@ export class Agent {
                 this.handleMessage('system', init_message, 2);
             }
             else {
-				const translation = await handleTranslation("Hello world! I am "+this.name);
+                const translation = await handleTranslation("Hello world! I am "+this.name);
                 this.bot.chat(translation);
                 this.bot.emit('finished_executing');
-
             }
 
             this.startEvents();
@@ -91,13 +90,13 @@ export class Agent {
 
 
     async cleanChat(message, translate_up_to=-1) {
-		let to_translate = message;
-		let remainging = '';
-		if (translate_up_to != -1) {
-			to_translate = to_translate.substring(0, translate_up_to);
-			remainging = message.substring(translate_up_to);
-		}
-		message = (await handleTranslation(to_translate)).trim() + " " + remainging;
+        let to_translate = message;
+        let remainging = '';
+        if (translate_up_to != -1) {
+            to_translate = to_translate.substring(0, translate_up_to);
+            remainging = message.substring(translate_up_to);
+        }
+        message = (await handleTranslation(to_translate)).trim() + " " + remainging;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
         return this.bot.chat(message);
@@ -173,7 +172,7 @@ export class Agent {
                     this.cleanChat(res, res.indexOf(command_name));
                 }
                 else { // only output command name
-					let pre_message = res.substring(0, res.indexOf(command_name)).trim();
+                    let pre_message = res.substring(0, res.indexOf(command_name)).trim();
                     let chat_message = `*used ${command_name.substring(1)}*`;
                     if (pre_message.length > 0)
                         chat_message = `${pre_message}  ${chat_message}`;
