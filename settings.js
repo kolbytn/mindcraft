@@ -22,3 +22,4 @@ export default
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
 }
+
