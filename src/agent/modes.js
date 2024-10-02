@@ -2,11 +2,14 @@ import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
 import settings from '../../settings.js'
+import { handleTranslation } from '../utils/translator.js';
 
-function say(agent, message) {
+
+async function say(agent, message) {
     agent.bot.modes.behavior_log += message + '\n';
     if (agent.shut_up || !settings.narrate_behavior) return;
-    agent.bot.chat(message);
+    let translation = await handleTranslation(message);
+    agent.bot.chat(translation);
 }
 
 // a mode is a function that is called every tick to respond immediately to the world

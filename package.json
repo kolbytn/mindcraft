@@ -3,6 +3,7 @@
     "dependencies": {
         "@anthropic-ai/sdk": "^0.17.1",
         "@google/generative-ai": "^0.2.1",
+        "google-translate-api-x": "^10.7.1",
         "minecraft-data": "^3.46.2",
         "mineflayer": "^4.20.0",
         "mineflayer-armor-manager": "^2.0.1",
