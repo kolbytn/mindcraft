@@ -21,10 +21,14 @@ function wrapExecution(func, resume=false, timeout=-1) {
 export const actionsList = [
     {
         name: '!newAction',
-        description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
-        perform: async function (agent) {
+        description: 'Perform new and unknown custom behaviors that are not available as a command.', 
+        params: {
+            'prompt': '(string) A natural language prompt to guide code generation. Make a detailed step-by-step plan.'
+        },
+        perform: async function (agent, prompt) {
+            // just ignore prompt - it is now in context in chat history
             if (!settings.allow_insecure_coding)
-                return 'newAction Failed! Agent is not allowed to write code. Notify the user.';
+                return 'newAction not allowed! Code writing is disabled in settings. Notify the user.';
             return await agent.coder.generateCode(agent.history);
         }
     },

@@ -88,7 +88,7 @@
     
         [
             {"role": "system", "content": "Code output: Action failed."},
-            {"role": "assistant", "content": "Apologies, I made an error. Let me try again. !newAction"}
+            {"role": "assistant", "content": "Apologies, I made an error. Let me try again. !newAction('Try again to complete the task.')"}
         ],
     
         [
@@ -100,12 +100,12 @@
     
         [
             {"role": "user", "content": "poppy: build a cobblestone house"},
-            {"role": "assistant", "content": "Sure, I'll to build a small cobblestone house where I am. !newAction"}
+            {"role": "assistant", "content": "Sure, I'll to build a small cobblestone house where I am. !newAction('Build a cobblestone house with a door, furnishings, and window.')"}
         ],
     
         [
             {"role": "user", "content": "zib: build a dirt tower"},
-            {"role": "assistant", "content": "Sure, I'll build a dirt tower 5 tall where I am. !newAction"}
+            {"role": "assistant", "content": "Sure, I'll build a dirt tower 5 tall where I am. !newAction('Build a dirt tower 5 tall.')"}
         ],
     
         [

@@ -20,16 +20,30 @@ export class GPT {
     async sendRequest(turns, systemMessage, stop_seq='***') {
 
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
+        
+
+        const pack = {
+            model: this.model_name || "gpt-3.5-turbo",
+            stop: stop_seq,
+        };
+        if (this.model_name.includes('o1')) {
+            // system role and stop_seq not supported by o1 models
+            messages = messages.map((msg) => {
+                if (msg.role == 'system') { 
+                    msg.role = 'user';
+                    msg.content = 'SYSTEM: ' + msg.content;
+                }
+                return msg;
+            });
+            delete pack.stop;
+        }
+        pack.messages = messages;
 
         let res = null;
         try {
             console.log('Awaiting openai api response...')
             // console.log('Messages:', messages);
-            let completion = await this.openai.chat.completions.create({
-                model: this.model_name || "gpt-3.5-turbo",
-                messages: messages,
-                stop: stop_seq,
-            });
+            let completion = await this.openai.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')
                 throw new Error('Context length exceeded'); 
             console.log('Received.')
