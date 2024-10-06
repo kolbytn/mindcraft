@@ -2,6 +2,8 @@
 
 Crafting minds for Minecraft with Language Models and Mineflayer!
 
+[Join the discord for support!](https://discord.gg/ZsrAAByEnr)
+
 #### ‼️Warning‼️
 
 This project allows an AI model to write/execute code on your computer that may be insecure, dangerous, and vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. Enable only on local or private servers, **never** on public servers. Ye be warned.
