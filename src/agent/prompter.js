@@ -56,8 +56,6 @@ export class Prompter {
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
         else if (chat.api == 'groq') {
-            // trim the prefix "groq/" or "groqcloud/" off the model name
-            // console.log("Detected model is one of Groq's. The following max token count was provided: ", max_tokens); // DEBUG
             this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
         }
         else
