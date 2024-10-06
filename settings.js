@@ -7,6 +7,7 @@ export default
     
     "profiles": [
         "./andy.json",
+        
         // add more profiles here, check ./profiles/ for more
         // more than 1 profile will require you to /msg each bot indivually
     ],

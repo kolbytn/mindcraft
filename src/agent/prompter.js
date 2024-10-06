@@ -10,7 +10,7 @@ import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
-
+import { GroqCloudAPI } from '../models/groq.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -21,6 +21,10 @@ export class Prompter {
 
         let name = this.profile.name;
         let chat = this.profile.model;
+        // try to get "max_tokens" parameter, else null
+        let max_tokens = null;
+        if (this.profile.max_tokens)
+            max_tokens = this.profile.max_tokens;
         if (typeof chat === 'string' || chat instanceof String) {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
@@ -31,6 +35,10 @@ export class Prompter {
                 chat.api = 'anthropic';
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
+            // OH GOD GROQ HAS A LOT MORE MODELS NOW WHERE DID THEY ALL COME FROM
+            // i literally need to use a "groq/" thing because theres so many
+            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
+                chat.api = 'groq';
             else
                 chat.api = 'ollama';
         }
@@ -47,6 +55,9 @@ export class Prompter {
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api == 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api == 'groq') {
+            this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
+        }
         else
             throw new Error('Unknown API:', api);
 
