@@ -35,8 +35,6 @@ export class Prompter {
                 chat.api = 'anthropic';
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
-            // OH GOD GROQ HAS A LOT MORE MODELS NOW WHERE DID THEY ALL COME FROM
-            // i literally need to use a "groq/" thing because theres so many
             else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
                 chat.api = 'groq';
             else
