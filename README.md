@@ -62,6 +62,11 @@ Bot profiles are json files (such as `andy.json`) that define:
 2. Prompts used to influence the bot's behavior.
 3. Examples help the bot perform tasks.
 
+### Specifying Profiles via Command Line
+
+By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument:
+
+`node main.js --profiles ./profiles/andy.json ./profiles/jill.json`
 
 ### Model Specifications
 
