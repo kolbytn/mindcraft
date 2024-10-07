@@ -15,12 +15,13 @@ function parseArguments() {
 }
 
 function getProfiles(args) {
-    return args.agents || settings.profiles;
+    return args.profiles || settings.profiles;
 }
 
 function main() {
     const args = parseArguments();
     const profiles = getProfiles(args);
+    console.log(profiles);
     const { load_memory, init_message } = settings;
 
     for (const profile of profiles) {
