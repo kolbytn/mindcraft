@@ -1,9 +1,10 @@
 import { spawn } from 'child_process';
 
 export class AgentProcess {
-    start(profile, load_memory=false, init_message=null) {
+    start(profile, load_memory=false, init_message=null, count_id=0) {
         let args = ['src/process/init-agent.js', this.name];
         args.push('-p', profile);
+        args.push('-c', count_id);
         if (load_memory)
             args.push('-l', load_memory);
         if (init_message)

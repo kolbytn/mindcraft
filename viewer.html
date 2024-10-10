@@ -1,0 +1,69 @@
+<html>
+  <head>
+    <title>Viewer</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        height: 100vh;
+      }
+      .iframe-wrapper {
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <iframe data-port="3000" src="http://localhost:3000" class="iframe-wrapper"></iframe>
+      <iframe data-port="3001" src="http://localhost:3001" class="iframe-wrapper"></iframe>
+      <iframe data-port="3002" src="http://localhost:3002" class="iframe-wrapper"></iframe>
+      <iframe data-port="3003" src="http://localhost:3003" class="iframe-wrapper"></iframe>
+    </div>
+    <script>
+      function updateLayout() {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        var iframes = document.querySelectorAll('.iframe-wrapper');
+        if (width > height) {
+          iframes.forEach(function(iframe) {
+            iframe.style.width = '50%';
+            iframe.style.height = '50%';
+          });
+        } else {
+          iframes.forEach(function(iframe) {
+            iframe.style.width = '100%';
+            iframe.style.height = '25%';
+          });
+        }
+      }
+      window.addEventListener('resize', updateLayout);
+      window.addEventListener('load', updateLayout);
+      var iframes = document.querySelectorAll('.iframe-wrapper');
+      iframes.forEach(function(iframe) {
+        var port = iframe.getAttribute('data-port');
+        var loaded = false;
+        function checkServer() {
+          fetch('http://localhost:' + port, { method: 'HEAD' })
+            .then(function(response) {
+              if (response.ok && !loaded) {
+                iframe.src = 'http://localhost:' + port;
+              }
+            })
+            .catch(function(error) {});
+        }
+        iframe.onload = function() {
+          loaded = true;
+        };
+        iframe.onerror = function() {
+          loaded = false;
+        };
+        setInterval(checkServer, 3000);
+      });
+    </script>
+  </body>
+</html>
