@@ -181,6 +181,7 @@ export async function smeltItem(bot, itemName, num=1) {
     let total = 0;
     let collected_last = true;
     let smelted_item = null;
+    bot.mods.pause('unstuck');
     await new Promise(resolve => setTimeout(resolve, 200));
     while (total < num) {
         await new Promise(resolve => setTimeout(resolve, 10000));
@@ -202,6 +203,7 @@ export async function smeltItem(bot, itemName, num=1) {
         }
     }
     await bot.closeWindow(furnace);
+    bot.mods.unpause('unstuck');
 
     if (placedFurnace) {
         await collectBlock(bot, 'furnace', 1);
@@ -560,10 +562,14 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         return true;
     }
 
-    let block = bot.inventory.items().find(item => item.name === blockType);
+    
+    let item_name = blockType;
+    if (item_name == "redstone_wire")
+        item_name = "redstone";
+    let block = bot.inventory.items().find(item => item.name === item_name);
     if (!block && bot.game.gameMode === 'creative') {
-        await bot.creative.setInventorySlot(36, mc.makeItem(blockType, 1)); // 36 is first hotbar slot
-        block = bot.inventory.items().find(item => item.name === blockType);
+        await bot.creative.setInventorySlot(36, mc.makeItem(item_name, 1)); // 36 is first hotbar slot
+        block = bot.inventory.items().find(item => item.name === item_name);
     }
     if (!block) {
         log(bot, `Don't have any ${blockType} to place.`);
@@ -624,7 +630,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
 
     const pos = bot.entity.position;
     const pos_above = pos.plus(Vec3(0,1,0));
-    const dont_move_for = ['torch', 'redstone_torch', 'redstone', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire', 'water_bucket'];
+    const dont_move_for = ['torch', 'redstone_torch', 'redstone_wire', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire', 'water_bucket'];
     if (!dont_move_for.includes(blockType) && (pos.distanceTo(targetBlock.position) < 1 || pos_above.distanceTo(targetBlock.position) < 1)) {
         // too close
         let goal = new pf.goals.GoalNear(targetBlock.position.x, targetBlock.position.y, targetBlock.position.z, 2);
@@ -964,33 +970,19 @@ export async function followPlayer(bot, username, distance=4) {
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
-    let last_time = Date.now();
-    let stuck_time = 0;
-    let last_pos = bot.entity.position.clone();
     while (!bot.interrupt_code) {
         await new Promise(resolve => setTimeout(resolve, 500));
-        const delta = Date.now() - last_time;
         // in cheat mode, if the distance is too far, teleport to the player
         if (bot.modes.isOn('cheat') && bot.entity.position.distanceTo(player.position) > 100 && player.isOnGround) {
             await goToPlayer(bot, username);
         }
         if (bot.modes.isOn('unstuck')) {
-            const far_away = bot.entity.position.distanceTo(player.position) > distance + 1;
-            if (far_away && bot.entity.position.distanceTo(last_pos) <= 2) {
-                stuck_time += delta;
-                if (stuck_time > 10000) {
-                    log(bot, `Got stuck, attempting to move away.`);
-                    bot.pathfinder.stop();
-                    await moveAway(bot, 4);
-                    return false;
-                }
-            }
-            else {
-                stuck_time = 0;
-                last_pos = bot.entity.position.clone();
-            }
+            const is_nearby = bot.entity.position.distanceTo(player.position) <= distance + 1;
+            if (is_nearby)
+                bot.modes.pause('unstuck');
+            else
+                bot.modes.unpause('unstuck');
         }
-        last_time = Date.now();
     }
     return true;
 }
@@ -1066,6 +1058,7 @@ export async function stay(bot) {
      * await skills.stay(bot);
      **/
     bot.modes.pause('self_preservation');
+    bot.modes.pause('unstuck');
     bot.modes.pause('cowardice');
     bot.modes.pause('self_defense');
     bot.modes.pause('hunting');

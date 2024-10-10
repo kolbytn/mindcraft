@@ -102,6 +102,7 @@ export class Coder {
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
             console.log(messages)
+            this.agent.bot.modes.pause('unstuck');
             let res = await this.agent.prompter.promptCoding(JSON.parse(JSON.stringify(messages)));
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
@@ -132,6 +133,7 @@ export class Coder {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
+            this.agent.bot.modes.unpause('unstuck');
             code_return = await this.execute(async ()=>{
                 return await execution_file.main(this.agent.bot);
             }, settings.code_timeout_mins);
@@ -158,11 +160,12 @@ export class Coder {
     }
 
     async executeResume(func=null, timeout=10) {
-        if (func != null) { // start new resume
+        const new_resume = func != null;
+        if (new_resume) { // start new resume
             this.resume_func = func;
             this.resume_name = this.cur_action_name;
         }
-        if (this.resume_func != null && this.agent.isIdle() && !this.agent.self_prompter.on) {
+        if (this.resume_func != null && this.agent.isIdle() && (!this.agent.self_prompter.on || new_resume)) {
             this.cur_action_name = this.resume_name;
             let res = await this.execute(this.resume_func, timeout);
             this.cur_action_name = '';

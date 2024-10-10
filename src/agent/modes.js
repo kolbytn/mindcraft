@@ -77,7 +77,7 @@ const modes = [
     {
         name: 'unstuck',
         description: 'Attempt to get unstuck when in the same place for a while. Interrupts some actions.',
-        interrupts: ['collectBlocks', 'goToPlayer', 'collectAllBlocks', 'goToPlace'],
+        interrupts: ['all'],
         on: true,
         active: false,
         prev_location: null,
@@ -86,7 +86,11 @@ const modes = [
         last_time: Date.now(),
         max_stuck_time: 20,
         update: async function (agent) {
-            if (agent.isIdle()) return;
+            if (agent.isIdle()) { 
+                this.prev_location = null;
+                this.stuck_time = 0;
+                return; // don't get stuck when idle
+            }
             const bot = agent.bot;
             if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < this.distance) {
                 this.stuck_time += (Date.now() - this.last_time) / 1000;
@@ -98,7 +102,9 @@ const modes = [
             if (this.stuck_time > this.max_stuck_time) {
                 say(agent, 'I\'m stuck!');
                 execute(this, agent, async () => {
+                    const crashTimeout = setTimeout(() => { throw new Error('Bot was stuck and could not get unstuck.'); }, 10000);
                     await skills.moveAway(bot, 5);
+                    clearTimeout(crashTimeout);
                 });
             }
             this.last_time = Date.now();
@@ -287,6 +293,17 @@ class ModeController {
         this.modes_map[mode_name].paused = true;
     }
 
+    unpause(mode_name) {
+        this.modes_map[mode_name].paused = false;
+    }
+
+    unPauseAll() {
+        for (let mode of this.modes_list) {
+            if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
+            mode.paused = false;
+        }
+    }
+
     getMiniDocs() { // no descriptions
         let res = 'Agent Modes:';
         for (let mode of this.modes_list) {
@@ -303,13 +320,6 @@ class ModeController {
             res += `\n- ${mode.name}(${on}): ${mode.description}`;
         }
         return res;
-    }
-
-    unPauseAll() {
-        for (let mode of this.modes_list) {
-            if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
-            mode.paused = false;
-        }
     }
 
     async update() {
