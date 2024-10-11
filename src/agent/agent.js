@@ -117,6 +117,9 @@ export class Agent {
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
         }
+        if (max_responses === -1){
+            max_responses = Infinity;
+        }
 
         let self_prompt = source === 'system' || source === this.name;
 
