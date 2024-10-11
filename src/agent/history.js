@@ -32,6 +32,12 @@ export class History {
     async summarizeMemories(turns) {
         console.log("Storing memories...");
         this.memory = await this.agent.prompter.promptMemSaving(turns);
+
+        if (this.memory.length > 500) {
+            this.memory = this.memory.slice(0, 500);
+            this.memory += '...(Memory truncated to 500 chars. Compress it more next time)';
+        }
+
         console.log("Memory updated to: ", this.memory);
     }
 
@@ -64,8 +70,9 @@ export class History {
 
         if (this.turns.length >= this.max_messages) {
             let chunk = this.turns.splice(0, this.summary_chunk_size);
-            while (this.turns[0].role != 'user' && this.turns.length > 1)
-                chunk.push(this.turns.shift()); // first message must be user message
+            while (this.turns.length > 0 && this.turns[0].role === 'assistant')
+                chunk.push(this.turns.shift()); // remove until turns starts with system/user message
+
             await this.summarizeMemories(chunk);
             this.appendFullHistory(chunk);
         }
