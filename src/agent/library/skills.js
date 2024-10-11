@@ -181,7 +181,7 @@ export async function smeltItem(bot, itemName, num=1) {
     let total = 0;
     let collected_last = true;
     let smelted_item = null;
-    bot.mods.pause('unstuck');
+    bot.modes.pause('unstuck');
     await new Promise(resolve => setTimeout(resolve, 200));
     while (total < num) {
         await new Promise(resolve => setTimeout(resolve, 10000));
@@ -203,7 +203,7 @@ export async function smeltItem(bot, itemName, num=1) {
         }
     }
     await bot.closeWindow(furnace);
-    bot.mods.unpause('unstuck');
+    bot.modes.unpause('unstuck');
 
     if (placedFurnace) {
         await collectBlock(bot, 'furnace', 1);
@@ -228,10 +228,13 @@ export async function clearNearestFurnace(bot) {
      * @example
      * await skills.clearNearestFurnace(bot);
      **/
-    let furnaceBlock = world.getNearestBlock(bot, 'furnace', 6); 
-    if (!furnaceBlock){
-        log(bot, `There is no furnace nearby.`)
+    let furnaceBlock = world.getNearestBlock(bot, 'furnace', 32);
+    if (!furnaceBlock) {
+        log(bot, `No furnace nearby to clear.`);
         return false;
+    }
+    if (bot.entity.position.distanceTo(furnaceBlock.position) > 4) {
+        await goToNearestBlock(bot, 'furnace', 4, 32);
     }
 
     console.log('clearing furnace...');

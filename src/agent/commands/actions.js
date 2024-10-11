@@ -255,6 +255,14 @@ export const actionsList = [
         }
     },
     {
+        name: '!clearFurnace',
+        description: 'Tak all items out of the nearest furnace.',
+        params: { },
+        perform: wrapExecution(async (agent) => {
+            await skills.clearNearestFurnace(agent.bot);
+        })
+    },
+    {
         name: '!placeHere',
         description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
         params: {'type': '(string) The block type to place.'},
