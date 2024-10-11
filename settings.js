@@ -19,7 +19,8 @@ export default
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
     "code_timeout_mins": 10, // minutes code is allowed to run. -1 for no timeout
-    
+
+    "max_messages": 20, // max number of messages to keep in context
     "max_commands": -1, // max number of commands to use in a response. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')

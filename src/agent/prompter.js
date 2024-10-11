@@ -113,7 +113,7 @@ export class Prompter {
         ]);
     }
 
-    async replaceStrings(prompt, messages, examples=null, prev_memory=null, to_summarize=[], last_goals=null) {
+    async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
 
         if (prompt.includes('$STATS')) {
@@ -131,13 +131,13 @@ export class Prompter {
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))
-            prompt = prompt.replaceAll('$MEMORY', prev_memory ? prev_memory : 'None.');
+            prompt = prompt.replaceAll('$MEMORY', this.agent.history.memory);
         if (prompt.includes('$TO_SUMMARIZE'))
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
         if (prompt.includes('$CONVO'))
             prompt = prompt.replaceAll('$CONVO', 'Recent conversation:\n' + stringifyTurns(messages));
         if (prompt.includes('$SELF_PROMPT')) {
-            let self_prompt = this.agent.self_prompter.on ? `Use this self-prompt to guide your behavior: "${this.agent.self_prompter.prompt}"\n` : '';
+            let self_prompt = this.agent.self_prompter.on ? `YOUR CURRENT ASSIGNED GOAL: "${this.agent.self_prompter.prompt}"\n` : '';
             prompt = prompt.replaceAll('$SELF_PROMPT', self_prompt);
         }
         if (prompt.includes('$LAST_GOALS')) {
@@ -180,9 +180,9 @@ export class Prompter {
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
-    async promptMemSaving(prev_mem, to_summarize) {
+    async promptMemSaving(to_summarize) {
         let prompt = this.profile.saving_memory;
-        prompt = await this.replaceStrings(prompt, null, null, prev_mem, to_summarize);
+        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         return await this.chat_model.sendRequest([], prompt);
     }
 
@@ -192,7 +192,7 @@ export class Prompter {
 
         let user_message = 'Use the below info to determine what goal to target next\n\n';
         user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
-        user_message = await this.replaceStrings(user_message, messages, null, null, null, last_goals);
+        user_message = await this.replaceStrings(user_message, messages, null, null, last_goals);
         let user_messages = [{role: 'user', content: user_message}];
 
         let res = await this.chat_model.sendRequest(user_messages, system_message);
