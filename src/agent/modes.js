@@ -101,8 +101,9 @@ const modes = [
             }
             if (this.stuck_time > this.max_stuck_time) {
                 say(agent, 'I\'m stuck!');
+                this.stuck_time = 0;
                 execute(this, agent, async () => {
-                    const crashTimeout = setTimeout(() => { throw new Error('Bot was stuck and could not get unstuck.'); }, 10000);
+                    const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 10000);
                     await skills.moveAway(bot, 5);
                     clearTimeout(crashTimeout);
                 });

@@ -138,6 +138,7 @@ export async function smeltItem(bot, itemName, num=1) {
     if (bot.entity.position.distanceTo(furnaceBlock.position) > 4) {
         await goToNearestBlock(bot, 'furnace', 4, furnaceRange);
     }
+    bot.modes.pause('unstuck');
     await bot.lookAt(furnaceBlock.position);
 
     console.log('smelting...');
@@ -181,7 +182,6 @@ export async function smeltItem(bot, itemName, num=1) {
     let total = 0;
     let collected_last = true;
     let smelted_item = null;
-    bot.modes.pause('unstuck');
     await new Promise(resolve => setTimeout(resolve, 200));
     while (total < num) {
         await new Promise(resolve => setTimeout(resolve, 10000));
@@ -330,10 +330,17 @@ export async function defendSelf(bot, range=9) {
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
     while (enemy) {
         await equipHighestAttack(bot);
-        if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
+        if (bot.entity.position.distanceTo(enemy.position) >= 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
             try {
                 bot.pathfinder.setMovements(new pf.Movements(bot));
-                await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 2), true);
+                await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 3.5), true);
+            } catch (err) {/* might error if entity dies, ignore */}
+        }
+        if (bot.entity.position.distanceTo(enemy.position) <= 2) {
+            try {
+                bot.pathfinder.setMovements(new pf.Movements(bot));
+                let inverted_goal = new pf.goals.GoalInvert(new pf.goals.GoalFollow(enemy, 2));
+                await bot.pathfinder.goto(inverted_goal, true);
             } catch (err) {/* might error if entity dies, ignore */}
         }
         bot.pvp.attack(enemy);
@@ -1045,6 +1052,9 @@ export async function avoidEnemies(bot, distance=16) {
         enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
         if (bot.interrupt_code) {
             break;
+        }
+        if (enemy && bot.entity.position.distanceTo(enemy.position) < 3) {
+            await attackEntity(bot, enemy, false);
         }
     }
     bot.pathfinder.stop();
