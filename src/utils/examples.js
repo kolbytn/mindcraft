@@ -31,13 +31,19 @@ export class Examples {
 
     async load(examples) {
         this.examples = examples;
-        if (this.model !== null) {
-            const embeddingPromises = this.examples.map(async (example) => {
-                let turn_text = this.turnsToText(example);
-                this.embeddings[turn_text] = await this.model.embed(turn_text);
-            });
-            await Promise.all(embeddingPromises);
+        try {
+            if (this.model !== null) {
+                const embeddingPromises = this.examples.map(async (example) => {
+                    let turn_text = this.turnsToText(example);
+                    this.embeddings[turn_text] = await this.model.embed(turn_text);
+                });
+                await Promise.all(embeddingPromises);
+            }
+        } catch (err) {
+            console.warn('Error with embedding model, using word overlap instead.');
+            this.model = null;
         }
+
     }
 
     async getRelevant(turns) {
