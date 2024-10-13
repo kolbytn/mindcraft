@@ -18,9 +18,12 @@ export class Prompter {
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
         this.convo_examples = null;
         this.coding_examples = null;
-
+        
         let name = this.profile.name;
         let chat = this.profile.model;
+        this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
+        this.last_prompt_time = 0;
+
         // try to get "max_tokens" parameter, else null
         let max_tokens = null;
         if (this.profile.max_tokens)
@@ -168,19 +171,30 @@ export class Prompter {
         return prompt;
     }
 
+    async checkCooldown() {
+        let elapsed = Date.now() - this.last_prompt_time;
+        if (elapsed < this.cooldown && this.cooldown > 0) {
+            await new Promise(r => setTimeout(r, this.cooldown - elapsed));
+        }
+        this.last_prompt_time = Date.now();
+    }
+
     async promptConvo(messages) {
+        await this.checkCooldown();
         let prompt = this.profile.conversing;
         prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptCoding(messages) {
+        await this.checkCooldown();
         let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
         return await this.chat_model.sendRequest(messages, prompt);
     }
 
     async promptMemSaving(to_summarize) {
+        await this.checkCooldown();
         let prompt = this.profile.saving_memory;
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         return await this.chat_model.sendRequest([], prompt);

@@ -43,6 +43,13 @@ function parseCommandMessage(message) {
 
             for (let i = 0; i < args.length; i++) {
                 let arg = args[i];
+
+                if (arg.includes('=')) {
+                    // this sanitizes syntaxes like "x=2" and ignores the param name
+                    let split = arg.split('=');
+                    args[i] = split[1];
+                }
+
                 if ((arg.startsWith('"') && arg.endsWith('"')) || (arg.startsWith("'") && arg.endsWith("'"))) {
                     args[i] = arg.substring(1, arg.length-1);
                 } else if (!isNaN(arg)) {
