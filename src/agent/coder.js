@@ -116,7 +116,7 @@ export class Coder {
                     continue; // using newaction will continue the loop
                 }
                 
-                if (failures >= 1) {
+                if (failures >= 3) {
                     return {success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false};
                 }
                 messages.push({
@@ -133,11 +133,11 @@ export class Coder {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
-            this.agent.bot.modes.unpause('unstuck');
+            
             code_return = await this.execute(async ()=>{
                 return await execution_file.main(this.agent.bot);
             }, settings.code_timeout_mins);
-
+            this.agent.bot.modes.unpause('unstuck');
             if (code_return.interrupted && !code_return.timedout)
                 return {success: false, message: null, interrupted: true, timedout: false};
             console.log("Code generation result:", code_return.success, code_return.message);
