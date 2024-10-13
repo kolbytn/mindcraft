@@ -8,7 +8,7 @@ import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import settings from '../../settings.js';
-
+import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null) {
@@ -48,16 +48,18 @@ export class Agent {
                 "Gamerule "
             ];
             const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
-            this.bot.on(eventname, (username, message) => {
+            this.bot.on(eventname, async (username, message) => {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                console.log('received message from', username, ':', message);
+                let translation = await handleEnglishTranslation(message);
+
+                console.log('received message from', username, ':', translation);
 
                 this.shut_up = false;
     
-                this.handleMessage(username, message);
+                this.handleMessage(username, translation);
             });
 
             // set the bot to automatically eat food when hungry
@@ -77,7 +79,8 @@ export class Agent {
                 this.handleMessage('system', init_message, 2);
             }
             else {
-                this.bot.chat('Hello world! I am ' + this.name);
+                const translation = await handleTranslation("Hello world! I am "+this.name);
+                this.bot.chat(translation);
                 this.bot.emit('finished_executing');
             }
 
@@ -85,9 +88,17 @@ export class Agent {
         });
     }
 
-    cleanChat(message) {
+
+    async cleanChat(message, translate_up_to=-1) {
+        let to_translate = message;
+        let remainging = '';
+        if (translate_up_to != -1) {
+            to_translate = to_translate.substring(0, translate_up_to);
+            remainging = message.substring(translate_up_to);
+        }
+        message = (await handleTranslation(to_translate)).trim() + " " + remainging;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
-        message = message.replaceAll('\n', '  ');
+        message = message.replaceAll('\n', ' ');
         return this.bot.chat(message);
     }
 
@@ -128,6 +139,16 @@ export class Agent {
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
 
+        let behavior_log = this.bot.modes.flushBehaviorLog();
+        if (behavior_log.trim().length > 0) {
+            const MAX_LOG = 500;
+            if (behavior_log.length > MAX_LOG) {
+                behavior_log = '...' + behavior_log.substring(behavior_log.length - MAX_LOG);
+            }
+            behavior_log = 'Recent behaviors log: \n' + behavior_log.substring(behavior_log.indexOf('\n'));
+            await this.history.add('system', behavior_log);
+        }
+
         await this.history.add(source, message);
         this.history.save();
 
@@ -158,7 +179,7 @@ export class Agent {
                 this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
                 if (settings.verbose_commands) {
-                    this.cleanChat(res);
+                    this.cleanChat(res, res.indexOf(command_name));
                 }
                 else { // only output command name
                     let pre_message = res.substring(0, res.indexOf(command_name)).trim();
@@ -280,4 +301,3 @@ export class Agent {
         process.exit(1);
     }
 }
-

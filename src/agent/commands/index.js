@@ -117,8 +117,8 @@ function parseCommandMessage(message) {
                 arg = Number.parseInt(arg); break;
             case 'boolean':
                 arg = parseBoolean(arg); break;
-            case 'blockName':
-            case 'itemName':
+            case 'BlockName':
+            case 'ItemName':
                 if (arg.endsWith('plank'))
                     arg += 's'; // catches common mistakes like "oak_plank" instead of "oak_planks"
             case 'string':
@@ -146,9 +146,9 @@ function parseCommandMessage(message) {
                 console.warn(`Command '${commandName}' parameter '${paramNames[i]}' has no domain set. Expect any value [-Infinity, Infinity].`)
                 suppressNoDomainWarning = true; //Don't spam console. Only give the warning once.
             }
-        } else if(param.type === 'blockName') { //Check that there is a block with this name
+        } else if(param.type === 'BlockName') { //Check that there is a block with this name
             if(getBlockId(arg) == null) return  `Invalid block type: ${arg}.`
-        } else if(param.type === 'itemName') { //Check that there is an item with this name
+        } else if(param.type === 'ItemName') { //Check that there is an item with this name
             if(getItemId(arg) == null) return `Invalid item type: ${arg}.`
         }
         args[i] = arg;
@@ -200,16 +200,33 @@ export async function executeCommand(agent, message) {
     else {
         console.log('parsed command:', parsed);
         const command = getCommand(parsed.commandName);
-        return await command.perform(agent, ...parsed.args);
+        const is_action = isAction(command.name);
+        let numArgs = 0;
+        if (parsed.args) {
+            numArgs = parsed.args.length;
+        }
+        console.log('parsed command:', parsed);
+        if (numArgs !== numParams(command))
+            return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
+        else {
+            if (is_action)
+                agent.coder.setCurActionName(command.name);
+            const result = await command.perform(agent, ...parsed.args);
+            if (is_action)
+                agent.coder.setCurActionName('');
+            return result;
+        }
     }
 }
 
 export function getCommandDocs() {
     const typeTranslations = {
+        //This was added to keep the prompt the same as before type checks were implemented.
+        //If the language model is giving invalid inputs changing this might help.
         'float':        'number',
         'int':          'number',
-        'blockName':    'string',
-        'itemName':     'string',
+        'BlockName':    'string',
+        'ItemName':     'string',
         'boolean':      'bool'
     }
     let docs = `\n*COMMAND DOCS\n You can use the following commands to perform actions and get information about the world. 

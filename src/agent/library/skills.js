@@ -32,56 +32,6 @@ async function equipHighestAttack(bot) {
         await bot.equip(weapon, 'hand');
 }
 
-/**
- * Returns the number of ingredients required to use the recipe once.
- * 
- * @param {Recipe} recipe
- * @returns {Object<mc.ItemName, number>} an object describing the number of each ingredient.
- */
-function ingredientsFromPrismarineRecipe(recipe) {
-    let requiredIngedients = {};
-    if (recipe.inShape)
-        for (const ingredient of recipe.inShape.flat()) {
-            if(ingredient.id<0) continue; //prismarine-recipe uses id -1 as an empty crafting slot
-            const ingredientName = mc.getItemName(ingredient.id);
-            requiredIngedients[ingredientName] ??=0;
-            requiredIngedients[ingredientName] += ingredient.count;
-        }
-    if (recipe.ingredients)
-        for (const ingredient of recipe.ingredients) {
-            if(ingredient.id<0) continue;
-            const ingredientName = mc.getItemName(ingredient.id);
-            requiredIngedients[ingredientName] ??=0;
-            requiredIngedients[ingredientName] -= ingredient.count;
-            //Yes, the `-=` is intended.
-            //prismarine-recipe uses positive numbers for the shaped ingredients but negative for unshaped.
-            //Why this is the case is beyond my understanding.
-        }
-    return requiredIngedients;
-}
-
-/**
- * Calculates the number of times an action, such as a crafing recipe, can be completed before running out of resources.
- * @template T - doesn't have to be an item. This could be any resource.
- * @param {Object.<T, number>} availableItems - The resources available; e.g, `{'cobble_stone': 7, 'stick': 10}`
- * @param {Object.<T, number>} requiredItems - The resources required to complete the action once; e.g, `{'cobble_stone': 3, 'stick': 2}`
- * @param {boolean} discrete - Is the action discrete?
- * @returns {{num: number, limitingResource: (T | null)}} the number of times the action can be completed and the limmiting resource; e.g `{num: 2, limitingResource: 'cobble_stone'}`
- */
-function calculateLimitingResource(availableItems, requiredItems, discrete=true) {
-    let limitingResource = null;
-    let num = Infinity;
-    for (const itemType in requiredItems) {
-        if (availableItems[itemType] < requiredItems[itemType] * num) {
-            limitingResource = itemType;
-            num = availableItems[itemType] / requiredItems[itemType];
-        }
-    }
-    if(discrete) num = Math.floor(num);
-    return {num, limitingResource}
-}
-
-
 export async function craftRecipe(bot, itemName, num=1) {
     /**
      * Attempt to craft the given item name from a recipe. May craft many items.
@@ -141,8 +91,8 @@ export async function craftRecipe(bot, itemName, num=1) {
     console.log('crafting...');
     //Check that the agent has sufficient items to use the recipe `num` times.
     const inventory = world.getInventoryCounts(bot); //Items in the agents inventory
-    const requiredIngredients = ingredientsFromPrismarineRecipe(recipe); //Items required to use the recipe once.
-    const craftLimit = calculateLimitingResource(inventory, requiredIngredients);
+    const requiredIngredients = mc.ingredientsFromPrismarineRecipe(recipe); //Items required to use the recipe once.
+    const craftLimit = mc.calculateLimitingResource(inventory, requiredIngredients);
     
     await bot.craft(recipe, Math.min(craftLimit.num, num), craftingTable);
     if(craftLimit.num<num) log(bot, `Not enough ${craftLimit.limitingResource} to craft ${num}, crafted ${craftLimit.num}. You now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
@@ -260,6 +210,7 @@ export async function smeltItem(bot, itemName, num=1) {
             break;
         }
     }
+    await bot.closeWindow(furnace);
 
     if (placedFurnace) {
         await collectBlock(bot, 'furnace', 1);
@@ -441,6 +392,12 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
                 );
             }
         }
+        const movements = new pf.Movements(bot);
+        movements.dontMineUnderFallingBlock = false;
+        blocks = blocks.filter(
+            block => movements.safeToBreak(block)
+        );
+
         if (blocks.length === 0) {
             if (collected === 0)
                 log(bot, `No ${blockType} nearby to collect.`);
@@ -707,23 +664,35 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     }
 }
 
-export async function equip(bot, itemName, bodyPart) {
+export async function equip(bot, itemName) {
     /**
-     * Equip the given item to the given body part, like tools or armor.
+     * Equip the given item to the proper body part, like tools or armor.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item or block name to equip.
-     * @param {string} bodyPart, the body part to equip the item to.
      * @returns {Promise<boolean>} true if the item was equipped, false otherwise.
      * @example
-     * await skills.equip(bot, "iron_pickaxe", "hand");
-     * await skills.equip(bot, "diamond_chestplate", "torso");
+     * await skills.equip(bot, "iron_pickaxe");
      **/
     let item = bot.inventory.items().find(item => item.name === itemName);
     if (!item) {
         log(bot, `You do not have any ${itemName} to equip.`);
         return false;
     }
-    await bot.equip(item, bodyPart);
+    if (itemName.includes('leggings')) {
+        await bot.equip(item, 'legs');
+    }
+    else if (itemName.includes('boots')) {
+        await bot.equip(item, 'feet');
+    }
+    else if (itemName.includes('helmet')) {
+        await bot.equip(item, 'head');
+    }
+    else if (itemName.includes('chestplate')) {
+        await bot.equip(item, 'torso');
+    }
+    else {
+        await bot.equip(item, 'hand');
+    }
     return true;
 }
 
@@ -755,6 +724,94 @@ export async function discard(bot, itemName, num=-1) {
         return false;
     }
     log(bot, `Successfully discarded ${discarded} ${itemName}.`);
+    return true;
+}
+
+export async function putInChest(bot, itemName, num=-1) {
+    /**
+     * Put the given item in the nearest chest.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} itemName, the item or block name to put in the chest.
+     * @param {number} num, the number of items to put in the chest. Defaults to -1, which puts all items.
+     * @returns {Promise<boolean>} true if the item was put in the chest, false otherwise.
+     * @example
+     * await skills.putInChest(bot, "oak_log");
+     **/
+    let chest = world.getNearestBlock(bot, 'chest', 32);
+    if (!chest) {
+        log(bot, `Could not find a chest nearby.`);
+        return false;
+    }
+    let item = bot.inventory.items().find(item => item.name === itemName);
+    if (!item) {
+        log(bot, `You do not have any ${itemName} to put in the chest.`);
+        return false;
+    }
+    let to_put = num === -1 ? item.count : Math.min(num, item.count);
+    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
+    const chestContainer = await bot.openContainer(chest);
+    await chestContainer.deposit(item.type, null, to_put);
+    await chestContainer.close();
+    log(bot, `Successfully put ${to_put} ${itemName} in the chest.`);
+    return true;
+}
+
+export async function takeFromChest(bot, itemName, num=-1) {
+    /**
+     * Take the given item from the nearest chest.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} itemName, the item or block name to take from the chest.
+     * @param {number} num, the number of items to take from the chest. Defaults to -1, which takes all items.
+     * @returns {Promise<boolean>} true if the item was taken from the chest, false otherwise.
+     * @example
+     * await skills.takeFromChest(bot, "oak_log");
+     * **/
+    let chest = world.getNearestBlock(bot, 'chest', 32);
+    if (!chest) {
+        log(bot, `Could not find a chest nearby.`);
+        return false;
+    }
+    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
+    const chestContainer = await bot.openContainer(chest);
+    let item = chestContainer.containerItems().find(item => item.name === itemName);
+    if (!item) {
+        log(bot, `Could not find any ${itemName} in the chest.`);
+        await chestContainer.close();
+        return false;
+    }
+    let to_take = num === -1 ? item.count : Math.min(num, item.count);
+    await chestContainer.withdraw(item.type, null, to_take);
+    await chestContainer.close();
+    log(bot, `Successfully took ${to_take} ${itemName} from the chest.`);
+    return true;
+}
+
+export async function viewChest(bot) {
+    /**
+     * View the contents of the nearest chest.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if the chest was viewed, false otherwise.
+     * @example
+     * await skills.viewChest(bot);
+     * **/
+    let chest = world.getNearestBlock(bot, 'chest', 32);
+    if (!chest) {
+        log(bot, `Could not find a chest nearby.`);
+        return false;
+    }
+    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
+    const chestContainer = await bot.openContainer(chest);
+    let items = chestContainer.containerItems();
+    if (items.length === 0) {
+        log(bot, `The chest is empty.`);
+    }
+    else {
+        log(bot, `The chest contains:`);
+        for (let item of items) {
+            log(bot, `${item.count} ${item.name}`);
+        }
+    }
+    await chestContainer.close();
     return true;
 }
 
@@ -916,12 +973,33 @@ export async function followPlayer(bot, username, distance=4) {
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
+    let last_time = Date.now();
+    let stuck_time = 0;
+    let last_pos = bot.entity.position.clone();
     while (!bot.interrupt_code) {
         await new Promise(resolve => setTimeout(resolve, 500));
+        const delta = Date.now() - last_time;
         // in cheat mode, if the distance is too far, teleport to the player
         if (bot.modes.isOn('cheat') && bot.entity.position.distanceTo(player.position) > 100 && player.isOnGround) {
             await goToPlayer(bot, username);
         }
+        if (bot.modes.isOn('unstuck')) {
+            const far_away = bot.entity.position.distanceTo(player.position) > distance + 1;
+            if (far_away && bot.entity.position.distanceTo(last_pos) <= 2) {
+                stuck_time += delta;
+                if (stuck_time > 10000) {
+                    log(bot, `Got stuck, attempting to move away.`);
+                    bot.pathfinder.stop();
+                    await moveAway(bot, 4);
+                    return false;
+                }
+            }
+            else {
+                stuck_time = 0;
+                last_pos = bot.entity.position.clone();
+            }
+        }
+        last_time = Date.now();
     }
     return true;
 }

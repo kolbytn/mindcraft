@@ -3,6 +3,7 @@
     "dependencies": {
         "@anthropic-ai/sdk": "^0.17.1",
         "@google/generative-ai": "^0.2.1",
+        "google-translate-api-x": "^10.7.1",
         "minecraft-data": "^3.46.2",
         "mineflayer": "^4.20.0",
         "mineflayer-armor-manager": "^2.0.1",
@@ -15,7 +16,8 @@
         "prismarine-item": "^1.14.0",
         "replicate": "^0.29.4",
         "vec3": "^0.1.10",
-        "yargs": "^17.7.2"
+        "yargs": "^17.7.2",
+        "groq-sdk": "^0.5.0"
     },
     "scripts": {
         "postinstall": "patch-package",

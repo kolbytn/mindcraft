@@ -74,12 +74,14 @@
     
         [
             {"role": "user", "content": "poppy: build a cobblestone house"},
-            {"role": "assistant", "content": "Sure, I'll to build a small cobblestone house where I am. !newAction"}
+            {"role": "assistant", "content": "Sure, I'll to build a small cobblestone house where I am. !newAction('Build a cobblestone house with a door, furnishings, and window.')"},
+            {"role": "system", "content": "Placed 134 cobblestone. Code finished."},
+            {"role": "assistant", "content": "I built a cobblestone house! What next?"}
         ],
     
         [
             {"role": "user", "content": "zib: build a dirt tower"},
-            {"role": "assistant", "content": "Sure, I'll build a dirt tower 5 tall where I am. !newAction"}
+            {"role": "assistant", "content": "Sure, I'll build a dirt tower 5 tall where I am. !newAction('Build a dirt tower 5 tall.')"}
         ],
         
         [
@@ -106,7 +108,7 @@
             {"role": "system", "content": "You are self-prompting with the goal: 'Survive, make tools, build shelter.'. Respond:"},
             {"role": "assistant", "content": "Let's see what I have. !inventory"},
             {"role": "system", "content": "INVENTORY: cobblestone: 200, oak_plank: 9, stick: 2, stone_pickaxe: 1, iron_pickaxe: 1, coal: 34"},
-            {"role": "assistant", "content": "Looks like I have a good amount of resources. I'm going to build a house. !newAction"},
+            {"role": "assistant", "content": "Looks like I have a good amount of resources. I'm going to build a house. !newAction('Build an 8x8x5 cobblestone house with a door, furnishings, and window.')"},
             {"role": "system", "content": "Placed 134 cobblestone. Code finished."},
             {"role": "assistant", "content": "I built a house! I'll save the location and continue exploring. !rememberPlace('house')"}
         ],
@@ -119,7 +121,7 @@
             {"role": "system", "content": "Arrived at location."},
             {"role": "assistant", "content": "I'm at the new location. I'll check for iron ore. !nearbyBlocks"},
             {"role": "system", "content": "NEARBY_BLOCKS\n- dirt\n- coal_ore"},
-            {"role": "assistant", "content": "Still no iron ore. Let me dig down to try to find some !newAction"}
+            {"role": "assistant", "content": "Still no iron ore. Let me dig down to try to find some !newAction('Dig down 30 blocks and look for iron ore.')"}
         ],
 
         [
@@ -131,12 +133,12 @@
             {"role": "system", "content": "You are self-prompting with the goal: 'Explore the world'. Respond:"},
             {"role": "assistant", "content": "What entities are around me? !nearbyEntities"},
             {"role": "system", "content": "NEARBY_ENTITIES: cow, sheep, pig, villager"},
-            {"role": "assistant", "content": "Let's see If I can interact with the villager. !newAction"}
+            {"role": "assistant", "content": "Let's see If I can interact with the villager. !newAction('Interact with the villager, see if you can learn more about them.')"}
         ],
 
         [
             {"role": "system", "content": "You are self-prompting with the goal: 'Get diamonds.'. Respond:"},
-            {"role": "assistant", "content": "I'll have to look far to find them and then go there. !newAction"}
+            {"role": "assistant", "content": "I'll have to look far to find them and then go there. !newAction'Go to the nearest diamond ore, collect it, and look for more.'"}
         ],
         
         [

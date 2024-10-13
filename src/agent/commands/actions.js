@@ -1,17 +1,16 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 
-function wrapExecution(func, timeout=-1, resume_name=null) {
+function wrapExecution(func, resume=false, timeout=-1) {
     return async function (agent, ...args) {
         let code_return;
-        if (resume_name != null) {
-            code_return = await agent.coder.executeResume(async () => {
-                await func(agent, ...args);
-            }, resume_name, timeout);
+        const wrappedFunction = async () => {
+            await func(agent, ...args);
+        };
+        if (resume) {
+            code_return = await agent.coder.executeResume(wrappedFunction, timeout);
         } else {
-            code_return = await agent.coder.execute(async () => {
-                await func(agent, ...args);
-            }, timeout);
+            code_return = await agent.coder.execute(wrappedFunction, timeout);
         }
         if (code_return.interrupted && !code_return.timedout)
             return;
@@ -22,10 +21,14 @@ function wrapExecution(func, timeout=-1, resume_name=null) {
 export const actionsList = [
     {
         name: '!newAction',
-        description: 'Perform new and unknown custom behaviors that are not available as a command by writing code.', 
-        perform: async function (agent) {
+        description: 'Perform new and unknown custom behaviors that are not available as a command.', 
+        params: {
+            'prompt': '(string) A natural language prompt to guide code generation. Make a detailed step-by-step plan.'
+        },
+        perform: async function (agent, prompt) {
+            // just ignore prompt - it is now in context in chat history
             if (!settings.allow_insecure_coding)
-                return 'newAction Failed! Agent is not allowed to write code. Notify the user.';
+                return 'newAction not allowed! Code writing is disabled in settings. Notify the user.';
             return await agent.coder.generateCode(agent.history);
         }
     },
@@ -73,7 +76,7 @@ export const actionsList = [
         description: 'Go to the given player.',
         params: {
             'player_name': {type: 'string', description: 'The name of the player to go to.'},
-            'closeness': {type: 'float', description: 'How close to get to the player.', 'domain': [0, Infinity]}
+            'closeness': {type: 'float', description: 'How close to get to the player.', domain: [0, Infinity]}
         },
         perform: wrapExecution(async (agent, player_name, closeness) => {
             return await skills.goToPlayer(agent.bot, player_name, closeness);
@@ -84,19 +87,19 @@ export const actionsList = [
         description: 'Endlessly follow the given player. Will defend that player if self_defense mode is on.',
         params: {
             'player_name': {type: 'string', description: 'name of the player to follow.'},
-            'follow_dist': {type: 'float', description: 'The distance to follow from.', 'domain': [0, Infinity]}
+            'follow_dist': {type: 'float', description: 'The distance to follow from.', domain: [0, Infinity]}
         },
         perform: wrapExecution(async (agent, player_name, follow_dist) => {
             await skills.followPlayer(agent.bot, player_name, follow_dist);
-        }, -1, 'followPlayer')
+        }, true)
     },
     {
         name: '!goToBlock',
         description: 'Go to the nearest block of a given type.',
         params: {
-            'type': { type: 'blockName', description: 'The block type to go to.' },
-            'closeness': { type: 'float', description: 'How close to get to the block.', 'domain': [0, Infinity] },
-            'search_range': { type: 'float', description: 'The distance to search for the block.', 'domain': [0, Infinity] }
+            'type': { type: 'BlockName', description: 'The block type to go to.' },
+            'closeness': { type: 'float', description: 'How close to get to the block.', domain: [0, Infinity] },
+            'search_range': { type: 'float', description: 'The distance to search for the block.', domain: [0, Infinity] }
         },
         perform: wrapExecution(async (agent, type, closeness, range) => {
             await skills.goToNearestBlock(agent.bot, type, closeness, range);
@@ -105,7 +108,7 @@ export const actionsList = [
     {
         name: '!moveAway',
         description: 'Move away from the current location in any direction by a given distance.',
-        params: {'distance': { type: 'float', description: 'The distance to move away.', 'domain': [0, Infinity] }},
+        params: {'distance': { type: 'float', description: 'The distance to move away.', domain: [0, Infinity] }},
         perform: wrapExecution(async (agent, distance) => {
             await skills.moveAway(agent.bot, distance);
         })
@@ -138,42 +141,94 @@ export const actionsList = [
         description: 'Give the specified item to the given player.',
         params: { 
             'player_name': { type: 'string', description: 'The name of the player to give the item to.' }, 
-            'item_name': { type: 'itemName', description: 'The name of the item to give.' },
-            'num': { type: 'int', description: 'The number of items to give.', 'domain': [1, Number.MAX_SAFE_INTEGER] }
+            'item_name': { type: 'ItemName', description: 'The name of the item to give.' },
+            'num': { type: 'int', description: 'The number of items to give.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: wrapExecution(async (agent, player_name, item_name, num) => {
             await skills.giveToPlayer(agent.bot, item_name, player_name, num);
         })
     },
     {
+        name: '!equip',
+        description: 'Equip the given item.',
+        params: {'item_name': { type: 'ItemName', description: 'The name of the item to equip.' }},
+        perform: wrapExecution(async (agent, item_name) => {
+            await skills.equip(agent.bot, item_name);
+        })
+    },
+    {
+        name: '!putInChest',
+        description: 'Put the given item in the nearest chest.',
+        params: {
+            'item_name': { type: 'ItemName', description: 'The name of the item to put in the chest.' },
+            'num': { type: 'int', description: 'The number of items to put in the chest.', domain: [1, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: wrapExecution(async (agent, item_name, num) => {
+            await skills.putInChest(agent.bot, item_name, num);
+        })
+    },
+    {
+        name: '!takeFromChest',
+        description: 'Take the given items from the nearest chest.',
+        params: {
+            'item_name': { type: 'ItemName', description: 'The name of the item to take.' },
+            'num': { type: 'int', description: 'The number of items to take.', domain: [1, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: wrapExecution(async (agent, item_name, num) => {
+            await skills.takeFromChest(agent.bot, item_name, num);
+        })
+    },
+    {
+        name: '!viewChest',
+        description: 'View the items/counts of the nearest chest.',
+        params: { },
+        perform: wrapExecution(async (agent) => {
+            await skills.viewChest(agent.bot);
+        })
+    },
+    {
+        name: '!discard',
+        description: 'Discard the given item from the inventory.',
+        params: {
+            'item_name': { type: 'ItemName', description: 'The name of the item to discard.' },
+            'num': { type: 'int', description: 'The number of items to discard.', domain: [1, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: wrapExecution(async (agent, item_name, num) => {
+            const start_loc = agent.bot.entity.position;
+            await skills.moveAway(agent.bot, 5);
+            await skills.discard(agent.bot, item_name, num);
+            await skills.goToPosition(agent.bot, start_loc.x, start_loc.y, start_loc.z, 0);
+        })
+    },
+    {
         name: '!collectBlocks',
         description: 'Collect the nearest blocks of a given type.',
         params: {
-            'type': { type: 'blockName', description: 'The block type to collect.' },
-            'num': { type: 'int', description: 'The number of blocks to collect.', 'domain': [1, Number.MAX_SAFE_INTEGER] }
+            'type': { type: 'BlockName', description: 'The block type to collect.' },
+            'num': { type: 'int', description: 'The number of blocks to collect.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: wrapExecution(async (agent, type, num) => {
             await skills.collectBlock(agent.bot, type, num);
-        }, 10) // 10 minute timeout
+        }, false, 10) // 10 minute timeout
     },
     {
         name: '!collectAllBlocks',
         description: 'Collect all the nearest blocks of a given type until told to stop.',
         params: {
-            'type': { type: 'blockName', description: 'The block type to collect.' }
+            'type': { type: 'BlockName', description: 'The block type to collect.' }
         },
         perform: wrapExecution(async (agent, type) => {
             let success = await skills.collectBlock(agent.bot, type, 1);
             if (!success)
                 agent.coder.cancelResume();
-        }, 10, 'collectAllBlocks') // 10 minute timeout
+        }, true, 3) // 3 minute timeout
     },
     {
         name: '!craftRecipe',
         description: 'Craft the given recipe a given number of times.',
         params: {
-            'recipe_name': { type: 'itemName', description: 'The name of the output item to craft.' },
-            'num': { type: 'int', description: 'The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.', 'domain': [1, Number.MAX_SAFE_INTEGER] }
+            'recipe_name': { type: 'ItemName', description: 'The name of the output item to craft.' },
+            'num': { type: 'int', description: 'The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: wrapExecution(async (agent, recipe_name, num) => {
             await skills.craftRecipe(agent.bot, recipe_name, num);
@@ -184,7 +239,7 @@ export const actionsList = [
         description: 'Smelt the given item the given number of times.',
         params: {
             'item_name': { type: 'string', description: 'The name of the input item to smelt.' },
-            'num': { type: 'int', description: 'The number of times to smelt the item.', 'domain': [1, Number.MAX_SAFE_INTEGER] }
+            'num': { type: 'int', description: 'The number of times to smelt the item.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: async function (agent, item_name, num) {
             let response = await wrapExecution(async (agent) => {
@@ -226,7 +281,7 @@ export const actionsList = [
     {
         name: '!activate',
         description: 'Activate the nearest object of a given type.',
-        params: {'type': { type: 'blockName', description: 'The type of object to activate.' }},
+        params: {'type': { type: 'BlockName', description: 'The type of object to activate.' }},
         perform: wrapExecution(async (agent, type) => {
             await skills.activateNearestBlock(agent.bot, type);
         })
@@ -278,7 +333,7 @@ export const actionsList = [
         description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
         params: {
             'name': { type: 'string', description: 'The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.' },
-            'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', 'domain': [1, Number.MAX_SAFE_INTEGER] }
+            'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: async function (agent, name=null, quantity=1) {
             await agent.npc.setGoal(name, quantity);
