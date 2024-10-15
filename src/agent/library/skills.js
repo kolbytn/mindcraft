@@ -673,7 +673,7 @@ export async function equip(bot, itemName) {
      * @example
      * await skills.equip(bot, "iron_pickaxe");
      **/
-    let item = bot.inventory.items().find(item => item.name === itemName);
+    let item = bot.inventory.slots.find(slot => slot && slot.name === itemName);
     if (!item) {
         log(bot, `You do not have any ${itemName} to equip.`);
         return false;
@@ -687,12 +687,13 @@ export async function equip(bot, itemName) {
     else if (itemName.includes('helmet')) {
         await bot.equip(item, 'head');
     }
-    else if (itemName.includes('chestplate')) {
+    else if (itemName.includes('chestplate') || itemName.includes('elytra')) {
         await bot.equip(item, 'torso');
     }
     else {
         await bot.equip(item, 'hand');
     }
+    log(bot, `Equipped ${itemName}.`);
     return true;
 }
 
