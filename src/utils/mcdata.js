@@ -259,14 +259,14 @@ export function ingredientsFromPrismarineRecipe(recipe) {
     if (recipe.inShape)
         for (const ingredient of recipe.inShape.flat()) {
             if(ingredient.id<0) continue; //prismarine-recipe uses id -1 as an empty crafting slot
-            const ingredientName = mc.getItemName(ingredient.id);
+            const ingredientName = getItemName(ingredient.id);
             requiredIngedients[ingredientName] ??=0;
             requiredIngedients[ingredientName] += ingredient.count;
         }
     if (recipe.ingredients)
         for (const ingredient of recipe.ingredients) {
             if(ingredient.id<0) continue;
-            const ingredientName = mc.getItemName(ingredient.id);
+            const ingredientName = getItemName(ingredient.id);
             requiredIngedients[ingredientName] ??=0;
             requiredIngedients[ingredientName] -= ingredient.count;
             //Yes, the `-=` is intended.

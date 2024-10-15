@@ -2,7 +2,7 @@ import { getBlockId, getItemId } from "../../utils/mcdata.js";
 import { actionsList } from './actions.js';
 import { queryList } from './queries.js';
 
-const suppressNoDomainWarning = false;
+let suppressNoDomainWarning = false;
 
 const commandList = queryList.concat(actionsList);
 const commandMap = {};
@@ -114,7 +114,7 @@ function parseCommandMessage(message) {
             case 'int':
                 arg = Number.parseInt(arg); break;
             case 'float':
-                arg = Number.parseInt(arg); break;
+                arg = Number.parseFloat(arg); break;
             case 'boolean':
                 arg = parseBoolean(arg); break;
             case 'BlockName':
@@ -127,7 +127,7 @@ function parseCommandMessage(message) {
                 throw new Error(`Command '${commandName}' parameter '${paramNames[i]}' has an unknown type: ${param.type}`);
         }
         if(arg === null || Number.isNaN(arg))
-            return `${paramNames[i]} must be of type ${param.type}.`
+            return `Error: Param '${paramNames[i]}' must be of type ${param.type}.`
 
         if(typeof arg === 'number') { //Check the domain of numbers
             const domain = param.domain;
@@ -139,7 +139,7 @@ function parseCommandMessage(message) {
                 if (!domain[2]) domain[2] = '[)'; //By default, lower bound is included. Upper is not.
 
                 if(!checkInInterval(arg, ...domain)) {
-                    return `${paramNames[i]} must be an element of ${domain[2][0]}${domain[0]}, ${domain[1]}${domain[2][1]}.`; // search_range must be an element of [1,64].
+                    return `Error: Param '${paramNames[i]}' must be an element of ${domain[2][0]}${domain[0]}, ${domain[1]}${domain[2][1]}.`;
                     //Alternatively arg could be set to the nearest value in the domain.
                 }
             } else if (!suppressNoDomainWarning) {
