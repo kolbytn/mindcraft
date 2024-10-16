@@ -257,7 +257,7 @@ export const actionsList = [
     {
         name: '!placeHere',
         description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
-        params: {type: 'string', description: 'The block type to place.'},
+        params: {'type': { type: 'string', description: 'The block type to place.' }},
         perform: wrapExecution(async (agent, type) => {
             let pos = agent.bot.entity.position;
             await skills.placeBlock(agent.bot, type, pos.x, pos.y, pos.z);
@@ -266,7 +266,7 @@ export const actionsList = [
     {
         name: '!attack',
         description: 'Attack and kill the nearest entity of a given type.',
-        params: {'type': 'string', description: 'The type of entity to attack.'},
+        params: {'type': { type: 'string', description: 'The type of entity to attack.'}},
         perform: wrapExecution(async (agent, type) => {
             await skills.attackNearest(agent.bot, type, true);
         })
