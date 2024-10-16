@@ -238,7 +238,7 @@ export const actionsList = [
         name: '!smeltItem',
         description: 'Smelt the given item the given number of times.',
         params: {
-            'item_name': { type: 'string', description: 'The name of the input item to smelt.' },
+            'item_name': { type: 'ItemName', description: 'The name of the input item to smelt.' },
             'num': { type: 'int', description: 'The number of times to smelt the item.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: async function (agent, item_name, num) {
@@ -257,7 +257,7 @@ export const actionsList = [
     {
         name: '!placeHere',
         description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
-        params: {'type': { type: 'string', description: 'The block type to place.' }},
+        params: {'type': { type: 'BlockName', description: 'The block type to place.' }},
         perform: wrapExecution(async (agent, type) => {
             let pos = agent.bot.entity.position;
             await skills.placeBlock(agent.bot, type, pos.x, pos.y, pos.z);
