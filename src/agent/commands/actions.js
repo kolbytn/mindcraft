@@ -149,6 +149,15 @@ export const actionsList = [
         })
     },
     {
+        name: '!consume',
+        description: 'Eat/drink the given item.',
+        params: {'item_name': { type: 'ItemName', description: 'The name of the item to consume.' }},
+        perform: wrapExecution(async (agent, item_name) => {
+            await agent.bot.consume(item_name);
+            skills.log(agent.bot, `Consumed ${item_name}.`);
+        })
+    },
+    {
         name: '!equip',
         description: 'Equip the given item.',
         params: {'item_name': { type: 'ItemName', description: 'The name of the item to equip.' }},
