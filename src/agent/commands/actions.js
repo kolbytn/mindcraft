@@ -23,7 +23,7 @@ export const actionsList = [
         name: '!newAction',
         description: 'Perform new and unknown custom behaviors that are not available as a command.', 
         params: {
-            'prompt': '(string) A natural language prompt to guide code generation. Make a detailed step-by-step plan.'
+            'prompt': { type: 'string', description: 'A natural language prompt to guide code generation. Make a detailed step-by-step plan.' }
         },
         perform: async function (agent, prompt) {
             // just ignore prompt - it is now in context in chat history
