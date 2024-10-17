@@ -91,6 +91,8 @@ export class Coder {
     }
 
     async generateCodeLoop(agent_history) {
+        this.agent.bot.modes.pause('unstuck');
+
         let messages = agent_history.getHistory();
         messages.push({role: 'system', content: 'Code generation started. Write code in codeblock in your response:'});
 
@@ -102,7 +104,6 @@ export class Coder {
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
             console.log(messages)
-            this.agent.bot.modes.pause('unstuck');
             let res = await this.agent.prompter.promptCoding(JSON.parse(JSON.stringify(messages)));
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
@@ -137,7 +138,6 @@ export class Coder {
             code_return = await this.execute(async ()=>{
                 return await execution_file.main(this.agent.bot);
             }, settings.code_timeout_mins);
-            this.agent.bot.modes.unpause('unstuck');
             if (code_return.interrupted && !code_return.timedout)
                 return {success: false, message: null, interrupted: true, timedout: false};
             console.log("Code generation result:", code_return.success, code_return.message);
