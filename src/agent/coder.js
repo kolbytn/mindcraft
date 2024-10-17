@@ -91,6 +91,8 @@ export class Coder {
     }
 
     async generateCodeLoop(agent_history) {
+        this.agent.bot.modes.pause('unstuck');
+
         let messages = agent_history.getHistory();
         messages.push({role: 'system', content: 'Code generation started. Write code in codeblock in your response:'});
 
@@ -115,7 +117,7 @@ export class Coder {
                     continue; // using newaction will continue the loop
                 }
                 
-                if (failures >= 1) {
+                if (failures >= 3) {
                     return {success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false};
                 }
                 messages.push({
@@ -132,10 +134,10 @@ export class Coder {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
+            
             code_return = await this.execute(async ()=>{
                 return await execution_file.main(this.agent.bot);
             }, settings.code_timeout_mins);
-
             if (code_return.interrupted && !code_return.timedout)
                 return {success: false, message: null, interrupted: true, timedout: false};
             console.log("Code generation result:", code_return.success, code_return.message);
@@ -158,11 +160,12 @@ export class Coder {
     }
 
     async executeResume(func=null, timeout=10) {
-        if (func != null) { // start new resume
+        const new_resume = func != null;
+        if (new_resume) { // start new resume
             this.resume_func = func;
             this.resume_name = this.cur_action_name;
         }
-        if (this.resume_func != null && this.agent.isIdle() && !this.agent.self_prompter.on) {
+        if (this.resume_func != null && this.agent.isIdle() && (!this.agent.self_prompter.on || new_resume)) {
             this.cur_action_name = this.resume_name;
             let res = await this.execute(this.resume_func, timeout);
             this.cur_action_name = '';

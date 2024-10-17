@@ -1,5 +1,6 @@
-import { writeFileSync, readFileSync } from 'fs';
+import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { NPCData } from './npc/data.js';
+import settings from '../../settings.js';
 
 
 export class History {
@@ -7,23 +8,53 @@ export class History {
         this.agent = agent;
         this.name = agent.name;
         this.memory_fp = `./bots/${this.name}/memory.json`;
+        this.full_history_fp = undefined;
+
+        mkdirSync(`./bots/${this.name}/histories`, { recursive: true });
+
         this.turns = [];
 
-        // These define an agent's long term memory
+        // Natural language memory as a summary of recent messages + previous memory
         this.memory = '';
 
-        // Variables for controlling the agent's memory and knowledge
-        this.max_messages = 20;
+        // Maximum number of messages to keep in context before saving chunk to memory
+        this.max_messages = settings.max_messages;
+
+        // Number of messages to remove from current history and save into memory
+        this.summary_chunk_size = 5; 
+        // chunking reduces expensive calls to promptMemSaving and appendFullHistory
     }
 
     getHistory() { // expects an Examples object
         return JSON.parse(JSON.stringify(this.turns));
     }
 
-    async storeMemories(turns) {
+    async summarizeMemories(turns) {
         console.log("Storing memories...");
-        this.memory = await this.agent.prompter.promptMemSaving(this.getHistory(), turns);
+        this.memory = await this.agent.prompter.promptMemSaving(turns);
+
+        if (this.memory.length > 500) {
+            this.memory = this.memory.slice(0, 500);
+            this.memory += '...(Memory truncated to 500 chars. Compress it more next time)';
+        }
+
         console.log("Memory updated to: ", this.memory);
+    }
+
+    appendFullHistory(to_store) {
+        if (this.full_history_fp === undefined) {
+            const string_timestamp = new Date().toLocaleString().replace(/[/:]/g, '-').replace(/ /g, '').replace(/,/g, '_');
+            this.full_history_fp = `./bots/${this.name}/histories/${string_timestamp}.json`;
+            writeFileSync(this.full_history_fp, '[]', 'utf8');
+        }
+        try {
+            const data = readFileSync(this.full_history_fp, 'utf8');
+            let full_history = JSON.parse(data);
+            full_history.push(...to_store);
+            writeFileSync(this.full_history_fp, JSON.stringify(full_history, null, 4), 'utf8');
+        } catch (err) {
+            console.error(`Error reading ${this.name}'s full history file: ${err.message}`);
+        }
     }
 
     async add(name, content) {
@@ -37,12 +68,13 @@ export class History {
         }
         this.turns.push({role, content});
 
-        // Summarize older turns into memory
         if (this.turns.length >= this.max_messages) {
-            let to_summarize = [this.turns.shift()];
-            while (this.turns[0].role != 'user' && this.turns.length > 1)
-                to_summarize.push(this.turns.shift());
-            await this.storeMemories(to_summarize);
+            let chunk = this.turns.splice(0, this.summary_chunk_size);
+            while (this.turns.length > 0 && this.turns[0].role === 'assistant')
+                chunk.push(this.turns.shift()); // remove until turns starts with system/user message
+
+            await this.summarizeMemories(chunk);
+            this.appendFullHistory(chunk);
         }
     }
 

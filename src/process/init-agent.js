@@ -22,6 +22,12 @@ const argv = yargs(args)
         alias: 'm',
         type: 'string',
         description: 'automatically prompt the agent on startup'
+    })
+    .option('count_id', {
+        alias: 'c',
+        type: 'number',
+        default: 0,
+        description: 'identifying count for multi-agent scenarios',
     }).argv
 
-new Agent().start(argv.profile, argv.load_memory, argv.init_message);
+new Agent().start(argv.profile, argv.load_memory, argv.init_message, argv.count_id);

@@ -131,7 +131,9 @@ export const queryList = [
                 res += `\n- player: ${entity}`;
             }
             for (const entity of world.getNearbyEntityTypes(bot)) {
-                res += `\n- mob: ${entity}`;
+                if (entity === 'player' || entity === 'item')
+                    continue;
+                res += `\n- entities: ${entity}`;
             }
             if (res == 'NEARBY_ENTITIES') {
                 res += ': none';

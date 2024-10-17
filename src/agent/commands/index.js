@@ -109,6 +109,13 @@ function parseCommandMessage(message) {
         if ((arg.startsWith('"') && arg.endsWith('"')) || (arg.startsWith("'") && arg.endsWith("'"))) {
             arg = arg.substring(1, arg.length-1);
         }
+
+        if (arg.includes('=')) {
+            // this sanitizes syntaxes like "x=2" and ignores the param name
+            let split = arg.split('=');
+            args[i] = split[1];
+        }
+        
         //Convert to the correct type
         switch(param.type) {
             case 'int':

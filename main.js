@@ -24,9 +24,9 @@ function main() {
     console.log(profiles);
     const { load_memory, init_message } = settings;
 
-    for (const profile of profiles) {
+    for (let i=0; i<profiles.length; i++) {
         const agent = new AgentProcess();
-        agent.start(profile, load_memory, init_message);
+        agent.start(profiles[i], load_memory, init_message, i);
     }
 }
 

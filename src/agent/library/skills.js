@@ -147,6 +147,7 @@ export async function smeltItem(bot, itemName, num=1) {
     if (bot.entity.position.distanceTo(furnaceBlock.position) > 4) {
         await goToNearestBlock(bot, 'furnace', 4, furnaceRange);
     }
+    bot.modes.pause('unstuck');
     await bot.lookAt(furnaceBlock.position);
 
     console.log('smelting...');
@@ -235,10 +236,13 @@ export async function clearNearestFurnace(bot) {
      * @example
      * await skills.clearNearestFurnace(bot);
      **/
-    let furnaceBlock = world.getNearestBlock(bot, 'furnace', 6); 
-    if (!furnaceBlock){
-        log(bot, `There is no furnace nearby.`)
+    let furnaceBlock = world.getNearestBlock(bot, 'furnace', 32);
+    if (!furnaceBlock) {
+        log(bot, `No furnace nearby to clear.`);
         return false;
+    }
+    if (bot.entity.position.distanceTo(furnaceBlock.position) > 4) {
+        await goToNearestBlock(bot, 'furnace', 4, 32);
     }
 
     console.log('clearing furnace...');
@@ -273,6 +277,8 @@ export async function attackNearest(bot, mobType, kill=true) {
      * await skills.attackNearest(bot, "zombie", true);
      **/
     bot.modes.pause('cowardice');
+    if (mobType === 'drowned' || mobType === 'cod' || mobType === 'salmon' || mobType === 'tropical_fish' || mobType === 'squid')
+        bot.modes.pause('self_preservation'); // so it can go underwater. TODO: have an drowning mode so we don't turn off all self_preservation
     const mob = world.getNearbyEntities(bot, 24).find(entity => entity.name === mobType);
     if (mob) {
         return await attackEntity(bot, mob, kill);
@@ -334,10 +340,17 @@ export async function defendSelf(bot, range=9) {
     let enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), range);
     while (enemy) {
         await equipHighestAttack(bot);
-        if (bot.entity.position.distanceTo(enemy.position) > 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
+        if (bot.entity.position.distanceTo(enemy.position) >= 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
             try {
                 bot.pathfinder.setMovements(new pf.Movements(bot));
-                await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 2), true);
+                await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 3.5), true);
+            } catch (err) {/* might error if entity dies, ignore */}
+        }
+        if (bot.entity.position.distanceTo(enemy.position) <= 2) {
+            try {
+                bot.pathfinder.setMovements(new pf.Movements(bot));
+                let inverted_goal = new pf.goals.GoalInvert(new pf.goals.GoalFollow(enemy, 2));
+                await bot.pathfinder.goto(inverted_goal, true);
             } catch (err) {/* might error if entity dies, ignore */}
         }
         bot.pvp.attack(enemy);
@@ -569,10 +582,14 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         return true;
     }
 
-    let block = bot.inventory.items().find(item => item.name === blockType);
+    
+    let item_name = blockType;
+    if (item_name == "redstone_wire")
+        item_name = "redstone";
+    let block = bot.inventory.items().find(item => item.name === item_name);
     if (!block && bot.game.gameMode === 'creative') {
-        await bot.creative.setInventorySlot(36, mc.makeItem(blockType, 1)); // 36 is first hotbar slot
-        block = bot.inventory.items().find(item => item.name === blockType);
+        await bot.creative.setInventorySlot(36, mc.makeItem(item_name, 1)); // 36 is first hotbar slot
+        block = bot.inventory.items().find(item => item.name === item_name);
     }
     if (!block) {
         log(bot, `Don't have any ${blockType} to place.`);
@@ -633,7 +650,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
 
     const pos = bot.entity.position;
     const pos_above = pos.plus(Vec3(0,1,0));
-    const dont_move_for = ['torch', 'redstone_torch', 'redstone', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire', 'water_bucket'];
+    const dont_move_for = ['torch', 'redstone_torch', 'redstone_wire', 'lever', 'button', 'rail', 'detector_rail', 'powered_rail', 'activator_rail', 'tripwire_hook', 'tripwire', 'water_bucket'];
     if (!dont_move_for.includes(blockType) && (pos.distanceTo(targetBlock.position) < 1 || pos_above.distanceTo(targetBlock.position) < 1)) {
         // too close
         let goal = new pf.goals.GoalNear(targetBlock.position.x, targetBlock.position.y, targetBlock.position.z, 2);
@@ -974,33 +991,19 @@ export async function followPlayer(bot, username, distance=4) {
     bot.pathfinder.setGoal(new pf.goals.GoalFollow(player, distance), true);
     log(bot, `You are now actively following player ${username}.`);
 
-    let last_time = Date.now();
-    let stuck_time = 0;
-    let last_pos = bot.entity.position.clone();
     while (!bot.interrupt_code) {
         await new Promise(resolve => setTimeout(resolve, 500));
-        const delta = Date.now() - last_time;
         // in cheat mode, if the distance is too far, teleport to the player
         if (bot.modes.isOn('cheat') && bot.entity.position.distanceTo(player.position) > 100 && player.isOnGround) {
             await goToPlayer(bot, username);
         }
         if (bot.modes.isOn('unstuck')) {
-            const far_away = bot.entity.position.distanceTo(player.position) > distance + 1;
-            if (far_away && bot.entity.position.distanceTo(last_pos) <= 2) {
-                stuck_time += delta;
-                if (stuck_time > 10000) {
-                    log(bot, `Got stuck, attempting to move away.`);
-                    bot.pathfinder.stop();
-                    await moveAway(bot, 4);
-                    return false;
-                }
-            }
-            else {
-                stuck_time = 0;
-                last_pos = bot.entity.position.clone();
-            }
+            const is_nearby = bot.entity.position.distanceTo(player.position) <= distance + 1;
+            if (is_nearby)
+                bot.modes.pause('unstuck');
+            else
+                bot.modes.unpause('unstuck');
         }
-        last_time = Date.now();
     }
     return true;
 }
@@ -1061,6 +1064,9 @@ export async function avoidEnemies(bot, distance=16) {
         if (bot.interrupt_code) {
             break;
         }
+        if (enemy && bot.entity.position.distanceTo(enemy.position) < 3) {
+            await attackEntity(bot, enemy, false);
+        }
     }
     bot.pathfinder.stop();
     log(bot, `Moved ${distance} away from enemies.`);
@@ -1076,6 +1082,7 @@ export async function stay(bot) {
      * await skills.stay(bot);
      **/
     bot.modes.pause('self_preservation');
+    bot.modes.pause('unstuck');
     bot.modes.pause('cowardice');
     bot.modes.pause('self_defense');
     bot.modes.pause('hunting');
@@ -1155,6 +1162,7 @@ export async function goToBed(bot) {
     const bed = bot.blockAt(loc);
     await bot.sleep(bed);
     log(bot, `You are in bed.`);
+    bot.modes.pause('unstuck');
     while (bot.isSleeping) {
         await new Promise(resolve => setTimeout(resolve, 500));
     }
