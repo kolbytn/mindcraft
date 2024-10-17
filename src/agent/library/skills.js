@@ -212,7 +212,6 @@ export async function smeltItem(bot, itemName, num=1) {
         }
     }
     await bot.closeWindow(furnace);
-    bot.modes.unpause('unstuck');
 
     if (placedFurnace) {
         await collectBlock(bot, 'furnace', 1);
