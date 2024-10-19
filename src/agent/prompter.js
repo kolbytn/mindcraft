@@ -33,14 +33,15 @@ export class Prompter {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
                 chat.api = 'google';
+            // groq needs to be before openai so the user can have a custom openai server set, and still use groq if they choose to.
+            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
+                chat.api = 'groq';
             else if (chat.model.includes('gpt') || chat.model.includes('o1') || hasKey('OPENAI_API_URI'))
                 chat.api = 'openai';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
-            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
-                chat.api = 'groq';
             else
                 chat.api = 'ollama';
         }
