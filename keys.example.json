@@ -1,5 +1,6 @@
 {
     "OPENAI_API_KEY": "",
+    "OPENAI_API_URI": "",
     "OPENAI_ORG_ID": "",
     "GEMINI_API_KEY": "",
     "ANTHROPIC_API_KEY": "",

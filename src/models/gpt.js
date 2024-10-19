@@ -13,6 +13,9 @@ export class GPT {
         if (hasKey('OPENAI_ORG_ID'))
             config.organization = getKey('OPENAI_ORG_ID');
 
+        if (hasKey('OPENAI_API_URI'))
+            config.baseURL = getKey('OPENAI_API_URI');
+
         config.apiKey = getKey('OPENAI_API_KEY');
 
         this.openai = new OpenAIApi(config);
