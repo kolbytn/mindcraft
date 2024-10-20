@@ -175,7 +175,7 @@ export async function smeltItem(bot, itemName, num=1) {
     if (!furnace.fuelItem()) {
         let fuel = mc.getSmeltingFuel(bot);
         if (!fuel) {
-            log(bot, `You have no fuel to smelt ${num} ${itemName}, you need ${put_fuel} coal, charcoal, or wood.`);
+            log(bot, `You have no fuel to smelt ${itemName}, you need coal, charcoal, or wood.`);
             if (placedFurnace)
                 await collectBlock(bot, 'furnace', 1);
             return false;

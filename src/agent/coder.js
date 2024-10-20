@@ -1,4 +1,5 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
+import { checkSafe } from '../utils/safety.js';
 import settings from '../../settings.js';
 
 export class Coder {
@@ -128,6 +129,13 @@ export class Coder {
                 continue;
             }
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
+
+            if (!checkSafe(code)) {
+                console.warn(`Detected insecure generated code, not executing. Insecure code: \n\`${code}\``);
+                const message = 'Error: Code insecurity detected. Do not import, read/write files, execute dynamic code, or access the internet. Please try again:';
+                messages.push({ role: 'system', content: message });
+                continue;
+            }
 
             const execution_file = await this.stageCode(code);
             if (!execution_file) {
