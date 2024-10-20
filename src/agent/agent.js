@@ -7,11 +7,12 @@ import { containsCommand, commandExists, executeCommand, truncCommandMessage, is
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import settings from '../../settings.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
+import { addViewer } from './viewer.js';
+import settings from '../../settings.js';
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null) {
+    async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
         this.history = new History(this);
@@ -33,6 +34,8 @@ export class Agent {
         }
 
         this.bot.once('spawn', async () => {
+            addViewer(this.bot, count_id);
+
             // wait for a bit so stats are not undefined
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -113,6 +116,9 @@ export class Agent {
         let used_command = false;
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
+        }
+        if (max_responses === -1){
+            max_responses = Infinity;
         }
 
         let self_prompt = source === 'system' || source === this.name;

@@ -1,8 +1,8 @@
 diff --git a/node_modules/mineflayer-collectblock/lib/CollectBlock.js b/node_modules/mineflayer-collectblock/lib/CollectBlock.js
-index 2c11e8c..4697873 100644
+index 2c11e8c..bb49c11 100644
 --- a/node_modules/mineflayer-collectblock/lib/CollectBlock.js
 +++ b/node_modules/mineflayer-collectblock/lib/CollectBlock.js
-@@ -77,7 +77,7 @@ function mineBlock(bot, block, options) {
+@@ -77,10 +77,11 @@ function mineBlock(bot, block, options) {
          }
          yield bot.tool.equipForBlock(block, equipToolOptions);
          // @ts-expect-error
@@ -11,7 +11,20 @@ index 2c11e8c..4697873 100644
              options.targets.removeTarget(block);
              return;
          }
-@@ -195,6 +195,8 @@ class CollectBlock {
++        
+         const tempEvents = new TemporarySubscriber_1.TemporarySubscriber(bot);
+         tempEvents.subscribeTo('itemDrop', (entity) => {
+             if (entity.position.distanceTo(block.position.offset(0.5, 0.5, 0.5)) <= 0.5) {
+@@ -92,7 +93,7 @@ function mineBlock(bot, block, options) {
+             // Waiting for items to drop
+             yield new Promise(resolve => {
+                 let remainingTicks = 10;
+-                tempEvents.subscribeTo('physicTick', () => {
++                tempEvents.subscribeTo('physicsTick', () => {
+                     remainingTicks--;
+                     if (remainingTicks <= 0) {
+                         tempEvents.cleanup();
+@@ -195,6 +196,8 @@ class CollectBlock {
                  throw (0, Util_1.error)('UnresolvedDependency', 'The mineflayer-collectblock plugin relies on the mineflayer-tool plugin to run!');
              }
              if (this.movements != null) {
