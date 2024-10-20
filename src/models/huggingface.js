@@ -8,7 +8,7 @@ export class HuggingFace {
         this.url = url;
 
         if (this.url) {
-            console.warn("Hugging Face don't support custom urls!");
+            console.warn("Hugging Face doesn't support custom urls!");
         }
 
         this.huggingface = new HfInference(getKey('HUGGINGFACE_API_KEY'));
@@ -36,5 +36,9 @@ export class HuggingFace {
         console.log('Received.');
         console.log(res);
         return res;
+    }
+
+    async embed(text) {
+        throw new Error('Embeddings are not supported by HuggingFace.');
     }
 }
