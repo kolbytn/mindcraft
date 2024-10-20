@@ -12,6 +12,7 @@ import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
 import { GroqCloudAPI } from '../models/groq.js';
+import { HuggingFace } from '../models/huggingface.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -37,6 +38,8 @@ export class Prompter {
                 chat.api = 'groq';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
+            else if (chat.model.includes('huggingface/'))
+                chat.api = "huggingface";
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
             // keep the check at the end to make sure it's still possible to set other providers, since having an custom openai api set will break that otherwise.
@@ -48,19 +51,21 @@ export class Prompter {
 
         console.log('Using chat settings:', chat);
 
-        if (chat.api == 'google')
+        if (chat.api === 'google')
             this.chat_model = new Gemini(chat.model, chat.url);
-        else if (chat.api == 'openai')
+        else if (chat.api === 'openai')
             this.chat_model = new GPT(chat.model, chat.url);
-        else if (chat.api == 'anthropic')
+        else if (chat.api === 'anthropic')
             this.chat_model = new Claude(chat.model, chat.url);
-        else if (chat.api == 'replicate')
+        else if (chat.api === 'replicate')
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
-        else if (chat.api == 'ollama')
+        else if (chat.api === 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
-        else if (chat.api == 'groq') {
+        else if (chat.api === 'groq') {
             this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
         }
+        else if (chat.api === 'huggingface')
+            this.chat_model = new HuggingFace(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
@@ -76,13 +81,13 @@ export class Prompter {
 
         console.log('Using embedding settings:', embedding);
 
-        if (embedding.api == 'google')
+        if (embedding.api === 'google')
             this.embedding_model = new Gemini(embedding.model, embedding.url);
-        else if (embedding.api == 'openai')
+        else if (embedding.api === 'openai')
             this.embedding_model = new GPT(embedding.model, embedding.url);
-        else if (embedding.api == 'replicate') 
+        else if (embedding.api === 'replicate')
             this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
-        else if (embedding.api == 'ollama')
+        else if (embedding.api === 'ollama')
             this.embedding_model = new Local(embedding.model, embedding.url);
         else {
             this.embedding_model = null;

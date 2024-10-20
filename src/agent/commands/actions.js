@@ -345,17 +345,17 @@ export const actionsList = [
             return 'Self-prompting stopped.';
         }
     },
-    {
-        name: '!npcGoal',
-        description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
-        params: {
-            'name': { type: 'string', description: 'The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.' },
-            'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', domain: [1, Number.MAX_SAFE_INTEGER] }
-        },
-        perform: async function (agent, name=null, quantity=1) {
-            await agent.npc.setGoal(name, quantity);
-            agent.bot.emit('idle');  // to trigger the goal
-            return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
-        }
-    },
+    // { // commented for now, causes confusion with goal command
+    //     name: '!npcGoal',
+    //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
+    //     params: {
+    //         'name': { type: 'string', description: 'The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.' },
+    //         'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', domain: [1, Number.MAX_SAFE_INTEGER] }
+    //     },
+    //     perform: async function (agent, name=null, quantity=1) {
+    //         await agent.npc.setGoal(name, quantity);
+    //         agent.bot.emit('idle');  // to trigger the goal
+    //         return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
+    //     }
+    // },
 ];

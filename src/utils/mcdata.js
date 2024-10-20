@@ -193,6 +193,33 @@ export function getItemCraftingRecipes(itemName) {
     return recipes;
 }
 
+export function isSmeltable(itemName) {
+    const misc_smeltables = ['beef', 'chicken', 'cod', 'mutton', 'porkchop', 'rabbit', 'salmon', 'tropical_fish', 'potato', 'kelp', 'sand', 'cobblestone', 'clay_ball'];
+    return itemName.includes('raw') || itemName.includes('log') || misc_smeltables.includes(itemName);
+}
+
+export function getSmeltingFuel(bot) {
+    let fuel = bot.inventory.items().find(i => i.name === 'coal' || i.name === 'charcoal')
+    if (fuel)
+        return fuel;
+    fuel = bot.inventory.items().find(i => i.name.includes('log') || i.name.includes('planks'))
+    if (fuel)
+        return fuel;
+    return bot.inventory.items().find(i => i.name === 'coal_block' || i.name === 'lava_bucket');
+}
+
+export function getFuelSmeltOutput(fuelName) {
+    if (fuelName === 'coal' || fuelName === 'charcoal')
+        return 8;
+    if (fuelName.includes('log') || fuelName.includes('planks'))
+        return 1.5
+    if (fuelName === 'coal_block')
+        return 80;
+    if (fuelName === 'lava_bucket')
+        return 100;
+    return 0;
+}
+
 export function getItemSmeltingIngredient(itemName) {
     return {    
         baked_potato: 'potato',

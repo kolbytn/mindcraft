@@ -120,11 +120,11 @@ export async function smeltItem(bot, itemName, num=1) {
      * await skills.smeltItem(bot, "raw_iron");
      * await skills.smeltItem(bot, "beef");
      **/
-    const foods = ['beef', 'chicken', 'cod', 'mutton', 'porkchop', 'rabbit', 'salmon', 'tropical_fish'];
-    if (!itemName.includes('raw') && !foods.includes(itemName)) {
-        log(bot, `Cannot smelt ${itemName}, must be a "raw" item, like "raw_iron".`);
+
+    if (!mc.isSmeltable(itemName)) {
+        log(bot, `Cannot smelt ${itemName}. Hint: make sure you are smelting the 'raw' item.`);
         return false;
-    } // TODO: allow cobblestone, sand, clay, etc.
+    }
 
     let placedFurnace = false;
     let furnaceBlock = undefined;
@@ -173,10 +173,19 @@ export async function smeltItem(bot, itemName, num=1) {
 
     // fuel the furnace
     if (!furnace.fuelItem()) {
-        let fuel = bot.inventory.items().find(item => item.name === 'coal' || item.name === 'charcoal');
-        let put_fuel = Math.ceil(num / 8);
-        if (!fuel || fuel.count < put_fuel) {
-            log(bot, `You do not have enough coal or charcoal to smelt ${num} ${itemName}, you need ${put_fuel} coal or charcoal`);
+        let fuel = mc.getSmeltingFuel(bot);
+        if (!fuel) {
+            log(bot, `You have no fuel to smelt ${itemName}, you need coal, charcoal, or wood.`);
+            if (placedFurnace)
+                await collectBlock(bot, 'furnace', 1);
+            return false;
+        }
+        log(bot, `Using ${fuel.name} as fuel.`);
+
+        const put_fuel = Math.ceil(num / mc.getFuelSmeltOutput(fuel.name));
+
+        if (fuel.count < put_fuel) {
+            log(bot, `You don't have enough ${fuel.name} to smelt ${num} ${itemName}; you need ${put_fuel}.`);
             if (placedFurnace)
                 await collectBlock(bot, 'furnace', 1);
             return false;
@@ -260,7 +269,7 @@ export async function clearNearestFurnace(bot) {
     let smelted_name = smelted_item ? `${smelted_item.count} ${smelted_item.name}` : `0 smelted items`;
     let input_name = intput_item ? `${intput_item.count} ${intput_item.name}` : `0 input items`;
     let fuel_name = fuel_item ? `${fuel_item.count} ${fuel_item.name}` : `0 fuel items`;
-    log(bot, `Cleared furnace, recieved ${smelted_name}, ${input_name}, and ${fuel_name}.`);
+    log(bot, `Cleared furnace, received ${smelted_name}, ${input_name}, and ${fuel_name}.`);
     return true;
 
 }
