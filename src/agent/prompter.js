@@ -4,6 +4,7 @@ import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+import { hasKey } from '../utils/keys.js';
 
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
@@ -33,16 +34,17 @@ export class Prompter {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
                 chat.api = 'google';
-            else if (chat.model.includes('gpt') || chat.model.includes('o1'))
-                chat.api = 'openai';
+            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
+                chat.api = 'groq';
             else if (chat.model.includes('claude'))
                 chat.api = 'anthropic';
             else if (chat.model.includes('huggingface/'))
                 chat.api = "huggingface";
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
-            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
-                chat.api = 'groq';
+            // keep the check at the end to make sure it's still possible to set other providers, since having an custom openai api set will break that otherwise.
+            else if (chat.model.includes('gpt') || chat.model.includes('o1') || hasKey('OPENAI_API_URI'))
+                chat.api = 'openai';
             else
                 chat.api = 'ollama';
         }
