@@ -10,10 +10,9 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [OpenAI API Subscription](https://openai.com/blog/openai-api), [Gemini API Subscription](https://aistudio.google.com/app/apikey), [Anthropic API Subscription](https://docs.anthropic.com/claude/docs/getting-access-to-claude), [Replicate API Subscription](https://replicate.com/), [Ollama Installed](https://ollama.com/download), [KoboldCpp Installed](https://github.com/LostRuins/koboldcpp), or, a [Groq Account & API Key](https://console.groq.com/keys)
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (up to v1.20.4)
 - [Node.js](https://nodejs.org/) (at least v14)
-- One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) |[Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download)
+- One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) |[Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download) | [KoboldCpp Installed](https://github.com/LostRuins/koboldcpp)
 
 ## Installation
 
