@@ -46,6 +46,12 @@ You can configure the agent's name, model, and prompts in their profile like `an
 
 You can configure project details in `settings.js`. [See file for more details](settings.js)
 
+### Run in docker to reduce some of the risks
+
+```
+docker run -i -t --rm -v $(pwd):/usr/src/app -w /usr/src/app node:latest npm start
+```
+
 ### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here are example settings for this:
 ```
