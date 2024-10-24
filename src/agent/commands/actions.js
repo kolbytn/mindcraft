@@ -125,7 +125,7 @@ export const actionsList = [
     },
     {
         name: '!goToCoordinates',
-        description: 'Go to a specific location.',
+        description: 'Go to a specific set of coordinates.',
         params: {
             'x': { type: 'float', description: 'The x coordinate of your destination.' },
             'y': { type: 'float', description: 'The y coordinate of your destination.' },

@@ -113,7 +113,7 @@ export const queryList = [
     },
     {
         name: '!getBlockAtCoordinates',
-        description: 'Go to a specific location.',
+        description: 'Get the type of block at a specific set of coordinates.',
         params: {
             'x': { type: 'int', description: 'The x coordinate of your destination.' },
             'y': { type: 'int', description: 'The y coordinate of your destination.' },
