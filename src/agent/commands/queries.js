@@ -89,10 +89,17 @@ export const queryList = [
     {
         name: "!nearbyBlocks",
         description: "Get the blocks near the bot.",
-        perform: function (agent) {
+        params: {
+            'range': { type: 'int', description: 'distance to search (optional).' },
+        },
+        perform: function (agent,range) {
+            if (range === undefined)
+                range = 16
+            if (range > 64)
+                range = 64
             let bot = agent.bot;
-            let res = 'NEARBY_BLOCKS';
-            let blocks = world.getNearbyBlockCounts(bot);
+            let res = 'NEARBY_BLOCKS WITHIN '+range+" BLOCKS:";
+            let blocks = world.getNearbyBlockCounts(bot,range);
             let listing = []
             for (let k in blocks) {
                 res += `\n${k+": "+blocks[k]}`;

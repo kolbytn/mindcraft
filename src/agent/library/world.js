@@ -249,7 +249,7 @@ export function getNearbyBlockTypes(bot, distance=16) {
     return found;
 }
 
-export function getNearbyBlockCounts(bot, distance=16) {
+export function getNearbyBlockCounts(bot, distance) {
     /**
      * Get a list of all nearby block names.
      * @param {Bot} bot - The bot to get nearby blocks for.
