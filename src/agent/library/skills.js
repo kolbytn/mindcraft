@@ -945,6 +945,10 @@ export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64
      * await skills.goToNearestBlock(bot, "oak_log", 64, 2);
      * **/
     const MAX_RANGE = 512;
+    if (range === undefined){
+        range = 64
+        log(bot, `search_range was undefined, defaulting to 64 blocks`)
+    }
     if (range > MAX_RANGE) {
         log(bot, `Maximum search range capped at ${MAX_RANGE}. `);
         range = MAX_RANGE;
