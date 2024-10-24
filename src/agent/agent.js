@@ -53,7 +53,11 @@ export class Agent {
             const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
             this.bot.on(eventname, async (username, message) => {
                 if (username === this.name) return;
-                
+
+                if(!message.includes(this.name) && settings.filter_messages) return;
+
+                if(settings.ignore_all_messages) return;
+
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 let translation = await handleEnglishTranslation(message);

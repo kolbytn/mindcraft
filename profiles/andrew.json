@@ -60,15 +60,15 @@
     
         [
             {"role": "user", "content": "grombo_Xx: What do you see?"},
-            {"role": "assistant", "content": "Let me see... !nearbyBlocks"},
-            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
+            {"role": "assistant", "content": "Let me see... !nearbyBlocks(32)"},
+            {"role": "system", "content": "NEARBY_BLOCKS\noak_log: 25\ndirt: 200\nstone: 500"},
             {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone."}
         ],
     
         [
             {"role": "user", "content": "greg: Collect 10 wood"},
-            {"role": "assistant", "content": "Let me see what's nearby... !nearbyBlocks"},
-            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
+            {"role": "assistant", "content": "Let me see what's nearby... !nearbyBlocks(32)"},
+            {"role": "system", "content": "NEARBY_BLOCKS\noak_log: 25\ndirt: 200\nstone: 500"},
             {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone. I'll collect oak logs. !collectBlocks('oak_log', 10)"}
         ],
     
@@ -163,8 +163,8 @@
         ],
         [
             {"role": "system", "content": "You are self-prompting with the goal: 'Get a wooden pickaxe'. Respond:"},
-            {"role": "assistant", "content": "What's around me? !nearbyBlocks"},
-            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
+            {"role": "assistant", "content": "What's around me? !nearbyBlocks(32)"},
+            {"role": "system", "content": "NEARBY_BLOCKS\noak_log: 25\ndirt: 200\nstone: 500"},
             {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone nearby. My goal is to craft a wooden pickaxe. I'll start by collecting some wood. !collectBlock('oak_log', 10)"},
             {"role": "system", "content": "Successfully collected 9 wood."},
             {"role": "assistant", "content": "I collected 9 oak logs. I need a pickaxe first, which requires planks and sticks. !craftItem('oak_plank', 9)"},
@@ -184,7 +184,6 @@
             {"role": "assistant", "content": "Alright, lets start with the basic structure. !newAction"}
         ]
     ],
-
     "coding_examples": [
         [
             {"role": "user", "content": "greg: Collect 10 wood"},

@@ -89,8 +89,9 @@ export const queryList = [
     {
         name: "!nearbyBlocks",
         description: "Get the blocks near the bot.",
+        optionalArgs: true,
         params: {
-            'range': { type: 'int', description: 'distance to search (optional).' },
+            'range': { type: 'int', description: 'distance to search (optional).' ,domain: [0, 64]},
         },
         perform: function (agent,range) {
             if (range === undefined)

@@ -93,7 +93,7 @@ export const actionsList = [
             await skills.followPlayer(agent.bot, player_name, follow_dist);
         }, true)
     },
-    {
+    /*{ // removed since it just confuses the ai and has little practical use
         name: '!goToBlock',
         description: 'Go to the nearest block of a given type.',
         params: {
@@ -104,7 +104,7 @@ export const actionsList = [
         perform: wrapExecution(async (agent, type, closeness, range) => {
             await skills.goToNearestBlock(agent.bot, type, closeness, range);
         })
-    },
+    },*/
     {
         name: '!moveAway',
         description: 'Move away from the current location in any direction by a given distance.',
@@ -365,8 +365,11 @@ export const actionsList = [
         name: '!endGoal',
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
-            agent.self_prompter.stop();
-            return 'Self-prompting stopped.';
+            if(!settings.always_selfprompt){
+                agent.self_prompter.stop();
+                return 'Self-prompting stopped.';
+            }
+            return 'Goal ended.'
         }
     },
     // { // commented for now, causes confusion with goal command

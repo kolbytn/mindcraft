@@ -6,3 +6,6 @@ scratch.js
 bots/**/action-code/**
 bots/**/
 keys.json
+profiles/dumb swarm/**
+gemini-personal.json
+profiles/andrew.json
