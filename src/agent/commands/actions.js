@@ -295,7 +295,7 @@ export const actionsList = [
             await skills.clearNearestFurnace(agent.bot);
         })
     },
-    {
+    /*{
         name: '!placeHere',
         description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
         params: {'type': { type: 'BlockName', description: 'The block type to place.' }},
@@ -303,7 +303,7 @@ export const actionsList = [
             let pos = agent.bot.entity.position;
             await skills.placeBlock(agent.bot, type, pos.x, pos.y, pos.z);
         })
-    },
+    },*/
     {
         name: '!attack',
         description: 'Attack and kill the nearest entity of a given type.',
