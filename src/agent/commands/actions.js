@@ -265,7 +265,7 @@ export const actionsList = [
     },
     {
         name: '!clearFurnace',
-        description: 'Tak all items out of the nearest furnace.',
+        description: 'Take all items out of the nearest furnace.',
         params: { },
         perform: wrapExecution(async (agent) => {
             await skills.clearNearestFurnace(agent.bot);
