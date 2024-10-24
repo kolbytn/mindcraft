@@ -1,14 +1,17 @@
 import * as skills from './skills.js';
 import * as world from './world.js';
-
+import settings from './../../../settings.js'
 
 export function docHelper(functions, module_name) {
     let docstring = '';
     for (let skillFunc of functions) {
         let str = skillFunc.toString();
-        if (str.includes('/**')){
-            docstring += module_name+'.'+skillFunc.name;
-            docstring += str.substring(str.indexOf('/**')+3, str.indexOf('**/')) + '\n';
+        if(str.toLowerCase().includes("code") && settings.allow_insecure_coding === false){
+        }else{
+            if (str.includes('/**')){
+                docstring += module_name+'.'+skillFunc.name;
+                docstring += str.substring(str.indexOf('/**')+3, str.indexOf('**/')) + '\n';
+            }
         }
     }
     return docstring;

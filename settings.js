@@ -13,6 +13,7 @@ export default
     ],
     "load_memory": false, // load memory from previous session
     "init_message": "Say hello world and your name", // sends to all on spawn
+    "always_selfprompt":true, // set to true to 100% self-prompt on every message, used for full independence
 
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...

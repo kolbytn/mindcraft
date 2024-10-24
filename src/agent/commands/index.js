@@ -1,6 +1,7 @@
 import { getBlockId, getItemId } from "../../utils/mcdata.js";
 import { actionsList } from './actions.js';
 import { queryList } from './queries.js';
+import settings from './../../../settings.js'
 
 let suppressNoDomainWarning = false;
 
@@ -239,11 +240,13 @@ export function getCommandDocs() {
     Use the commands with the syntax: !commandName or !commandName("arg1", 1.2, ...) if the command takes arguments.\n
     Do not use codeblocks. Only use one command in each response, trailing commands and comments will be ignored.\n`;
     for (let command of commandList) {
-        docs += command.name + ': ' + command.description + '\n';
-        if (command.params) {
-            docs += 'Params:\n';
-            for (let param in command.params) {
-                docs += `${param}: (${typeTranslations[command.params[param].type]??command.params[param].type}) ${command.params[param].description}\n`;
+        if(!command.name.toLowerCase().includes("code") && settings.allow_insecure_coding === false){
+            docs += command.name + ': ' + command.description + '\n';
+            if (command.params) {
+                docs += 'Params:\n';
+                for (let param in command.params) {
+                    docs += `${param}: (${typeTranslations[command.params[param].type]??command.params[param].type}) ${command.params[param].description}\n`;
+                }
             }
         }
     }

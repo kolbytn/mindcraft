@@ -92,14 +92,40 @@ export const queryList = [
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'NEARBY_BLOCKS';
-            let blocks = world.getNearbyBlockTypes(bot);
-            for (let i = 0; i < blocks.length; i++) {
-                res += `\n- ${blocks[i]}`;
+            let blocks = world.getNearbyBlockCounts(bot);
+            let listing = []
+            for (let k in blocks) {
+                res += `\n${k+": "+blocks[k]}`;
+                listing.push(blocks[k])
             }
-            if (blocks.length == 0) {
+            if (listing.length == 0) {
                 res += ': none';
             }
             return pad(res);
+        }
+    },
+    {
+        name: '!getBlockAtCoordinates',
+        description: 'Go to a specific location.',
+        params: {
+            'x': { type: 'int', description: 'The x coordinate of your destination.' },
+            'y': { type: 'int', description: 'The y coordinate of your destination.' },
+            'z': { type: 'int', description: 'The z coordinate of your destination.' }
+        },
+        perform: function (agent,x,y,z) {
+            if (!x) {
+                skills.log(agent.bot, `No x coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (!y) {
+                skills.log(agent.bot, `No y coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (!z) {
+                skills.log(agent.bot, `No z coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            return pad("the block at "+x+", "+y+", "+z+" is "+world.getBlockAtCoordinate(x,y,z))
         }
     },
     {
@@ -127,13 +153,16 @@ export const queryList = [
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'NEARBY_ENTITIES';
-            for (const entity of world.getNearbyPlayerNames(bot)) {
-                res += `\n- player: ${entity}`;
-            }
-            for (const entity of world.getNearbyEntityTypes(bot)) {
-                if (entity === 'player' || entity === 'item')
+            //for (const entity of world.getNearbyPlayerNames(bot)) {
+                //res += `\n- player: ${entity}`;
+            //}
+            for (const entity of world.getNearbyEntities(bot)) {
+                if (entity.name === 'item')
                     continue;
-                res += `\n- entities: ${entity}`;
+                if(entity.name === "player")
+                    res += `\nplayer: ${entity.username}`;
+                else
+                    res += `\n${entity.type}: ${entity.name}`;
             }
             if (res == 'NEARBY_ENTITIES') {
                 res += ': none';

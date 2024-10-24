@@ -5,9 +5,13 @@ import Vec3 from 'vec3';
 
 
 export function log(bot, message, chat=false) {
-    bot.output += message + '\n';
-    if (chat)
-        bot.chat(message);
+    try{ // this is bad but idk how else to prevent the bot from crashing for no reason when it does certain actions. occasionally it will crash, even when nothing went wrong.
+        bot.output += message + '\n';
+        if (chat)
+            bot.chat(message);
+    }catch(err){
+        console.log("failed to log properly: "+err)
+    }
 }
 
 async function autoLight(bot) {
@@ -285,10 +289,17 @@ export async function attackNearest(bot, mobType, kill=true) {
      * @example
      * await skills.attackNearest(bot, "zombie", true);
      **/
+    log("trying to attack "+ mobType)
     bot.modes.pause('cowardice');
     if (mobType === 'drowned' || mobType === 'cod' || mobType === 'salmon' || mobType === 'tropical_fish' || mobType === 'squid')
         bot.modes.pause('self_preservation'); // so it can go underwater. TODO: have an drowning mode so we don't turn off all self_preservation
-    const mob = world.getNearbyEntities(bot, 24).find(entity => entity.name === mobType);
+
+    var mob = false
+    try{
+        mob = world.getNearbyEntities(bot, 24).find(entity => (entity.name === mobType || entity.username === mobType));
+    }catch(err){
+        mob = false
+    }
     if (mob) {
         return await attackEntity(bot, mob, kill);
     }

@@ -222,6 +222,14 @@ export function getNearbyPlayerNames(bot) {
 }
 
 
+export function getBlockAtCoordinates(x,y,z) {
+    let block = mc.getBlockAtCoordinates(x,y,z)
+    if (block) {
+        return block;
+    }
+    return null;
+}
+
 export function getNearbyBlockTypes(bot, distance=16) {
     /**
      * Get a list of all nearby block names.
@@ -236,6 +244,27 @@ export function getNearbyBlockTypes(bot, distance=16) {
     for (let i = 0; i < blocks.length; i++) {
         if (!found.includes(blocks[i].name)) {
             found.push(blocks[i].name);
+        }
+    }
+    return found;
+}
+
+export function getNearbyBlockCounts(bot, distance=16) {
+    /**
+     * Get a list of all nearby block names.
+     * @param {Bot} bot - The bot to get nearby blocks for.
+     * @param {number} distance - The maximum distance to search, default 16.
+     * @returns {string[]} - A list of all nearby blocks.
+     * @example
+     * let blocks = world.getNearbyBlockTypes(bot);
+     **/
+    let blocks = getNearestBlocks(bot, null, distance);
+    let found = {};
+    for (let i = 0; i < blocks.length; i++) {
+        if (!found[blocks[i].name]) {
+            found[blocks[i].name] = 1;
+        }else{
+            found[blocks[i].name]++
         }
     }
     return found;

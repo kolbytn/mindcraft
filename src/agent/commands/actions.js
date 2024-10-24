@@ -124,6 +124,30 @@ export const actionsList = [
         }
     },
     {
+        name: '!goToCoordinates',
+        description: 'Go to a specific location.',
+        params: {
+            'x': { type: 'float', description: 'The x coordinate of your destination.' },
+            'y': { type: 'float', description: 'The y coordinate of your destination.' },
+            'z': { type: 'float', description: 'The z coordinate of your destination.' }
+        },
+        perform: wrapExecution(async (agent, x,y,z) => {
+            if (x === false) {
+                skills.log(agent.bot, `No x coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (y === false) {
+                skills.log(agent.bot, `No y coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            if (z === false) {
+                skills.log(agent.bot, `No z coordinate specified, make sure to include an x y and z coordinate.`);
+                return;
+            }
+            await skills.goToPosition(agent.bot, x, y, z, 1);
+        })
+    },
+    {
         name: '!goToPlace',
         description: 'Go to a saved location.',
         params: {'name': { type: 'string', description: 'The name of the location to go to.' }},
