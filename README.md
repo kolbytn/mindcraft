@@ -54,7 +54,7 @@ If you intent to `allow_insecure_coding` it might be a good idea to put the whol
 docker run -i -t --rm -v $(pwd):/usr/src/app -w /usr/src/app node:latest npm start
 ```
 
-When running in docker, if you want the bot to join your local minecraft server, you have to use special host address to call your localhost from your docker container: `host.docker.internal`. Put this into your `settings.json`:
+When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address to call your localhost from inside your docker container: `host.docker.internal`. Put this into your [settings.js](settings.js):
 
 ```
 "host": "host.docker.internal", // instead of "localhost", to join your local miecraft from inside the docker container
