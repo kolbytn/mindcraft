@@ -10,7 +10,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 ## Requirements
 
-- [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (up to v1.20.4)
+- [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (up to v1.20.6)
 - [Node.js](https://nodejs.org/) (at least v14)
 - One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) |[Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download)
 
@@ -34,7 +34,7 @@ Then, clone/download this repository
 
 Run `npm install` from the installed directory
 
-Install the minecraft version specified in `settings.js`, currently supports up to 1.20.4
+Install the minecraft version specified in `settings.js`, currently supports up to 1.20.6
 
 ### Running Locally
 
