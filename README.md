@@ -48,16 +48,16 @@ You can configure project details in `settings.js`. [See file for more details](
 
 ### Run in docker to reduce some of the risks
 
-If you intent to `allow_insecure_coding` it might be a good idea to put the whole app into a docker container to reduce risks of damaging your system via a malicious code.
+If you intent to `allow_insecure_coding`, it might be a good idea to put the whole app into a docker container to reduce risks of running unknown code.
 
 ```
-docker run -i -t --rm -v $(pwd):/usr/src/app -w /usr/src/app node:latest npm start
+docker run -i -t --rm -v $(pwd):/app -w /app node:latest node main.js
 ```
 
-When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address to call your localhost from inside your docker container: `host.docker.internal`. Put this into your [settings.js](settings.js):
+When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address `host.docker.internal` to call your localhost from inside your docker container. Put this into your [settings.js](settings.js):
 
 ```
-"host": "host.docker.internal", // instead of "localhost", to join your local miecraft from inside the docker container
+"host": "host.docker.internal", // instead of "localhost", to join your local minecraft from inside the docker container
 ```
 
 ### Online Servers
