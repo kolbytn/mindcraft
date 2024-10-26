@@ -716,6 +716,9 @@ export async function equip(bot, itemName) {
     else if (itemName.includes('chestplate') || itemName.includes('elytra')) {
         await bot.equip(item, 'torso');
     }
+    else if (itemName.includes('shield')) {
+        await bot.equip(item, 'off-hand');
+    }
     else {
         await bot.equip(item, 'hand');
     }
@@ -1082,10 +1085,11 @@ export async function avoidEnemies(bot, distance=16) {
     return true;
 }
 
-export async function stay(bot) {
+export async function stay(bot, seconds=30) {
     /**
      * Stay in the current position until interrupted. Disables all modes.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} seconds, the number of seconds to stay. Defaults to 30. -1 for indefinite.
      * @returns {Promise<boolean>} true if the bot stayed, false otherwise.
      * @example
      * await skills.stay(bot);
@@ -1097,9 +1101,11 @@ export async function stay(bot) {
     bot.modes.pause('hunting');
     bot.modes.pause('torch_placing');
     bot.modes.pause('item_collecting');
-    while (!bot.interrupt_code) {
+    let start = Date.now();
+    while (!bot.interrupt_code && (seconds === -1 || Date.now() - start < seconds*1000)) {
         await new Promise(resolve => setTimeout(resolve, 500));
     }
+    log(bot, `Stayed for ${(Date.now() - start)/1000} seconds.`);
     return true;
 }
 
