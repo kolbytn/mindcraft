@@ -1,7 +1,7 @@
 {
     "name": "claude",
 
-    "model": "claude-3-5-sonnet-20240620",
+    "model": "claude-3-5-sonnet-latest",
     
     "embedding": "openai",
 
@@ -15,14 +15,14 @@
 
 
     "modes": {
-        "self_preservation": false,
+        "self_preservation": true,
         "cowardice": false,
-        "self_defense": false,
-        "hunting": false,
+        "self_defense": true,
+        "hunting": true,
         "item_collecting": true,
-        "torch_placing": false,
+        "torch_placing": true,
         "idle_staring": true,
-        "cheat": true
+        "cheat": false
     },
 
     "conversation_examples": [
