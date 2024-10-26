@@ -322,7 +322,7 @@ export class ItemGoal {
             // If the bot has failed to obtain the block before, explore
             if (this.failed.includes(next.name)) {
                 this.failed = this.failed.filter((item) => item !== next.name);
-                await this.agent.coder.execute(async () => {
+                await this.agent.tasks.runTask('itemGoal:explore', async () => {
                     await skills.moveAway(this.agent.bot, 8);
                 });
             } else {
@@ -339,7 +339,7 @@ export class ItemGoal {
 
         // Execute the next goal
         let init_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;
-        await this.agent.coder.execute(async () => {
+        await this.agent.tasks.runTask('itemGoal:next', async () => {
             await next.execute(quantity);
         });
         let final_quantity = world.getInventoryCounts(this.agent.bot)[next.name] || 0;

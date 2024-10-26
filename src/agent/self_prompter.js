@@ -87,7 +87,7 @@ export class SelfPrompter {
     async stop(stop_action=true) {
         this.interrupt = true;
         if (stop_action)
-            await this.agent.coder.stop();
+            await this.agent.tasks.stop();
         await this.stopLoop();
         this.on = false;
     }

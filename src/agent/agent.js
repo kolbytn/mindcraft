@@ -4,6 +4,7 @@ import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
+import { TaskManager } from './tasks.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
@@ -13,6 +14,7 @@ import settings from '../../settings.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+        this.tasks = new TaskManager(this);
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
         this.history = new History(this);
@@ -40,7 +42,7 @@ export class Agent {
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             console.log(`${this.name} spawned.`);
-            this.coder.clear();
+            this.clearBotLogs();
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -91,6 +93,17 @@ export class Agent {
         });
     }
 
+    interruptBot() {
+        this.bot.interrupt_code = true;
+        this.bot.collectBlock.cancelTask();
+        this.bot.pathfinder.stop();
+        this.bot.pvp.stop();
+    }
+
+    clearBotLogs() {
+        this.bot.output = '';
+        this.bot.interrupt_code = false;
+    }
 
     async cleanChat(message, translate_up_to=-1) {
         let to_translate = message;
@@ -250,8 +263,8 @@ export class Agent {
             this.cleanKill('Bot disconnected! Killing agent process.');
         });
         this.bot.on('death', () => {
-            this.coder.cancelResume();
-            this.coder.stop();
+            this.tasks.cancelResume();
+            this.tasks.stop();
         });
         this.bot.on('kicked', (reason) => {
             console.warn('Bot kicked!', reason);
@@ -267,7 +280,7 @@ export class Agent {
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
-            this.coder.executeResume();
+            this.tasks.resumeTask();
         });
 
         // Init NPC controller
@@ -297,7 +310,7 @@ export class Agent {
     }
 
     isIdle() {
-        return !this.coder.executing && !this.coder.generating;
+        return !this.tasks.executing && !this.coder.generating;
     }
     
     cleanKill(msg='Killing agent process...') {

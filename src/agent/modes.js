@@ -260,9 +260,9 @@ async function execute(mode, agent, func, timeout=-1) {
     if (agent.self_prompter.on)
         agent.self_prompter.stopLoop();
     mode.active = true;
-    let code_return = await agent.coder.execute(async () => {
+    let code_return = await agent.tasks.runTask(`mode:${mode.name}`, async () => {
         await func();
-    }, timeout);
+    }, { timeout });
     mode.active = false;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
 }
@@ -328,7 +328,7 @@ class ModeController {
             this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.coder.cur_action_name);
+            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => `action:${i}` === this.agent.tasks.currentTaskLabel);
             if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
                 await mode.update(this.agent);
             }

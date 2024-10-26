@@ -72,7 +72,7 @@ export class NPCContoller {
             if (!this.agent.isIdle()) return;
 
             // Persue goal
-            if (!this.agent.coder.resume_func) {
+            if (!this.agent.tasks.resume_func) {
                 this.executeNext();
                 this.agent.history.save();
             }
@@ -104,7 +104,7 @@ export class NPCContoller {
 
     async executeNext() {
         if (!this.agent.isIdle()) return;
-        await this.agent.coder.execute(async () => {
+        await this.agent.tasks.runTask('npc:moveAway', async () => {
             await skills.moveAway(this.agent.bot, 2);
         });
 
@@ -114,7 +114,7 @@ export class NPCContoller {
             if (building == this.data.home) {
                 let door_pos = this.getBuildingDoor(building);
                 if (door_pos) {
-                    await this.agent.coder.execute(async () => {
+                    await this.agent.tasks.runTask('npc:exitBuilding', async () => {
                         await skills.useDoor(this.agent.bot, door_pos);
                         await skills.moveAway(this.agent.bot, 2); // If the bot is too close to the building it will try to enter again
                     });
@@ -132,13 +132,13 @@ export class NPCContoller {
             let building = this.currentBuilding();
             if (this.data.home !== null && (building === null || building != this.data.home)) {
                 let door_pos = this.getBuildingDoor(this.data.home);
-                await this.agent.coder.execute(async () => {
+                await this.agent.tasks.runTask('npc:returnHome', async () => {
                     await skills.useDoor(this.agent.bot, door_pos);
                 });
             }
 
             // Go to bed
-            await this.agent.coder.execute(async () => {
+            await this.agent.tasks.runTask('npc:bed', async () => {
                 await skills.goToBed(this.agent.bot);
             });
         }
