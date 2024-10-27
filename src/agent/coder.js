@@ -1,5 +1,4 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-import { checkSafe } from '../utils/safety.js';
 import settings from '../../settings.js';
 import { makeCompartment } from './library/lockdown.js';
 import * as skills from './library/skills.js';
@@ -144,13 +143,6 @@ export class Coder {
                 continue;
             }
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
-
-            if (!checkSafe(code)) {
-                console.warn(`Detected insecure generated code, not executing. Insecure code: \n\`${code}\``);
-                const message = 'Error: Code insecurity detected. Do not import, read/write files, execute dynamic code, or access the internet. Please try again:';
-                messages.push({ role: 'system', content: message });
-                continue;
-            }
 
             let codeStagingResult;
             try {
