@@ -28,8 +28,6 @@ export class Agent {
 
         initModes(this);
 
-        let last_death_pos = null;
-
         let save_data = null;
         if (load_mem) {
             save_data = this.history.load();
