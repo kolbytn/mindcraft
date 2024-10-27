@@ -34,6 +34,8 @@ Then, clone/download this repository
 
 Run `npm install` from the installed directory
 
+Run `npm run postinstall` to apply patches to mineflayer
+
 Install the minecraft version specified in `settings.js`, currently supports up to 1.20.4
 
 ### Running Locally
