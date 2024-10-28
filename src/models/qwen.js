@@ -27,7 +27,10 @@ export class Qwen {
                 body: JSON.stringify(data),
             });
 
-            if (!response.ok) throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+            if (!response.ok) {
+                console.error(`Request failed with status ${response.status}: ${response.statusText}`);
+                return `Request failed with status ${response.status}: ${response.statusText}`;
+            }
 
             const responseData = await response.json();
             const choice = responseData?.output?.choices?.[0];
@@ -69,7 +72,10 @@ export class Qwen {
                 body: JSON.stringify(data),
             });
 
-            if (!response.ok) throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+            if (!response.ok) {
+                console.error(`Request failed with status ${response.status}: ${response.statusText}`);
+                return `Request failed with status ${response.status}: ${response.statusText}`;
+            }
 
             const responseData = await response.json();
             if (!responseData?.output?.embeddings) {
