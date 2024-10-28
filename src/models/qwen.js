@@ -1,92 +1,121 @@
+// This code uses Dashscope and HTTP to ensure the latest support for the Qwen model.
+// Qwen is also compatible with the OpenAI API format;
+
 import { getKey } from '../utils/keys.js';
 
 export class Qwen {
-    constructor(model_name, url) {
-        this.model_name = model_name;
+    constructor(modelName, url) {
+        // Initialize model name and API URL
+        this.modelName = modelName;
         this.url = url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
-        this.apiKey = getKey('QWEN_API_KEY');
+        this.apiKey = getKey('QWEN_API_KEY'); // Get API key from utility function
     }
 
-    async sendRequest(turns, systemMessage, stop_seq = '***') {
+    async sendRequest(turns, systemMessage, stopSeq = '***', retryCount = 0) {
+        // Limit retry attempts to avoid infinite recursion
+        if (retryCount > 5) {
+            console.error('Maximum retry attempts reached.');
+            return 'Error: Too many retry attempts.';
+        }
+
+        // Build request data
         const data = {
-            model: this.model_name || 'qwen-plus',
+            model: this.modelName || 'qwen-plus',
             input: { messages: [{ role: 'system', content: systemMessage }, ...turns] },
-            parameters: { result_format: 'message', stop: stop_seq },
+            parameters: { result_format: 'message', stop: stopSeq },
         };
 
-        const headers = {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-        };
+        // Add default user message if all messages are 'system' role
+        if (turns.every((msg) => msg.role === 'system')) {
+            data.input.messages.push({ role: 'user', content: 'hello' });
+        }
+
+        // Validate data format before sending request
+        if (!data.model || !data.input || !data.input.messages || !data.parameters) {
+            console.error('Invalid request data format:', data);
+            throw new Error('Invalid request data format.');
+        }
 
         try {
-            console.log('Awaiting Qwen API response...');
-            const response = await fetch(this.url, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(data),
-            });
+            // Send request to API
+            const response = await this._makeHttpRequest(this.url, data);
+            const choice = response?.output?.choices?.[0];
 
-            if (!response.ok) {
-                console.error(`Request failed with status ${response.status}: ${response.statusText}`);
-                return `Request failed with status ${response.status}: ${response.statusText}`;
+            // Retry request if response is incomplete due to length limit
+            if (choice?.finish_reason === 'length' && turns.length > 0) {
+                return this.sendRequest(turns.slice(1), systemMessage, stopSeq, retryCount + 1);
             }
 
-            const responseData = await response.json();
-            const choice = responseData?.output?.choices?.[0];
-
-            if (choice?.finish_reason === 'length') {
-                console.log('Context length exceeded');
-                return this.sendRequest(turns.slice(1), systemMessage, stop_seq);
-            }
-
-            console.log('Received.');
+            // Return response content or default message
             return choice?.message?.content || 'No content received.';
         } catch (err) {
+            // Error handling, log error and return error message
             console.error('Error occurred:', err);
-            return 'My brain disconnected, try again.';
+            return 'An error occurred, please try again.';
         }
     }
 
     async embed(text) {
+        // Validate embedding input
         if (!text || typeof text !== 'string') {
-            console.error('Invalid input for embedding: text must be a non-empty string.');
-            return 'Invalid input for embedding: text must be a non-empty string.';
+            console.error('Invalid embedding input: text must be a non-empty string.');
+            return 'Invalid embedding input: text must be a non-empty string.';
         }
 
+        // Build embedding request data
         const data = {
             model: 'text-embedding-v2',
             input: { texts: [text] },
             parameters: { text_type: 'query' },
         };
 
+        // Validate data format before sending request
+        if (!data.model || !data.input || !data.input.texts || !data.parameters) {
+            console.error('Invalid embedding request data format:', data);
+            throw new Error('Invalid embedding request data format.');
+        }
+
+        try {
+            // Send embedding request to API
+            const response = await this._makeHttpRequest(this.url, data);
+            const embedding = response?.output?.embeddings?.[0]?.embedding;
+            return embedding || 'No embedding result received.';
+        } catch (err) {
+            // Error handling, log error and return error message
+            console.error('Error occurred:', err);
+            return 'An error occurred, please try again.';
+        }
+    }
+
+    async _makeHttpRequest(url, data) {
+        // Set request headers, including authorization and content type
         const headers = {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
         };
 
+        // Send HTTP POST request to API
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(data),
+        });
+
+        // Check response status code, throw error if not successful
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Request failed, status code ${response.status}: ${response.statusText}`);
+            console.error('Error response content:', errorText);
+            throw new Error(`Request failed, status code ${response.status}: ${response.statusText}`);
+        }
+
+        // Parse and return response JSON
+        const responseText = await response.text();
         try {
-            const response = await fetch(this.url, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                console.error(`Request failed with status ${response.status}: ${response.statusText}`);
-                return `Request failed with status ${response.status}: ${response.statusText}`;
-            }
-
-            const responseData = await response.json();
-            if (!responseData?.output?.embeddings) {
-                console.error('Invalid response from embedding API');
-                return 'An error occurred while processing your embedding request. Please try again.';
-            }
-
-            return responseData.output.embeddings[0].embedding;
+            return JSON.parse(responseText);
         } catch (err) {
-            console.error('Error occurred:', err);
-            return 'An error occurred while processing your embedding request. Please try again.';
+            console.error('Failed to parse response JSON:', err);
+            throw new Error('Invalid response JSON format.');
         }
     }
 }
