@@ -3,7 +3,7 @@
 
     "model": {
         "api": "qwen",
-        "url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
         "model": "qwen-max"
     },
 

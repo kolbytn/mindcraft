@@ -1,40 +1,44 @@
-import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
-import { strictFormat } from '../utils/text.js';
 
 export class Qwen {
     constructor(model_name, url) {
         this.model_name = model_name;
-        this.url = url;
-
-        const config = {
-            baseURL: this.url,
-            apiKey: getKey('QWEN_API_KEY'),
-        };
-
-        this.openai = new OpenAIApi(config);
-        this.apiKey = config.apiKey;
+        this.url = url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+        this.apiKey = getKey('QWEN_API_KEY');
     }
 
     async sendRequest(turns, systemMessage, stop_seq = '***') {
-        const messages = [{ role: 'system', content: systemMessage }, ...turns];
-        const pack = {
+        const data = {
             model: this.model_name || 'qwen-plus',
-            messages: this.model_name.includes('o1') ? strictFormat(messages) : messages,
-            stop: this.model_name.includes('o1') ? undefined : stop_seq,
+            input: { messages: [{ role: 'system', content: systemMessage }, ...turns] },
+            parameters: { result_format: 'message', stop: stop_seq },
+        };
+
+        const headers = {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
         };
 
         try {
             console.log('Awaiting Qwen API response...');
-            const completion = await this.openai.chat.completions.create(pack);
-            const choice = completion.choices[0];
+            const response = await fetch(this.url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(data),
+            });
 
-            if (choice.finish_reason === 'length') {
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+
+            const responseData = await response.json();
+            const choice = responseData?.output?.choices?.[0];
+
+            if (choice?.finish_reason === 'length') {
                 console.log('Context length exceeded');
-                return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+                return this.sendRequest(turns.slice(1), systemMessage, stop_seq);
             }
+
             console.log('Received.');
-            return choice.message.content;
+            return choice?.message?.content || 'No content received.';
         } catch (err) {
             console.error('Error occurred:', err);
             return 'My brain disconnected, try again.';
@@ -47,28 +51,32 @@ export class Qwen {
             return 'Invalid input for embedding: text must be a non-empty string.';
         }
 
-        const headers = {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-        };
         const data = {
             model: 'text-embedding-v2',
             input: { texts: [text] },
-            parameters: { text_type: 'query' }
+            parameters: { text_type: 'query' },
+        };
+
+        const headers = {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
         };
 
         try {
             const response = await fetch(this.url, {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify(data)
+                headers,
+                body: JSON.stringify(data),
             });
-            const responseData = await response.json();
 
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}: ${response.statusText}`);
+
+            const responseData = await response.json();
             if (!responseData?.output?.embeddings) {
                 console.error('Invalid response from embedding API');
                 return 'An error occurred while processing your embedding request. Please try again.';
             }
+
             return responseData.output.embeddings[0].embedding;
         } catch (err) {
             console.error('Error occurred:', err);
