@@ -1,8 +1,6 @@
 import OpenAIApi from 'openai';
-import { getKey, hasKey } from '../utils/keys.js';
+import { getKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
-
-import axios from 'axios';
 
 export class Qwen {
     constructor(model_name, url) {
@@ -34,12 +32,12 @@ export class Qwen {
         try {
             console.log('Awaiting Qwen API response...');
             let completion = await this.openai.chat.completions.create(pack);
-            if (completion.choices[0].finish_reason == 'length')
+            if (completion.choices[0].finish_reason === 'length')
                 throw new Error('Context length exceeded');
             console.log('Received.');
             res = completion.choices[0].message.content;
         } catch (err) {
-            if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
+            if ((err.message === 'Context length exceeded' || err.code === 'context_length_exceeded') && turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
                 return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
             } else {
@@ -70,11 +68,16 @@ export class Qwen {
         };
 
         try {
-            const response = await axios.post(this.url, data, { headers });
-            if (!response || !response.data || !response.data.output || !response.data.output.embeddings) {
+            const response = await fetch(this.url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            });
+            const responseData = await response.json();
+            if (!responseData || !responseData.output || !responseData.output.embeddings) {
                 throw new Error('Invalid response from embedding API');
             }
-            return response.data.output.embeddings[0].embedding;
+            return responseData.output.embeddings[0].embedding;
         } catch (err) {
             console.error('Error occurred:', err);
             return 'An error occurred while processing your embedding request. Please try again.';
