@@ -12,7 +12,7 @@ This project allows an AI model to write/execute code on your computer that may 
 
 - [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (up to v1.21.1)
 - [Node.js](https://nodejs.org/) (at least v14)
-- One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) |[Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download). |[Qwen API Key](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key).
+- One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) |[Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download). |[Qwen API Key [Intl.]](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key) / [[cn]](https://help.aliyun.com/zh/model-studio/getting-started/first-api-call-to-qwen?)
 
 ## Installation
 
@@ -26,7 +26,7 @@ Rename `keys.example.json` to `keys.json` and fill in your API keys, and you can
 | Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
 | Groq | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
 | Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
-| Qwen | `QWEN_API_KEY` | `qwen-max` | [docs](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api) |
+| Qwen | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3 && ollama pull nomic-embed-text`
