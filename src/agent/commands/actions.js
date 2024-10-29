@@ -299,13 +299,8 @@ export const actionsList = [
         name: "!goToDeath",
         description: "Go to the location of your bot's last death position and retrieve any lost items.",
         perform: wrapExecution(async (agent) => {
-            let death_pos = agent.memory_bank.recallPlace('last death position')[0]; // <- dont even ask why this is an array
-            if (death_pos !== null) {
-                await skills.goToPosition(agent.bot, death_pos.x, death_pos.y, death_pos.z, 1);
-                console.log('going to death');
-            } else {
-                skills.log(agent.bot, "No death location saved.");
-            }
+            await skills.goToDeath(agent.bot, agent);
+            await skills.pickupNearbyItems(agent.bot);
         })
     },
     {
