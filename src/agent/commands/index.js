@@ -14,7 +14,7 @@ export function getCommand(name) {
     return commandMap[name];
 }
 
-const commandRegex = /!(\w+)(?:\(((?:[^)(]+|'[^']*'|"[^"]*")*)\))?/
+const commandRegex = /!(\w+)(?:\(([\s\S]*)\))?/
 const argRegex = /(?:"[^"]*"|'[^']*'|[^,])+/g;
 
 export function containsCommand(message) {
