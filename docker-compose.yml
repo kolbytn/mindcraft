@@ -7,5 +7,12 @@ services:
     volumes:
       - .:/app
     command: node main.js
+
+  viaproxy: #use this service to connect to an unsupported minecraft server versions. more info: ./services/viaproxy/README.md
+    image: ghcr.io/viaversion/viaproxy:latest
+    volumes:
+      - ./services/viaproxy:/app/run
     ports:
-      - "3000-3003:3000-3003"
+      - "25568:25568"
+    profiles:
+      - viaproxy
