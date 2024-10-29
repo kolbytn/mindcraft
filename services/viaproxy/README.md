@@ -6,7 +6,7 @@ Run:
 docker-compose --profile viaproxy up
 ```
 
-After first start it will create config file `viaproxy.yml` in this directory.
+After first start it will create config file `services/viaproxy/viaproxy.yml`.
 
 Edit this file, and change your desired target `target-address`, 
 
