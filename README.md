@@ -64,6 +64,8 @@ When running in docker, if you want the bot to join your local minecraft server,
 "host": "host.docker.internal", // instead of "localhost", to join your local minecraft from inside the docker container
 ```
 
+To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
+
 ### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here are example settings for this:
 ```javascript
