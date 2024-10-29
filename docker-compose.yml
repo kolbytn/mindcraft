@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  app:
+    image: node:latest
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: node main.js
