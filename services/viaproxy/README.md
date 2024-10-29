@@ -19,7 +19,7 @@ then point to your `settings.js` `host` and `port` to viaproxy:
 
 This easily works with "offline" servers. 
 
-Connecting to "online" servers involves more configuration: see `auth-method` in `viaproxy.yml` (TODO describe) 
+Connecting to "online" servers with viaproxy involves more configuration: see `auth-method` in `services/viaproxy/viaproxy.yml` (TODO describe) 
 
 
 
