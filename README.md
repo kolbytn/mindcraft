@@ -1,4 +1,4 @@
-# Mindcraft 🧠⛏️
+# Mindcraft Style Guide 🧠⛏️
 
 Crafting minds for Minecraft with Language Models and Mineflayer!
 
