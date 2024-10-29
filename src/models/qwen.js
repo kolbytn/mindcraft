@@ -1,5 +1,7 @@
 // This code uses Dashscope and HTTP to ensure the latest support for the Qwen model.
-// Qwen is also compatible with the OpenAI API format;
+// Qwen is also compatible with the OpenAI API format, and the base URL to be configured is: "https://dashscope.aliyuncs.com/compatible-mode/v1".
+
+https://dashscope.aliyuncs.com/compatible-mode/v1
 
 import { getKey } from '../utils/keys.js';
 
