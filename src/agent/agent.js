@@ -266,15 +266,8 @@ export class Agent {
                 if (death_pos) {
                     death_pos_text = `x: ${death_pos.x.toFixed(2)}, y: ${death_pos.y.toFixed(2)}, z: ${death_pos.x.toFixed(2)}`;
                 }
-                let inventory = this.bot.inventory.slots;
-                let death_items = "";
-                for (let i=0; i<inventory.length; i++) {
-                    if (inventory[i]) {
-                        death_items += `${inventory[i].name} x${inventory[i].count}, `;
-                    }
-                }
-                this.history.add('system', `You died at position ${death_pos_text || "unknown"} with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
-                this.handleMessage('system', `You died at position ${death_pos_text || "unknown"} and droped the items ${death_items} at your death position with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions. you can retrieve your items by doing the action !goToDeath.`);
+                this.history.add('system', `You died at position ${death_pos_text || "unknown"} with the final message: '${message}'. Previous actions were stopped and you have since respawned.`);
+                this.handleMessage('system', `You died at position ${death_pos_text || "unknown"} with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions. use !goToDeath to return to death position. (this will automaticly take you to your death position and pick up your items)`);
             }
         });
         this.bot.on('idle', () => {
