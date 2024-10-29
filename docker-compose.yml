@@ -7,3 +7,5 @@ services:
     volumes:
       - .:/app
     command: node main.js
+    ports:
+      - "3000-3003:3000-3003"
