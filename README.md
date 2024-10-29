@@ -51,7 +51,7 @@ You can configure project details in `settings.js`. [See file for more details](
 If you intent to `allow_insecure_coding`, it might be a good idea to put the whole app into a docker container to reduce risks of running unknown code.
 
 ```bash
-docker run -i -t --rm -v $(pwd):/app -w /app node:latest node main.js
+docker run -i -t --rm -v $(pwd):/app -w /app -p 3000-3003:3000-3003 node:latest node main.js
 ```
 or simply
 ```bash
