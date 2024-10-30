@@ -266,8 +266,9 @@ export class Agent {
                 if (death_pos) {
                     death_pos_text = `x: ${death_pos.x.toFixed(2)}, y: ${death_pos.y.toFixed(2)}, z: ${death_pos.x.toFixed(2)}`;
                 }
+                let dimention = this.bot.game.dimension;
                 this.history.add('system', `You died at position ${death_pos_text || "unknown"} with the final message: '${message}'. Previous actions were stopped and you have since respawned.`);
-                this.handleMessage('system', `You died at position ${death_pos_text || "unknown"} with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions. use !goToDeath to return to death position. (this will automaticly take you to your death position and pick up your items)`);
+                this.handleMessage('system', `You died at position ${death_pos_text || "unknown"} in the dimention ${dimention} with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions. use !goToDeath to return to death position. (this will automaticly take you to your death position and pick up your items)`);
             }
         });
         this.bot.on('idle', () => {
