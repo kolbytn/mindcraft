@@ -1194,7 +1194,7 @@ export async function goToDeath(bot, agent) {
      * @example
      * await skills.goToDeath(bot);
      **/            
-    let death_pos = agent.memory_bank.recallPlace('last death position')[0]; // <- dont even ask why this is an array
+    let death_pos = await agent.memory_bank.recallPlace('last death position')[0]; // <- dont even ask why this is an array
     if (death_pos) {
         await goToPosition(bot, death_pos.x, death_pos.y, death_pos.z);
         log(bot, `You have reached the death point.`);
