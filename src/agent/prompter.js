@@ -136,16 +136,18 @@ export class Prompter {
             }))
             .sort((a, b) => b.similarity_score - a.similarity_score);
 
-        // select_num = -1 means select all
-        let selected_docs = skill_doc_similarities.slice(0, select_num === -1 ? skill_doc_similarities.length : select_num);
+        let length = skill_doc_similarities.length;
+        if (typeof select_num !== 'number' || isNaN(select_num) || select_num <= 0) {
+            select_num = length;
+        } else {
+            select_num = Math.min(Math.floor(select_num), length);
+        }
+        let selected_docs = skill_doc_similarities.slice(0, select_num);
         let message = '\nThe following recommended functions are listed in descending order of task relevance.\nSkillDocs:\n';
         message += selected_docs.map(doc => `${doc.doc_key}`).join('\n');
+        console.log(message);
         return message;
     }
-
-
-
-
 
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
