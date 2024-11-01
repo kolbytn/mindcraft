@@ -1,0 +1,6 @@
+{ 
+    "name": "example_task",
+    "goal": "create a stone pickaxe",
+    "prompt": "",
+    "evaluation_function": "evaluate_example_task"
+}

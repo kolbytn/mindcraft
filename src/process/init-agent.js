@@ -13,6 +13,16 @@ const argv = yargs(args)
         type: 'string',
         description: 'profile filepath to use for agent'
     })
+    .option('agent_task_path', {
+        alias: 'a',
+        type: 'string',
+        description: 'path for specifying agent specific attributes',
+    })
+    .option('task_specification', {
+        alias: 't',
+        type: 'string',
+        description: 'path for specifying high level goals',
+    })
     .option('load_memory', {
         alias: 'l',
         type: 'boolean',
@@ -29,5 +39,11 @@ const argv = yargs(args)
         default: 0,
         description: 'identifying count for multi-agent scenarios',
     }).argv
+    
 
-new Agent().start(argv.profile, argv.load_memory, argv.init_message, argv.count_id);
+new Agent().start(argv.profile, 
+    argv.load_memory, 
+    argv.init_message, 
+    argv.count_id, 
+    argv.agent_task_path, 
+    argv.task_specification);

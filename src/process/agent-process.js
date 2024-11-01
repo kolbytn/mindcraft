@@ -3,14 +3,24 @@ import { spawn } from 'child_process';
 export class AgentProcess {
     static runningCount = 0;
 
-    start(profile, load_memory=false, init_message=null, count_id=0) {
+    start(profile,
+        load_memory=false, 
+        init_message=null, 
+        count_id=0, 
+        agent_task_path=null, 
+        task_specification=null) {
         let args = ['src/process/init-agent.js', this.name];
-        args.push('-p', profile);
+        args.push('-p', profile); // profile is unparsed json path atm 
         args.push('-c', count_id);
         if (load_memory)
             args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
+        if (agent_task_path)
+            args.push('-a', agent_task_path);
+        if (task_specification)
+            args.push('-t', task_specification);
+        
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',

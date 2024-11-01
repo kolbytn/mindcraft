@@ -10,9 +10,20 @@ import { SelfPrompter } from './self_prompter.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
+import minecraftData from 'minecraft-data';
+import { readFileSync } from 'fs';
+
+const mc_version = settings.minecraft_version;
+const mcdata = minecraftData(mc_version);
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+    async start(profile_fp, 
+        load_mem=false, 
+        init_message=null, 
+        count_id=0, 
+        agent_task_path=null,
+        task_specification=null
+        ) {
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
         this.history = new History(this);
@@ -20,6 +31,11 @@ export class Agent {
         this.npc = new NPCContoller(this);
         this.memory_bank = new MemoryBank();
         this.self_prompter = new SelfPrompter(this);
+        this.agent_task_path = agent_task_path;
+        this.task_specification = task_specification;
+        
+        this.agent_specification = JSON.parse(readFileSync(agent_task_path, 'utf8'));
+        this.task_specification = JSON.parse(readFileSync(task_specification, 'utf8'));
 
         await this.prompter.initExamples();
 
@@ -91,7 +107,6 @@ export class Agent {
         });
     }
 
-
     async cleanChat(message, translate_up_to=-1) {
         let to_translate = message;
         let remainging = '';
@@ -140,6 +155,13 @@ export class Agent {
                 if (execute_res) 
                     this.cleanChat(execute_res);
                 return true;
+            }
+        } else {
+            console.log('Self-prompting:', message);
+            // if self_prompt contains something that indicates the goal is complete, stop self-prompting
+            if (message.includes('goal complete')) {
+                this.self_prompter.stop();
+                process.exit(0);
             }
         }
 
@@ -218,7 +240,46 @@ export class Agent {
         return used_command;
     }
 
-    startEvents() {
+        /**
+     * Fills the bot's inventory with a specific item.
+     * @param {number} itemId - The numerical ID of the item to fill the inventory with.
+     * @returns {Promise<void>}
+     */
+    async fillInventoryWithItem(item_name, count=64) {
+        let command = `/give @p ${item_name} ${count}`;
+        this.bot.chat(command); 
+    }
+
+    async fillInventoryWithItems(item_array) {
+        for (const item of item_array) {
+            this.fillInventoryWithItem(item.item_id, item.count);
+        }
+    }
+
+    /** 
+     * 
+     */
+    async teleportToOtherBot(other_bot_name) {
+        // todo such that it allows for teleporting a few blocks away from the other bot
+        let command = `/tp @p ${other_bot_name}`;
+        this.bot.chat(command);
+    }
+
+
+    /**
+     * Clears the bot's inventory by dropping all items.
+     * @param {Bot} bot - The mineflayer bot.
+     * @returns {Promise<void>}
+     */
+    async clearInventory() {
+        for (const windowId in this.bot.inventory.slots) {
+        if (this.bot.inventory.slots[windowId]) {
+            await this.bot.tossStack(this.bot.inventory.slots[windowId])
+        }
+        }
+    }
+
+    async startEvents() {
         // Custom events
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
@@ -230,6 +291,9 @@ export class Agent {
             else if (this.bot.time.timeOfDay == 18000)
             this.bot.emit('midnight');
         });
+        this.clearInventory();
+        this.teleportToOtherBot(this.agent_specification.collaborator_name);
+        this.fillInventoryWithItems(this.agent_specification.inventory);
 
         let prev_health = this.bot.health;
         this.bot.lastDamageTime = 0;
