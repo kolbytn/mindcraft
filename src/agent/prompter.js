@@ -137,7 +137,7 @@ export class Prompter {
             .sort((a, b) => b.similarity_score - a.similarity_score);
 
         let length = skill_doc_similarities.length;
-        if (typeof select_num !== 'number' || isNaN(select_num) || select_num <= 0) {
+        if (typeof select_num !== 'number' || isNaN(select_num) || select_num < 0) {
             select_num = length;
         } else {
             select_num = Math.min(Math.floor(select_num), length);
@@ -145,7 +145,6 @@ export class Prompter {
         let selected_docs = skill_doc_similarities.slice(0, select_num);
         let message = '\nThe following recommended functions are listed in descending order of task relevance.\nSkillDocs:\n';
         message += selected_docs.map(doc => `${doc.doc_key}`).join('\n');
-        console.log(message);
         return message;
     }
 
@@ -163,7 +162,7 @@ export class Prompter {
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
-            prompt = prompt.replaceAll('$CODE_DOCS', this.getRelevantSkillDocs(messages, -1));
+            prompt = prompt.replaceAll('$CODE_DOCS', this.getRelevantSkillDocs(messages, 0));
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))
