@@ -9,7 +9,7 @@ Crafting minds for Minecraft with LLMs and Mineflayer!
 
 #### ‼️Warning‼️
 
-This project allows an LLM to write/execute code on your computer. While the code is sandboxed, it may still be insecure and vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. If you connect to a public server with coding enabled, we strongly recommend running with additional layers of security such as docker containers. Ye be warned.
+Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. While the code is sandboxed, it is still vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. We strongly recommend running with additional layers of security such as docker containers. Ye be warned.
 
 ## Requirements
 
