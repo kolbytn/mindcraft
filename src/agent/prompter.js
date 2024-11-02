@@ -125,9 +125,8 @@ export class Prompter {
         ]);
     }
 
-    async getRelevantSkillDocs(messages, select_num) {
-        let latest_message_content = messages.slice().reverse().find(msg => msg.role !== 'system')?.content || '';
-        let latest_message_embedding = await this.embedding_model.embed([latest_message_content]);
+    async getRelevantSkillDocs(message, select_num) {
+        let latest_message_embedding = await this.embedding_model.embed(message);
 
         let skill_doc_similarities = Object.keys(this.skill_docs_embeddings)
             .map(doc_key => ({
@@ -143,9 +142,9 @@ export class Prompter {
             select_num = Math.min(Math.floor(select_num), length);
         }
         let selected_docs = skill_doc_similarities.slice(0, select_num);
-        let message = '\nThe following recommended functions are listed in descending order of task relevance.\nSkillDocs:\n';
-        message += selected_docs.map(doc => `${doc.doc_key}`).join('\n');
-        return message;
+        let relevant_skill_docs = '####RELEVENT DOCS INFO###\nThe following functions are listed in descending order of relevance.\nSkillDocs:\n';
+        relevant_skill_docs += selected_docs.map(doc => `${doc.doc_key}`).join('\n');
+        return relevant_skill_docs;
     }
 
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
@@ -161,8 +160,10 @@ export class Prompter {
         }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
-        if (prompt.includes('$CODE_DOCS'))
-            prompt = prompt.replaceAll('$CODE_DOCS', this.getRelevantSkillDocs(messages, 0));
+        if (prompt.includes('$CODE_DOCS')){
+            let latest_message_content = messages.slice().reverse().find(msg => msg.role !== 'system')?.content || '';
+            prompt = prompt.replaceAll('$CODE_DOCS', await this.getRelevantSkillDocs(latest_message_content, 5));
+        }
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))

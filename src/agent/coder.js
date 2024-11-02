@@ -1,6 +1,7 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
 import { checkSafe } from '../utils/safety.js';
 import settings from '../../settings.js';
+import {ESLint} from "eslint";
 
 export class Coder {
     constructor(agent) {
@@ -20,7 +21,31 @@ export class Coder {
 
         mkdirSync('.' + this.fp, { recursive: true });
     }
+    
+    async  checkCode(code) {
+        const eslint = new ESLint();
+        const results = await eslint.lintText(code);
+        const codeLines = code.split('\n');
+        let result = '#### CODE ERROR INFO ###\n';
+        const exceptions = results.map(r => r.messages).flat();
 
+        if (exceptions.length > 0) {
+            exceptions.forEach((exc, index) => {
+                if (exc.line && exc.column ) {
+                    const errorLine = codeLines[exc.line - 1]?.trim() || 'Unable to retrieve error line content';
+                    result += `#ERROR ${index + 1}\n`;
+                    result += `Message: ${exc.message}\n`;
+                    result += `Location: Line ${exc.line}, Column ${exc.column}\n`;
+                    result += `Related Code Line: ${errorLine}\n\n`;
+                }
+            });
+            result += 'The code contains exceptions and cannot continue execution.\n';
+        } else {
+            return null;//no error
+        }
+
+        return result ;
+    }
     // write custom code to file and import it
     async stageCode(code) {
         code = this.sanitizeCode(code);
@@ -48,12 +73,11 @@ export class Coder {
         this.file_counter++;
 
         let write_result = await this.writeFilePromise('.' + this.fp + filename, src)
-        
         if (write_result) {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-        return await import('../..' + this.fp + filename);
+        return {filename,src};
     }
 
     sanitizeCode(code) {
@@ -137,7 +161,14 @@ export class Coder {
                 continue;
             }
 
-            const execution_file = await this.stageCode(code);
+            let {filename,src} = await this.stageCode(code);
+            const analysisResult = await this.checkCode(src);
+            if (analysisResult) {
+                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
+                messages.push({ role: 'system', content: message });
+                continue;
+            }
+            const execution_file = await import('../..' +this.fp+filename);
             if (!execution_file) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
@@ -219,10 +250,11 @@ export class Coder {
             this.executing = false;
             clearTimeout(TIMEOUT);
             this.cancelResume();
-            console.error("Code execution triggered catch: " + err);
             await this.stop();
 
-            let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err;
+            err = err.toString();
+            let relevant_skill_docs = await this.agent.prompter.getRelevantSkillDocs(err,5);
+            let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err+'\n'+relevant_skill_docs;
             let interrupted = this.agent.bot.interrupt_code;
             this.clear();
             if (!interrupted && !this.generating) this.agent.bot.emit('idle');
