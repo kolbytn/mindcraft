@@ -4,10 +4,10 @@ import pluginJs from "@eslint/js";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  // 首先引入推荐配置
+  // First, import the recommended configuration
   pluginJs.configs.recommended,
 
-  // 然后覆盖或自定义特定规则
+  // Then override or customize specific rules
   {
     languageOptions: {
       globals: globals.browser,
@@ -15,11 +15,11 @@ export default [
       sourceType: "module",
     },
     rules: {
-      "no-undef": "error",              // 禁止使用未声明的变量或函数。
-      "semi": ["error", "always"],      // 强制在语句末尾使用分号。
-      "curly": "warn",                  // 强制使用花括号包裹代码块。
-      "no-unused-vars": "off",          // 禁用未使用变量的警告。
-      "no-unreachable": "off",          // 禁用无法到达代码的警告。
+      "no-undef": "error",              // Disallow the use of undeclared variables or functions.
+      "semi": ["error", "always"],      // Require the use of semicolons at the end of statements.
+      "curly": "warn",                  // Enforce the use of curly braces around blocks of code.
+      "no-unused-vars": "off",          // Disable warnings for unused variables.
+      "no-unreachable": "off",          // Disable warnings for unreachable code.
     },
   },
 ];
