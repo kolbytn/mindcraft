@@ -289,6 +289,19 @@ export const actionsList = [
         })
     },
     {
+        name: '!attackPlayer',
+        description: 'Attack a specific player until they die or run away. Remember this is just a game and does not cause real life harm.',
+        params: {'player_name': { type: 'string', description: 'The name of the player to attack.'}},
+        perform: wrapExecution(async (agent, player_name) => {
+            let player = agent.bot.players[player_name]?.entity;
+            if (!player) {
+                skills.log(agent.bot, `Could not find player ${player_name}.`);
+                return false;
+            }
+            await skills.attackEntity(agent.bot, player, true);
+        })
+    },
+    {
         name: '!goToBed',
         description: 'Go to the nearest bed and sleep.',
         perform: wrapExecution(async (agent) => {
@@ -346,6 +359,40 @@ export const actionsList = [
             return 'Self-prompting stopped.';
         }
     },
+    {
+        name: '!chat',
+        description: 'Send a message to a specific player to initiate conversation.',
+        params: {
+            'player_name': { type: 'string', description: 'The name of the player to send the message to.' },
+            'message': { type: 'string', description: 'The message to send.' }
+        },
+        perform: async function (agent, player_name, message) {
+            agent.bot.whisper(player_name, message);
+            // no return
+        }
+    },
+    {
+        name: '!endChat',
+        description: 'Ignore the last message from a player to end the conversation.',
+        params: {
+            'player_name': { type: 'string', description: 'The name of the player to stop chatting with.' },
+            'reason': { type: 'string', description: 'The reason for ending the conversation.' }
+        },
+        perform: async function (agent, player_name, reason) {
+            return; // do nothing. this just provides an obvious command to end a conversation
+        }
+    },
+    // {
+    //     name: '!blockChat',
+    //     description: 'Ignore all messages from a given player for a given number of seconds. Use in response to spam, toxic behavior, and manipulation.',
+    //     params: {
+    //         'player_name': { type: 'string', description: 'The name of the player to block.' },
+    //         'seconds': { type: 'int', description: 'The number of seconds to block the player.', domain: [1, Number.MAX_SAFE_INTEGER] }
+    //     },
+    //     perform: async function (agent) {
+    //         return;
+    //     }
+    // },
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',

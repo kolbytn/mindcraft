@@ -7,6 +7,7 @@ import { containsCommand, commandExists, executeCommand, truncCommandMessage, is
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
+import { isOtherAgent } from './communication.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
@@ -50,20 +51,24 @@ export class Agent {
                 "Set the weather to",
                 "Gamerule "
             ];
-            const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
-            this.bot.on(eventname, async (username, message) => {
+
+            const respondFunc = async (username, message) => {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 let translation = await handleEnglishTranslation(message);
 
-                console.log('received message from', username, ':', translation);
+                console.log(this.name, 'received message from', username, ':', translation);
 
                 this.shut_up = false;
     
                 this.handleMessage(username, translation);
-            });
+            };
+
+            this.bot.on('whisper', respondFunc);
+            if (settings.profiles.length === 1)
+                this.bot.on('chat', respondFunc);
 
             // set the bot to automatically eat food when hungry
             this.bot.autoEat.options = {
@@ -84,7 +89,6 @@ export class Agent {
             else {
                 const translation = await handleTranslation("Hello world! I am "+this.name);
                 this.bot.chat(translation);
-                this.bot.emit('finished_executing');
             }
 
             this.startEvents();
@@ -92,7 +96,7 @@ export class Agent {
     }
 
 
-    async cleanChat(message, translate_up_to=-1) {
+    async cleanChat(to_player, message, translate_up_to=-1) {
         let to_translate = message;
         let remainging = '';
         if (translate_up_to != -1) {
@@ -102,7 +106,11 @@ export class Agent {
         message = (await handleTranslation(to_translate)).trim() + " " + remainging;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
-        return this.bot.chat(message);
+
+        if (isOtherAgent(to_player) || to_player === 'system' || to_player === this.name) 
+            this.bot.chat(message);
+        else
+            this.bot.whisper(to_player, message);
     }
 
     shutUp() {
@@ -121,9 +129,10 @@ export class Agent {
             max_responses = Infinity;
         }
 
-        let self_prompt = source === 'system' || source === this.name;
+        const self_prompt = source === 'system' || source === this.name;
+        const other_agent_prompt = isOtherAgent(source);
 
-        if (!self_prompt) {
+        if (!self_prompt && !other_agent_prompt) {
             const user_command_name = containsCommand(message);
             if (user_command_name) {
                 if (!commandExists(user_command_name)) {
@@ -132,13 +141,13 @@ export class Agent {
                 }
                 this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
                 if (user_command_name === '!newAction') {
-                    // all user initiated commands are ignored by the bot except for this one
+                    // all user-initiated commands are ignored by the bot except for this one
                     // add the preceding message to the history to give context for newAction
                     this.history.add(source, message);
                 }
                 let execute_res = await executeCommand(this, message);
                 if (execute_res) 
-                    this.cleanChat(execute_res);
+                    this.cleanChat(source, execute_res);
                 return true;
             }
         }
@@ -155,8 +164,14 @@ export class Agent {
             await this.history.add('system', behavior_log);
         }
 
-        await this.history.add(source, message);
+        let tagged_message = message;
+        let response_compilation = '';
+        if (other_agent_prompt) {
+            tagged_message = "(FROM OTHER BOT)"+message;
+        }
+        await this.history.add(source, tagged_message);
         this.history.save();
+
 
         if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
@@ -171,13 +186,11 @@ export class Agent {
                 console.log(`Full response: ""${res}""`)
                 res = truncCommandMessage(res); // everything after the command is ignored
                 this.history.add(this.name, res);
+                response_compilation += res + '\n';
+                
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist.`);
                     console.warn('Agent hallucinated command:', command_name)
-                    continue;
-                }
-                if (command_name === '!stopSelfPrompt' && self_prompt) {
-                    this.history.add('system', `Cannot stopSelfPrompt unless requested by user.`);
                     continue;
                 }
 
@@ -185,14 +198,14 @@ export class Agent {
                 this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
                 if (settings.verbose_commands) {
-                    this.cleanChat(res, res.indexOf(command_name));
+                    this.cleanChat(source, res, res.indexOf(command_name));
                 }
                 else { // only output command name
                     let pre_message = res.substring(0, res.indexOf(command_name)).trim();
                     let chat_message = `*used ${command_name.substring(1)}*`;
                     if (pre_message.length > 0)
                         chat_message = `${pre_message}  ${chat_message}`;
-                    this.cleanChat(res);
+                    this.cleanChat(source, chat_message);
                 }
 
                 let execute_res = await executeCommand(this, res);
@@ -207,14 +220,19 @@ export class Agent {
             }
             else { // conversation response
                 this.history.add(this.name, res);
-                this.cleanChat(res);
+                response_compilation += res + '\n';
+                this.cleanChat(source, res);
                 console.log('Purely conversational response:', res);
                 break;
             }
+            
             this.history.save();
         }
 
-        this.bot.emit('finished_executing');
+        if (other_agent_prompt) {
+            response_compilation = response_compilation.replaceAll('\n', ' ');
+            this.bot.whisper(source, response_compilation.trim());
+        }
         return used_command;
     }
 
@@ -302,7 +320,7 @@ export class Agent {
     
     cleanKill(msg='Killing agent process...') {
         this.history.add('system', msg);
-        this.bot.chat('Goodbye world.')
+        this.bot.chat('Restarting.')
         this.history.save();
         process.exit(1);
     }
