@@ -1,6 +1,9 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-import { checkSafe } from '../utils/safety.js';
 import settings from '../../settings.js';
+import { makeCompartment } from './library/lockdown.js';
+import * as skills from './library/skills.js';
+import * as world from './library/world.js';
+import { Vec3 } from 'vec3';
 import {ESLint} from "eslint";
 
 export class Coder {
@@ -47,6 +50,7 @@ export class Coder {
         return result ;
     }
     // write custom code to file and import it
+    // write custom code to file and prepare for evaluation
     async stageCode(code) {
         code = this.sanitizeCode(code);
         let src = '';
@@ -71,13 +75,25 @@ export class Coder {
         //     });
         // } commented for now, useful to keep files for debugging
         this.file_counter++;
-
-        let write_result = await this.writeFilePromise('.' + this.fp + filename, src)
+        
+        let write_result = await this.writeFilePromise('.' + this.fp + filename, src);
+        // This is where we determine the environment the agent's code should be exposed to.
+        // It will only have access to these things, (in addition to basic javascript objects like Array, Object, etc.)
+        // Note that the code may be able to modify the exposed objects.
+        const compartment = makeCompartment({
+            skills,
+            log: skills.log,
+            world,
+            Vec3,
+        });
+        const mainFn = compartment.evaluate(src);
+        
         if (write_result) {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-        return {filename,src};
+
+        return [ main: mainFn ,src];
     }
 
     sanitizeCode(code) {
@@ -154,28 +170,23 @@ export class Coder {
             }
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
-            if (!checkSafe(code)) {
-                console.warn(`Detected insecure generated code, not executing. Insecure code: \n\`${code}\``);
-                const message = 'Error: Code insecurity detected. Do not import, read/write files, execute dynamic code, or access the internet. Please try again:';
-                messages.push({ role: 'system', content: message });
-                continue;
-            }
-
-            let {filename,src} = await this.stageCode(code);
-            const analysisResult = await this.checkCode(src);
-            if (analysisResult) {
-                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
-                messages.push({ role: 'system', content: message });
-                continue;
-            }
-            const execution_file = await import('../..' +this.fp+filename);
-            if (!execution_file) {
+            let codeStagingResult,src;
+            try {
+                [codeStagingResult,src] = await this.stageCode(code);
+                const analysisResult = await this.checkCode(src);
+                if (analysisResult) {
+                    const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
+                    messages.push({ role: 'system', content: message });
+                    continue;
+                }
+            } catch (err) {
+                console.error('Error staging code:', err);
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
             
             code_return = await this.execute(async ()=>{
-                return await execution_file.main(this.agent.bot);
+                return await codeStagingResult.main(this.agent.bot);
             }, settings.code_timeout_mins);
             if (code_return.interrupted && !code_return.timedout)
                 return {success: false, message: null, interrupted: true, timedout: false};
@@ -250,6 +261,7 @@ export class Coder {
             this.executing = false;
             clearTimeout(TIMEOUT);
             this.cancelResume();
+            console.error("Code execution triggered catch: " + err);
             await this.stop();
 
             err = err.toString();
