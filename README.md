@@ -2,7 +2,10 @@
 
 Crafting minds for Minecraft with LLMs and Mineflayer!
 
-[Join the discord for support!](https://discord.gg/ZsrAAByEnr)
+[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md)
+
+[Discord Support](https://discord.gg/ZsrAAByEnr) 
+
 
 #### ‼️Warning‼️
 
@@ -27,6 +30,8 @@ This project allows an LLM to write/execute code on your computer. While the cod
 5. Start a minecraft world and open it to LAN on localhost port `55916`
 
 6. Run `node main.js` from the installed directory
+
+If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/ZsrAAByEnr). We are currently not very responsive to github issues.
 
 ## Customization
 
@@ -58,6 +63,8 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 // rest is same...
 ```
 ‼️ The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
+
+To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
 
 ### Docker Container
 
