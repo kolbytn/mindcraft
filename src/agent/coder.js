@@ -14,6 +14,7 @@ export class Coder {
         this.executing = false;
         this.generating = false;
         this.code_template = '';
+        this.code_chack_template = '';
         this.timedout = false;
         this.cur_action_name = '';
 
@@ -21,7 +22,10 @@ export class Coder {
             if (err) throw err;
             this.code_template = data;
         });
-
+        readFile('./bots/codeChackTemplate.js', 'utf8', (err, data) => {
+            if (err) throw err;
+            this.code_chack_template = data;
+        });
         mkdirSync('.' + this.fp, { recursive: true });
     }
     
@@ -64,6 +68,7 @@ export class Coder {
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
+        let src_check_copy = this.code_chack_template.replace('/* CODE HERE */', src);
         src = this.code_template.replace('/* CODE HERE */', src);
 
         let filename = this.file_counter + '.js';
@@ -92,8 +97,7 @@ export class Coder {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-
-        return [ main: mainFn ,src];
+        return { func:{main: mainFn}, src_check_copy: src_check_copy };
     }
 
     sanitizeCode(code) {
@@ -170,10 +174,12 @@ export class Coder {
             }
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
-            let codeStagingResult,src;
+            let codeStagingResult,src_check_copy;
             try {
-                [codeStagingResult,src] = await this.stageCode(code);
-                const analysisResult = await this.checkCode(src);
+                const result = await this.stageCode(code);
+                codeStagingResult = result.func;
+                src_check_copy = result.src_check_copy;
+                const analysisResult = await this.checkCode(src_check_copy);
                 if (analysisResult) {
                     const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
                     messages.push({ role: 'system', content: message });
