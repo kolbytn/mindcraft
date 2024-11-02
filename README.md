@@ -46,9 +46,29 @@ You can configure the agent's name, model, and prompts in their profile like `an
 
 You can configure project details in `settings.js`. [See file for more details](settings.js)
 
+### Run in docker to reduce some of the risks
+
+If you intent to `allow_insecure_coding`, it might be a good idea to put the whole app into a docker container to reduce risks of running unknown code.
+
+```bash
+docker run -i -t --rm -v $(pwd):/app -w /app -p 3000-3003:3000-3003 node:latest node main.js
+```
+or simply
+```bash
+docker-compose up
+```
+
+When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address `host.docker.internal` to call your localhost from inside your docker container. Put this into your [settings.js](settings.js):
+
+```javascript
+"host": "host.docker.internal", // instead of "localhost", to join your local minecraft from inside the docker container
+```
+
+To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
+
 ### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect with it. Here are example settings for this:
-```
+```javascript
 "host": "111.222.333.444",
 "port": 55920,
 "auth": "microsoft",
@@ -69,13 +89,15 @@ Bot profiles are json files (such as `andy.json`) that define:
 
 By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument:
 
-`node main.js --profiles ./profiles/andy.json ./profiles/jill.json`
+```bash
+node main.js --profiles ./profiles/andy.json ./profiles/jill.json
+```
 
 ### Model Specifications
 
 LLM backends can be specified as simply as `"model": "gpt-3.5-turbo"`. However, for both the chat model and the embedding model, the bot profile can specify the below attributes:
 
-```
+```json
 "model": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
@@ -94,15 +116,15 @@ If the embedding field is not specified, then it will use the default embedding 
 
 Thus, all the below specifications are equivalent to the above example:
 
-```
+```json
 "model": "gpt-3.5-turbo"
 ```
-```
+```json
 "model": {
   "api": "openai"
 }
 ```
-```
+```json
 "model": "gpt-3.5-turbo",
 "embedding": "openai"
 ```
