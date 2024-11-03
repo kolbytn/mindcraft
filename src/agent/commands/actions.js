@@ -306,9 +306,8 @@ export const actionsList = [
     {
         name: '!stay',
         description: 'Stay in the current location no matter what. Pauses all modes.',
-        params: {'type': { type: 'int', description: 'The number of seconds to stay. -1 for forever.', domain: [-1, Number.MAX_SAFE_INTEGER] }},
-        perform: wrapExecution(async (agent, seconds) => {
-            await skills.stay(agent.bot, seconds);
+        perform: wrapExecution(async (agent) => {
+            await skills.stay(agent.bot);
         })
     },
     {
@@ -338,6 +337,34 @@ export const actionsList = [
             agent.self_prompter.start(prompt); // don't await, don't return
         }
     },
+    {
+        name: '!showVillagers',
+        description: 'Show all villagers nearby.',
+        perform: wrapExecution(async (agent) => {
+            return await skills.showVillagers(agent.bot);
+        })
+    },
+    {
+        name: '!showTrades',
+        description: 'Show trades of a specified villager.',
+        params: {'id': { type: 'string', description: 'The id number of the villager that you want to trade with.' }},
+        perform: wrapExecution(async (agent, id) => {
+            await skills.showTrades(agent.bot, id);
+        })
+    },
+    {
+        name: '!trade',
+        description: 'trade with a specified villager.',
+        params: {
+            'id': { type: 'string', description: 'The id number of the villager that you want to trade with.' },
+            'index': { type: 'string', description: 'The index of the trade you want executed.' },
+            'count': { type: 'string', description: 'How many times that trade should be executed.' },
+            },
+        perform: wrapExecution(async (agent, id, index, count) => {
+            await skills.trade(agent.bot, id, index, count);
+        })
+    },
+
     {
         name: '!endGoal',
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
