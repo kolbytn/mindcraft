@@ -4,7 +4,7 @@ import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
-import { TaskManager } from './tasks.js';
+import { ActionManager } from './actions.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
@@ -14,7 +14,7 @@ import settings from '../../settings.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
-        this.tasks = new TaskManager(this);
+        this.actions = new ActionManager(this);
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
         this.history = new History(this);
@@ -263,8 +263,8 @@ export class Agent {
             this.cleanKill('Bot disconnected! Killing agent process.');
         });
         this.bot.on('death', () => {
-            this.tasks.cancelResume();
-            this.tasks.stop();
+            this.actions.cancelResume();
+            this.actions.stop();
         });
         this.bot.on('kicked', (reason) => {
             console.warn('Bot kicked!', reason);
@@ -280,7 +280,7 @@ export class Agent {
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
-            this.tasks.resumeTask();
+            this.actions.resumeAction();
         });
 
         // Init NPC controller
@@ -310,7 +310,7 @@ export class Agent {
     }
 
     isIdle() {
-        return !this.tasks.executing && !this.coder.generating;
+        return !this.actions.executing && !this.coder.generating;
     }
     
     cleanKill(msg='Killing agent process...') {
