@@ -1185,25 +1185,6 @@ export async function goToBed(bot) {
     return true;
 }
 
-export async function goToDeath(bot, agent) {
-    /**
-     * Navigate to the last death point.
-     * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {Agent} agent, reference to the agent.
-     * @returns {Promise<boolean>} true if the death point was found, false otherwise.
-     * @example
-     * await skills.goToDeath(bot);
-     **/            
-    let death_pos = await agent.memory_bank.recallPlace('last death position')[0]; // <- dont even ask why this is an array
-    if (death_pos) {
-        await goToPosition(bot, death_pos.x, death_pos.y, death_pos.z);
-        log(bot, `You have reached the death point.`);
-        return true;
-    }
-    log(bot, `Could not find the death point.`);
-    return false;
-}
-
 export async function tillAndSow(bot, x, y, z, seedType=null) {
     /**
      * Till the ground at the given position and plant the given seed type.
