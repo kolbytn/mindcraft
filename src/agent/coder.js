@@ -94,7 +94,7 @@ export class Coder {
 
     async generateCode(agent_history) {
         // wrapper to prevent overlapping code generation loops
-        await this.agent.tasks.stop();
+        await this.agent.actions.stop();
         this.generating = true;
         let res = await this.generateCodeLoop(agent_history);
         this.generating = false;
@@ -154,7 +154,7 @@ export class Coder {
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
             
-            code_return = await this.agent.tasks.runTask('newAction', async () => {
+            code_return = await this.agent.actions.runAction('newAction', async () => {
                 return await executionModuleExports.main(this.agent.bot);
             }, { timeout: settings.code_timeout_mins });
             if (code_return.interrupted && !code_return.timedout)

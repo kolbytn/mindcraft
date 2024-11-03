@@ -1,23 +1,23 @@
-export class TaskManager {
+export class ActionManager {
     constructor(agent) {
         this.agent = agent;
         this.executing = false;
-        this.currentTaskLabel = '';
-        this.currentTaskFn = null;
+        this.currentActionLabel = '';
+        this.currentActionFn = null;
         this.timedout = false;
         this.resume_func = null;
         this.resume_name = '';
     }
 
-    async resumeTask(taskFn, timeout) {
-        return this._executeResume(taskFn, timeout);
+    async resumeAction(actionFn, timeout) {
+        return this._executeResume(actionFn, timeout);
     }
 
-    async runTask(taskLabel, taskFn, { timeout, resume = false } = {}) {
+    async runAction(actionLabel, actionFn, { timeout, resume = false } = {}) {
         if (resume) {
-            return this._executeResume(taskFn, timeout);
+            return this._executeResume(actionFn, timeout);
         } else {
-            return this._executeTask(taskLabel, taskFn, timeout);
+            return this._executeAction(actionLabel, actionFn, timeout);
         }
     }
 
@@ -40,31 +40,31 @@ export class TaskManager {
         this.resume_name = null;
     }
 
-    async _executeResume(taskFn = null, timeout = 10) {
-        const new_resume = taskFn != null;
+    async _executeResume(actionFn = null, timeout = 10) {
+        const new_resume = actionFn != null;
         if (new_resume) { // start new resume
-            this.resume_func = taskFn;
-            this.resume_name = this.currentTaskLabel;
+            this.resume_func = actionFn;
+            this.resume_name = this.currentActionLabel;
         }
         if (this.resume_func != null && this.agent.isIdle() && (!this.agent.self_prompter.on || new_resume)) {
-            this.currentTaskLabel = this.resume_name;
-            let res = await this._executeTask(this.resume_name, this.resume_func, timeout);
-            this.currentTaskLabel = '';
+            this.currentActionLabel = this.resume_name;
+            let res = await this._executeAction(this.resume_name, this.resume_func, timeout);
+            this.currentActionLabel = '';
             return res;
         } else {
             return { success: false, message: null, interrupted: false, timedout: false };
         }
     }
 
-    async _executeTask(taskLabel, taskFn, timeout = 10) {
+    async _executeAction(actionLabel, actionFn, timeout = 10) {
         let TIMEOUT;
         try {
             console.log('executing code...\n');
 
-            // await current task to finish (executing=false), with 10 seconds timeout
+            // await current action to finish (executing=false), with 10 seconds timeout
             // also tell agent.bot to stop various actions
             if (this.executing) {
-                console.log(`new task "${taskLabel}" trying to interrupt current task "${this.currentTaskLabel}"`);
+                console.log(`new action "${actionLabel}" trying to interrupt current action "${this.currentActionLabel}"`);
             }
             await this.stop();
 
@@ -72,21 +72,21 @@ export class TaskManager {
             this.agent.clearBotLogs();
 
             this.executing = true;
-            this.currentTaskLabel = taskLabel;
-            this.currentTaskFn = taskFn;
+            this.currentActionLabel = actionLabel;
+            this.currentActionFn = actionFn;
 
             // timeout in minutes
             if (timeout > 0) {
                 TIMEOUT = this._startTimeout(timeout);
             }
 
-            // start the task
-            await taskFn();
+            // start the action
+            await actionFn();
 
-            // mark task as finished + cleanup
+            // mark action as finished + cleanup
             this.executing = false;
-            this.currentTaskLabel = '';
-            this.currentTaskFn = null;
+            this.currentActionLabel = '';
+            this.currentActionFn = null;
             clearTimeout(TIMEOUT);
 
             // get bot activity summary
@@ -100,12 +100,12 @@ export class TaskManager {
                 this.agent.bot.emit('idle');
             }
 
-            // return task status report
+            // return action status report
             return { success: true, message: output, interrupted, timedout };
         } catch (err) {
             this.executing = false;
-            this.currentTaskLabel = '';
-            this.currentTaskFn = null;
+            this.currentActionLabel = '';
+            this.currentActionFn = null;
             clearTimeout(TIMEOUT);
             this.cancelResume();
             console.error("Code execution triggered catch: " + err);

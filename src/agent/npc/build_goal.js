@@ -13,7 +13,7 @@ export class BuildGoal {
     async wrapSkill(func) {
         if (!this.agent.isIdle())
             return false;
-        let res = await this.agent.tasks.runTask('BuildGoal', func);
+        let res = await this.agent.actions.runAction('BuildGoal', func);
         return !res.interrupted;
     }
 
