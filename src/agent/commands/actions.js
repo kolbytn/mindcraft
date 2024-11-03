@@ -296,14 +296,6 @@ export const actionsList = [
         })
     },
     {
-        name: "!goToDeath",
-        description: "Go to the location of your bot's last death position and retrieve any lost items.",
-        perform: wrapExecution(async (agent) => {
-            await skills.goToDeath(agent.bot, agent);
-            await skills.pickupNearbyItems(agent.bot);
-        })
-    },
-    {
         name: '!activate',
         description: 'Activate the nearest object of a given type.',
         params: {'type': { type: 'BlockName', description: 'The type of object to activate.' }},
