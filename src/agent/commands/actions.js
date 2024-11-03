@@ -1,12 +1,12 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 
-function runAsAction (taskLabel, actionFn, resume = false, timeout = -1) {
+function runAsAction (actionLabel, actionFn, resume = false, timeout = -1) {
     return async function (agent, ...args) {
         const actionFnWithAgent = async () => {
             await actionFn(agent, ...args);
         };
-        const code_return = await agent.actions.runAction(`action:${taskLabel}`, actionFnWithAgent, { timeout, resume });
+        const code_return = await agent.actions.runAction(`action:${actionLabel}`, actionFnWithAgent, { timeout, resume });
         if (code_return.interrupted && !code_return.timedout)
             return;
         return code_return.message;
@@ -224,7 +224,7 @@ export const actionsList = [
         perform: runAsAction('collectAllBlocks', async (agent, type) => {
             let success = await skills.collectBlock(agent.bot, type, 1);
             if (!success)
-            agent.tasks.cancelResume();
+            agent.actions.cancelResume();
         }, true, 3) // 3 minute timeout
     },
     {
