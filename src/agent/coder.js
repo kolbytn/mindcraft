@@ -27,10 +27,28 @@ export class Coder {
     }
     
     async  checkCode(code) {
+        let result = '#### CODE ERROR INFO ###\n';
+        // Extract everything in the code between the beginning of 'skills./world.' and the '('
+        const skillRegex = /(?:skills|world)\.(.*?)\(/g;
+        const skills = [];
+        let match;
+        while ((match = skillRegex.exec(code)) !== null) {
+            skills.push(match[1]);
+        }
+        const allDocs = await this.agent.prompter.getRelevantSkillDocs();
+        //Check if the function exists
+        const missingSkills = skills.filter(skill => !allDocs.includes(skill));
+        if (missingSkills.length > 0) {
+            result += 'These functions do not exist. Please modify the correct function name and try again.\n';
+            result += '### FUNCTIONS NOT FOUND ###\n';
+            result += missingSkills.join('\n');
+            console.log(result)
+            return result;
+        }
+
         const eslint = new ESLint();
         const results = await eslint.lintText(code);
         const codeLines = code.split('\n');
-        let result = '#### CODE ERROR INFO ###\n';
         const exceptions = results.map(r => r.messages).flat();
 
         if (exceptions.length > 0) {
@@ -40,10 +58,10 @@ export class Coder {
                     result += `#ERROR ${index + 1}\n`;
                     result += `Message: ${exc.message}\n`;
                     result += `Location: Line ${exc.line}, Column ${exc.column}\n`;
-                    result += `Related Code Line: ${errorLine}\n\n`;
+                    result += `Related Code Line: ${errorLine}\n`;
                 }
             });
-            result += 'The code contains exceptions and cannot continue execution.\n';
+            result += 'The code contains exceptions and cannot continue execution.';
         } else {
             return null;//no error
         }
@@ -172,14 +190,14 @@ export class Coder {
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
             const result = await this.stageCode(code);
             const executionModuleExports = result.func;
+            let src_check_copy = result.src_check_copy;
+            const analysisResult = await this.checkCode(src_check_copy);
+            if (analysisResult) {
+                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
+                messages.push({ role: 'system', content: message });
+                continue;
+            }
             if (!executionModuleExports) {
-                let src_check_copy = result.src_check_copy;
-                const analysisResult = await this.checkCode(src_check_copy);
-                if (analysisResult) {
-                    const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
-                    messages.push({ role: 'system', content: message });
-                    continue;
-                }
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
@@ -189,10 +207,10 @@ export class Coder {
             }, { timeout: settings.code_timeout_mins });
             if (code_return.interrupted && !code_return.timedout)
                 return { success: false, message: null, interrupted: true, timedout: false };
-            console.log("Code generation result:", code_return.success, code_return.message);
+            console.log("Code generation result:", code_return.success, code_return.message.toString());
 
             if (code_return.success) {
-                const summary = "Summary of newAction\nAgent wrote this code: \n```" + this.sanitizeCode(code) + "```\nCode Output:\n" + code_return.message;
+                const summary = "Summary of newAction\nAgent wrote this code: \n```" + this.sanitizeCode(code) + "```\nCode Output:\n" + code_return.message.toString();
                 return { success: true, message: summary, interrupted: false, timedout: false };
             }
 
@@ -207,8 +225,4 @@ export class Coder {
         }
         return { success: false, message: null, interrupted: false, timedout: true };
     }
-//err = err.toString();
-//             let relevant_skill_docs = await this.agent.prompter.getRelevantSkillDocs(err,5);
-//             let message = this.formatOutput(this.agent.bot) + '!!Code threw exception!!  Error: ' + err+'\n'+relevant_skill_docs;
-//
 }

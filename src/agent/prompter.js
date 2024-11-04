@@ -133,7 +133,9 @@ export class Prompter {
     }
 
     async getRelevantSkillDocs(message, select_num) {
-        let latest_message_embedding = await this.embedding_model.embed(message);
+        let latest_message_embedding = '';
+        if(message) //message is not empty, get the relevant skill docs, else return all skill docs
+            latest_message_embedding = await this.embedding_model.embed(message);
 
         let skill_doc_similarities = Object.keys(this.skill_docs_embeddings)
             .map(doc_key => ({
@@ -149,8 +151,9 @@ export class Prompter {
             select_num = Math.min(Math.floor(select_num), length);
         }
         let selected_docs = skill_doc_similarities.slice(0, select_num);
-        let relevant_skill_docs = '####RELEVENT DOCS INFO###\nThe following functions are listed in descending order of relevance.\nSkillDocs:\n';
-        relevant_skill_docs += selected_docs.map(doc => `${doc.doc_key}`).join('\n');
+        let relevant_skill_docs = '#### RELEVENT DOCS INFO ###\nThe following functions are listed in descending order of relevance.\n';
+        relevant_skill_docs += 'SkillDocs:\n'
+        relevant_skill_docs += '###'+ selected_docs.map(doc => `${doc.doc_key}`).join('\n');
         return relevant_skill_docs;
     }
 
