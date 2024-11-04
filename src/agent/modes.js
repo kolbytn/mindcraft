@@ -120,7 +120,7 @@ const modes = [
         update: async function (agent) {
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
-                say(agent, `Aaa! A ${enemy.name}!`);
+                say(agent, `Aaa! A ${enemy.name.replace("_", " ")}!`);
                 execute(this, agent, async () => {
                     await skills.avoidEnemies(agent.bot, 24);
                 });
@@ -162,7 +162,7 @@ const modes = [
     {
         name: 'item_collecting',
         description: 'Collect nearby items when idle.',
-        interrupts: ['followPlayer'],
+        interrupts: ['action:followPlayer'],
         on: true,
         active: false,
 
@@ -193,7 +193,7 @@ const modes = [
     {
         name: 'torch_placing',
         description: 'Place torches when idle and there are no torches nearby.',
-        interrupts: ['followPlayer'],
+        interrupts: ['action:followPlayer'],
         on: true,
         active: false,
         cooldown: 5,
@@ -260,9 +260,9 @@ async function execute(mode, agent, func, timeout=-1) {
     if (agent.self_prompter.on)
         agent.self_prompter.stopLoop();
     mode.active = true;
-    let code_return = await agent.coder.execute(async () => {
+    let code_return = await agent.actions.runAction(`mode:${mode.name}`, async () => {
         await func();
-    }, timeout);
+    }, { timeout });
     mode.active = false;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
 }
@@ -328,7 +328,7 @@ class ModeController {
             this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.coder.cur_action_name);
+            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.actions.currentActionLabel);
             if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
                 await mode.update(this.agent);
             }

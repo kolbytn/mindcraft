@@ -6,3 +6,9 @@ scratch.js
 bots/**/action-code/**
 bots/**/
 keys.json
+services/viaproxy/jars/**
+services/viaproxy/logs/**
+services/viaproxy/plugins/**
+services/viaproxy/ViaLoader/**
+services/viaproxy/saves.json
+services/viaproxy/viaproxy.yml
