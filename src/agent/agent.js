@@ -4,7 +4,7 @@ import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
-import { ActionManager } from './actions.js';
+import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
@@ -93,7 +93,7 @@ export class Agent {
         });
     }
 
-    interruptBot() {
+    requestInterrupt() {
         this.bot.interrupt_code = true;
         this.bot.collectBlock.cancelTask();
         this.bot.pathfinder.stop();

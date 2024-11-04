@@ -15,7 +15,7 @@ export class ActionManager {
 
     async runAction(actionLabel, actionFn, { timeout, resume = false } = {}) {
         if (resume) {
-            return this._executeResume(actionFn, timeout);
+            return this._executeResume(actionLabel, actionFn, timeout);
         } else {
             return this._executeAction(actionLabel, actionFn, timeout);
         }
@@ -23,28 +23,28 @@ export class ActionManager {
 
     async stop() {
         if (!this.executing) return;
-        console.trace();
-        const start = Date.now();
+        const timeout = setTimeout(() => {
+            this.agent.cleanKill('Code execution refused stop after 10 seconds. Killing process.');
+        }, 10000);
         while (this.executing) {
-            this.agent.interruptBot();
+            this.agent.requestInterrupt();
             console.log('waiting for code to finish executing...');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            if (Date.now() - start > 10 * 1000) {
-                this.agent.cleanKill('Code execution refused stop after 10 seconds. Killing process.');
-            }
+            await new Promise(resolve => setTimeout(resolve, 300));
         }
-    }
+        clearTimeout(timeout);
+    } 
 
     cancelResume() {
         this.resume_func = null;
         this.resume_name = null;
     }
 
-    async _executeResume(actionFn = null, timeout = 10) {
+    async _executeResume(actionLabel = null, actionFn = null, timeout = 10) {
         const new_resume = actionFn != null;
         if (new_resume) { // start new resume
             this.resume_func = actionFn;
-            this.resume_name = this.currentActionLabel;
+            assert(actionLabel != null, 'actionLabel is required for new resume');
+            this.resume_name = actionLabel;
         }
         if (this.resume_func != null && this.agent.isIdle() && (!this.agent.self_prompter.on || new_resume)) {
             this.currentActionLabel = this.resume_name;
@@ -64,7 +64,7 @@ export class ActionManager {
             // await current action to finish (executing=false), with 10 seconds timeout
             // also tell agent.bot to stop various actions
             if (this.executing) {
-                console.log(`new action "${actionLabel}" trying to interrupt current action "${this.currentActionLabel}"`);
+                console.log(`action "${actionLabel}" trying to interrupt current action "${this.currentActionLabel}"`);
             }
             await this.stop();
 

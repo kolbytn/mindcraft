@@ -162,7 +162,7 @@ const modes = [
     {
         name: 'item_collecting',
         description: 'Collect nearby items when idle.',
-        interrupts: ['followPlayer'],
+        interrupts: ['action:followPlayer'],
         on: true,
         active: false,
 
@@ -193,7 +193,7 @@ const modes = [
     {
         name: 'torch_placing',
         description: 'Place torches when idle and there are no torches nearby.',
-        interrupts: ['followPlayer'],
+        interrupts: ['action:followPlayer'],
         on: true,
         active: false,
         cooldown: 5,
@@ -328,7 +328,7 @@ class ModeController {
             this.unPauseAll();
         }
         for (let mode of this.modes_list) {
-            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => `action:${i}` === this.agent.actions.currentActionLabel);
+            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.actions.currentActionLabel);
             if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
                 await mode.update(this.agent);
             }
