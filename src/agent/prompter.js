@@ -8,6 +8,7 @@ import { getCommand } from './commands/index.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { Mistral } from '../models/mistral.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
 import { GroqCloudAPI } from '../models/groq.js';
@@ -40,8 +41,10 @@ export class Prompter {
                 chat.api = 'anthropic';
             else if (chat.model.includes('huggingface/'))
                 chat.api = "huggingface";
-            else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
+            else if (chat.model.includes('meta/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
+            else if (chat.model.includes('mistralai/') || chat.model.includes("mistral/"))
+                chat.api = 'mistral';
             else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
                 chat.api = 'groq';
             else if (chat.model.includes('qwen'))
@@ -62,6 +65,8 @@ export class Prompter {
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api === 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api === 'mistral')
+            this.chat_model = new Mistral(chat.model, chat.url);
         else if (chat.api === 'groq') {
             this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
         }
@@ -94,6 +99,8 @@ export class Prompter {
             this.embedding_model = new Local(embedding.model, embedding.url);
         else if (embedding.api === 'qwen')
             this.embedding_model = new Qwen(embedding.model, embedding.url);
+        else if (embedding.api === 'mistral')
+            this.embedding_model = new Mistral(embedding.model, embedding.url);
         else {
             this.embedding_model = null;
             console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
