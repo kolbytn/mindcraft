@@ -141,13 +141,6 @@ export class Coder {
             }
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
 
-            if (!checkSafe(code)) {
-                console.warn(`Detected insecure generated code, not executing. Insecure code: \n\`${code}\``);
-                const message = 'Error: Code insecurity detected. Do not import, read/write files, execute dynamic code, or access the internet. Please try again:';
-                messages.push({ role: 'system', content: message });
-                continue;
-            }
-
             const executionModuleExports = await this.stageCode(code);
             if (!executionModuleExports) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
