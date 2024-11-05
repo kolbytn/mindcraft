@@ -179,9 +179,9 @@ export function getCraftableItems(bot) {
      * @example
      * let craftableItems = world.getCraftableItems(bot);
      **/
-    let table = world.getNearestBlock(this.agent.bot, 'crafting_table');
+    let table = getNearestBlock(bot, 'crafting_table');
     if (!table) {
-        for (const item of this.agent.bot.inventory.items()) {
+        for (const item of bot.inventory.items()) {
             if (item != null && item.name === 'crafting_table') {
                 table = item;
                 break;
@@ -190,7 +190,7 @@ export function getCraftableItems(bot) {
     }
     let res = [];
     for (const item of mc.getAllItems()) {
-        let recipes = this.agent.bot.recipesFor(item.id, null, 1, table);
+        let recipes = bot.recipesFor(item.id, null, 1, table);
         if (recipes.length > 0)
             res.push(item.name);
     }
