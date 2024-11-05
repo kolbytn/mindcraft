@@ -25,7 +25,7 @@ export class Agent {
 
         await this.prompter.initExamples();
 
-        console.log('Logging in...');
+        console.log('Logging into minecraft...');
         this.bot = initBot(this.name);
 
         initModes(this);
@@ -34,6 +34,10 @@ export class Agent {
         if (load_mem) {
             save_data = this.history.load();
         }
+
+        this.bot.on('login', () => {
+            console.log('Logged in!');
+        });
 
         this.bot.once('spawn', async () => {
             addViewer(this.bot, count_id);
