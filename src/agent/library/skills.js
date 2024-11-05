@@ -43,6 +43,11 @@ export async function craftRecipe(bot, itemName, num=1) {
      **/
     let placedTable = false;
 
+    if (mc.getItemCraftingRecipes(itemName).length == 0) {
+        log(bot, `${itemName} is either not an item, or it does not have a crafting recipe!`);
+        return false;
+    }
+
     // get recipes that don't require a crafting table
     let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
     let craftingTable = null;
@@ -76,7 +81,7 @@ export async function craftRecipe(bot, itemName, num=1) {
         }
     }
     if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft a ${itemName}.`);
+        log(bot, `You do not have the resources to craft a ${itemName}. It requires: ${Object.entries(mc.getItemCraftingRecipes(itemName)[0]).map(([key, value]) => `${key}: ${value}`).join(', ')}.`);
         if (placedTable) {
             await collectBlock(bot, 'crafting_table', 1);
         }
