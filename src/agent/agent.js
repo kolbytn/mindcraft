@@ -56,10 +56,6 @@ export class Agent {
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                let translation = await handleEnglishTranslation(message);
-
-                console.log('received message from', username, ':', translation);
-
                 this.shut_up = false;
     
                 this.handleMessage(username, translation);
@@ -123,6 +119,7 @@ export class Agent {
 
         let self_prompt = source === 'system' || source === this.name;
 
+        // First check for user commands
         if (!self_prompt) {
             const user_command_name = containsCommand(message);
             if (user_command_name) {
@@ -143,6 +140,11 @@ export class Agent {
             }
         }
 
+        // Now translate the message
+        message = await handleEnglishTranslation(message);
+        console.log('received message from', source, ':', message);
+
+        // Do self prompting
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
 
         let behavior_log = this.bot.modes.flushBehaviorLog();
@@ -155,6 +157,7 @@ export class Agent {
             await this.history.add('system', behavior_log);
         }
 
+        // Handle other user messages
         await this.history.add(source, message);
         this.history.save();
 
