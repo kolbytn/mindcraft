@@ -35,6 +35,11 @@ export class Agent {
             save_data = this.history.load();
         }
 
+        this.bot.on('login', () => {
+            console.log('Logged in!');
+            process.exit(0);
+        });
+
         this.bot.once('spawn', async () => {
             addViewer(this.bot, count_id);
 
