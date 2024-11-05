@@ -18,6 +18,7 @@
         "prismarine-item": "^1.15.0",
         "prismarine-viewer": "^1.28.0",
         "replicate": "^0.29.4",
+        "ses": "^1.9.1",
         "vec3": "^0.1.10",
         "yargs": "^17.7.2"
     },
