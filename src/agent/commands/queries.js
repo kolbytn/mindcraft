@@ -1,6 +1,6 @@
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
-
+import { isOtherAgent } from '../conversation.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
@@ -127,9 +127,21 @@ export const queryList = [
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'NEARBY_ENTITIES';
-            for (const entity of world.getNearbyPlayerNames(bot)) {
-                res += `\n- player: ${entity}`;
+            let players = world.getNearbyPlayerNames(bot);
+            let bots = [];
+            for (const player of players) {
+                if (isOtherAgent(player))
+                    bots.push(player);
             }
+            players = players.filter(p => !isOtherAgent(p));
+
+            for (const player of players) {
+                res += `\n- human player: ${player}`;
+            }
+            for (const bot of bots) {
+                res += `\n- bot player: ${bot}`;
+            }
+
             for (const entity of world.getNearbyEntityTypes(bot)) {
                 if (entity === 'player' || entity === 'item')
                     continue;

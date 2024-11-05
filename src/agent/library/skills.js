@@ -891,14 +891,18 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
      * await skills.giveToPlayer(bot, "oak_log", "player1");
      **/
     let player = bot.players[username].entity
-    if (!player){
+    if (!player) {
         log(bot, `Could not find ${username}.`);
         return false;
     }
     await goToPlayer(bot, username);
     await bot.lookAt(player.position);
-    discard(bot, itemType, num);
-    return true;
+    if (await discard(bot, itemType, num)) {
+        log(bot, `${num} ${itemType} has been given to ${username}.`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return true;
+    }
+    return false;
 }
 
 

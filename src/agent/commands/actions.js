@@ -1,5 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
+import { startChat, endChat } from '../conversation.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -294,7 +295,7 @@ export const actionsList = [
         name: '!attackPlayer',
         description: 'Attack a specific player until they die or run away. Remember this is just a game and does not cause real life harm.',
         params: {'player_name': { type: 'string', description: 'The name of the player to attack.'}},
-        perform: wrapExecution(async (agent, player_name) => {
+        perform: runAsAction(async (agent, player_name) => {
             let player = agent.bot.players[player_name]?.entity;
             if (!player) {
                 skills.log(agent.bot, `Could not find player ${player_name}.`);
@@ -362,26 +363,25 @@ export const actionsList = [
         }
     },
     {
-        name: '!chat',
+        name: '!startChat',
         description: 'Send a message to a specific player to initiate conversation.',
         params: {
             'player_name': { type: 'string', description: 'The name of the player to send the message to.' },
-            'message': { type: 'string', description: 'The message to send.' }
+            'message': { type: 'string', description: 'The message to send.' },
+            'max_turns': { type: 'int', description: 'The maximum number of turns to allow in the conversation. -1 for unlimited.', domain: [-1, Number.MAX_SAFE_INTEGER] }
         },
-        perform: async function (agent, player_name, message) {
-            agent.bot.whisper(player_name, message);
-            // no return
+        perform: async function (agent, player_name, message, max_turns) {
+            startChat(player_name, message, max_turns);
         }
     },
     {
         name: '!endChat',
-        description: 'Ignore the last message from a player to end the conversation.',
+        description: 'End the conversation from the most recent message.',
         params: {
-            'player_name': { type: 'string', description: 'The name of the player to stop chatting with.' },
-            'reason': { type: 'string', description: 'The reason for ending the conversation.' }
+            'player_name': { type: 'string', description: 'The name of the player to end the conversation with.' }
         },
-        perform: async function (agent, player_name, reason) {
-            return; // do nothing. this just provides an obvious command to end a conversation
+        perform: async function (agent, player_name) {
+            endChat(player_name);
         }
     },
     // {

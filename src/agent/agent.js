@@ -8,7 +8,7 @@ import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import { isOtherAgent } from './communication.js';
+import { isOtherAgent, initConversationManager, sendToBot, recieveFromBot } from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
@@ -23,6 +23,7 @@ export class Agent {
         this.npc = new NPCContoller(this);
         this.memory_bank = new MemoryBank();
         this.self_prompter = new SelfPrompter(this);
+        initConversationManager(this);
 
         await this.prompter.initExamples();
 
@@ -59,13 +60,17 @@ export class Agent {
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                let translation = await handleEnglishTranslation(message);
-
-                console.log(this.name, 'received message from', username, ':', translation);
-
                 this.shut_up = false;
-    
-                this.handleMessage(username, translation);
+
+                console.log(this.name, 'received message from', username, ':', message);
+
+                if (isOtherAgent(username)) {
+                    recieveFromBot(username, message);
+                }
+                else {
+                    let translation = await handleEnglishTranslation(message);
+                    this.handleMessage(username, translation);
+                }
             };
 
             this.bot.on('whisper', respondFunc);
@@ -110,17 +115,23 @@ export class Agent {
     }
 
     async cleanChat(to_player, message, translate_up_to=-1) {
+        if (isOtherAgent(to_player)) {
+            this.bot.chat(message);
+            sendToBot(to_player, message);
+            return;
+        }
+
         let to_translate = message;
-        let remainging = '';
+        let remaining = '';
         if (translate_up_to != -1) {
             to_translate = to_translate.substring(0, translate_up_to);
-            remainging = message.substring(translate_up_to);
+            remaining = message.substring(translate_up_to);
         }
-        message = (await handleTranslation(to_translate)).trim() + " " + remainging;
+        message = (await handleTranslation(to_translate)).trim() + " " + remaining;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
 
-        if (isOtherAgent(to_player) || to_player === 'system' || to_player === this.name) 
+        if (to_player === 'system' || to_player === this.name) 
             this.bot.chat(message);
         else
             this.bot.whisper(to_player, message);
@@ -143,9 +154,9 @@ export class Agent {
         }
 
         const self_prompt = source === 'system' || source === this.name;
-        const other_agent_prompt = isOtherAgent(source);
+        const from_other_bot = isOtherAgent(source);
 
-        if (!self_prompt && !other_agent_prompt) {
+        if (!self_prompt && !from_other_bot) { // from user, check for forced commands
             const user_command_name = containsCommand(message);
             if (user_command_name) {
                 if (!commandExists(user_command_name)) {
@@ -177,12 +188,7 @@ export class Agent {
             await this.history.add('system', behavior_log);
         }
 
-        let tagged_message = message;
-        let response_compilation = '';
-        if (other_agent_prompt) {
-            tagged_message = "(FROM OTHER BOT)"+message;
-        }
-        await this.history.add(source, tagged_message);
+        await this.history.add(source, message);
         this.history.save();
 
 
@@ -199,7 +205,6 @@ export class Agent {
                 console.log(`Full response: ""${res}""`)
                 res = truncCommandMessage(res); // everything after the command is ignored
                 this.history.add(this.name, res);
-                response_compilation += res + '\n';
                 
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist.`);
@@ -233,7 +238,6 @@ export class Agent {
             }
             else { // conversation response
                 this.history.add(this.name, res);
-                response_compilation += res + '\n';
                 this.cleanChat(source, res);
                 console.log('Purely conversational response:', res);
                 break;
@@ -242,10 +246,6 @@ export class Agent {
             this.history.save();
         }
 
-        if (other_agent_prompt) {
-            response_compilation = response_compilation.replaceAll('\n', ' ');
-            this.bot.whisper(source, response_compilation.trim());
-        }
         return used_command;
     }
 

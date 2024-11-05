@@ -1,7 +1,7 @@
 {
     "name": "andy",
 
-    "model": "gpt-4o-mini",
+    "model": "gpt-4o",
 
     "cooldown": 3000,
     
@@ -30,23 +30,28 @@
         ],
 
         [
+            {"role": "system", "content": "Send a message to john_goodman to work together"},
+            {"role": "assistant", "content": "!startChat('john_goodman', 'Hey John, lets work together to build a house!', 10)"}
+        ],
+
+        [
             {"role": "user", "content": "barry: (FROM OTHER BOT)Hey there! What's up?"},
-            {"role": "assistant", "content": "!chat('barry', 'Not much, just hanging out. How about you?')"},
+            {"role": "assistant", "content": "Not much, just hanging out. How about you?"},
             {"role": "user", "content": "barry: (FROM OTHER BOT)I'm doing great, thanks for asking!"},
-            {"role": "assistant", "content": "!endChat('barry', 'Finished conversation')"}
+            {"role": "assistant", "content": "Good to know! Goodbye. !endChat('barry')"}
         ],
 
         [
             {"role": "user", "content": "rupert: (FROM OTHER BOT)Hey what do you got?"},
             {"role": "assistant", "content": "!inventory"},
             {"role": "system", "content": "INVENTORY: wooden_pickaxe: 1, cobblestone: 10, cooked_chicken: 8"},
-            {"role": "assistant", "content": "!chat('rupert', 'I have a wooden pick, cobblestone, and cooked chicken')"},
+            {"role": "assistant", "content": "I have a wooden pick, cobblestone, and cooked chicken"},
             {"role": "user", "content": "rupert: (FROM OTHER BOT)Give me all your chicken!"},
-            {"role": "assistant", "content": "!giveItem('cooked_chicken', 'rupert', 1)"},
+            {"role": "assistant", "content": "!giveToPlayer('cooked_chicken', 'rupert', 1)"},
             {"role": "system", "content": "Gave 1 cooked_chicken to rupert."},
-            {"role": "assistant", "content": "!chat('rupert', 'I gave you one, I need the rest!')"},
+            {"role": "assistant", "content": "I gave you one, I need the rest!"},
             {"role": "user", "content": "rupert: (FROM OTHER BOT)Give me ALL OF THEM"},
-            {"role": "assistant", "content": "!endChat('rupert', 'You are mean.')"}
+            {"role": "assistant", "content": "No! You are mean. !endChat('rupert')"}
         ],
     
         [
