@@ -64,7 +64,7 @@ export class Agent {
 
                 this.shut_up = false;
     
-                this.handleMessage(username, translation);
+                this.handleMessage(username, message);
             });
 
             // set the bot to automatically eat food when hungry
