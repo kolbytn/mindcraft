@@ -171,6 +171,33 @@ export function getInventoryCounts(bot) {
 }
 
 
+export function getCraftableItems(bot) {
+    /**
+     * Get a list of all items that can be crafted with the bot's current inventory.
+     * @param {Bot} bot - The bot to get the craftable items for.
+     * @returns {string[]} - A list of all items that can be crafted.
+     * @example
+     * let craftableItems = world.getCraftableItems(bot);
+     **/
+    let table = getNearestBlock(bot, 'crafting_table');
+    if (!table) {
+        for (const item of bot.inventory.items()) {
+            if (item != null && item.name === 'crafting_table') {
+                table = item;
+                break;
+            }
+        }
+    }
+    let res = [];
+    for (const item of mc.getAllItems()) {
+        let recipes = bot.recipesFor(item.id, null, 1, table);
+        if (recipes.length > 0)
+            res.push(item.name);
+    }
+    return res;
+}
+
+
 export function getPosition(bot) {
     /**
      * Get your position in the world (Note that y is vertical).
