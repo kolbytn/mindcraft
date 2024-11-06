@@ -55,7 +55,7 @@ export class GPT {
 
     async embed(text) {
         const embedding = await this.openai.embeddings.create({
-            model: this.model_name || "text-embedding-ada-002",
+            model: this.model_name || "text-embedding-3-small",
             input: text,
             encoding_format: "float",
         });

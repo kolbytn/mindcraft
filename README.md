@@ -115,7 +115,7 @@ LLM backends can be specified as simply as `"model": "gpt-3.5-turbo"`. However, 
 "embedding": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
-  "model": "text-embedding-ada-002"
+  "model": "text-embedding-3-small"
 }
 ```
 
