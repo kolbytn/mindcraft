@@ -207,7 +207,6 @@ export async function executeCommand(agent, message) {
     else {
         console.log('parsed command:', parsed);
         const command = getCommand(parsed.commandName);
-        const is_action = isAction(command.name);
         let numArgs = 0;
         if (parsed.args) {
             numArgs = parsed.args.length;
@@ -215,11 +214,7 @@ export async function executeCommand(agent, message) {
         if (numArgs !== numParams(command))
             return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
         else {
-            if (is_action)
-                agent.coder.setCurActionName(command.name);
             const result = await command.perform(agent, ...parsed.args);
-            if (is_action)
-                agent.coder.setCurActionName('');
             return result;
         }
     }

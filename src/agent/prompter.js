@@ -13,6 +13,7 @@ import { Local } from '../models/local.js';
 import { Novita } from '../models/novita.js';
 import { GroqCloudAPI } from '../models/groq.js';
 import { HuggingFace } from '../models/huggingface.js';
+import { Qwen } from "../models/qwen.js";
 
 export class Prompter {
     constructor(agent, fp) {
@@ -46,6 +47,8 @@ export class Prompter {
                 chat.api = 'groq';
             else if (chat.model.includes('novita/'))
                 chat.api = 'novita';
+            else if (chat.model.includes('qwen'))
+                chat.api = 'qwen';
             else
                 chat.api = 'ollama';
         }
@@ -69,6 +72,8 @@ export class Prompter {
             this.chat_model = new HuggingFace(chat.model, chat.url);
         else if (chat.api === 'novita')
             this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url);
+        else if (chat.api === 'qwen')
+            this.chat_model = new Qwen(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
@@ -92,6 +97,8 @@ export class Prompter {
             this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
         else if (embedding.api === 'ollama')
             this.embedding_model = new Local(embedding.model, embedding.url);
+        else if (embedding.api === 'qwen')
+            this.embedding_model = new Qwen(embedding.model, embedding.url);
         else {
             this.embedding_model = null;
             console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');

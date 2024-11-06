@@ -4,6 +4,7 @@ import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
+import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
@@ -13,6 +14,7 @@ import settings from '../../settings.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+        this.actions = new ActionManager(this);
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
         this.history = new History(this);
@@ -23,7 +25,7 @@ export class Agent {
 
         await this.prompter.initExamples();
 
-        console.log('Logging in...');
+        console.log('Logging into minecraft...');
         this.bot = initBot(this.name);
 
         initModes(this);
@@ -33,6 +35,10 @@ export class Agent {
             save_data = this.history.load();
         }
 
+        this.bot.on('login', () => {
+            console.log('Logged in!');
+        });
+
         this.bot.once('spawn', async () => {
             addViewer(this.bot, count_id);
 
@@ -40,7 +46,7 @@ export class Agent {
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
             console.log(`${this.name} spawned.`);
-            this.coder.clear();
+            this.clearBotLogs();
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -56,13 +62,9 @@ export class Agent {
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                let translation = await handleEnglishTranslation(message);
-
-                console.log('received message from', username, ':', translation);
-
                 this.shut_up = false;
     
-                this.handleMessage(username, translation);
+                this.handleMessage(username, message);
             });
 
             // set the bot to automatically eat food when hungry
@@ -91,6 +93,17 @@ export class Agent {
         });
     }
 
+    requestInterrupt() {
+        this.bot.interrupt_code = true;
+        this.bot.collectBlock.cancelTask();
+        this.bot.pathfinder.stop();
+        this.bot.pvp.stop();
+    }
+
+    clearBotLogs() {
+        this.bot.output = '';
+        this.bot.interrupt_code = false;
+    }
 
     async cleanChat(message, translate_up_to=-1) {
         let to_translate = message;
@@ -123,6 +136,7 @@ export class Agent {
 
         let self_prompt = source === 'system' || source === this.name;
 
+        // First check for user commands
         if (!self_prompt) {
             const user_command_name = containsCommand(message);
             if (user_command_name) {
@@ -143,6 +157,11 @@ export class Agent {
             }
         }
 
+        // Now translate the message
+        message = await handleEnglishTranslation(message);
+        console.log('received message from', source, ':', message);
+
+        // Do self prompting
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
 
         let behavior_log = this.bot.modes.flushBehaviorLog();
@@ -155,6 +174,7 @@ export class Agent {
             await this.history.add('system', behavior_log);
         }
 
+        // Handle other user messages
         await this.history.add(source, message);
         this.history.save();
 
@@ -250,8 +270,8 @@ export class Agent {
             this.cleanKill('Bot disconnected! Killing agent process.');
         });
         this.bot.on('death', () => {
-            this.coder.cancelResume();
-            this.coder.stop();
+            this.actions.cancelResume();
+            this.actions.stop();
         });
         this.bot.on('kicked', (reason) => {
             console.warn('Bot kicked!', reason);
@@ -260,14 +280,21 @@ export class Agent {
         this.bot.on('messagestr', async (message, _, jsonMsg) => {
             if (jsonMsg.translate && jsonMsg.translate.startsWith('death') && message.startsWith(this.name)) {
                 console.log('Agent died: ', message);
-                this.handleMessage('system', `You died with the final message: '${message}'. Previous actions were stopped and you have respawned. Notify the user and perform any necessary actions.`);
+                let death_pos = this.bot.entity.position;
+                this.memory_bank.rememberPlace('last_death_position', death_pos.x, death_pos.y, death_pos.z);
+                let death_pos_text = null;
+                if (death_pos) {
+                    death_pos_text = `x: ${death_pos.x.toFixed(2)}, y: ${death_pos.y.toFixed(2)}, z: ${death_pos.x.toFixed(2)}`;
+                }
+                let dimention = this.bot.game.dimension;
+                this.handleMessage('system', `You died at position ${death_pos_text || "unknown"} in the ${dimention} dimension with the final message: '${message}'. Your place of death is saved as 'last_death_position' if you want to return. Previous actions were stopped and you have respawned.`);
             }
         });
         this.bot.on('idle', () => {
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
-            this.coder.executeResume();
+            this.actions.resumeAction();
         });
 
         // Init NPC controller
@@ -297,7 +324,7 @@ export class Agent {
     }
 
     isIdle() {
-        return !this.coder.executing && !this.coder.generating;
+        return !this.actions.executing && !this.coder.generating;
     }
     
     cleanKill(msg='Killing agent process...') {

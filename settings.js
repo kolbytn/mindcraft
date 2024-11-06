@@ -11,7 +11,7 @@ export default
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
         // "./profiles/llama.json",
-        // "./profiles/novita.json",
+        // "./profiles/qwen.json",
 
         // using more than 1 profile requires you to /msg each bot indivually
     ],
