@@ -19,7 +19,7 @@ export class Coder {
             if (err) throw err;
             this.code_template = data;
         });
-        readFile('./bots/codeChackTemplate.js', 'utf8', (err, data) => {
+        readFile('./bots/codeCheckTemplate.js', 'utf8', (err, data) => {
             if (err) throw err;
             this.code_chack_template = data;
         });
