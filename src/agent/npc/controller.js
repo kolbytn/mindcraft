@@ -46,7 +46,7 @@ export class NPCContoller {
                 }
             }
         } catch (e) {
-            console.log('Error reading construction file: ', file);
+            console.log('Error reading construction file');
         }
 
         for (let name in this.constructions) {
