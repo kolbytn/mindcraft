@@ -141,3 +141,12 @@ Thus, all the below specifications are equivalent to the above example:
 ## Patches
 
 Some of the node modules that we depend on have bugs in them. To add a patch, change your local node module file and run `npx patch-package [package-name]`
+
+## Citation:
+```
+@misc{mindcraft2023,
+    Author = {Kolby Nottingham and Max Robinson},
+    Title = {MINDcraft: LLM Agents for cooperation, competition, and creativity in Minecraft},
+    Year = {2023},
+}
+```
