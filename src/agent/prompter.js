@@ -131,6 +131,26 @@ export class Prompter {
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
 
+        if (prompt.includes('$TASK_GOAL')) {
+            prompt = prompt.replaceAll('$TASK_GOAL', process.env.MINECRAFT_TASK_GOAL || 'No task specified');
+        }
+
+        if (prompt.includes('$TASK_INVENTORY')) {
+            let taskInventory = '';
+            if (process.env.MINECRAFT_TASK_INVENTORY) {
+                try {
+                    const inventory = JSON.parse(process.env.MINECRAFT_TASK_INVENTORY);
+                    taskInventory = 'You have been provided with the following initial inventory: '
+                    taskInventory += Object.entries(inventory)
+                        .map(([item, count]) => `${item}: ${count}`)
+                        .join('\n');
+                } catch (error) {
+                    console.error('Error parsing task inventory:', error);
+                }
+            }
+            prompt = prompt.replaceAll('$TASK_INVENTORY', taskInventory);
+        }
+
         if (prompt.includes('$STATS')) {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
