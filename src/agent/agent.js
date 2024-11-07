@@ -15,29 +15,46 @@ import settings from '../../settings.js';
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
         try {
-            // Initialize components with error handling
-            this.actions = new ActionManager(this);
-            this.prompter = new Prompter(this, profile_fp);
-            this.name = this.prompter.getName();
-            this.history = new History(this);
-            this.coder = new Coder(this);
-            this.npc = new NPCContoller(this);
-            this.memory_bank = new MemoryBank();
-            this.self_prompter = new SelfPrompter(this);
+            // Add validation for profile_fp
+            if (!profile_fp) {
+                throw new Error('No profile filepath provided');
+            }
+
+            console.log('Starting agent initialization with profile:', profile_fp);
+            
+            // Initialize components with more detailed error handling
+            try {
+                console.log('Initializing action manager...');
+                this.actions = new ActionManager(this);
+                console.log('Initializing prompter...');
+                this.prompter = new Prompter(this, profile_fp);
+                this.name = this.prompter.getName();
+                console.log('Initializing history...');
+                this.history = new History(this);
+                console.log('Initializing coder...');
+                this.coder = new Coder(this);
+                console.log('Initializing npc controller...');
+                this.npc = new NPCContoller(this);
+                console.log('Initializing memory bank...');
+                this.memory_bank = new MemoryBank();
+                console.log('Initializing self prompter...');
+                this.self_prompter = new SelfPrompter(this);
+            } catch (error) {
+                throw new Error(`Failed to initialize agent components: ${error.message || error}`);
+            }
 
             try {
+                console.log('Initializing examples...');
                 await this.prompter.initExamples();
             } catch (error) {
-                console.error('Failed to initialize examples:', error);
-                throw error;
+                throw new Error(`Failed to initialize examples: ${error.message || error}`);
             }
 
             console.log('Logging into minecraft...');
             try {
                 this.bot = initBot(this.name);
             } catch (error) {
-                console.error('Failed to initialize Minecraft bot:', error);
-                throw error;
+                throw new Error(`Failed to initialize Minecraft bot: ${error.message || error}`);
             }
 
             initModes(this);
@@ -89,8 +106,13 @@ export class Agent {
                 });
             });
         } catch (error) {
-            console.error('Failed to start agent:', error);
-            throw error; // Re-throw to be caught by init-agent.js
+            // Ensure we're not losing error details
+            console.error('Agent start failed with error:', {
+                message: error.message || 'No error message',
+                stack: error.stack || 'No stack trace',
+                error: error
+            });
+            throw error; // Re-throw with preserved details
         }
     }
 
