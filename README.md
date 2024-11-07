@@ -2,6 +2,8 @@
 
 Crafting minds for Minecraft with LLMs and Mineflayer!
 
+‼️Heads up, there is [currently a bug](https://github.com/kolbytn/mindcraft/issues/291) that many users are reporting on startup. We are working on it, please be patient if it does not work for you.
+
 [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md)
 
 [Discord Support](https://discord.gg/ZsrAAByEnr) 
