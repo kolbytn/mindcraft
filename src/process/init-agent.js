@@ -23,6 +23,11 @@ const argv = yargs(args)
         type: 'string',
         description: 'automatically prompt the agent on startup'
     })
+    .option('task', {
+        alias: 't',
+        type: 'string',
+        description: 'task ID to execute'
+    })
     .option('count_id', {
         alias: 'c',
         type: 'number',

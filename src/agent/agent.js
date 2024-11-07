@@ -11,9 +11,15 @@ import { SelfPrompter } from './self_prompter.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
+import { loadTask } from '../utils/tasks.js';
+import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+    async start(profile_fp, 
+        load_mem=false, 
+        init_message=null, 
+        count_id=0, 
+        task=null) {
         this.actions = new ActionManager(this);
         this.prompter = new Prompter(this, profile_fp);
         this.name = this.prompter.getName();
@@ -23,10 +29,19 @@ export class Agent {
         this.memory_bank = new MemoryBank();
         this.self_prompter = new SelfPrompter(this);
 
+        if (task) {
+            this.task = loadTask(task);
+        } else {
+            this.task = null;
+        }
         await this.prompter.initExamples();
 
         console.log('Logging in...');
         this.bot = initBot(this.name);
+
+        if (this.task && (this.task.goal === 'harvest' || this.task.goal === 'techtree')) {
+            this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+        }
 
         initModes(this);
 
@@ -126,6 +141,8 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) {
+
+        
         let used_command = false;
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
@@ -174,6 +191,8 @@ export class Agent {
         if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
+
+            
             if (checkInterrupt()) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
@@ -227,11 +246,22 @@ export class Agent {
             this.history.save();
         }
 
+        if (this.task && this.validator(this.bot)) {
+            this.requestInterrupt();
+            this.bot.chat("Task completed! Stopping.");
+            process.exit(0);
+        }
+
         this.bot.emit('finished_executing');
         return used_command;
     }
 
-    startEvents() {
+    async clearInventory() {
+        return this.bot.chat('/clear @p');
+    }
+
+    async startEvents() {
+        await this.clearInventory();
         // Custom events
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
