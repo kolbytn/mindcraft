@@ -77,7 +77,7 @@ export class Agent {
                 }, 30000);
 
                 this.bot.once('error', (error) => {
-                    clearTimeout(timeout);
+                    clearTimeout(spawnTimeout);
                     console.error('Bot encountered error:', error);
                     reject(error);
                 });

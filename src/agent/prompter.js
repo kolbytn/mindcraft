@@ -84,19 +84,26 @@ export class Prompter {
 
         console.log('Using embedding settings:', embedding);
 
-        if (embedding.api === 'google')
-            this.embedding_model = new Gemini(embedding.model, embedding.url);
-        else if (embedding.api === 'openai')
-            this.embedding_model = new GPT(embedding.model, embedding.url);
-        else if (embedding.api === 'replicate')
-            this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
-        else if (embedding.api === 'ollama')
-            this.embedding_model = new Local(embedding.model, embedding.url);
-        else if (embedding.api === 'qwen')
-            this.embedding_model = new Qwen(embedding.model, embedding.url);
-        else {
+        try {
+            if (embedding.api === 'google')
+                this.embedding_model = new Gemini(embedding.model, embedding.url);
+            else if (embedding.api === 'openai')
+                this.embedding_model = new GPT(embedding.model, embedding.url);
+            else if (embedding.api === 'replicate')
+                this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
+            else if (embedding.api === 'ollama')
+                this.embedding_model = new Local(embedding.model, embedding.url);
+            else if (embedding.api === 'qwen')
+                this.embedding_model = new Qwen(embedding.model, embedding.url);
+            else {
+                this.embedding_model = null;
+                console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
+            }
+        }
+        catch (err) {
+            console.log('Warning: Failed to initialize embedding model:', err.message);
+            console.log('Continuing anyway, using word overlap instead.');
             this.embedding_model = null;
-            console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
         }
 
         mkdirSync(`./bots/${name}`, { recursive: true });
