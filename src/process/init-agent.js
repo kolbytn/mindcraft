@@ -1,6 +1,13 @@
 import { Agent } from '../agent/agent.js';
 import yargs from 'yargs';
 
+// Add global unhandled rejection handler
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise);
+    console.error('Reason:', reason);
+    process.exit(1);
+});
+
 const args = process.argv.slice(2);
 if (args.length < 1) {
     console.log('Usage: node init_agent.js <agent_name> [profile] [load_memory] [init_message]');
@@ -28,6 +35,15 @@ const argv = yargs(args)
         type: 'number',
         default: 0,
         description: 'identifying count for multi-agent scenarios',
-    }).argv
+    }).argv;
 
-new Agent().start(argv.profile, argv.load_memory, argv.init_message, argv.count_id);
+// Wrap agent start in async IIFE with proper error handling
+(async () => {
+    try {
+        const agent = new Agent();
+        await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.count_id);
+    } catch (error) {
+        console.error('Failed to start agent:', error);
+        process.exit(1);
+    }
+})();

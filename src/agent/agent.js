@@ -14,83 +14,142 @@ import settings from '../../settings.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
-        this.actions = new ActionManager(this);
-        this.prompter = new Prompter(this, profile_fp);
-        this.name = this.prompter.getName();
-        this.history = new History(this);
-        this.coder = new Coder(this);
-        this.npc = new NPCContoller(this);
-        this.memory_bank = new MemoryBank();
-        this.self_prompter = new SelfPrompter(this);
+        try {
+            // Initialize components with error handling
+            this.actions = new ActionManager(this);
+            this.prompter = new Prompter(this, profile_fp);
+            this.name = this.prompter.getName();
+            this.history = new History(this);
+            this.coder = new Coder(this);
+            this.npc = new NPCContoller(this);
+            this.memory_bank = new MemoryBank();
+            this.self_prompter = new SelfPrompter(this);
 
-        await this.prompter.initExamples();
+            try {
+                await this.prompter.initExamples();
+            } catch (error) {
+                console.error('Failed to initialize examples:', error);
+                throw error;
+            }
 
-        console.log('Logging into minecraft...');
-        this.bot = initBot(this.name);
+            console.log('Logging into minecraft...');
+            try {
+                this.bot = initBot(this.name);
+            } catch (error) {
+                console.error('Failed to initialize Minecraft bot:', error);
+                throw error;
+            }
 
-        initModes(this);
+            initModes(this);
 
-        let save_data = null;
-        if (load_mem) {
-            save_data = this.history.load();
+            let save_data = null;
+            if (load_mem) {
+                try {
+                    save_data = this.history.load();
+                } catch (error) {
+                    console.error('Failed to load history:', error);
+                    // Don't throw here, continue without history
+                }
+            }
+
+            // Return a promise that resolves when spawn is complete
+            return new Promise((resolve, reject) => {
+                // Add timeout to prevent hanging
+                const spawnTimeout = setTimeout(() => {
+                    reject(new Error('Bot spawn timed out after 30 seconds'));
+                }, 30000);
+
+                this.bot.once('error', (error) => {
+                    clearTimeout(timeout);
+                    console.error('Bot encountered error:', error);
+                    reject(error);
+                });
+
+                this.bot.on('login', () => {
+                    console.log('Logged in!');
+                });
+
+                this.bot.once('spawn', async () => {
+                    try {
+                        clearTimeout(spawnTimeout);
+                        addViewer(this.bot, count_id);
+
+                        // wait for a bit so stats are not undefined
+                        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                        console.log(`${this.name} spawned.`);
+                        this.clearBotLogs();
+                        
+                        this._setupEventHandlers(save_data, init_message);
+                        this.startEvents();
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Failed to start agent:', error);
+            throw error; // Re-throw to be caught by init-agent.js
         }
+    }
 
-        this.bot.on('login', () => {
-            console.log('Logged in!');
-        });
-
-        this.bot.once('spawn', async () => {
-            addViewer(this.bot, count_id);
-
-            // wait for a bit so stats are not undefined
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            console.log(`${this.name} spawned.`);
-            this.clearBotLogs();
-            
-            const ignore_messages = [
-                "Set own game mode to",
-                "Set the time to",
-                "Set the difficulty to",
-                "Teleported ",
-                "Set the weather to",
-                "Gamerule "
-            ];
-            const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
-            this.bot.on(eventname, async (username, message) => {
+    // Split out event handler setup for clarity
+    _setupEventHandlers(save_data, init_message) {
+        const ignore_messages = [
+            "Set own game mode to",
+            "Set the time to",
+            "Set the difficulty to",
+            "Teleported ",
+            "Set the weather to",
+            "Gamerule "
+        ];
+        
+        const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
+        this.bot.on(eventname, async (username, message) => {
+            try {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
                 this.shut_up = false;
-    
-                this.handleMessage(username, message);
-            });
+                await this.handleMessage(username, message);
+            } catch (error) {
+                console.error('Error handling message:', error);
+            }
+        });
 
-            // set the bot to automatically eat food when hungry
-            this.bot.autoEat.options = {
-                priority: 'foodPoints',
-                startAt: 14,
-                bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
-            };
+        // Set up auto-eat
+        this.bot.autoEat.options = {
+            priority: 'foodPoints',
+            startAt: 14,
+            bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
+        };
 
-            if (save_data && save_data.self_prompt) { // if we're loading memory and self-prompting was on, restart it, ignore init_message
+        // Handle startup conditions
+        this._handleStartupConditions(save_data, init_message);
+    }
+
+    async _handleStartupConditions(save_data, init_message) {
+        try {
+            if (save_data?.self_prompt) {
                 let prompt = save_data.self_prompt;
                 // add initial message to history
                 this.history.add('system', prompt);
-                this.self_prompter.start(prompt);
+                await this.self_prompter.start(prompt);
             }
             else if (init_message) {
-                this.handleMessage('system', init_message, 2);
+                await this.handleMessage('system', init_message, 2);
             }
             else {
                 const translation = await handleTranslation("Hello world! I am "+this.name);
                 this.bot.chat(translation);
                 this.bot.emit('finished_executing');
             }
-
-            this.startEvents();
-        });
+        } catch (error) {
+            console.error('Error handling startup conditions:', error);
+            throw error;
+        }
     }
 
     requestInterrupt() {
