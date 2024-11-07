@@ -40,7 +40,7 @@ export class AgentProcess {
                     return;
                 }
                 console.log('Restarting agent...');
-                this.start(profile, true, 'Agent process restarted.', count_id);
+                this.start(profile, true, 'Agent process restarted.', count_id, task);
                 last_restart = Date.now();
             }
         });

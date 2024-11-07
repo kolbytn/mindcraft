@@ -35,4 +35,4 @@ const argv = yargs(args)
         description: 'identifying count for multi-agent scenarios',
     }).argv
 
-new Agent().start(argv.profile, argv.load_memory, argv.init_message, argv.count_id);
+new Agent().start(argv.profile, argv.load_memory, argv.init_message, argv.count_id, argv.task);

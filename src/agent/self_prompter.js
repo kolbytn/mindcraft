@@ -34,15 +34,8 @@ export class SelfPrompter {
         const MAX_NO_COMMAND = 3;
         while (!this.interrupt) {
             const msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command !withThisSyntax. Respond:`;
-            
             let used_command = await this.agent.handleMessage('system', msg, -1);
             console.log('self-prompt loop iteration')
-            console.log('task completed', this.agent.validator.validate())
-            if (this.agent.validator.validate()) {
-                this.agent.bot.chat('Task completed. Stopping agent.');
-                console.log('Task completed. Stopping agent.');
-                process.exit(0);
-            }
             if (!used_command) {
                 no_command_count++;
                 if (no_command_count >= MAX_NO_COMMAND) {

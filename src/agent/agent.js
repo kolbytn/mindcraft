@@ -29,19 +29,25 @@ export class Agent {
         this.memory_bank = new MemoryBank();
         this.self_prompter = new SelfPrompter(this);
 
-        if (task) {
-            this.task = loadTask(task);
-        } else {
-            this.task = null;
-        }
+        
+        console.log('Task:', this.task);
         await this.prompter.initExamples();
 
         console.log('Logging in...');
         this.bot = initBot(this.name);
 
-        if (this.task && (this.task.goal === 'harvest' || this.task.goal === 'techtree')) {
+        if (task) {
+            this.task = loadTask(task);
+            if (this.task.type === 'harvest' || this.task.type === 'techtree') {
+                this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+            }
             this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+        } else {
+            this.task = null;
+            this.validator = null;
         }
+        
+        // console.log("Is validated:", this.validator && this.validator.validate());
 
         initModes(this);
 
@@ -140,9 +146,12 @@ export class Agent {
         }
     }
 
-    async handleMessage(source, message, max_responses=null) {
+    async handleMessage(source, message, max_responses=null) { 
 
-        
+        if (this.validator && this.validator.validate()) {
+            this.bot.chat('Task completed!');
+            this.cleanKill('task completed');
+        }
         let used_command = false;
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
@@ -246,11 +255,7 @@ export class Agent {
             this.history.save();
         }
 
-        if (this.task && this.validator(this.bot)) {
-            this.requestInterrupt();
-            this.bot.chat("Task completed! Stopping.");
-            process.exit(0);
-        }
+        
 
         this.bot.emit('finished_executing');
         return used_command;
@@ -261,7 +266,11 @@ export class Agent {
     }
 
     async startEvents() {
-        await this.clearInventory();
+        try {
+            await this.clearInventory();
+        } catch (e) {
+            console.error('Failed to clear inventory:', e);
+        }
         // Custom events
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)

@@ -3,7 +3,6 @@ import { readFileSync } from 'fs';
 
 export function loadTask(taskId) {
     try {
-
         const taskType = taskId.split('_')[0];
         const tasksFile = readFileSync(`tasks/${taskType}_tasks.yaml`, 'utf8');
         const tasks = yaml.load(tasksFile);
