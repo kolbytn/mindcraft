@@ -84,25 +84,32 @@ export class Prompter {
 
         console.log('Using embedding settings:', embedding);
 
-        if (embedding.api === 'google')
-            this.embedding_model = new Gemini(embedding.model, embedding.url);
-        else if (embedding.api === 'openai')
-            this.embedding_model = new GPT(embedding.model, embedding.url);
-        else if (embedding.api === 'replicate')
-            this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
-        else if (embedding.api === 'ollama')
-            this.embedding_model = new Local(embedding.model, embedding.url);
-        else if (embedding.api === 'qwen')
-            this.embedding_model = new Qwen(embedding.model, embedding.url);
-        else {
+        try {
+            if (embedding.api === 'google')
+                this.embedding_model = new Gemini(embedding.model, embedding.url);
+            else if (embedding.api === 'openai')
+                this.embedding_model = new GPT(embedding.model, embedding.url);
+            else if (embedding.api === 'replicate')
+                this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
+            else if (embedding.api === 'ollama')
+                this.embedding_model = new Local(embedding.model, embedding.url);
+            else if (embedding.api === 'qwen')
+                this.embedding_model = new Qwen(embedding.model, embedding.url);
+            else {
+                this.embedding_model = null;
+                console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
+            }
+        }
+        catch (err) {
+            console.log('Warning: Failed to initialize embedding model:', err.message);
+            console.log('Continuing anyway, using word overlap instead.');
             this.embedding_model = null;
-            console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
         }
 
         mkdirSync(`./bots/${name}`, { recursive: true });
         writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {
             if (err) {
-                throw err;
+                throw new Error('Failed to save profile:', err);
             }
             console.log("Copy profile saved.");
         });
@@ -117,15 +124,28 @@ export class Prompter {
     }
 
     async initExamples() {
-        // Using Promise.all to implement concurrent processing
-        // Create Examples instances
-        this.convo_examples = new Examples(this.embedding_model);
-        this.coding_examples = new Examples(this.embedding_model);
-        // Use Promise.all to load examples concurrently
-        await Promise.all([
-            this.convo_examples.load(this.profile.conversation_examples),
-            this.coding_examples.load(this.profile.coding_examples),
-        ]);
+        try {
+            this.convo_examples = new Examples(this.embedding_model);
+            this.coding_examples = new Examples(this.embedding_model);
+            
+            const [convoResult, codingResult] = await Promise.allSettled([
+                this.convo_examples.load(this.profile.conversation_examples),
+                this.coding_examples.load(this.profile.coding_examples)
+            ]);
+
+            // Handle potential failures
+            if (convoResult.status === 'rejected') {
+                console.error('Failed to load conversation examples:', convoResult.reason);
+                throw convoResult.reason;
+            }
+            if (codingResult.status === 'rejected') {
+                console.error('Failed to load coding examples:', codingResult.reason);
+                throw codingResult.reason;
+            }
+        } catch (error) {
+            console.error('Failed to initialize examples:', error);
+            throw error;
+        }
     }
 
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {

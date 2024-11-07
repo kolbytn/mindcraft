@@ -106,14 +106,10 @@ export const queryList = [
         name: "!craftable",
         description: "Get the craftable items with the bot's inventory.",
         perform: function (agent) {
-            const bot = agent.bot;
-            const table = world.getNearestBlock(bot, 'crafting_table');
+            let craftable = world.getCraftableItems(agent.bot);
             let res = 'CRAFTABLE_ITEMS';
-            for (const item of mc.getAllItems()) {
-                let recipes = bot.recipesFor(item.id, null, 1, table);
-                if (recipes.length > 0) {
-                    res += `\n- ${item.name}`;
-                }
+            for (const item of craftable) {
+                res += `\n- ${item}`;
             }
             if (res == 'CRAFTABLE_ITEMS') {
                 res += ': none';

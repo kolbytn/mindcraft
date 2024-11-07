@@ -40,7 +40,7 @@ export class AgentProcess {
         });
     
         agentProcess.on('error', (err) => {
-            console.error('Failed to start agent process:', err);
+            console.error('Agent process error:', err);
         });
     }
 }
