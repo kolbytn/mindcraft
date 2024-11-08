@@ -6,36 +6,54 @@ import yaml from 'js-yaml'
 import { readFileSync } from 'fs';
 import { start } from 'repl';
 
-async function startTask(taskId) {
-    let bot = createBot({
-        username: 'task_validator',
+async function startTask(taskId, bot) {
+    console.log(`Starting task ${taskId}`);
 
-        host: settings.host,
-        port: settings.port,
-        auth: settings.auth,
+    var task = loadTask(taskId);
+    var validator = new TechTreeHarvestValidator(task, bot);
+    
+    // Now try to chat
+    bot.chat(`/clear @p`);
+    bot.chat(`/give @p ${task.target} ${task.number_of_target}`);
 
-        version: settings.minecraft_version,
-    });
-    bot.once('spawn', async function() {
-        var task = loadTask(taskId);
-        var validator = new TechTreeHarvestValidator(task, bot);
+    const success = await validator.validate();
+    if (validator.validate()) {
+        console.log(`Task ${taskId} is valid`);
+    } else {
+        console.log(`Task ${taskId} is invalid`);
+    }
+    return success;
+    
+    // const success = bot.once('spawn', async function() {
+    //     var task = loadTask(taskId);
+    //     var validator = new TechTreeHarvestValidator(task, bot);
         
-        // Now try to chat
-        await bot.chat(`/clear @p`);
-        await bot.chat(`/give @p ${task.target} ${task.number_of_target}`);
+    //     // Now try to chat
+    //     await bot.chat(`/clear @p`);
+    //     await bot.chat(`/give @p ${task.target} ${task.number_of_target}`);
 
-        const success = await validator.validate();
-        if (validator.validate()) {
-            console.log(`Task ${taskId} is valid`);
-        } else {
-            console.log(`Task ${taskId} is invalid`);
-        }
-        await bot.chat(`/kick @p`);
-        return success;
-        
-    });
+    //     const success = await validator.validate();
+    //     if (validator.validate()) {
+    //         console.log(`Task ${taskId} is valid`);
+    //     } else {
+    //         console.log(`Task ${taskId} is invalid`);
+    //     }
+    //     await bot.chat(`/kick @p`);
+    //     return success;
+    // });
+    // bot.once('end', function() {
+    //     console.log('Bot disconnected');
+    //     return success;
+    // });
+    return success;
     
 }
+
+async function startTaskDebug(taskId) {
+    console.log(`Starting task ${taskId}`);
+    return true;
+}
+
 
 // Define the tasks array
 
@@ -52,39 +70,24 @@ async function tasksFromFile(taskType) {
 
 // Call the startTask function for each task in the array
 
-
-// async function main() {
-//     try {
-//         const tasks = await tasksFromFile("harvest");
-//         console.log(tasks);
-
-//         const results = await Promise.all(tasks.map(async (taskId) => {
-//             const taskPromise = startTask(taskId);
-//             const timeoutPromise = new Promise((resolve, reject) => {
-//                 setTimeout(() => {
-//                     reject(new Error(`Task ${taskId} timed out`));
-//                 }, 5000); // 5000ms = 5 seconds
-//             });
-
-//             try {
-//                 await Promise.race([taskPromise, timeoutPromise]);
-//                 let success = await taskPromise;
-//                 console.log(`Task ${taskId} complete result is ${success}`);
-//             } catch (error) {
-//                 console.error(error.message);
-//             }
-//         }));
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
 async function main() {
     try {
+        let bot = createBot({
+            username: 'task_validator',
+    
+            host: settings.host,
+            port: settings.port,
+            auth: settings.auth,
+    
+            version: settings.minecraft_version,
+        });
         const tasks = ["harvest_1_sand", "harvest_1_oak_log"];
         console.log(tasks);
-        const results = await tasks.map(async (taskId) => {
-            const success = await startTask(taskId);
-            console.log(`Task ${taskId} complete and is ${success}`);
+        bot.once('spawn', async function() {
+            const results = await tasks.map(async (taskId, bot) => {
+                const success = await startTask(taskId, bot);
+                console.log(`Task ${taskId} complete and is ${success}`);
+            });
         });
     } catch (error) {
         console.error(error);
