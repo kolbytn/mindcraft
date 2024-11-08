@@ -13,64 +13,77 @@ export function log(bot, message, chat=false) {
 
 // Add this new function
 async function captureView(bot, x, y, z, description = '') {
-    // Validate coordinates
+    // Validate coordinates with more detailed error messages
     if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
-        throw new Error('Invalid coordinates provided');
+        throw new Error(`Invalid coordinates: x=${x}, y=${y}, z=${z}. All must be finite numbers.`);
     }
 
-    // Manage screenshot directory
-    manageScreenshotDirectory();
+    // Ensure bot is connected
+    if (!bot || !bot.entity) {
+        throw new Error('Bot is not connected or initialized');
+    }
 
-    // Look at specified coordinates
-    const targetPos = new Vec3(x, y, z);
-    await bot.lookAt(targetPos);
+    // Logging for debugging
+    console.log(`Attempting to capture view at (${x}, ${y}, ${z})`);
 
-    // Capture screenshot
+    try {
+        // Look at specified coordinates with error handling
+        const targetPos = new Vec3(x, y, z);
+        await bot.lookAt(targetPos);
+    } catch (lookError) {
+        console.error(`Failed to look at coordinates: ${lookError.message}`);
+        throw new Error(`Could not look at specified coordinates: ${lookError.message}`);
+    }
+
+    // Screenshot capture with more robust error handling
     let screenshot;
     try {
         screenshot = await bot.screenshot();
-    } catch (error) {
-        throw new Error(`Failed to capture screenshot: ${error.message}`);
+        if (!screenshot) {
+            throw new Error('Screenshot capture returned null or undefined');
+        }
+    } catch (screenshotError) {
+        console.error(`Screenshot capture failed: ${screenshotError.message}`);
+        throw new Error(`Failed to capture screenshot: ${screenshotError.message}`);
     }
 
-    // Create captures directory
+    // Directory management
     const capturesDir = path.join(process.cwd(), 'captures');
-    if (!fs.existsSync(capturesDir)) {
-        fs.mkdirSync(capturesDir, { recursive: true });
+    try {
+        if (!fs.existsSync(capturesDir)) {
+            fs.mkdirSync(capturesDir, { recursive: true });
+        }
+    } catch (dirError) {
+        console.error(`Failed to create captures directory: ${dirError.message}`);
+        throw new Error(`Could not create captures directory: ${dirError.message}`);
     }
 
-    // Generate unique filename
+    // Filename generation with more uniqueness
     const timestamp = Date.now();
-    const filename = `screenshot_${timestamp}.png`;
+    const randomSuffix = Math.random().toString(36).substring(7);
+    const filename = `screenshot_${timestamp}_${randomSuffix}.png`;
     const filepath = path.join(capturesDir, filename);
 
-    // Save screenshot
+    // Save screenshot with error handling
     try {
         fs.writeFileSync(filepath, screenshot);
-    } catch (error) {
-        throw new Error(`Failed to save screenshot: ${error.message}`);
+        console.log(`Screenshot saved: ${filepath}`);
+    } catch (saveError) {
+        console.error(`Failed to save screenshot: ${saveError.message}`);
+        throw new Error(`Could not save screenshot: ${saveError.message}`);
     }
 
-    // Optional: Compress image (requires 'sharp' package)
-    try {
-        await compressImage(filepath);
-    } catch (error) {
-        console.warn(`Image compression failed: ${error.message}`);
-    }
-
-    // Generate metadata
+    // Metadata generation
     const metadata = {
         coordinates: { x, y, z },
         block: bot.blockAt(targetPos),
         environment: {
             biome: world.getBiomeName(bot),
             time: bot.time.timeOfDay,
-            weather: bot.rainState > 0 ? 'Rainy' : 'Clear'
+            weather: bot.rainState > 0 ? 'Rainy' : 'Clear',
+            timestamp: new Date().toISOString()
         }
     };
-
-    // Log the screenshot
-    console.log(`Captured screenshot at (${x}, ${y}, ${z}): ${filepath}`);
 
     return {
         imagePath: filepath,
@@ -86,41 +99,39 @@ function generateDescription(metadata) {
         metadata.environment.time < 12000 ? 'Afternoon' :
         metadata.environment.time < 18000 ? 'Evening' : 'Night';
 
-    return `Captured view at (${metadata.coordinates.x}, ${metadata.coordinates.y}, ${metadata.coordinates.z})
-    - Biome: ${metadata.environment.biome}
-    - Time: ${timeOfDay}
-    - Weather: ${metadata.environment.weather}
-    - Block: ${metadata.block?.name || 'Unknown'}
-    - Coordinates Precise: (${metadata.coordinates.x.toFixed(2)}, ${metadata.coordinates.y.toFixed(2)}, ${metadata.coordinates.z.toFixed(2)})`;
+    return `Captured at: ${metadata.environment.timestamp}
+    Location: (${metadata.coordinates.x.toFixed(2)}, ${metadata.coordinates.y.toFixed(2)}, ${metadata.coordinates.z.toFixed(2)})
+    Biome: ${metadata.environment.biome}
+    Time: ${timeOfDay}
+    Weather: ${metadata.environment.weather}
+    Block: ${metadata.block?.name || 'Unknown'}`;
 }
 
 function manageScreenshotDirectory(maxScreenshots = 100) {
     const capturesDir = path.join(process.cwd(), 'captures');
     
-    // Ensure directory exists
-    if (!fs.existsSync(capturesDir)) {
-        fs.mkdirSync(capturesDir, { recursive: true });
-        return;
-    }
+    try {
+        const files = fs.readdirSync(capturesDir)
+            .filter(file => file.endsWith('.png'))
+            .map(file => ({
+                name: file,
+                path: path.join(capturesDir, file),
+                stats: fs.statSync(path.join(capturesDir, file))
+            }))
+            .sort((a, b) => b.stats.birthtimeMs - a.stats.birthtimeMs);
 
-    const files = fs.readdirSync(capturesDir)
-        .filter(file => file.endsWith('.png'))
-        .map(file => ({
-            name: file,
-            path: path.join(capturesDir, file),
-            stats: fs.statSync(path.join(capturesDir, file))
-        }))
-        .sort((a, b) => a.stats.birthtime - b.stats.birthtime);
-
-    // Remove oldest screenshots if over limit
-    while (files.length > maxScreenshots) {
-        const oldestFile = files.shift();
-        try {
-            fs.unlinkSync(oldestFile.path);
-            console.log(`Removed old screenshot: ${oldestFile.name}`);
-        } catch (error) {
-            console.error(`Failed to remove old screenshot: ${error.message}`);
+        // Remove oldest screenshots if over limit
+        while (files.length > maxScreenshots) {
+            const oldestFile = files.pop();
+            try {
+                fs.unlinkSync(oldestFile.path);
+                console.log(`Removed old screenshot: ${oldestFile.name}`);
+            } catch (error) {
+                console.error(`Failed to remove old screenshot: ${error.message}`);
+            }
         }
+    } catch (error) {
+        console.error(`Screenshot directory management failed: ${error.message}`);
     }
 }
 
@@ -140,6 +151,31 @@ async function compressImage(filepath) {
         fs.renameSync(compressedPath, filepath);
     } catch (error) {
         console.error(`Image compression failed: ${error.message}`);
+    }
+}
+
+function logScreenshot(filepath, metadata) {
+    const logFile = path.join(process.cwd(), 'captures', 'screenshot_log.json');
+    
+    let logs = [];
+    try {
+        if (fs.existsSync(logFile)) {
+            logs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+        }
+    } catch (error) {
+        console.error('Failed to read log file:', error);
+    }
+
+    logs.push({
+        filepath,
+        timestamp: new Date().toISOString(),
+        metadata
+    });
+
+    try {
+        fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
+    } catch ( error) {
+        console.error('Failed to write log file:', error);
     }
 }
 
