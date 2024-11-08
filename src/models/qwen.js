@@ -49,12 +49,12 @@ export class Qwen {
 
     async embed(text) {
         if (!text || typeof text !== 'string') {
-            console.error('Invalid embedding input: text must be a non-empty string.');
+            console.error('Invalid embedding input: text must be a non-empty string:', text);
             return 'Invalid embedding input: text must be a non-empty string.';
         }
 
         const data = {
-            model: 'text-embedding-v2',
+            model: this.modelName,
             input: { texts: [text] },
             parameters: { text_type: 'query' },
         };
@@ -67,38 +67,68 @@ export class Qwen {
         try {
             const response = await this._makeHttpRequest(this.url, data);
             const embedding = response?.output?.embeddings?.[0]?.embedding;
+
             return embedding || 'No embedding result received.';
         } catch (err) {
-            console.error('Error occurred:', err);
+            console.log('Embed data:', data);
+            console.error('Embed error occurred:', err);
             return 'An error occurred, please try again.';
         }
     }
 
-    async _makeHttpRequest(url, data) {
+    async _makeHttpRequest(url, data, maxRetries = 10) {
         const headers = {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(data),
-        });
+        let retryCount = 0;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Request failed, status code ${response.status}: ${response.statusText}`);
-            console.error('Error response content:', errorText);
-            throw new Error(`Request failed, status code ${response.status}: ${response.statusText}`);
-        }
+        while (retryCount < maxRetries) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(data),
+                });
 
-        const responseText = await response.text();
-        try {
-            return JSON.parse(responseText);
-        } catch (err) {
-            console.error('Failed to parse response JSON:', err);
-            throw new Error('Invalid response JSON format.');
+                if (response.ok) {
+                    const responseText = await response.text();
+                    try {
+                        //Task completed successfully
+                        return JSON.parse(responseText);
+                    } catch (err) {
+                        console.error('Failed to parse response JSON:', err);
+                        throw new Error('Invalid response JSON format.');
+                    }
+                } else {
+                    const errorText = await response.text();
+
+                    if (response.status === 429 || response.statusText.includes('Too Many Requests')) {
+                        // Handle rate limiting
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            console.error('Exceeded maximum retry attempts, unable to get request result.');
+                            throw new Error(`Request failed after ${maxRetries} retries due to rate limiting.`);
+                        }
+                        //Reached Qwen concurrency limit, waiting in queue
+                        const waitTime = Math.random() * 1000; // Random wait between 0 to 1 seconds
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                        continue; // Retry the request
+                    } else {
+                        console.error(`Request failed, status code ${response.status}: ${response.statusText}`);
+                        console.error('Error response content:', errorText);
+                        throw new Error(`Request failed, status code ${response.status}: ${response.statusText}`);
+                    }
+                }
+            } catch (err) {
+                // Handle network errors or other exceptions
+                console.error('Error occurred during HTTP request:', err);
+                throw err; // Re-throw the error to be handled by the caller
+            }
         }
+        // Exceeded maximum retries
+        console.error('Exceeded maximum retry attempts, unable to get request result.');
+        throw new Error(`Request failed after ${maxRetries} retries.`);
     }
 }
