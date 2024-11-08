@@ -361,6 +361,30 @@ export const actionsList = [
             return 'Self-prompting stopped.';
         }
     },
+    
+    {
+        name: "!look",
+        description: "Capture a screenshot at specific coordinates",
+        args: ["x", "y", "z"],
+        perform: async function(agent, x, y, z) {
+            try {
+                const capture = await skills.captureView(
+                    agent.bot, 
+                    Number(x), 
+                    Number(y), 
+                    Number(z)
+                );
+
+                return {
+                    text: capture.description,
+                    image: capture.imagePath,
+                    metadata: capture.metadata
+                };
+            } catch (error) {
+                return `Failed to capture view: ${error.message}`;
+            }
+        }
+    }
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
