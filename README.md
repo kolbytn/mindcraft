@@ -2,9 +2,7 @@
 
 Crafting minds for Minecraft with LLMs and Mineflayer!
 
-[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md)
-
-[Discord Support](https://discord.gg/ZsrAAByEnr) 
+[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/ZsrAAByEnr) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
 
 
 #### ‼️Warning‼️
@@ -141,3 +139,14 @@ Thus, all the below specifications are equivalent to the above example:
 ## Patches
 
 Some of the node modules that we depend on have bugs in them. To add a patch, change your local node module file and run `npx patch-package [package-name]`
+
+## Citation:
+
+```
+@misc{mindcraft2023,
+    Author = {Kolby Nottingham and Max Robinson},
+    Title = {MINDcraft: LLM Agents for cooperation, competition, and creativity in Minecraft},
+    Year = {2023},
+    url={https://github.com/kolbytn/mindcraft}
+}
+```

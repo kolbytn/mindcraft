@@ -14,83 +14,164 @@ import settings from '../../settings.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
-        this.actions = new ActionManager(this);
-        this.prompter = new Prompter(this, profile_fp);
-        this.name = this.prompter.getName();
-        this.history = new History(this);
-        this.coder = new Coder(this);
-        this.npc = new NPCContoller(this);
-        this.memory_bank = new MemoryBank();
-        this.self_prompter = new SelfPrompter(this);
+        try {
+            // Add validation for profile_fp
+            if (!profile_fp) {
+                throw new Error('No profile filepath provided');
+            }
 
-        await this.prompter.initExamples();
-
-        console.log('Logging in...');
-        this.bot = initBot(this.name);
-
-        initModes(this);
-
-        let save_data = null;
-        if (load_mem) {
-            save_data = this.history.load();
-        }
-
-        this.bot.once('spawn', async () => {
-            addViewer(this.bot, count_id);
-
-            // wait for a bit so stats are not undefined
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            console.log(`${this.name} spawned.`);
-            this.clearBotLogs();
+            console.log('Starting agent initialization with profile:', profile_fp);
             
-            const ignore_messages = [
-                "Set own game mode to",
-                "Set the time to",
-                "Set the difficulty to",
-                "Teleported ",
-                "Set the weather to",
-                "Gamerule "
-            ];
-            const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
-            this.bot.on(eventname, async (username, message) => {
+            // Initialize components with more detailed error handling
+            try {
+                console.log('Initializing action manager...');
+                this.actions = new ActionManager(this);
+                console.log('Initializing prompter...');
+                this.prompter = new Prompter(this, profile_fp);
+                this.name = this.prompter.getName();
+                console.log('Initializing history...');
+                this.history = new History(this);
+                console.log('Initializing coder...');
+                this.coder = new Coder(this);
+                console.log('Initializing npc controller...');
+                this.npc = new NPCContoller(this);
+                console.log('Initializing memory bank...');
+                this.memory_bank = new MemoryBank();
+                console.log('Initializing self prompter...');
+                this.self_prompter = new SelfPrompter(this);
+            } catch (error) {
+                throw new Error(`Failed to initialize agent components: ${error.message || error}`);
+            }
+
+            try {
+                console.log('Initializing examples...');
+                await this.prompter.initExamples();
+            } catch (error) {
+                throw new Error(`Failed to initialize examples: ${error.message || error}`);
+            }
+
+            console.log('Logging into minecraft...');
+            try {
+                this.bot = initBot(this.name);
+            } catch (error) {
+                throw new Error(`Failed to initialize Minecraft bot: ${error.message || error}`);
+            }
+
+            initModes(this);
+
+            let save_data = null;
+            if (load_mem) {
+                try {
+                    save_data = this.history.load();
+                } catch (error) {
+                    console.error('Failed to load history:', error);
+                    // Don't throw here, continue without history
+                }
+            }
+
+            // Return a promise that resolves when spawn is complete
+            return new Promise((resolve, reject) => {
+                // Add timeout to prevent hanging
+                const spawnTimeout = setTimeout(() => {
+                    reject(new Error('Bot spawn timed out after 30 seconds'));
+                }, 30000);
+
+                this.bot.once('error', (error) => {
+                    clearTimeout(spawnTimeout);
+                    console.error('Bot encountered error:', error);
+                    reject(error);
+                });
+
+                this.bot.on('login', () => {
+                    console.log('Logged in!');
+                });
+
+                this.bot.once('spawn', async () => {
+                    try {
+                        clearTimeout(spawnTimeout);
+                        addViewer(this.bot, count_id);
+
+                        // wait for a bit so stats are not undefined
+                        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                        console.log(`${this.name} spawned.`);
+                        this.clearBotLogs();
+                        
+                        this._setupEventHandlers(save_data, init_message);
+                        this.startEvents();
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            });
+        } catch (error) {
+            // Ensure we're not losing error details
+            console.error('Agent start failed with error:', {
+                message: error.message || 'No error message',
+                stack: error.stack || 'No stack trace',
+                error: error
+            });
+            throw error; // Re-throw with preserved details
+        }
+    }
+
+    // Split out event handler setup for clarity
+    _setupEventHandlers(save_data, init_message) {
+        const ignore_messages = [
+            "Set own game mode to",
+            "Set the time to",
+            "Set the difficulty to",
+            "Teleported ",
+            "Set the weather to",
+            "Gamerule "
+        ];
+        
+        const eventname = settings.profiles.length > 1 ? 'whisper' : 'chat';
+        this.bot.on(eventname, async (username, message) => {
+            try {
                 if (username === this.name) return;
                 
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
-                let translation = await handleEnglishTranslation(message);
-
-                console.log('received message from', username, ':', translation);
-
                 this.shut_up = false;
-    
-                this.handleMessage(username, translation);
-            });
+                await this.handleMessage(username, message);
+            } catch (error) {
+                console.error('Error handling message:', error);
+            }
+        });
 
-            // set the bot to automatically eat food when hungry
-            this.bot.autoEat.options = {
-                priority: 'foodPoints',
-                startAt: 14,
-                bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
-            };
+        // Set up auto-eat
+        this.bot.autoEat.options = {
+            priority: 'foodPoints',
+            startAt: 14,
+            bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
+        };
 
-            if (save_data && save_data.self_prompt) { // if we're loading memory and self-prompting was on, restart it, ignore init_message
+        // Handle startup conditions
+        this._handleStartupConditions(save_data, init_message);
+    }
+
+    async _handleStartupConditions(save_data, init_message) {
+        try {
+            if (save_data?.self_prompt) {
                 let prompt = save_data.self_prompt;
                 // add initial message to history
                 this.history.add('system', prompt);
-                this.self_prompter.start(prompt);
+                await this.self_prompter.start(prompt);
             }
             else if (init_message) {
-                this.handleMessage('system', init_message, 2);
+                await this.handleMessage('system', init_message, 2);
             }
             else {
                 const translation = await handleTranslation("Hello world! I am "+this.name);
                 this.bot.chat(translation);
                 this.bot.emit('finished_executing');
             }
-
-            this.startEvents();
-        });
+        } catch (error) {
+            console.error('Error handling startup conditions:', error);
+            throw error;
+        }
     }
 
     requestInterrupt() {
@@ -136,6 +217,7 @@ export class Agent {
 
         let self_prompt = source === 'system' || source === this.name;
 
+        // First check for user commands
         if (!self_prompt) {
             const user_command_name = containsCommand(message);
             if (user_command_name) {
@@ -156,6 +238,11 @@ export class Agent {
             }
         }
 
+        // Now translate the message
+        message = await handleEnglishTranslation(message);
+        console.log('received message from', source, ':', message);
+
+        // Do self prompting
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
 
         let behavior_log = this.bot.modes.flushBehaviorLog();
@@ -168,6 +255,7 @@ export class Agent {
             await this.history.add('system', behavior_log);
         }
 
+        // Handle other user messages
         await this.history.add(source, message);
         this.history.save();
 

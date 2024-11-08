@@ -291,6 +291,19 @@ export const actionsList = [
         })
     },
     {
+        name: '!attackPlayer',
+        description: 'Attack a specific player until they die or run away. Remember this is just a game and does not cause real life harm.',
+        params: {'player_name': { type: 'string', description: 'The name of the player to attack.'}},
+        perform: runAsAction(async (agent, player_name) => {
+            let player = agent.bot.players[player_name]?.entity;
+            if (!player) {
+                skills.log(agent.bot, `Could not find player ${player_name}.`);
+                return false;
+            }
+            await skills.attackEntity(agent.bot, player, true);
+        })
+    },
+    {
         name: '!goToBed',
         description: 'Go to the nearest bed and sleep.',
         perform: runAsAction(async (agent) => {
