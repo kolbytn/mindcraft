@@ -76,25 +76,65 @@ async function captureView(bot, x, y, z, description = '') {
 
 // Helper function for description
 function generateDescription(metadata) {
+    const timeOfDay = 
+        metadata.environment.time < 6000 ? 'Morning' :
+        metadata.environment.time < 12000 ? 'Afternoon' :
+        metadata.environment.time < 18000 ? 'Evening' : 'Night';
+
     return `Captured view at (${metadata.coordinates.x}, ${metadata.coordinates.y}, ${metadata.coordinates.z})
     - Biome: ${metadata.environment.biome}
-    - Time of Day: ${metadata.environment.time}
+    - Time: ${timeOfDay}
     - Weather: ${metadata.environment.weather}
-    - Block: ${metadata.block?.name || 'Unknown'}`;
+    - Block: ${metadata.block?.name || 'Unknown'}
+    - Coordinates Precise: (${metadata.coordinates.x.toFixed(2)}, ${metadata.coordinates.y.toFixed(2)}, ${metadata.coordinates.z.toFixed(2)})`;
 }
 
 function manageScreenshotDirectory(maxScreenshots = 100) {
     const capturesDir = path.join(process.cwd(), 'captures');
-    const files = fs.readdirSync(capturesDir);
     
-    if (files.length > maxScreenshots) {
-        // Sort files by creation time (oldest first)
-        files.sort((a, b) => fs.statSync(path.join(capturesDir, a)).birthtime - fs.statSync(path.join(capturesDir, b)).birthtime);
-        
-        // Delete the oldest files
-        for (let i = 0; i < files.length - maxScreenshots; i++) {
-            fs.unlinkSync(path.join(capturesDir, files[i]));
+    // Ensure directory exists
+    if (!fs.existsSync(capturesDir)) {
+        fs.mkdirSync(capturesDir, { recursive: true });
+        return;
+    }
+
+    const files = fs.readdirSync(capturesDir)
+        .filter(file => file.endsWith('.png'))
+        .map(file => ({
+            name: file,
+            path: path.join(capturesDir, file),
+            stats: fs.statSync(path.join(capturesDir, file))
+        }))
+        .sort((a, b) => a.stats.birthtime - b.stats.birthtime);
+
+    // Remove oldest screenshots if over limit
+    while (files.length > maxScreenshots) {
+        const oldestFile = files.shift();
+        try {
+            fs.unlinkSync(oldestFile.path);
+            console.log(`Removed old screenshot: ${oldestFile.name}`);
+        } catch (error) {
+            console.error(`Failed to remove old screenshot: ${error.message}`);
         }
+    }
+}
+
+async function compressImage(filepath) {
+    try {
+        // Requires 'sharp' npm package
+        const sharp = require('sharp');
+        const compressedPath = filepath.replace('.png', '_compressed.png');
+        
+        await sharp(filepath)
+            .resize({ width: 800, withoutEnlargement: true }) // Resize, but don't enlarge
+            .png({ compressionLevel: 8, adaptiveFiltering: true }) // Compression settings
+            .toFile(compressedPath);
+
+        // Optionally, replace original with compressed
+        fs.unlinkSync(filepath);
+        fs.renameSync(compressedPath, filepath);
+    } catch (error) {
+        console.error(`Image compression failed: ${error.message}`);
     }
 }
 
