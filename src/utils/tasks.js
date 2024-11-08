@@ -6,7 +6,6 @@ export function loadTask(taskId) {
         const taskType = taskId.split('_')[0];
         const tasksFile = readFileSync(`tasks/${taskType}_tasks.yaml`, 'utf8');
         const tasks = yaml.load(tasksFile);
-        console.log(tasks)
         const task = tasks[taskId];
         if (!task) {
             throw new Error(`Task ${taskId} not found`);

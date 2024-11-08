@@ -11,22 +11,29 @@ export class TechTreeHarvestValidator {
         this.bot = bot;
     }
 
-    validate() {
-        //todo: check that this code actually works by creating a sandbox environment
-        // validate that bot has the item
+    async validate() {
         try{
-            this.bot.inventory.slots.forEach((slot) => {
-                console.log(slot);
-                console.log(this.target);
+            console.log("validate");
+            let valid = false;
+            await this.bot.inventory.slots.forEach((slot) => {
+                // console.log(slot);
+                // console.log(this.target);
+                // // console.log(slot.count);
+                // console.log(this.number_of_target);
+                // console.log(slot && slot.name.toLowerCase() === this.target);
+                // console.log(slot && slot.count >= this.number_of_target);
+                // console.log(slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target);
                 if (slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target) {
-                    return true;
+                    // console.log('returning true');
+                    valid = true;
+                    // console.log(valid);
                 }
             });
+            // console.log(valid);
+            return valid;
         } catch (error) {
             console.error('Error validating task:', error);
             return false;
         }
-        
-        return false;
     }
 }

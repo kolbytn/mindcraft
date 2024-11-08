@@ -30,7 +30,7 @@ export class Agent {
         this.self_prompter = new SelfPrompter(this);
 
         
-        console.log('Task:', this.task);
+        console.log('Task:', task);
         await this.prompter.initExamples();
 
         console.log('Logging in...');
@@ -47,7 +47,7 @@ export class Agent {
             this.validator = null;
         }
         
-        // console.log("Is validated:", this.validator && this.validator.validate());
+        console.log("Is validated:", this.validator && this.validator.validate());
 
         initModes(this);
 
@@ -323,6 +323,8 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
+            // todo: add the validation function here!
+            // todo: double check that idle is called everytime the command finishes
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
