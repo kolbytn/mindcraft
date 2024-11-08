@@ -129,7 +129,7 @@ export class Prompter {
             this.convo_examples = new Examples(this.embedding_model);
             this.coding_examples = new Examples(this.embedding_model);
 
-            const [convoResult, codingResult] = await Promise.allSettled([
+            const results = await Promise.allSettled([
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples),
                 ...getSkillDocs().map(async (doc) => {
@@ -138,7 +138,9 @@ export class Prompter {
                 })
             ]);
 
-            // Handle potential failures
+            // Handle potential failures for conversation and coding examples
+            const [convoResult, codingResult, ...skillDocResults] = results;
+
             if (convoResult.status === 'rejected') {
                 console.error('Failed to load conversation examples:', convoResult.reason);
                 throw convoResult.reason;
@@ -147,6 +149,12 @@ export class Prompter {
                 console.error('Failed to load coding examples:', codingResult.reason);
                 throw codingResult.reason;
             }
+            skillDocResults.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    console.error(`Failed to load skill doc ${index + 1}:`, result.reason);
+                }
+            });
+
         } catch (error) {
             console.error('Failed to initialize examples:', error);
             throw error;
