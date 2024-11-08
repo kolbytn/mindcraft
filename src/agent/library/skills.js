@@ -174,7 +174,7 @@ function logScreenshot(filepath, metadata) {
 
     try {
         fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-    } catch ( error) {
+    } catch (error) {
         console.error('Failed to write log file:', error);
     }
 }
