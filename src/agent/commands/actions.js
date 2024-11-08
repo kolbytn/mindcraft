@@ -365,13 +365,13 @@ export const actionsList = [
     {
     	name: "!look",
     	description: "Capture a screenshot at specific coordinates",
-    	params: {
-        	x: { type: 'float', description: 'X coordinate' },
-        	y: { type: 'float', description: 'Y coordinate' },
-        	z: { type: 'float', description: 'Z coordinate' }
-    	},
     	perform: async function(agent, x, y, z) {
         	try {
+            	// Use default coordinates if not provided
+            	x = x || agent.bot.entity.position.x;
+            	y = y || agent.bot.entity.position.y;
+            	z = z || agent.bot.entity.position.z;
+
             	const capture = await skills.captureView(
                 	agent.bot, 
                 	Number(x), 
@@ -385,6 +385,7 @@ export const actionsList = [
                 	metadata: capture.metadata
             	};
         	} catch (error) {
+            	console.error('Screenshot capture failed:', error);
             	return `Failed to capture view: ${error.message}`;
         	}
     	}
