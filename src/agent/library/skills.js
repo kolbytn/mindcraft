@@ -2,7 +2,7 @@ import * as mc from "../../utils/mcdata.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
-import fs form 'fs';
+import fs form 'fs';  
 import path from 'path';
 
 export function log(bot, message, chat=false) {
@@ -1311,8 +1311,7 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
     return true;
 }
 
-// Export the new function
-export { captureView };
+
 
 export async function activateNearestBlock(bot, type) {
     /**
