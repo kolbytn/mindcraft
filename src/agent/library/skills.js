@@ -13,13 +13,13 @@ export function log(bot, message, chat=false) {
 
 // Add this new function
 async function captureView(bot, x, y, z, description = '') {
-    // Manage screenshot directory
-    manageScreenshotDirectory();
-
     // Validate coordinates
     if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
         throw new Error('Invalid coordinates provided');
     }
+
+    // Manage screenshot directory
+    manageScreenshotDirectory();
 
     // Look at specified coordinates
     const targetPos = new Vec3(x, y, z);
@@ -33,8 +33,8 @@ async function captureView(bot, x, y, z, description = '') {
         throw new Error(`Failed to capture screenshot: ${error.message}`);
     }
 
-    // Create captures directory if it doesn't exist
-    const capturesDir = path.join(process.cwd (), 'captures');
+    // Create captures directory
+    const capturesDir = path.join(process.cwd(), 'captures');
     if (!fs.existsSync(capturesDir)) {
         fs.mkdirSync(capturesDir, { recursive: true });
     }
@@ -51,8 +51,12 @@ async function captureView(bot, x, y, z, description = '') {
         throw new Error(`Failed to save screenshot: ${error.message}`);
     }
 
-    // Compress the image
-    await compressImage(filepath);
+    // Optional: Compress image (requires 'sharp' package)
+    try {
+        await compressImage(filepath);
+    } catch (error) {
+        console.warn(`Image compression failed: ${error.message}`);
+    }
 
     // Generate metadata
     const metadata = {
@@ -65,6 +69,7 @@ async function captureView(bot, x, y, z, description = '') {
         }
     };
 
+    // Log the screenshot
     console.log(`Captured screenshot at (${x}, ${y}, ${z}): ${filepath}`);
 
     return {
