@@ -63,7 +63,7 @@ function tasksFromFile(taskType) {
     console.log(tasks);
     const taskIds = Object.keys(tasks);
     // console.log(Object.keys(tasks).map(key => `${key}`));
-    const slicedTaskIds = taskIds;
+    const slicedTaskIds = taskIds.slice(0,100);
     console.log(slicedTaskIds);
     return slicedTaskIds;
 }

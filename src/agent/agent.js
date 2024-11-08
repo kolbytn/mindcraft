@@ -64,6 +64,19 @@ export class Agent {
 
             console.log(`${this.name} spawned.`);
             this.clearBotLogs();
+
+            this.bot.chat(`/clear @p`);
+            console.log("Inventory cleared!");
+            
+            //wait for a bit so inventory is cleared
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            
+            for (let key of Object.keys(this.task.initial_inventory)) {
+                console.log('Giving item:', key);
+                this.bot.chat(`/give @p ${key} ${this.task.initial_inventory[key]}`);
+            };
+        
+            console.log("Inventory set!");
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -86,6 +99,8 @@ export class Agent {
                 this.shut_up = false;
     
                 this.handleMessage(username, translation);
+
+
             });
 
             // set the bot to automatically eat food when hungry
@@ -109,13 +124,9 @@ export class Agent {
                 this.bot.chat(translation);
                 this.bot.emit('finished_executing');
             }
-            try {
-                await this.clearInventory();
-            } catch (e) {
-                console.error('Failed to clear inventory:', e);
-            }
 
             this.startEvents();
+            
         });
     }
 
@@ -154,11 +165,11 @@ export class Agent {
 
     async handleMessage(source, message, max_responses=null) { 
 
-        // if (this.validator && this.validator.validate()) {
-        //     this.bot.chat('Task completed!');
-        //     this.clearInventory();
-        //     this.cleanKill('task completed', 0);
-        // }
+        if (this.validator && this.validator.validate()) {
+            this.bot.chat('Task completed!');
+            this.bot.chat(`/clear @p`);
+            this.cleanKill('task completed', 0);
+        }
         let used_command = false;
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
@@ -268,13 +279,19 @@ export class Agent {
         return used_command;
     }
 
-    async clearInventory() {
-        return this.bot.chat('/clear @p');
-    }
+    
 
     async startEvents() {
+
+        
         
         // Custom events
+        // this.bot.on('spawn', () => {
+            
+        //     //check that inventory has been set
+        // });
+
+
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
             this.bot.emit('sunrise');
@@ -326,12 +343,10 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
-            // todo: add the validation function here!
-            // todo: double check that idle is called everytime the command finishes
             if (this.validator && this.validator.validate()) {
                 console.log('Task completed!');
                 this.bot.chat('Task completed!');
-                this.clearInventory();
+                this.bot.chat(`/clear @p`);
                 this.cleanKill('task completed', 0);
             }
             this.bot.clearControlStates();

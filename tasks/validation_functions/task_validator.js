@@ -17,7 +17,11 @@ export class TechTreeHarvestValidator {
             // console.log(this.target);
             // console.log(this.bot.inventory.slots);
             let valid = false;
+            let total_targets = 0;
             this.bot.inventory.slots.forEach((slot) => {
+                if (slot && slot.name.toLowerCase() === this.target) {
+                    total_targets += slot.count;
+                }
                 // console.log(slot);
                 // console.log(this.target);
                 // // console.log(slot.count);
@@ -31,6 +35,10 @@ export class TechTreeHarvestValidator {
                     console.log('Task is complete');
                 }
             });
+            if (total_targets >= this.number_of_target) {
+                valid = true;
+                console.log('Task is complete');
+            }
             // console.log(valid);
             return valid;
         } catch (error) {

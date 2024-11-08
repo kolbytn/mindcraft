@@ -43,7 +43,7 @@ techtree_8_shears_with_16_iron_ingot:
   type: techtree
 
 
-_techtree_1_shears_with_1_iron_pickaxe:
+techtree_1_shears_with_1_iron_pickaxe:
   goal: ' techtree 1 shears with 1 iron pickaxe'
   guidance: null
   initial_inventory:
@@ -53,7 +53,7 @@ _techtree_1_shears_with_1_iron_pickaxe:
   type: techtree
 
 
-_techtree_8_shears_with_1_iron_pickaxe:
+techtree_8_shears_with_1_iron_pickaxe:
   goal: ' techtree 8 shears with 1 iron pickaxe'
   guidance: null
   initial_inventory:
