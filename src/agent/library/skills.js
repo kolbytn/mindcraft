@@ -10,13 +10,12 @@ export function log(bot, message, chat=false) {
     if (chat)
         bot.chat(message);
 }
-// In src/agent/library/skills.js
-// Add these imports at the top
-import fs from 'fs';
-import path from 'path';
 
 // Add this new function
 async function captureView(bot, x, y, z, description = '') {
+    // Manage screenshot directory
+    manageScreenshotDirectory();
+
     // Validate coordinates
     if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
         throw new Error('Invalid coordinates provided');
@@ -27,10 +26,15 @@ async function captureView(bot, x, y, z, description = '') {
     await bot.lookAt(targetPos);
 
     // Capture screenshot
-    const screenshot = await bot.screenshot();
+    let screenshot;
+    try {
+        screenshot = await bot.screenshot();
+    } catch (error) {
+        throw new Error(`Failed to capture screenshot: ${error.message}`);
+    }
 
     // Create captures directory if it doesn't exist
-    const capturesDir = path.join(process.cwd(), 'captures');
+    const capturesDir = path.join(process.cwd (), 'captures');
     if (!fs.existsSync(capturesDir)) {
         fs.mkdirSync(capturesDir, { recursive: true });
     }
@@ -41,7 +45,14 @@ async function captureView(bot, x, y, z, description = '') {
     const filepath = path.join(capturesDir, filename);
 
     // Save screenshot
-    fs.writeFileSync(filepath, screenshot);
+    try {
+        fs.writeFileSync(filepath, screenshot);
+    } catch (error) {
+        throw new Error(`Failed to save screenshot: ${error.message}`);
+    }
+
+    // Compress the image
+    await compressImage(filepath);
 
     // Generate metadata
     const metadata = {
@@ -53,6 +64,8 @@ async function captureView(bot, x, y, z, description = '') {
             weather: bot.rainState > 0 ? 'Rainy' : 'Clear'
         }
     };
+
+    console.log(`Captured screenshot at (${x}, ${y}, ${z}): ${filepath}`);
 
     return {
         imagePath: filepath,
@@ -70,6 +83,21 @@ function generateDescription(metadata) {
     - Block: ${metadata.block?.name || 'Unknown'}`;
 }
 
+function manageScreenshotDirectory(maxScreenshots = 100) {
+    const capturesDir = path.join(process.cwd(), 'captures');
+    const files = fs.readdirSync(capturesDir);
+    
+    if (files.length > maxScreenshots) {
+        // Sort files by creation time (oldest first)
+        files.sort((a, b) => fs.statSync(path.join(capturesDir, a)).birthtime - fs.statSync(path.join(capturesDir, b)).birthtime);
+        
+        // Delete the oldest files
+        for (let i = 0; i < files.length - maxScreenshots; i++) {
+            fs.unlinkSync(path.join(capturesDir, files[i]));
+        }
+    }
+}
+
 async function autoLight(bot) {
     if (world.shouldPlaceTorch(bot)) {
         try {
@@ -78,6 +106,14 @@ async function autoLight(bot) {
         } catch (err) {return false;}
     }
     return false;
+}
+
+const sharp = require('sharp');
+
+async function compressImage(filepath) {
+    await sharp(filepath)
+        .resize(800) // Resize to a width of 800 pixels, maintaining aspect ratio
+        .toFile(filepath.replace('.png', '_compressed.png'));
 }
 
 async function equipHighestAttack(bot) {
