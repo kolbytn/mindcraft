@@ -2,12 +2,72 @@ import * as mc from "../../utils/mcdata.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
-
+import fs form 'fs';
+import path from 'path';
 
 export function log(bot, message, chat=false) {
     bot.output += message + '\n';
     if (chat)
         bot.chat(message);
+}
+// In src/agent/library/skills.js
+// Add these imports at the top
+import fs from 'fs';
+import path from 'path';
+
+// Add this new function
+async function captureView(bot, x, y, z, description = '') {
+    // Validate coordinates
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+        throw new Error('Invalid coordinates provided');
+    }
+
+    // Look at specified coordinates
+    const targetPos = new Vec3(x, y, z);
+    await bot.lookAt(targetPos);
+
+    // Capture screenshot
+    const screenshot = await bot.screenshot();
+
+    // Create captures directory if it doesn't exist
+    const capturesDir = path.join(process.cwd(), 'captures');
+    if (!fs.existsSync(capturesDir)) {
+        fs.mkdirSync(capturesDir, { recursive: true });
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const filename = `screenshot_${timestamp}.png`;
+    const filepath = path.join(capturesDir, filename);
+
+    // Save screenshot
+    fs.writeFileSync(filepath, screenshot);
+
+    // Generate metadata
+    const metadata = {
+        coordinates: { x, y, z },
+        block: bot.blockAt(targetPos),
+        environment: {
+            biome: world.getBiomeName(bot),
+            time: bot.time.timeOfDay,
+            weather: bot.rainState > 0 ? 'Rainy' : 'Clear'
+        }
+    };
+
+    return {
+        imagePath: filepath,
+        metadata: metadata,
+        description: description || generateDescription(metadata)
+    };
+}
+
+// Helper function for description
+function generateDescription(metadata) {
+    return `Captured view at (${metadata.coordinates.x}, ${metadata.coordinates.y}, ${metadata.coordinates.z})
+    - Biome: ${metadata.environment.biome}
+    - Time of Day: ${metadata.environment.time}
+    - Weather: ${metadata.environment.weather}
+    - Block: ${metadata.block?.name || 'Unknown'}`;
 }
 
 async function autoLight(bot) {
@@ -1250,6 +1310,9 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
     }
     return true;
 }
+
+// Export the new function
+export { captureView };
 
 export async function activateNearestBlock(bot, type) {
     /**
