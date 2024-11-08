@@ -134,7 +134,7 @@ export class Prompter {
                 this.coding_examples.load(this.profile.coding_examples),
                 ...getSkillDocs().map(async (doc) => {
                     let func_name_desc = doc.split('\n').slice(0, 2).join('');
-                    this.skill_docs_embeddings[doc] = await this.embedding_model.embed([func_name_desc]);
+                    this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
                 })
             ]);
 
@@ -199,9 +199,20 @@ export class Prompter {
         }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
-        if (prompt.includes('$CODE_DOCS')){
-            let latest_message_content = messages.slice().reverse().find(msg => msg.role !== 'system')?.content || '';
-            prompt = prompt.replaceAll('$CODE_DOCS', await this.getRelevantSkillDocs(latest_message_content, 5));
+        if (prompt.includes('$CODE_DOCS')) {
+            // Find the most recent non-system message containing '!newAction('
+            let code_task_content = messages.slice().reverse().find(msg =>
+                msg.role !== 'system' && msg.content.includes('!newAction(')
+            )?.content || '';
+
+            // Extract content between '!newAction(' and ')'
+            const match = code_task_content.match(/!newAction\((.*?)\)/);
+            code_task_content = match ? match[1] : '';
+
+            prompt = prompt.replaceAll(
+                '$CODE_DOCS',
+                await this.getRelevantSkillDocs(code_task_content, 5)
+            );
         }
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
