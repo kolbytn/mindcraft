@@ -109,6 +109,11 @@ export class Agent {
                 this.bot.chat(translation);
                 this.bot.emit('finished_executing');
             }
+            try {
+                await this.clearInventory();
+            } catch (e) {
+                console.error('Failed to clear inventory:', e);
+            }
 
             this.startEvents();
         });
@@ -136,7 +141,8 @@ export class Agent {
         message = (await handleTranslation(to_translate)).trim() + " " + remainging;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
-        return this.bot.chat(message);
+        this.bot.chat(message);
+        this.bot.emit('idle');
     }
 
     shutUp() {
@@ -148,10 +154,11 @@ export class Agent {
 
     async handleMessage(source, message, max_responses=null) { 
 
-        if (this.validator && this.validator.validate()) {
-            this.bot.chat('Task completed!');
-            this.cleanKill('task completed');
-        }
+        // if (this.validator && this.validator.validate()) {
+        //     this.bot.chat('Task completed!');
+        //     this.clearInventory();
+        //     this.cleanKill('task completed', 0);
+        // }
         let used_command = false;
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
@@ -266,11 +273,7 @@ export class Agent {
     }
 
     async startEvents() {
-        try {
-            await this.clearInventory();
-        } catch (e) {
-            console.error('Failed to clear inventory:', e);
-        }
+        
         // Custom events
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
@@ -325,6 +328,12 @@ export class Agent {
         this.bot.on('idle', () => {
             // todo: add the validation function here!
             // todo: double check that idle is called everytime the command finishes
+            if (this.validator && this.validator.validate()) {
+                console.log('Task completed!');
+                this.bot.chat('Task completed!');
+                this.clearInventory();
+                this.cleanKill('task completed', 0);
+            }
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
@@ -361,10 +370,18 @@ export class Agent {
         return !this.actions.executing && !this.coder.generating;
     }
     
-    cleanKill(msg='Killing agent process...') {
+    cleanKill(msg='Killing agent process...', 
+            code=1) {
         this.history.add('system', msg);
         this.bot.chat('Goodbye world.')
         this.history.save();
-        process.exit(1);
+        process.exit(code);
     }
+
+    // cleanKillForever(msg='Killing agent process...') {
+    //     this.history.add('system', msg);
+    //     this.bot.chat('Goodbye world.')
+    //     this.history.save();
+    //     process.exit(0);
+    // }
 }

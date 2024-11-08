@@ -5,6 +5,14 @@
 #
 
 
+harvest_8_spruce_log:
+  goal: harvest 8 spruce log
+  guidance: null
+  initial_inventory: {}
+  number_of_target: 8
+  target: spruce_log
+  type: harvest
+
 harvest_1_oak_log:
   goal: harvest 1 oak log
   guidance: null

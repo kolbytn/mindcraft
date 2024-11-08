@@ -43,6 +43,12 @@ export class AgentProcess {
                 this.start(profile, true, 'Agent process restarted.', count_id, task);
                 last_restart = Date.now();
             }
+
+            if (code === 0) {
+                console.log("Agent process completed successfully");
+                process.exit(0);
+                return;
+            }
         });
     
         agentProcess.on('error', (err) => {

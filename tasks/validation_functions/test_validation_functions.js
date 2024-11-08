@@ -57,12 +57,13 @@ async function startTaskDebug(taskId) {
 
 // Define the tasks array
 
-async function tasksFromFile(taskType) {
+function tasksFromFile(taskType) {
     const tasksFile = readFileSync(`tasks/${taskType}_tasks.yaml`, 'utf8');
-    const tasks = await yaml.load(tasksFile);
-    const taskIds = await Promise.all(Object.keys(tasks));
+    const tasks = yaml.load(tasksFile);
+    console.log(tasks);
+    const taskIds = Object.keys(tasks);
     // console.log(Object.keys(tasks).map(key => `${key}`));
-    const slicedTaskIds = taskIds.slice(1, 2);
+    const slicedTaskIds = taskIds;
     console.log(slicedTaskIds);
     return slicedTaskIds;
 }
@@ -81,13 +82,34 @@ async function main() {
     
             version: settings.minecraft_version,
         });
-        const tasks = ["harvest_1_sand", "harvest_1_oak_log"];
+        const tasks = tasksFromFile("techtree");
         console.log(tasks);
-        bot.once('spawn', async function() {
-            const results = await tasks.map(async (taskId, bot) => {
-                const success = await startTask(taskId, bot);
-                console.log(`Task ${taskId} complete and is ${success}`);
-            });
+
+        bot.once("spawn", function() {
+            for (let taskId of tasks) {
+                console.log(`Starting task ${taskId}`);
+                var task = loadTask(taskId);
+                var validator = new TechTreeHarvestValidator(task, bot);
+                try {
+                    bot.chat(`/clear @p`);
+                    bot.chat(`/give @p ${task.target} ${task.number_of_target}`);
+                    bot.once("entityEquip", function() {
+                        const success = validator.validate();
+                        if (!success) {
+                            console.error(`Task ${taskId} failed`);
+                            process.exit(1);
+                        }
+                        // console.log(`Task ${taskId} complete and is ${success}`);
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+                // const success = validator.validate();
+                // console.log(`Task ${taskId} complete and is ${success}`);
+                // console.log('Chat commands sent');
+                // const success = validator.validate();
+                // console.log(`Task ${taskId} complete and is ${success}`);
+            }
         });
     } catch (error) {
         console.error(error);

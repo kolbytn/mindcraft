@@ -11,11 +11,13 @@ export class TechTreeHarvestValidator {
         this.bot = bot;
     }
 
-    async validate() {
+    validate() {
         try{
             console.log("validate");
+            // console.log(this.target);
+            // console.log(this.bot.inventory.slots);
             let valid = false;
-            await this.bot.inventory.slots.forEach((slot) => {
+            this.bot.inventory.slots.forEach((slot) => {
                 // console.log(slot);
                 // console.log(this.target);
                 // // console.log(slot.count);
@@ -26,7 +28,7 @@ export class TechTreeHarvestValidator {
                 if (slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target) {
                     // console.log('returning true');
                     valid = true;
-                    // console.log(valid);
+                    console.log('Task is complete');
                 }
             });
             // console.log(valid);
