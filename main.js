@@ -3,6 +3,7 @@ import settings from './settings.js';
 import yargs from 'yargs';
 import { loadTask } from './src/utils/tasks.js';
 import { hideBin } from 'yargs/helpers';
+import { readFileSync, writeFileSync } from 'fs';
 
 
 function parseArguments() {
@@ -20,10 +21,29 @@ function parseArguments() {
         .parse();
 }
 
+//todo: modify for multiple agents
 function getProfiles(args) {
     if (args.task) {
+        // todo: make temporary json profiles for the multiple agents
+        var task = loadTask(args.task);
+        if ('agent_number' in task && task.agent_number > 1) {
+            var profile = JSON.parse(readFileSync('./task_andy.json', 'utf8'));
+            var agent_names = task.agent_names;
+            var filenames = [];
+            for (let i=0; i<task.agent_number; i++) {
+                let temp_profile = profile;
+                temp_profile.name = agent_names[i];
+                //todo: contraints 
+                var filename = `profiles/task_${agent_names[i]}.json`;
+                writeFileSync(filename, JSON.stringify(temp_profile, null, 2));
+                filenames.push(filename);
+            }
+            return filenames;
+        }
+    } else if (args.task) {
         return ['./task_andy.json'];
     }
+    //todo: return two or more profiles if multi-agent
     return args.profiles || settings.profiles;
 }
 
@@ -37,7 +57,9 @@ function main() {
         process.env.MINECRAFT_TASK_GOAL = task.goal;
         process.env.MINECRAFT_TASK_INVENTORY = JSON.stringify(task.initial_inventory || {});
     }
+    // todo: do inventory
     const profiles = getProfiles(args);
+
     console.log(profiles);
     // var { load_memory, init_message } = settings;
     var load_memory = settings.load_memory;
