@@ -65,16 +65,24 @@ export class Agent {
             console.log(`${this.name} spawned.`);
             this.clearBotLogs();
 
-            this.bot.chat(`/clear @p`);
+            this.bot.chat(`/clear ${this.name}`);
             console.log("Inventory cleared!");
             
             //wait for a bit so inventory is cleared
             await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            if (task && "agent_number" in this.task && this.task.agent_number > 1) {
+                var initial_inventory = this.task.initial_inventory[this.name];
+            } else if (task) {
+                var initial_inventory = this.task.initial_inventory;
+            }
             
-            for (let key of Object.keys(this.task.initial_inventory)) {
+            for (let key of Object.keys(initial_inventory)) {
                 console.log('Giving item:', key);
-                this.bot.chat(`/give @p ${key} ${this.task.initial_inventory[key]}`);
+                this.bot.chat(`/give ${this.name} ${key} ${this.task.initial_inventory[key]}`);
             };
+            
+            
         
             console.log("Inventory set!");
             
