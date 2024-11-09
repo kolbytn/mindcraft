@@ -14,6 +14,7 @@ export class Examples {
         for (let turn of turns) {
             if (turn.role !== 'assistant')
                 messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
+                // messages += turn.content + '\n';
         }
         return messages.trim();
     }
@@ -70,7 +71,7 @@ export class Examples {
 
         console.log('selected examples:');
         for (let example of selected_examples) {
-            console.log(example[0].content)
+            console.log('Example:', example[0].content)
         }
 
         let msg = 'Examples of how to respond:\n';

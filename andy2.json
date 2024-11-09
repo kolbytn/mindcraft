@@ -1,5 +1,5 @@
 {
-    "name": "andy",
+    "name": "randy",
 
     "model": "gpt-4o",
 
@@ -31,7 +31,7 @@
 
         [
             {"role": "system", "content": "Send a message to john_goodman to work together"},
-            {"role": "assistant", "content": "!startChat('john_goodman', 'Hey John, lets work together to build a house!', 10)"}
+            {"role": "assistant", "content": "!startChat('john_goodman', 'Hey John, lets work together to build a house!', 10))"}
         ],
 
         [
