@@ -81,15 +81,18 @@ export class Agent {
                 console.log("Initial inventory:", this.task.initial_inventory);
                 var initial_inventory = this.task.initial_inventory;
             }
-            
-            for (let key of Object.keys(initial_inventory)) {
-                console.log('Giving item:', key);
-                console.log(`give ${this.name} ${key} ${initial_inventory[key]}`);
-                this.bot.chat(`/give ${this.name} ${key} ${this.task.initial_inventory[key]}`);
-            };
 
-            console.log("Done giving inventory items.");
-            console.log("Inventory set!");
+            if (this.task && "initial_inventory" in this.task) {
+                for (let key of Object.keys(initial_inventory)) {
+                    console.log('Giving item:', key);
+                    console.log(`give ${this.name} ${key} ${initial_inventory[key]}`);
+                    this.bot.chat(`/give ${this.name} ${key} ${this.task.initial_inventory[key]}`);
+                };
+                console.log("Done giving inventory items.");
+                console.log("Inventory set!");
+            }
+
+            
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -192,7 +195,7 @@ export class Agent {
 
     async handleMessage(source, message, max_responses=null) { 
 
-        if (this.validator && this.validator.validate()) {
+        if (this.task && this.validator && this.validator.validate()) {
             this.bot.chat('Task completed!');
             this.bot.chat(`/clear @p`);
             this.cleanKill('task completed', 0);
@@ -367,7 +370,7 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
-            if (this.validator && this.validator.validate()) {
+            if (this.task && this.validator && this.validator.validate()) {
                 console.log('Task completed!');
                 this.bot.chat('Task completed!');
                 this.bot.chat(`/clear @p`);
