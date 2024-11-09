@@ -39,9 +39,9 @@ function getProfiles(args) {
                 filenames.push(filename);
             }
             return filenames;
+        } else {
+            return ['./task_andy.json'];
         }
-    } else if (args.task) {
-        return ['./task_andy.json'];
     }
     //todo: return two or more profiles if multi-agent
     return args.profiles || settings.profiles;

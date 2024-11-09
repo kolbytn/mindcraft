@@ -72,20 +72,23 @@ export class Agent {
             
             //wait for a bit so inventory is cleared
             await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            if (task && "agent_number" in this.task && this.task.agent_number > 1) {
+            
+            console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
+            if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
                 var initial_inventory = this.task.initial_inventory[this.name];
+                console.log("Initial inventory:", initial_inventory);
             } else if (task) {
+                console.log("Initial inventory:", this.task.initial_inventory);
                 var initial_inventory = this.task.initial_inventory;
             }
             
             for (let key of Object.keys(initial_inventory)) {
                 console.log('Giving item:', key);
+                console.log(`give ${this.name} ${key} ${initial_inventory[key]}`);
                 this.bot.chat(`/give ${this.name} ${key} ${this.task.initial_inventory[key]}`);
             };
-            
-            
-        
+
+            console.log("Done giving inventory items.");
             console.log("Inventory set!");
             
             const ignore_messages = [
