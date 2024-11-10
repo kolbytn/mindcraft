@@ -14,6 +14,7 @@ import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 import { loadTask } from '../utils/tasks.js';
 import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
+import {getPosition} from './library/world.js'
 
 export class Agent {
     async start(profile_fp, 
@@ -96,20 +97,54 @@ export class Agent {
                 console.log("Done giving inventory items.");
             }
 
-            //todo: handle teleportation
-            if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
+            // Function to generate random numbers
+
+            function getRandomOffset(range) {
+                return Math.floor(Math.random() * (range * 2 + 1)) - range;
+            }
+
+            let human_player_name = null;
+
+            // Finding if there is a human player on the server
+            for (const playerName in this.bot.players) {
+                const player = this.bot.players[playerName];
+                if (!isOtherAgent(player.username)) {
+                    console.log('Found human player:', player.username);
+                    human_player_name = player.username
+                    break;
+                }
+                }
+
+            // teleport near a human player if found by default
+
+            if (this.task && "agent_number" in this.task) {
                 var agent_names = this.task.agent_names;
-                console.log("Agent names:", agent_names);
-                for (let i=0; i<this.task.agent_number; i++) {
-                    if (agent_names[i] !== this.name) {
-                        console.log(`Teleporting ${this.name} to ${agent_names[i]}`);
-                        this.bot.chat(`/tp ${this.name} ${agent_names[i]}`);
+                for (let i=0; i < this.task.agent_number; i++) {
+                    if (human_player_name) {
+                        this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
+
+                    }
+                    else {
+                        this.bot.chat(`/tp ${this.name} ${agent_names[i]}`) // teleport on top of other bots
                     }
                 }
             }
 
+            // now all bots are teleport on top of each other
+            // Now comes the teleportation to random distance from the human player part
 
-            
+            /*
+            Note : We don't want randomness for construction task as the reference point matters a lot.
+            Another reason for no randomness for construction task is because, often times the user would fly in the air,
+            then set a random block to dirt and teleport the bot to stand on that block for starting the construction
+            */
+
+            if (this.task && this.task.type !== 'construction') {
+                const pos = getPosition(this.bot);
+                const xOffset = getRandomOffset(10);
+                const zOffset = getRandomOffset(10);
+                this.bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 5} ${Math.floor(pos.z + zOffset)}`);
+            }
             
             const ignore_messages = [
                 "Set own game mode to",
