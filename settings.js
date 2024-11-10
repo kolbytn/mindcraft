@@ -6,12 +6,12 @@ export default
     "auth": "offline", // or "microsoft"
     
     "profiles": [
-        //"./andy.json",
+        "./andy.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
         // "./profiles/llama.json",
-         "./profiles/qwen.json",
+        // "./profiles/qwen.json",
 
         // using more than 1 profile requires you to /msg each bot indivually
     ],
