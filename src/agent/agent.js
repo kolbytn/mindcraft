@@ -68,10 +68,10 @@ export class Agent {
             this.clearBotLogs();
 
             this.bot.chat(`/clear ${this.name}`);
-            console.log("Inventory cleared!");
+            console.log(`Cleared ${this.name}'s inventory.`);
             
             //wait for a bit so inventory is cleared
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 500));
             
             console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
             if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
@@ -81,15 +81,24 @@ export class Agent {
                 console.log("Initial inventory:", this.task.initial_inventory);
                 var initial_inventory = this.task.initial_inventory;
             }
-
             if (this.task && "initial_inventory" in this.task) {
+                console.log("Setting inventory...");
+                console.log("Inventory to set:", initial_inventory);
                 for (let key of Object.keys(initial_inventory)) {
                     console.log('Giving item:', key);
                     console.log(`give ${this.name} ${key} ${initial_inventory[key]}`);
-                    this.bot.chat(`/give ${this.name} ${key} ${this.task.initial_inventory[key]}`);
+                    // this.bot.chat("giving myself items");
+                    // this.bot.chat("/tp andy randy");
+                    // this.bot.chat(`/give ${this.name} ${key} 64`);
+                    this.bot.chat(`/give ${this.name} ${key} ${initial_inventory[key]}`);
                 };
+                //wait for a bit so inventory is set
+                await new Promise((resolve) => setTimeout(resolve, 500));
                 console.log("Done giving inventory items.");
                 console.log("Inventory set!");
+                console.log(this.bot.inventory.slots);
+                
+                
             }
 
             
