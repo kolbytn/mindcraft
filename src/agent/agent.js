@@ -86,7 +86,6 @@ export class Agent {
                 console.log("Inventory to set:", initial_inventory);
                 for (let key of Object.keys(initial_inventory)) {
                     console.log('Giving item:', key);
-                    console.log(`give ${this.name} ${key} ${initial_inventory[key]}`);
                     // this.bot.chat("giving myself items");
                     // this.bot.chat("/tp andy randy");
                     // this.bot.chat(`/give ${this.name} ${key} 64`);
@@ -95,11 +94,20 @@ export class Agent {
                 //wait for a bit so inventory is set
                 await new Promise((resolve) => setTimeout(resolve, 500));
                 console.log("Done giving inventory items.");
-                console.log("Inventory set!");
-                console.log(this.bot.inventory.slots);
-                
-                
             }
+
+            //todo: handle teleportation
+            if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
+                var agent_names = this.task.agent_names;
+                console.log("Agent names:", agent_names);
+                for (let i=0; i<this.task.agent_number; i++) {
+                    if (agent_names[i] !== this.name) {
+                        console.log(`Teleporting ${this.name} to ${agent_names[i]}`);
+                        this.bot.chat(`/tp ${this.name} ${agent_names[i]}`);
+                    }
+                }
+            }
+
 
             
             
