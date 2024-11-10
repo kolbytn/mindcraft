@@ -182,7 +182,7 @@ export class Prompter {
         let selected_docs = skill_doc_similarities.slice(0, select_num);
         let relevant_skill_docs = '#### RELEVENT DOCS INFO ###\nThe following functions are listed in descending order of relevance.\n';
         relevant_skill_docs += 'SkillDocs:\n'
-        relevant_skill_docs += '###'+ selected_docs.map(doc => `${doc.doc_key}`).join('\n');
+        relevant_skill_docs += selected_docs.map(doc => `${doc.doc_key}`).join('\n### ');
         return relevant_skill_docs;
     }
 
