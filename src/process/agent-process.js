@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { loadTask } from '../utils/tasks.js';
 
 export class AgentProcess {
     static runningCount = 0;
@@ -23,12 +24,20 @@ export class AgentProcess {
             stderr: 'inherit',
         });
         AgentProcess.runningCount++;
+
         
         let last_restart = Date.now();
         agentProcess.on('exit', (code, signal) => {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);
+
+            if (task) {
+                const loaded_task = loadTask(task);
+                if (loaded_task.agent_number && loaded_task.agent_number > 1) {
+                    console.log("Automatic respawn not supported for multi-agent scenarios");
+                    process.exit(0);
+                }
+            }
             
-            //create a setting to toggle auto-respawn
             if (code !== 0) {
                 // agent must run for at least 10 seconds before restarting
                 if (Date.now() - last_restart < 10000) {
