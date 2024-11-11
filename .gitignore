@@ -12,4 +12,4 @@ services/viaproxy/plugins/**
 services/viaproxy/ViaLoader/**
 services/viaproxy/saves.json
 services/viaproxy/viaproxy.yml
-profiles/task_*/
+profiles/task_*
