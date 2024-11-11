@@ -168,8 +168,8 @@ export class Agent {
 
             if (this.task && this.task.type !== 'construction') {
                 const pos = getPosition(this.bot);
-                const xOffset = getRandomOffset(5);
-                const zOffset = getRandomOffset(5);
+                const xOffset = getRandomOffset(3);
+                const zOffset = getRandomOffset(3);
                 this.bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
                 await new Promise((resolve) => setTimeout(resolve, 1000));
             }
