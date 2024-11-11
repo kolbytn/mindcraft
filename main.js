@@ -27,7 +27,7 @@ function getProfiles(args) {
         // todo: make temporary json profiles for the multiple agents
         var task = loadTask(args.task);
         if ('agent_number' in task && task.agent_number > 1) {
-            var profile = JSON.parse(readFileSync('./task_andy.json', 'utf8'));
+            var profile = JSON.parse(readFileSync('./multiagent_prompt_desc.json', 'utf8'));
             var agent_names = task.agent_names;
             var filenames = [];
             for (let i=0; i<task.agent_number; i++) {

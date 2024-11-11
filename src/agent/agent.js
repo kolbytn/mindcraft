@@ -113,17 +113,6 @@ export class Agent {
                 await new Promise((resolve) => setTimeout(resolve, 500));
                 console.log("Done giving inventory items.");
             }
-
-            if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
-                var agent_names = this.task.agent_names;
-                console.log("Agent names:", agent_names);
-                for (let i=0; i<this.task.agent_number; i++) {
-                    if (agent_names[i] !== this.name) {
-                        console.log(`Teleporting ${this.name} to ${agent_names[i]}`);
-                        this.bot.chat(`/tp ${this.name} ${agent_names[i]}`);
-                    }
-                }
-            }
             // Function to generate random numbers
 
             function getRandomOffset(range) {
@@ -148,7 +137,7 @@ export class Agent {
                 var agent_names = this.task.agent_names;
                 for (let i=0; i < this.task.agent_number; i++) {
                     if (human_player_name) {
-                        console.log('Teleporting to human')
+                        console.log(`Teleporting ${this.name} to human ${human_player_name}`)
                         this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
 
                     }
@@ -156,7 +145,16 @@ export class Agent {
                         this.bot.chat(`/tp ${this.name} ${agent_names[i]}`) // teleport on top of other bots
                     }
                 }
-                await new Promise((resolve) => setTimeout(resolve, 500));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+            }
+
+            else if (this.task) {
+                if (human_player_name) {
+                    console.log(`Teleporting ${this.name} to human ${human_player_name}`)
+                    this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
+
+                }
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
 
             // now all bots are teleport on top of each other
@@ -173,6 +171,7 @@ export class Agent {
                 const xOffset = getRandomOffset(5);
                 const zOffset = getRandomOffset(5);
                 this.bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
+                await new Promise((resolve) => setTimeout(resolve, 1000));
             }
             
             const ignore_messages = [
