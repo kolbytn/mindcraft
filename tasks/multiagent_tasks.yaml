@@ -17,10 +17,28 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
     Bob: Agreeableness
   script: there are some misunderstandings between Bob and Alice, Bob says Alice was wrong, but Alice says Bob was wrong, then Bob apologized for his wrong.
   system_instructions: []
-  blocked_actions: 
-    andy:
-      - "!collectBlocks"
-      - "!collectAllBlocks"
-    randy:
-      - "!collectBlocks"
-      - "!collectAllBlocks"
+  # blocked_actions: 
+  #   andy:
+  #     - "!collectBlocks"
+  #     - "!collectAllBlocks"
+  #   randy:
+  #     - "!collectBlocks"
+  #     - "!collectAllBlocks"
+
+
+multiagent_techtree_boat:
+  goal: Collaborate with other agents to build a boat
+  agent_names:
+  - Bob
+  - Alice
+  agent_number: 2
+  initial_inventory:
+    Bob:
+      birch_planks: 3
+    Alice:
+      birch_planks: 2
+  target: birch_boat
+  number_of_target: 1
+  type: techtree
+
+
