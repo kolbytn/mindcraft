@@ -28,6 +28,7 @@ export class AgentProcess {
         agentProcess.on('exit', (code, signal) => {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);
             
+            //create a setting to toggle auto-respawn
             if (code !== 0) {
                 // agent must run for at least 10 seconds before restarting
                 if (Date.now() - last_restart < 10000) {
@@ -47,7 +48,6 @@ export class AgentProcess {
             if (code === 0) {
                 console.log("Agent process completed successfully");
                 process.exit(0);
-                return;
             }
         });
     

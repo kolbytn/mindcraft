@@ -23,4 +23,4 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
       - "!collectAllBlocks"
     randy:
       - "!collectBlocks"
-      - "!collectAllBlocks"
+      - "!collectAllBlocks"n

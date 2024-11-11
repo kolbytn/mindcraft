@@ -15,6 +15,8 @@ import settings from '../../settings.js';
 import { loadTask } from '../utils/tasks.js';
 import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
 import {getPosition} from './library/world.js'
+import { readFileSync } from 'fs';
+
 
 export class Agent {
     async start(profile_fp, 
@@ -84,6 +86,13 @@ export class Agent {
             
             //wait for a bit so inventory is cleared
             await new Promise((resolve) => setTimeout(resolve, 500));
+
+            //debug mode give one agent the target item 
+            // if (this.name === 'andy') {
+            //     this.bot.chat(`/give ${this.name} ${this.task.target} ${this.task.number_of_target}`);
+            //     console.log(`/give ${this.name} ${this.task.target} ${this.task.number_of_target}`);
+            // }
+            
             
             console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
             if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
@@ -267,9 +276,7 @@ export class Agent {
 
     async handleMessage(source, message, max_responses=null) { 
         if (this.task && this.validator && this.validator.validate()) {
-            this.bot.chat('Task completed!');
-            this.bot.chat(`/clear ${this.name}`);
-            this.cleanKill('task completed', 0);
+            this.killBots();
         }
         let used_command = false;
         if (max_responses === null) {
@@ -442,10 +449,7 @@ export class Agent {
         });
         this.bot.on('idle', () => {
             if (this.task && this.validator && this.validator.validate()) {
-                console.log('Task completed!');
-                this.bot.chat('Task completed!');
-                this.bot.chat(`/clear @p`);
-                this.cleanKill('task completed', 0);
+                this.killBots();
             }
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
@@ -472,6 +476,27 @@ export class Agent {
         }, INTERVAL);
 
         this.bot.emit('idle');
+    }
+
+    killBots() {
+        console.log('Task completed!');
+        this.bot.chat('Task completed!');
+        this.bot.chat(`/clear @p`);
+
+        // Kick other bots
+        if (!this.task || !this.task.agent_number) {
+            this.cleanKill('task completed', 0);
+        }
+        const agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name); // Replace with the list of bot names
+        const botNames = agent_names.filter(botName => botName !== this.name);
+        console.log('Kicking bots:', botNames);
+        botNames.forEach(botName => {
+            this.bot.chat(`/kick ${botName}`);
+            console.log(`/kick ${botName}`);
+
+        });
+
+        this.cleanKill('task completed', 0);
     }
 
     async update(delta) {

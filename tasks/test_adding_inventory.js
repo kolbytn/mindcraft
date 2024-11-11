@@ -41,14 +41,18 @@ function addInventory(taskId, username) {
             bot.chat(`/give ${username} ${key} ${task.initial_inventory[key]}`);
         }
     });
+    return bot;
 
 }
 
 async function main() {
     try {
         const taskId = 'techtree_1_shears_with_2_iron_ingot';
-        addInventory(taskId, 'andy');
-        addInventory(taskId, 'randy');
+        var andy = addInventory(taskId, 'andy');
+        var randy = addInventory(taskId, 'randy');
+
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+        andy.chat(`/kick randy`);
     } catch (error) {
         console.error(error);
     }
