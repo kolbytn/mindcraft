@@ -1,5 +1,6 @@
 {
     "name": "bot_name",
+    "collaborator": "collaborator_name",
 
     "model": "gpt-4o",
 

@@ -66,7 +66,9 @@ function main() {
     var init_message = settings.init_message
 
     if (args.task) {
-        init_message = "Announce your task to everyone and get started with it immediately, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
+        //todo: make more modular :D 
+        init_message = "Immediately start a conversation with randy and collaborate together to complete the task. Share resources and skill sets."
+        // init_message = "Announce your task to everyone and get started with it immediately, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
     }
     for (let i=0; i<profiles.length; i++) {
         const agent = new AgentProcess();
