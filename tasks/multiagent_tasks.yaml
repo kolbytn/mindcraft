@@ -17,3 +17,10 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
     Bob: Agreeableness
   script: there are some misunderstandings between Bob and Alice, Bob says Alice was wrong, but Alice says Bob was wrong, then Bob apologized for his wrong.
   system_instructions: []
+  blocked_actions: 
+    andy:
+      - "!collectBlocks"
+      - "!collectAllBlocks"
+    randy:
+      - "!collectBlocks"
+      - "!collectAllBlocks"

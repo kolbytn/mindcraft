@@ -31,7 +31,6 @@ export class Agent {
         this.self_prompter = new SelfPrompter(this);
         initConversationManager(this);
 
-        
         console.log('Task:', task);
         await this.prompter.initExamples();
 
@@ -44,9 +43,21 @@ export class Agent {
                 this.validator = new TechTreeHarvestValidator(this.task, this.bot);
             }
             this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+            
         } else {
             this.task = null;
             this.validator = null;
+        }
+
+        // handle blocked actions
+        if (this.task && "blocked_actions" in this.task) {
+            if ("agent_number" in this.task && this.task.agent_number > 1) {
+                this.blocked_actions = this.task.blocked_actions[this.name];
+                console.log(`Blocked actions for ${this.name}:`, this.blocked_actions);
+            } else {
+                this.blocked_actions = this.task.blocked_actions;
+                console.log(`Blocked actions:`, this.blocked_actions);
+            }
         }
         
         console.log("Is validated:", this.validator && this.validator.validate());
@@ -86,9 +97,6 @@ export class Agent {
                 console.log("Inventory to set:", initial_inventory);
                 for (let key of Object.keys(initial_inventory)) {
                     console.log('Giving item:', key);
-                    // this.bot.chat("giving myself items");
-                    // this.bot.chat("/tp andy randy");
-                    // this.bot.chat(`/give ${this.name} ${key} 64`);
                     this.bot.chat(`/give ${this.name} ${key} ${initial_inventory[key]}`);
                 };
                 //wait for a bit so inventory is set
@@ -96,7 +104,6 @@ export class Agent {
                 console.log("Done giving inventory items.");
             }
 
-            //todo: handle teleportation
             if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
                 var agent_names = this.task.agent_names;
                 console.log("Agent names:", agent_names);
@@ -107,9 +114,6 @@ export class Agent {
                     }
                 }
             }
-
-
-            
             
             const ignore_messages = [
                 "Set own game mode to",
@@ -211,10 +215,9 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) { 
-
         if (this.task && this.validator && this.validator.validate()) {
             this.bot.chat('Task completed!');
-            this.bot.chat(`/clear @p`);
+            this.bot.chat(`/clear ${this.name}`);
             this.cleanKill('task completed', 0);
         }
         let used_command = false;

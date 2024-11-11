@@ -202,8 +202,12 @@ function numParams(command) {
 
 export async function executeCommand(agent, message) {
     let parsed = parseCommandMessage(message);
+    console.log('parsed:', parsed);
     if (typeof parsed === 'string')
-        return parsed; //The command was incorrectly formatted or an invalid input was given.
+        return parsed; //The command was incorrectly formatted or an invalid input was given
+    else if (parsed.commandName in agent.blocked_actions) {
+        return `Command ${parsed.commandName} is blocked.`;
+    }
     else {
         console.log('parsed command:', parsed);
         const command = getCommand(parsed.commandName);
