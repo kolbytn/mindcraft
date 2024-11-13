@@ -145,7 +145,7 @@ export class Agent {
                         this.bot.chat(`/tp ${this.name} ${agent_names[i]}`) // teleport on top of other bots
                     }
                 }
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 200));
             }
 
             else if (this.task) {
@@ -154,7 +154,7 @@ export class Agent {
                     this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
 
                 }
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 200));
             }
 
             // now all bots are teleport on top of each other
@@ -168,10 +168,10 @@ export class Agent {
 
             if (this.task && this.task.type !== 'construction') {
                 const pos = getPosition(this.bot);
-                const xOffset = getRandomOffset(3);
-                const zOffset = getRandomOffset(3);
+                const xOffset = getRandomOffset(5);
+                const zOffset = getRandomOffset(5);
                 this.bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
-                await new Promise((resolve) => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 200));
             }
             
             const ignore_messages = [

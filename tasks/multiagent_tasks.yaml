@@ -1,5 +1,5 @@
 multiagent_techtree_1_shears_with_2_iron_ingot:
-  goal: techtree 1 shears
+  goal: Collaborate with other agents to build a shear, once it is built, put it out in the world
   agent_names:
   - andy
   - randy
@@ -9,14 +9,14 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
       iron_ingot: 1
     randy:
       iron_ingot: 1
-  target: shears
+  # target: shears
   number_of_target: 1
   type: techtree
-  personalities:
-    Alice: Conscientiousness
-    Bob: Agreeableness
-  script: there are some misunderstandings between Bob and Alice, Bob says Alice was wrong, but Alice says Bob was wrong, then Bob apologized for his wrong.
-  system_instructions: []
+  # personalities:
+  #   Alice: Conscientiousness
+  #   Bob: Agreeableness
+  # script: there are some misunderstandings between Bob and Alice, Bob says Alice was wrong, but Alice says Bob was wrong, then Bob apologized for his wrong.
+  # system_instructions: []
   # blocked_actions: 
   #   andy:
   #     - "!collectBlocks"
@@ -25,9 +25,24 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
   #     - "!collectBlocks"
   #     - "!collectAllBlocks"
 
+multiagent_build_wooden_pickaxe:
+  goal: Collaborate with other agents to build a wooden pickaxe, once it is built, give it to the human player in the world
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      oak_log: 2
+    randy:
+      stick: 2
+  target: 
+  number_of_target: 1
+  type: techtree
+
 
 multiagent_techtree_boat:
-  goal: Collaborate with other agents to build a boat
+  goal: Collaborate with other agents to build a boat, once it is built, throw it out in the world
   agent_names:
   - Bob
   - Alice

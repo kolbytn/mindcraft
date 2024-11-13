@@ -56,6 +56,11 @@ function main() {
         // Inject task information into process.env for the agent to access
         process.env.MINECRAFT_TASK_GOAL = task.goal;
         process.env.MINECRAFT_TASK_INVENTORY = JSON.stringify(task.initial_inventory || {});
+        
+        if ('agent_number' in task && task.agent_number > 1) {
+            process.env.ALL_AGENT_NAMES = task.agent_names;
+            console.log(`\n\n\n All agents for this task are ${process.env.ALL_AGENT_NAMES}`);
+        }
     }
     // todo: do inventory
     const profiles = getProfiles(args);
@@ -66,9 +71,12 @@ function main() {
     var init_message = settings.init_message
 
     if (args.task) {
-        //todo: make more modular :D 
-        init_message = "Immediately start a conversation with randy and collaborate together to complete the task. Share resources and skill sets."
-        // init_message = "Announce your task to everyone and get started with it immediately, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
+
+        init_message = "Announce your task to everyone and get started with it immediately, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
+
+        if ('agent_number' in task && task.agent_number > 1) {
+            init_message = "Immediately start a conversation with other agents and collaborate together to complete the task. Share resources and skill sets."
+        }
     }
     for (let i=0; i<profiles.length; i++) {
         const agent = new AgentProcess();
