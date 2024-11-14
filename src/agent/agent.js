@@ -85,13 +85,11 @@ export class Agent {
                 this.bot.on('login', () => {
                     console.log('Logged in!');
                     
-                    // Set skin for profile after 500ms. Requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
+                    // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
                     if (this.prompter.profile.skin)
-                    {
-                        setTimeout(() => {
-                            this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
-                        }, 500);
-                    }
+                        this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
+                    else
+                        this.bot.chat(`/skin clear`);
                 });
 
                 this.bot.once('spawn', async () => {
