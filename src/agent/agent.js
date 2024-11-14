@@ -2,7 +2,7 @@ import { History } from './history.js';
 import { Coder } from './coder.js';
 import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
-import { initBot } from '../utils/mcdata.js';
+import { mc } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
@@ -13,7 +13,7 @@ import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+    async start(profile_fp, load_mem=false, init_message=null, server_host=null, server_port=0, version=null, count_id=0) {
         try {
             // Add validation for profile_fp
             if (!profile_fp) {
@@ -50,9 +50,16 @@ export class Agent {
                 throw new Error(`Failed to initialize examples: ${error.message || error}`);
             }
 
+            console.log("Initializing Minecraft data...");
+            try {
+                mc.init(server_host, server_port, version);
+            } catch (error) {
+                throw new Error(`Failed to initialize Minecraft data: ${error.message || error}`);
+            }
+
             console.log('Logging into minecraft...');
             try {
-                this.bot = initBot(this.name);
+                this.bot = mc.initBot(this.name);
             } catch (error) {
                 throw new Error(`Failed to initialize Minecraft bot: ${error.message || error}`);
             }
