@@ -84,6 +84,14 @@ export class Agent {
 
                 this.bot.on('login', () => {
                     console.log('Logged in!');
+                    
+                    // Set skin for profile after 500ms. Requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
+                    if (this.prompter.profile.skin)
+                    {
+                        setTimeout(() => {
+                            this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
+                        }, 500);
+                    }
                 });
 
                 this.bot.once('spawn', async () => {
@@ -93,7 +101,7 @@ export class Agent {
 
                         // wait for a bit so stats are not undefined
                         await new Promise((resolve) => setTimeout(resolve, 1000));
-
+                        
                         console.log(`${this.name} spawned.`);
                         this.clearBotLogs();
                         
