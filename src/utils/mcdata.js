@@ -41,6 +41,10 @@ class MinecraftData {
         bot.loadPlugin(collectblock);
         bot.loadPlugin(autoEat);
         bot.loadPlugin(armorManager); // auto equip armor
+        bot.once('resourcePack', () => {
+            bot.acceptResourcePack();
+        });
+        
         return bot;
     }
 
