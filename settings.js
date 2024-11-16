@@ -13,7 +13,8 @@ export default
         // "./profiles/gemini.json",
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
-
+        // "./profiles/grok.json",
+        
         // using more than 1 profile requires you to /msg each bot indivually
     ],
     "load_memory": false, // load memory from previous session

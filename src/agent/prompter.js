@@ -10,9 +10,11 @@ import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
+import { Novita } from '../models/novita.js';
 import { GroqCloudAPI } from '../models/groq.js';
 import { HuggingFace } from '../models/huggingface.js';
 import { Qwen } from "../models/qwen.js";
+import { Grok } from "../models/grok.js";
 
 export class Prompter {
     constructor(agent, fp) {
@@ -44,8 +46,12 @@ export class Prompter {
                 chat.api = 'replicate';
             else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
                 chat.api = 'groq';
+            else if (chat.model.includes('novita/'))
+                chat.api = 'novita';
             else if (chat.model.includes('qwen'))
                 chat.api = 'qwen';
+            else if (chat.model.includes('grok'))
+                chat.api = 'xai';
             else
                 chat.api = 'ollama';
         }
@@ -67,8 +73,12 @@ export class Prompter {
         }
         else if (chat.api === 'huggingface')
             this.chat_model = new HuggingFace(chat.model, chat.url);
+        else if (chat.api === 'novita')
+            this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url);
         else if (chat.api === 'qwen')
             this.chat_model = new Qwen(chat.model, chat.url);
+        else if (chat.api === 'xai')
+            this.chat_model = new Grok(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
