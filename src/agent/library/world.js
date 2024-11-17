@@ -67,7 +67,7 @@ export function getLowestBlock(bot, block_types=null, ignore_types=null, distanc
      * @param {number} distance - The maximum distance to search, default 32.
      * @returns {Block} - The lowest block.
      * @example
-     * let lowestBlock = world.getLowestBlock(bot, 0, -1, 0);
+     * let lowestBlock = world.getLowestBlock(bot, null, null, 32);
      **/
     // if blocktypes is not a list, make it a list
     let search_blocks = [];

@@ -105,6 +105,14 @@ export const queryList = [
             }
             if (blocks.length == 0) {
                 res += ': none';
+            } 
+            else {
+                // Environmental Awareness
+                res += `\nBLOCK_ABOVE: ${world.getBlockAtPosition(bot, 0, 2, 0).name}`;
+                res += `\nBLOCK_BELOW: ${world.getBlockAtPosition(bot, 0, -1, 0).name}`;
+                res += `\nBLOCK_AT_HEAD: ${world.getBlockAtPosition(bot, 0, 1, 0).name}`;
+                res += `\nBLOCK_AT_LEGS: ${world.getBlockAtPosition(bot, 0, 0, 0).name}`;
+                res += `\nLOWEST_BLOCK_ABOVE: ${world.getLowestBlock(bot, null, null, 32).name}`;
             }
             return pad(res);
         }
