@@ -17,6 +17,13 @@ export const queryList = [
             let pos = bot.entity.position;
             // display position to 2 decimal places
             res += `\n- Position: x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`;
+            // Environmental Awareness
+            res += `\n- Block Above: ${world.getBlockAtPosition(bot, 0, 2, 0).name}`;
+            res += `\n- Block Below: ${world.getBlockAtPosition(bot, 0, -1, 0).name}`;
+            res += `\n- Block at Head: ${world.getBlockAtPosition(bot, 0, 1, 0).name}`;
+            res += `\n- Block at Legs: ${world.getBlockAtPosition(bot, 0, 0, 0).name}`;
+            res += `\n- Lowest Block Above: ${world.getLowestBlock(bot, null, null, 32).name}`;
+            // Gameplay
             res += `\n- Gamemode: ${bot.game.gameMode}`;
             res += `\n- Health: ${Math.round(bot.health)} / 20`;
             res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
