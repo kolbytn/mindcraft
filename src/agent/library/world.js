@@ -39,6 +39,77 @@ export function getNearestFreeSpace(bot, size=1, distance=8) {
 }
 
 
+export function getBlockAtPosition(bot, x=0, y=0, z=0) {
+     /**
+     * Get a block from the bot's relative position 
+     * @param {Bot} bot - The bot to get the block for.
+     * @param {number} x - The relative x offset to serach, default 0.
+     * @param {number} y - The relative y offset to serach, default 0.
+     * @param {number} y - The relative z offset to serach, default 0. 
+     * @returns {Block} - The nearest block.
+     * @example
+     * let blockBelow = world.getBlockAtPosition(bot, 0, -1, 0);
+     * let blockAbove = world.getBlockAtPosition(bot, 0, 2, 0); since minecraft position is at the feet
+     **/
+    let block = bot.blockAt(bot.entity.position.offset(x, y, z));
+    if (!block) block = {name: 'air'};
+       
+    return block;
+}
+
+
+export function getLowestBlock(bot, block_types=null, ignore_types=null, distance=32) {
+     /**
+     * Searches a column from the bot's position for the lowest block
+     * @param {Bot} bot - The bot to get the block for.
+     * @param {string[]} block_types - The names of the blocks to search for.
+     * @param {string[]} block_types - The names of the blocks to ignore.
+     * @param {number} distance - The maximum distance to search, default 32.
+     * @returns {Block} - The lowest block.
+     * @example
+     * let lowestBlock = world.getLowestBlock(bot, null, null, 32);
+     **/
+    // if blocktypes is not a list, make it a list
+    let search_blocks = [];
+    if (block_types) { 
+        if (!Array.isArray(block_types))
+            block_types = [block_types];
+        for(let block_type of block_types) {
+            if (mc.getBlockId(block_type)) search_blocks.push(block_type);
+        }
+    }
+    // if ignore_types is not a list, make it a list
+    let ignore_blocks = []; 
+    if (ignore_types === null) ignore_blocks = ['air'];
+    else {
+        if (!Array.isArray(ignore_types))
+            ignore_types = [ignore_types];
+        for(let ingnore_type of ignore_types) {
+            if (mc.getBlockId(ingnore_type)) ignore_blocks.push(ingnore_type);
+        }
+    }
+    // The lowest block, stops when it finds a block 
+    let lowest_block = {name: 'air'};
+    for (let i = 0; i < distance; i++) {
+        let block = bot.blockAt(bot.entity.position.offset(0, i+2, 0));
+        if (!block) block = {name: 'air'};
+        // Ignore and continue
+        if (ignore_blocks.includes(block.name)) continue;
+        // Defaults to any block
+        else if (block_types === null) {
+            lowest_block = block;
+            break;
+        }
+        else if (search_blocks.includes(block.name)) {
+            lowest_block = block;
+            break;
+        }
+    }
+ 
+    return lowest_block;
+}
+
+
 export function getNearestBlocks(bot, block_types=null, distance=16, count=10000) {
     /**
      * Get a list of the nearest blocks of the given types.

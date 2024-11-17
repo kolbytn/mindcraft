@@ -18,7 +18,7 @@ const Item = prismarine_items(mc_version);
  * @typedef {string} BlockName
 */
 
-export const WOOD_TYPES = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak'];
+export const WOOD_TYPES = ['oak', 'spruce', 'birch', 'jungle', 'acacia', 'dark_oak', 'mangrove', 'cherry'];
 export const MATCHING_WOOD_BLOCKS = [
     'log',
     'planks',
@@ -202,7 +202,7 @@ export function isSmeltable(itemName) {
 }
 
 export function getSmeltingFuel(bot) {
-    let fuel = bot.inventory.items().find(i => i.name === 'coal' || i.name === 'charcoal')
+    let fuel = bot.inventory.items().find(i => i.name === 'coal' || i.name === 'charcoal' || i.name === 'blaze_rod')
     if (fuel)
         return fuel;
     fuel = bot.inventory.items().find(i => i.name.includes('log') || i.name.includes('planks'))
@@ -214,6 +214,8 @@ export function getSmeltingFuel(bot) {
 export function getFuelSmeltOutput(fuelName) {
     if (fuelName === 'coal' || fuelName === 'charcoal')
         return 8;
+    if (fuelName === 'blaze_rod')
+        return 12;
     if (fuelName.includes('log') || fuelName.includes('planks'))
         return 1.5
     if (fuelName === 'coal_block')
