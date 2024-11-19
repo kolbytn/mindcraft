@@ -268,6 +268,10 @@ async function execute(mode, agent, func, timeout=-1) {
 }
 
 let _agent = null;
+const modes_map = {};
+for (let mode of modes_list) {
+    modes_map[mode.name] = mode;
+}
 
 class ModeController {
     /*
@@ -277,31 +281,27 @@ class ModeController {
     This can be used to expose sensitive information by malicious human prompters.
     */
     constructor() {
-        this.modes_map = {};
         this.behavior_log = '';
-        for (let mode of modes_list) {
-            this.modes_map[mode.name] = mode;
-        }
     }
 
     exists(mode_name) {
-        return this.modes_map[mode_name] != null;
+        return modes_map[mode_name] != null;
     }
 
     setOn(mode_name, on) {
-        this.modes_map[mode_name].on = on;
+        modes_map[mode_name].on = on;
     }
 
     isOn(mode_name) {
-        return this.modes_map[mode_name].on;
+        return modes_map[mode_name].on;
     }
 
     pause(mode_name) {
-        this.modes_map[mode_name].paused = true;
+        modes_map[mode_name].paused = true;
     }
 
     unpause(mode_name) {
-        this.modes_map[mode_name].paused = false;
+        modes_map[mode_name].paused = false;
     }
 
     unPauseAll() {
