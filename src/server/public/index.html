@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mindcraft Agents</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        #agents {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .agent {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f8f8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Connected Mindcraft Agents</h1>
+    <div id="agents"></div>
+
+    <script>
+        const socket = io();
+        const agentsDiv = document.getElementById('agents');
+
+        socket.on('agents-update', (agents) => {
+            agentsDiv.innerHTML = agents.length ? 
+                agents.map(name => `<div class="agent">${name}</div>`).join('') :
+                '<div class="agent">No agents connected</div>';
+        });
+    </script>
+</body>
+</html> 

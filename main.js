@@ -2,6 +2,7 @@ import { AgentProcess } from './src/process/agent-process.js';
 import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { createMindServer } from './src/server/mind_server.js';
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
@@ -19,6 +20,8 @@ function getProfiles(args) {
 }
 
 function main() {
+    const mindServer = createMindServer();
+    
     const args = parseArguments();
     const profiles = getProfiles(args);
     console.log(profiles);

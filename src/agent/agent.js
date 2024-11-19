@@ -8,19 +8,24 @@ import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import { isOtherAgent, initConversationManager, sendToBot, recieveFromBot } from './conversation.js';
+import { isOtherAgent, initConversationManager, sendToBot, endAllChats } from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
+import { serverProxy } from './server_proxy.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+        this.last_sender = null;
         try {
             // Add validation for profile_fp
             if (!profile_fp) {
                 throw new Error('No profile filepath provided');
             }
 
+            // Connect to MindServer via proxy
+            serverProxy.connect();
+            
             console.log('Starting agent initialization with profile:', profile_fp);
             
             // Initialize components with more detailed error handling
@@ -41,6 +46,10 @@ export class Agent {
                 console.log('Initializing self prompter...');
                 this.self_prompter = new SelfPrompter(this);
                 initConversationManager(this);
+                
+                // After getting the name, register with MindServer via proxy
+                serverProxy.registerAgent(this.name);
+                
             } catch (error) {
                 throw new Error(`Failed to initialize agent components: ${error.message || error}`);
             }
@@ -145,7 +154,8 @@ export class Agent {
                 console.log(this.name, 'received message from', username, ':', message);
 
                 if (isOtherAgent(username)) {
-                    recieveFromBot(username, message);
+                    //recieveFromBot(username, message);
+                    console.warn('recieved whisper from other bot??')
                 }
                 else {
                     let translation = await handleEnglishTranslation(message);
@@ -178,6 +188,10 @@ export class Agent {
                 // add initial message to history
                 this.history.add('system', prompt);
                 await this.self_prompter.start(prompt);
+            }
+            else if (save_data?.last_sender) {
+                this.last_sender = save_data.last_sender;
+                await this.handleMessage(this.last_sender, `(You have restarted and this message is auto-generated. Continue the conversation with ${this.last_sender})`);
             }
             else if (init_message) {
                 await this.handleMessage('system', init_message, 2);
@@ -232,9 +246,15 @@ export class Agent {
         if (this.self_prompter.on) {
             this.self_prompter.stop(false);
         }
+        endAllChats();
     }
 
     async handleMessage(source, message, max_responses=null) {
+        if (!source || !message) {
+            console.warn('Received empty message from', source);
+            return false;
+        }
+
         let used_command = false;
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
@@ -266,11 +286,15 @@ export class Agent {
             }
         }
 
+        if (!self_prompt)
+            this.last_sender = source;
+        else
+            this.last_sender = null;
+
         // Now translate the message
         message = await handleEnglishTranslation(message);
         console.log('received message from', source, ':', message);
 
-        // Do self prompting
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
 
         let behavior_log = this.bot.modes.flushBehaviorLog();

@@ -65,7 +65,6 @@ export const actionsList = [
         name: '!restart',
         description: 'Restart the agent process.',
         perform: async function (agent) {
-            await agent.history.save();
             agent.cleanKill();
         }
     },
@@ -226,18 +225,18 @@ export const actionsList = [
             await skills.collectBlock(agent.bot, type, num);
         }, false, 10) // 10 minute timeout
     },
-    {
-        name: '!collectAllBlocks',
-        description: 'Collect all the nearest blocks of a given type until told to stop.',
-        params: {
-            'type': { type: 'BlockName', description: 'The block type to collect.' }
-        },
-        perform: runAsAction(async (agent, type) => {
-            let success = await skills.collectBlock(agent.bot, type, 1);
-            if (!success)
-            agent.actions.cancelResume();
-        }, true, 3) // 3 minute timeout
-    },
+    // {
+    //     name: '!collectAllBlocks',
+    //     description: 'Collect all the nearest blocks of a given type until told to stop.',
+    //     params: {
+    //         'type': { type: 'BlockName', description: 'The block type to collect.' }
+    //     },
+    //     perform: runAsAction(async (agent, type) => {
+    //         let success = await skills.collectBlock(agent.bot, type, 1);
+    //         if (!success)
+    //         agent.actions.cancelResume();
+    //     }, true, 3) // 3 minute timeout
+    // },
     {
         name: '!craftRecipe',
         description: 'Craft the given recipe a given number of times.',
@@ -273,7 +272,7 @@ export const actionsList = [
         perform: runAsAction(async (agent) => {
             await skills.clearNearestFurnace(agent.bot);
         })
-        },
+    },
         {
         name: '!placeHere',
         description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
@@ -376,7 +375,7 @@ export const actionsList = [
     },
     {
         name: '!endChat',
-        description: 'End the conversation from the most recent message.',
+        description: 'End the conversation with the given player.',
         params: {
             'player_name': { type: 'string', description: 'The name of the player to end the conversation with.' }
         },

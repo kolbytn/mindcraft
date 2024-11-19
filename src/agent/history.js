@@ -23,6 +23,7 @@ export class History {
         // Number of messages to remove from current history and save into memory
         this.summary_chunk_size = 5; 
         // chunking reduces expensive calls to promptMemSaving and appendFullHistory
+        // and improves the quality of the memory summary
     }
 
     getHistory() { // expects an Examples object
@@ -83,7 +84,8 @@ export class History {
             const data = {
                 memory: this.memory,
                 turns: this.turns,
-                self_prompt: this.agent.self_prompter.on ? this.agent.self_prompter.prompt : null
+                self_prompt: this.agent.self_prompter.on ? this.agent.self_prompter.prompt : null,
+                last_sender: this.agent.last_sender
             };
             writeFileSync(this.memory_fp, JSON.stringify(data, null, 2));
             console.log('Saved memory to:', this.memory_fp);

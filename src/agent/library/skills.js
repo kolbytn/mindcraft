@@ -1064,6 +1064,21 @@ export async function moveAway(bot, distance) {
     return true;
 }
 
+export async function moveAwayFrom(bot, entity, distance=1) {
+    const follow = new pf.goals.GoalFollow(entity, distance+1);
+    const inverted_goal = new pf.goals.GoalInvert(follow);
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    bot.pathfinder.setGoal(inverted_goal, true);
+    for (let i = 0; i < 10*distance; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (bot.interrupt_code)
+            return false;
+        if (bot.entity.position.distanceTo(entity.position) > distance)
+            return true;
+    }
+    return false;
+}
+
 export async function avoidEnemies(bot, distance=16) {
     /**
      * Move a given distance away from all nearby enemy mobs.

@@ -1,6 +1,7 @@
 import settings from '../../settings.js';
 import { readFileSync } from 'fs';
 import { containsCommand } from './commands/index.js';
+import { sendBotChatToServer } from './server_proxy.js';
 
 let agent;
 const agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
@@ -59,8 +60,8 @@ export function startChat(send_to, message, max_turns=5) {
 }
 
 export function sendToBot(send_to, message, start=false) {
-    if (message.length > 197)
-        message = message.substring(0, 197);
+    // if (message.length > 197)
+    //     message = message.substring(0, 197);
     if (!isOtherAgent(send_to)) {
         agent.bot.whisper(send_to, message);
         return;
@@ -81,7 +82,8 @@ export function sendToBot(send_to, message, start=false) {
         'idle': agent.isIdle()
     };
 
-    agent.bot.whisper(send_to, JSON.stringify(json));
+    // agent.bot.whisper(send_to, JSON.stringify(json));
+    sendBotChatToServer(send_to, JSON.stringify(json));
 }
 
 export function recieveFromBot(sender, json) {
@@ -94,14 +96,12 @@ export function recieveFromBot(sender, json) {
     }
     if (convo.ignore_until_start)
         return;
-    if (convo.turn_count > 10) {
-        console.warn('Reached max messages from bot:', sender);
-        endChat(sender);
-        agent.bot.chat('chat maxxed out, ending conversation');
-        return;
-    }
 
     convo.queue(recieved);
+    
+    // responding to conversation takes priority over self prompting
+    if (agent.self_prompter.on)
+        agent.self_prompter.stopLoop();
 
     if (inMessageTimer)
         clearTimeout(inMessageTimer);
@@ -124,23 +124,31 @@ export function _processInMessageQueue(name) {
 }
 
 export function _handleFullInMessage(sender, recieved) {
-    console.log(`responding to **${recieved}**`);
+    console.log(`responding to **${JSON.stringify(recieved)}**`);
     
     const convo = _getConvo(sender);
 
     convo.countTurn();
     const message = _tagMessage(recieved.message);
-    if (recieved.end || (!recieved.idle && !agent.isIdle()) || convo.over()) { 
+    if (recieved.end || convo.over()) { 
         // if end signal from other bot, or both are busy, or past max turns,
         // add to history, but don't respond
         agent.history.add(sender, message);
         return;
     }
+    if (recieved.start)
+        agent.shut_up = false;
     agent.handleMessage(sender, message);
 }
 
 export function endChat(sender) {
     if (convos[sender]) {
+        convos[sender].ignore_until_start = true;
+    }
+}
+
+export function endAllChats() {
+    for (const sender in convos) {
         convos[sender].ignore_until_start = true;
     }
 }
