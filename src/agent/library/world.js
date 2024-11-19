@@ -58,29 +58,37 @@ export function getBlockAtPosition(bot, x=0, y=0, z=0) {
 }
 
 
-export function getLowestBlock(bot, block_types=null, ignore_types=null, distance=32) {
-     /**
-     * Searches a column from the bot's position for the lowest block
+export function getSurroundingBlocks(bot) {
+    /**
+     * Get the surrounding blocks from the bot's environment.
      * @param {Bot} bot - The bot to get the block for.
-     * @param {string[]} block_types - The names of the blocks to search for.
-     * @param {string[]} block_types - The names of the blocks to ignore.
-     * @param {number} distance - The maximum distance to search, default 32.
-     * @returns {Block} - The lowest block.
+     * @returns {string[]} - A list of block results as strings.
      * @example
-     * let lowestBlock = world.getLowestBlock(bot, null, null, 32);
      **/
-    // if blocktypes is not a list, make it a list
-    let search_blocks = [];
-    if (block_types) { 
-        if (!Array.isArray(block_types))
-            block_types = [block_types];
-        for(let block_type of block_types) {
-            if (mc.getBlockId(block_type)) search_blocks.push(block_type);
-        }
-    }
-    // if ignore_types is not a list, make it a list
+    // Create a list of block position results that can be unpacked.
+    let res = [];
+    res.push(`Block Above: ${getBlockAtPosition(bot, 0, 2, 0).name}`);
+    res.push(`Block Below: ${getBlockAtPosition(bot, 0, -1, 0).name}`);
+    res.push(`Block at Head: ${getBlockAtPosition(bot, 0, 1, 0).name}`);
+    res.push(`Block at Legs: ${getBlockAtPosition(bot, 0, 0, 0).name}`);
+
+    return res;
+}
+
+
+export function getFirstBlockAboveHead(bot, ignore_types=null, distance=32) {
+     /**
+     * Searches a column from the bot's position for the first solid block above its head
+     * @param {Bot} bot - The bot to get the block for.
+     * @param {string[]} ignore_types - The names of the blocks to ignore.
+     * @param {number} distance - The maximum distance to search, default 32.
+     * @returns {string} - The fist block above head.
+     * @example
+     * let firstBlockAboveHead = world.getFirstBlockAboveHead(bot, null, 32);
+     **/
+    // if ignore_types is not a list, make it a list.
     let ignore_blocks = []; 
-    if (ignore_types === null) ignore_blocks = ['air'];
+    if (ignore_types === null) ignore_blocks = ['air', 'cave_air'];
     else {
         if (!Array.isArray(ignore_types))
             ignore_types = [ignore_types];
@@ -88,25 +96,21 @@ export function getLowestBlock(bot, block_types=null, ignore_types=null, distanc
             if (mc.getBlockId(ingnore_type)) ignore_blocks.push(ingnore_type);
         }
     }
-    // The lowest block, stops when it finds a block 
-    let lowest_block = {name: 'air'};
+    // The block above, stops when it finds a solid block .
+    let block_above = {name: 'air'};
+    let height = 0
     for (let i = 0; i < distance; i++) {
         let block = bot.blockAt(bot.entity.position.offset(0, i+2, 0));
         if (!block) block = {name: 'air'};
         // Ignore and continue
         if (ignore_blocks.includes(block.name)) continue;
         // Defaults to any block
-        else if (block_types === null) {
-            lowest_block = block;
-            break;
-        }
-        else if (search_blocks.includes(block.name)) {
-            lowest_block = block;
-            break;
-        }
+        block_above = block;
+        height = i;
+        break;
     }
- 
-    return lowest_block;
+    
+    return `${block_above.name} (${height} blocks up)`;
 }
 
 

@@ -18,11 +18,8 @@ export const queryList = [
             // display position to 2 decimal places
             res += `\n- Position: x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`;
             // Environmental Awareness
-            res += `\n- Block Above: ${world.getBlockAtPosition(bot, 0, 2, 0).name}`;
-            res += `\n- Block Below: ${world.getBlockAtPosition(bot, 0, -1, 0).name}`;
-            res += `\n- Block at Head: ${world.getBlockAtPosition(bot, 0, 1, 0).name}`;
-            res += `\n- Block at Legs: ${world.getBlockAtPosition(bot, 0, 0, 0).name}`;
-            res += `\n- Lowest Block Above: ${world.getLowestBlock(bot, null, null, 32).name}`;
+            res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
+            res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
             // Gameplay
             res += `\n- Gamemode: ${bot.game.gameMode}`;
             res += `\n- Health: ${Math.round(bot.health)} / 20`;
@@ -108,11 +105,8 @@ export const queryList = [
             } 
             else {
                 // Environmental Awareness
-                res += `\nBLOCK_ABOVE: ${world.getBlockAtPosition(bot, 0, 2, 0).name}`;
-                res += `\nBLOCK_BELOW: ${world.getBlockAtPosition(bot, 0, -1, 0).name}`;
-                res += `\nBLOCK_AT_HEAD: ${world.getBlockAtPosition(bot, 0, 1, 0).name}`;
-                res += `\nBLOCK_AT_LEGS: ${world.getBlockAtPosition(bot, 0, 0, 0).name}`;
-                res += `\nLOWEST_BLOCK_ABOVE: ${world.getLowestBlock(bot, null, null, 32).name}`;
+                res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
+                res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
             }
             return pad(res);
         }
