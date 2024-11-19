@@ -4,7 +4,6 @@ Crafting minds for Minecraft with LLMs and Mineflayer!
 
 [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/jVxQWVTM) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
 
-
 #### ‼️Warning‼️
 
 Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. While the code is sandboxed, it is still vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. We strongly recommend running with additional layers of security such as docker containers. Ye be warned.
@@ -37,24 +36,26 @@ You can configure project details in `settings.js`. [See file.](settings.js)
 
 You can configure the agent's name, model, and prompts in their profile like `andy.json`.
 
-| API | Config Variable | Example Model name | Docs |
-|------|------|------|------|
-| OpenAI | `OPENAI_API_KEY` | `gpt-4o-mini` | [docs](https://platform.openai.com/docs/models) |
-| Google | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
-| Anthropic | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
-| Replicate | `REPLICATE_API_KEY` | `meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
-| Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
-| Groq | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
-| Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
-| Novita AI | `NOVITA_API_KEY` | `gryphe/mythomax-l2-13b` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
-| Qwen | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
-| xAI | `XAI_API_KEY` | `grok-beta` | [docs](https://docs.x.ai/docs) |
+| API            | Config Variable       | Example Model name                                 | Docs                                                                                                                                                                        |
+| -------------- | --------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OpenAI         | `OPENAI_API_KEY`      | `gpt-4o-mini`                                      | [docs](https://platform.openai.com/docs/models)                                                                                                                             |
+| Google         | `GEMINI_API_KEY`      | `gemini-pro`                                       | [docs](https://ai.google.dev/gemini-api/docs/models/gemini)                                                                                                                 |
+| Anthropic      | `ANTHROPIC_API_KEY`   | `claude-3-haiku-20240307`                          | [docs](https://docs.anthropic.com/claude/docs/models-overview)                                                                                                              |
+| Replicate      | `REPLICATE_API_KEY`   | `meta/meta-llama-3-70b-instruct`                   | [docs](https://replicate.com/collections/language-models)                                                                                                                   |
+| Ollama (local) | n/a                   | `llama3`                                           | [docs](https://ollama.com/library)                                                                                                                                          |
+| Groq           | `GROQCLOUD_API_KEY`   | `groq/mixtral-8x7b-32768`                          | [docs](https://console.groq.com/docs/models)                                                                                                                                |
+| Hugging Face   | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models)                                                                                                                                       |
+| Novita AI      | `NOVITA_API_KEY`      | `gryphe/mythomax-l2-13b`                           | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link)                                                  |
+| Qwen           | `QWEN_API_KEY`        | `qwen-max`                                         | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
+| xAI            | `XAI_API_KEY`         | `grok-beta`                                        | [docs](https://docs.x.ai/docs)                                                                                                                                              |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3 && ollama pull nomic-embed-text`
 
 ## Online Servers
+
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
+
 ```javascript
 "host": "111.222.333.444",
 "port": 55920,
@@ -62,6 +63,7 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 
 // rest is same...
 ```
+
 ‼️ The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
 
 To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
@@ -73,7 +75,9 @@ If you intend to `allow_insecure_coding`, it is a good idea to run the app in a 
 ```bash
 docker run -i -t --rm -v $(pwd):/app -w /app -p 3000-3003:3000-3003 node:latest node main.js
 ```
+
 or simply
+
 ```bash
 docker-compose up
 ```
@@ -128,11 +132,13 @@ Thus, all the below specifications are equivalent to the above example:
 ```json
 "model": "gpt-3.5-turbo"
 ```
+
 ```json
 "model": {
   "api": "openai"
 }
 ```
+
 ```json
 "model": "gpt-3.5-turbo",
 "embedding": "openai"

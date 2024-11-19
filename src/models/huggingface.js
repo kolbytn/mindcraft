@@ -1,44 +1,44 @@
-import {toSinglePrompt} from '../utils/text.js';
-import {getKey} from '../utils/keys.js';
-import {HfInference} from "@huggingface/inference";
+import { toSinglePrompt } from "../utils/text.js";
+import { getKey } from "../utils/keys.js";
+import { HfInference } from "@huggingface/inference";
 
 export class HuggingFace {
-    constructor(model_name, url) {
-        this.model_name = model_name.replace('huggingface/','');
-        this.url = url;
+  constructor(model_name, url) {
+    this.model_name = model_name.replace("huggingface/", "");
+    this.url = url;
 
-        if (this.url) {
-            console.warn("Hugging Face doesn't support custom urls!");
-        }
-
-        this.huggingface = new HfInference(getKey('HUGGINGFACE_API_KEY'));
+    if (this.url) {
+      console.warn("Hugging Face doesn't support custom urls!");
     }
 
-    async sendRequest(turns, systemMessage) {
-        const stop_seq = '***';
-        const prompt = toSinglePrompt(turns, null, stop_seq);
-        let model_name = this.model_name || 'meta-llama/Meta-Llama-3-8B';
+    this.huggingface = new HfInference(getKey("HUGGINGFACE_API_KEY"));
+  }
 
-        const input = systemMessage + "\n" + prompt;
-        let res = '';
-        try {
-            console.log('Awaiting Hugging Face API response...');
-            for await (const chunk of this.huggingface.chatCompletionStream({
-                model: model_name,
-                messages: [{ role: "user", content: input }]
-            })) {
-                res += (chunk.choices[0]?.delta?.content || "");
-            }
-        } catch (err) {
-            console.log(err);
-            res = 'My brain disconnected, try again.';
-        }
-        console.log('Received.');
-        console.log(res);
-        return res;
-    }
+  async sendRequest(turns, systemMessage) {
+    const stop_seq = "***";
+    const prompt = toSinglePrompt(turns, null, stop_seq);
+    let model_name = this.model_name || "meta-llama/Meta-Llama-3-8B";
 
-    async embed(text) {
-        throw new Error('Embeddings are not supported by HuggingFace.');
+    const input = systemMessage + "\n" + prompt;
+    let res = "";
+    try {
+      console.log("Awaiting Hugging Face API response...");
+      for await (const chunk of this.huggingface.chatCompletionStream({
+        model: model_name,
+        messages: [{ role: "user", content: input }],
+      })) {
+        res += chunk.choices[0]?.delta?.content || "";
+      }
+    } catch (err) {
+      console.log(err);
+      res = "My brain disconnected, try again.";
     }
+    console.log("Received.");
+    console.log(res);
+    return res;
+  }
+
+  async embed(text) {
+    throw new Error("Embeddings are not supported by HuggingFace.");
+  }
 }

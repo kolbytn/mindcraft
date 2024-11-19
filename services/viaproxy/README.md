@@ -8,7 +8,7 @@ docker-compose --profile viaproxy up
 
 After first start it will create config file `services/viaproxy/viaproxy.yml`.
 
-Edit this file, and change your desired target `target-address`, 
+Edit this file, and change your desired target `target-address`,
 
 then point your `settings.js` `host` and `port` to viaproxy endpoint:
 
@@ -17,9 +17,6 @@ then point your `settings.js` `host` and `port` to viaproxy endpoint:
     "port": 25568,
 ```
 
-This easily works with "offline" servers. 
+This easily works with "offline" servers.
 
-Connecting to "online" servers via viaproxy involves more effort: see `auth-method` in `services/viaproxy/viaproxy.yml` (TODO describe) 
-
-
-
+Connecting to "online" servers via viaproxy involves more effort: see `auth-method` in `services/viaproxy/viaproxy.yml` (TODO describe)
