@@ -23,7 +23,7 @@ async function say(agent, message) {
 // the order of this list matters! first modes will be prioritized
 // while update functions are async, they should *not* be awaited longer than ~100ms as it will block the update loop
 // to perform longer actions, use the execute function which won't block the update loop
-const modes = [
+const modes_list = [
     {
         name: 'self_preservation',
         description: 'Respond to drowning, burning, and damage at low health. Interrupts all actions.',
@@ -267,39 +267,45 @@ async function execute(mode, agent, func, timeout=-1) {
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
 }
 
+let _agent = null;
+const modes_map = {};
+for (let mode of modes_list) {
+    modes_map[mode.name] = mode;
+}
+
 class ModeController {
-    constructor(agent) {
-        this.agent = agent;
-        this.modes_list = modes;
-        this.modes_map = {};
+    /*
+    SECURITY WARNING:
+    ModesController must be isolated. Do not store references to external objects like `agent`.
+    This object is accessible by LLM generated code, so any stored references are also accessible.
+    This can be used to expose sensitive information by malicious human prompters.
+    */
+    constructor() {
         this.behavior_log = '';
-        for (let mode of this.modes_list) {
-            this.modes_map[mode.name] = mode;
-        }
     }
 
     exists(mode_name) {
-        return this.modes_map[mode_name] != null;
+        return modes_map[mode_name] != null;
     }
 
     setOn(mode_name, on) {
-        this.modes_map[mode_name].on = on;
+        modes_map[mode_name].on = on;
     }
 
     isOn(mode_name) {
-        return this.modes_map[mode_name].on;
+        return modes_map[mode_name].on;
     }
 
     pause(mode_name) {
-        this.modes_map[mode_name].paused = true;
+        modes_map[mode_name].paused = true;
     }
 
     unpause(mode_name) {
-        this.modes_map[mode_name].paused = false;
+        modes_map[mode_name].paused = false;
     }
 
     unPauseAll() {
-        for (let mode of this.modes_list) {
+        for (let mode of modes_list) {
             if (mode.paused) console.log(`Unpausing mode ${mode.name}`);
             mode.paused = false;
         }
@@ -307,7 +313,7 @@ class ModeController {
 
     getMiniDocs() { // no descriptions
         let res = 'Agent Modes:';
-        for (let mode of this.modes_list) {
+        for (let mode of modes_list) {
             let on = mode.on ? 'ON' : 'OFF';
             res += `\n- ${mode.name}(${on})`;
         }
@@ -316,7 +322,7 @@ class ModeController {
 
     getDocs() {
         let res = 'Agent Modes:';
-        for (let mode of this.modes_list) {
+        for (let mode of modes_list) {
             let on = mode.on ? 'ON' : 'OFF';
             res += `\n- ${mode.name}(${on}): ${mode.description}`;
         }
@@ -324,13 +330,13 @@ class ModeController {
     }
 
     async update() {
-        if (this.agent.isIdle()) {
+        if (_agent.isIdle()) {
             this.unPauseAll();
         }
-        for (let mode of this.modes_list) {
-            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === this.agent.actions.currentActionLabel);
-            if (mode.on && !mode.paused && !mode.active && (this.agent.isIdle() || interruptible)) {
-                await mode.update(this.agent);
+        for (let mode of modes_list) {
+            let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === _agent.actions.currentActionLabel);
+            if (mode.on && !mode.paused && !mode.active && (_agent.isIdle() || interruptible)) {
+                await mode.update(_agent);
             }
             if (mode.active) break;
         }
@@ -344,14 +350,14 @@ class ModeController {
 
     getJson() {
         let res = {};
-        for (let mode of this.modes_list) {
+        for (let mode of modes_list) {
             res[mode.name] = mode.on;
         }
         return res;
     }
 
     loadJson(json) {
-        for (let mode of this.modes_list) {
+        for (let mode of modes_list) {
             if (json[mode.name] != undefined) {
                 mode.on = json[mode.name];
             }
@@ -360,10 +366,11 @@ class ModeController {
 }
 
 export function initModes(agent) {
+    _agent = agent;
     // the mode controller is added to the bot object so it is accessible from anywhere the bot is used
-    agent.bot.modes = new ModeController(agent);
-    let modes = agent.prompter.getInitModes();
-    if (modes) {
-        agent.bot.modes.loadJson(modes);
+    agent.bot.modes = new ModeController();
+    let modes_json = agent.prompter.getInitModes();
+    if (modes_json) {
+        agent.bot.modes.loadJson(modes_json);
     }
 }
