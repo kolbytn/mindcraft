@@ -4,13 +4,17 @@ import { containsCommand } from './commands/index.js';
 import { sendBotChatToServer } from './server_proxy.js';
 
 let agent;
-const agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
 
 let inMessageTimer = null;
 let MAX_TURNS = -1;
 
 export function isOtherAgent(name) {
     return agent_names.some((n) => n === name);
+}
+
+export function updateAgents(names) {
+    agent_names = names;
 }
 
 export function initConversationManager(a) {

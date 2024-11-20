@@ -20,7 +20,9 @@ function getProfiles(args) {
 }
 
 function main() {
-    const mindServer = createMindServer();
+    if (settings.host_mindserver) {
+        const mindServer = createMindServer();
+    }
     
     const args = parseArguments();
     const profiles = getProfiles(args);

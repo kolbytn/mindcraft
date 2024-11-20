@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
-import { recieveFromBot } from './conversation.js';
+import { recieveFromBot, updateAgents } from './conversation.js';
+import settings from '../../settings.js';
 
 class ServerProxy {
     constructor() {
@@ -15,7 +16,7 @@ class ServerProxy {
     connect() {
         if (this.connected) return;
         
-        this.socket = io('http://localhost:8080');
+        this.socket = io(`http://${settings.mindserver_host}:${settings.mindserver_port}`);
         this.connected = true;
 
         this.socket.on('connect', () => {
@@ -29,6 +30,10 @@ class ServerProxy {
 
         this.socket.on('chat-message', (agentName, json) => {
             recieveFromBot(agentName, json);
+        });
+
+        this.socket.on('agents-update', (agents) => {
+            updateAgents(agents);
         });
     }
 

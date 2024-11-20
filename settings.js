@@ -4,6 +4,11 @@ export default
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
     "port": 55916,
     "auth": "offline", // or "microsoft"
+
+    // the mindserver manages all agents and hosts the UI
+    "host_mindserver": true, // if true, the mindserver will be hosted on this machine. otherwise, specify a public IP address
+    "mindserver_host": "localhost",
+    "mindserver_port": 8080,
     
     "profiles": [
         "./andy.json",
