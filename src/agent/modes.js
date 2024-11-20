@@ -215,13 +215,17 @@ const modes_list = [
         interrupts: ['action:followPlayer'],
         on: true,
         active: false,
-        crowded_distance: 0.5,
-        clear_distance: 1,
+        distance: 0.5,
         update: async function (agent) {
-            const player = world.getNearestEntityWhere(agent.bot, entity => entity.type === 'player', this.crowded_distance);
+            const player = world.getNearestEntityWhere(agent.bot, entity => entity.type === 'player', this.distance);
             if (player) {
                 execute(this, agent, async () => {
-                    await skills.moveAwayFrom(agent.bot, player, this.clear_distance);
+                    // wait a random amount of time to avoid identical movements with other bots
+                    const wait_time = Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, wait_time));
+                    if (player.position.distanceTo(agent.bot.entity.position) < this.distance) {
+                        await skills.moveAway(agent.bot, this.distance);
+                    }
                 });
             }
         }
