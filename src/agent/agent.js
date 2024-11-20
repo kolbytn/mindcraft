@@ -15,7 +15,7 @@ import settings from '../../settings.js';
 import { loadTask } from '../utils/tasks.js';
 import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
 import {getPosition} from './library/world.js'
-import { readFileSync } from 'fs';
+import { readFileSync } from 'fs'; 
 
 
 export class Agent {
@@ -228,8 +228,22 @@ export class Agent {
 
             this.startEvents();
             
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            this.checkAllPlayersPresent();
         });
     }
+
+    checkAllPlayersPresent() {
+        if (!this.task || !this.task.agent_names) {
+          return;
+        }
+
+        const missingPlayers = this.task.agent_names.filter(name => !this.bot.players[name]);
+        if (missingPlayers.length > 0) {
+            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+            this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+          }
+        }
 
     requestInterrupt() {
         this.bot.interrupt_code = true;
@@ -514,11 +528,4 @@ export class Agent {
         this.history.save();
         process.exit(code);
     }
-
-    // cleanKillForever(msg='Killing agent process...') {
-    //     this.history.add('system', msg);
-    //     this.bot.chat('Goodbye world.')
-    //     this.history.save();
-    //     process.exit(0);
-    // }
 }

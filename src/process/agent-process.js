@@ -30,12 +30,9 @@ export class AgentProcess {
         agentProcess.on('exit', (code, signal) => {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);
 
-            if (task) {
-                const loaded_task = loadTask(task);
-                if (loaded_task.agent_number && loaded_task.agent_number > 1) {
-                    console.log("Automatic respawn not supported for multi-agent scenarios");
-                    process.exit(0);
-                }
+            if (code === 4) {
+                console.log(`Task failed due to some random error in which all agents weren't correctly spawned `);
+                process.exit(4);
             }
             
             if (code !== 0) {
