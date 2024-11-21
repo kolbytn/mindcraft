@@ -150,7 +150,11 @@ export const actionsList = [
             'num': { type: 'int', description: 'The number of items to give.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, player_name, item_name, num) => {
+            const modes = agent.bot.modes;
+            modes.pause('item_collecting');
             await skills.giveToPlayer(agent.bot, item_name, player_name, num);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            modes.unpause('item_collecting');
         })
     },
     {
