@@ -16,13 +16,44 @@ function parseArguments() {
             type: 'string',
             describe: 'Task ID to execute'
         })
+        .option('model', {
+            type: 'string',
+            describe: 'LLM model to use',
+        })
         .help()
         .alias('help', 'h')
         .parse();
 }
 
+function updateProfile(profile, args) {
+    var temp_profile = JSON.parse(readFileSync(profile, 'utf8'));
+    temp_profile.model = args.model;
+    writeFileSync(profile, JSON.stringify(temp_profile, null, 2));
+    return profile;
+}
+
 //todo: modify for multiple agents
 function getProfiles(args) {
+
+    if (args.task) {
+        var task = loadTask(args.task);
+    }
+
+    if (args.model) {
+        if (! args.task) {
+            settings.profiles = settings.profiles.map(x => updateProfile(x, args));
+            }
+
+        else {
+            if ('agent_number' in task && task.agent_number > 1) {
+                updateProfile('./multiagent_prompt_desc.json', args);
+            }
+            else {
+                updateProfile('./task_andy.json', args);
+            }
+        }
+    }   
+
     if (args.task) {
         // todo: make temporary json profiles for the multiple agents
         var task = loadTask(args.task);
@@ -79,8 +110,12 @@ function main() {
         }
     }
     for (let i=0; i<profiles.length; i++) {
-        const agent = new AgentProcess();
-        agent.start(profiles[i], load_memory, init_message, i, args.task);
+        try {
+            const agent = new AgentProcess();
+            agent.start(profiles[i], load_memory, init_message, i, args.task);
+        } catch (err) {
+            console.error(`Failed to start agent ${profiles[i]}:`, err);
+        }
     }
 }
 

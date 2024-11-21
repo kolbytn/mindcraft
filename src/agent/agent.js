@@ -15,7 +15,7 @@ import settings from '../../settings.js';
 import { loadTask } from '../utils/tasks.js';
 import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
 import {getPosition} from './library/world.js'
-import { readFileSync } from 'fs';
+import { readFileSync } from 'fs'; 
 
 
 export class Agent {
@@ -42,6 +42,8 @@ export class Agent {
 
         if (task) {
             this.task = loadTask(task);
+            this.taskTimeout = this.task.timeout || 300;
+            this.taskStartTime = Date.now();
             if (this.task.type === 'harvest' || this.task.type === 'techtree') {
                 this.validator = new TechTreeHarvestValidator(this.task, this.bot);
             }
@@ -49,6 +51,7 @@ export class Agent {
             
         } else {
             this.task = null;
+            this.taskTimeout = null;
             this.validator = null;
         }
 
@@ -228,8 +231,22 @@ export class Agent {
 
             this.startEvents();
             
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            this.checkAllPlayersPresent();
         });
     }
+
+    checkAllPlayersPresent() {
+        if (!this.task || !this.task.agent_names) {
+          return;
+        }
+
+        const missingPlayers = this.task.agent_names.filter(name => !this.bot.players[name]);
+        if (missingPlayers.length > 0) {
+            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+            this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+          }
+        }
 
     requestInterrupt() {
         this.bot.interrupt_code = true;
@@ -477,14 +494,14 @@ export class Agent {
         this.bot.emit('idle');
     }
 
-    killBots() {
+    async killBots() {
         console.log('Task completed!');
         this.bot.chat('Task completed!');
         this.bot.chat(`/clear @p`);
 
         // Kick other bots
         if (!this.task || !this.task.agent_number) {
-            this.cleanKill('task completed', 0);
+            await this.cleanKill('Task completed', 2);
         }
         const agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name); // Replace with the list of bot names
         const botNames = agent_names.filter(botName => botName !== this.name);
@@ -495,12 +512,24 @@ export class Agent {
 
         });
 
-        this.cleanKill('task completed', 0);
+        await this.cleanKill('Task completed', 2);
     }
 
     async update(delta) {
         await this.bot.modes.update();
         await this.self_prompter.update(delta);
+
+        try {
+            if (this.task && this.taskTimeout) {
+                const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
+                if (elapsedTime >= this.taskTimeout) {
+                  console.log('Task timeout reached. Task unsuccessful.');
+                  await this.cleanKill('Task unsuccessful: Timeout reached', 3);
+                }
+            }
+            } catch (e) {
+                console.error("Caught an error while checking timeout reached",e);
+            }
     }
 
     isIdle() {
@@ -514,11 +543,4 @@ export class Agent {
         this.history.save();
         process.exit(code);
     }
-
-    // cleanKillForever(msg='Killing agent process...') {
-    //     this.history.add('system', msg);
-    //     this.bot.chat('Goodbye world.')
-    //     this.history.save();
-    //     process.exit(0);
-    // }
 }
