@@ -1,5 +1,5 @@
 multiagent_techtree_1_shears_with_2_iron_ingot:
-  goal: Collaborate with other agents to build a shear, once it is built, put it out in the world
+  goal: Collaborate with other agents to build a shear.
   agent_names:
   - andy
   - randy
@@ -9,9 +9,10 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
       iron_ingot: 1
     randy:
       iron_ingot: 1
-  # target: shears
+  target: shears
   number_of_target: 1
   type: techtree
+  timeout : 60
   # personalities:
   #   Alice: Conscientiousness
   #   Bob: Agreeableness
@@ -26,7 +27,7 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
   #     - "!collectAllBlocks"
 
 multiagent_build_wooden_pickaxe:
-  goal: Collaborate with other agents to build a wooden pickaxe, once it is built, give it to the human player in the world
+  goal: Collaborate with other agents to build a wooden pickaxe.
   agent_names:
   - andy
   - randy
@@ -36,13 +37,15 @@ multiagent_build_wooden_pickaxe:
       oak_log: 2
     randy:
       stick: 2
-  target: 
+  target: wooden_pickaxe
   number_of_target: 1
   type: techtree
+  timeout : 120
+
 
 
 multiagent_techtree_boat:
-  goal: Collaborate with other agents to build a boat, once it is built, throw it out in the world
+  goal: Collaborate with other agents to build a birch boat, once it is built, place it out in the world (don't use discard)
   agent_names:
   - Bob
   - Alice
@@ -52,7 +55,7 @@ multiagent_techtree_boat:
       birch_planks: 3
     Alice:
       birch_planks: 2
-  target: birch_boat
+  # target: birch_boat
   number_of_target: 1
   type: techtree
 
