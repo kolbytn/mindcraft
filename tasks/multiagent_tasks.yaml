@@ -25,6 +25,21 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
   #     - "!collectBlocks"
   #     - "!collectAllBlocks"
 
+multiagent_techtree_1_stone_pickaxe:
+  goal: Collaborate with other agents to build an iron pickaxe, once it is built, put it out in the world
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      wooden_pickaxe: 1
+    randy:
+      wooden_axe: 1
+  target: stone_pickaxe
+  number_of_target: 1
+  type: techtree
+
 multiagent_build_wooden_pickaxe:
   goal: Collaborate with other agents to build a wooden pickaxe, once it is built, give it to the human player in the world
   agent_names:
@@ -55,5 +70,7 @@ multiagent_techtree_boat:
   target: birch_boat
   number_of_target: 1
   type: techtree
+
+
 
 
