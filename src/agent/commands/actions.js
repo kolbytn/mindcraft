@@ -225,18 +225,18 @@ export const actionsList = [
             await skills.collectBlock(agent.bot, type, num);
         }, false, 10) // 10 minute timeout
     },
-    // {
-    //     name: '!collectAllBlocks',
-    //     description: 'Collect all the nearest blocks of a given type until told to stop.',
-    //     params: {
-    //         'type': { type: 'BlockName', description: 'The block type to collect.' }
-    //     },
-    //     perform: runAsAction(async (agent, type) => {
-    //         let success = await skills.collectBlock(agent.bot, type, 1);
-    //         if (!success)
-    //         agent.actions.cancelResume();
-    //     }, true, 3) // 3 minute timeout
-    // },
+    {
+        name: '!collectAllBlocks',
+        description: 'Collect all the nearest blocks of a given type until told to stop.',
+        params: {
+            'type': { type: 'BlockName', description: 'The block type to collect.' }
+        },
+        perform: runAsAction(async (agent, type) => {
+            let success = await skills.collectBlock(agent.bot, type, 1);
+            if (!success)
+            agent.actions.cancelResume();
+        }, true, 3) // 3 minute timeout
+    },
     {
         name: '!craftRecipe',
         description: 'Craft the given recipe a given number of times.',
@@ -390,18 +390,7 @@ export const actionsList = [
         perform: async function (agent, player_name) {
             endConversation(player_name);
         }
-    },
-    // {
-    //     name: '!blockChat',
-    //     description: 'Ignore all messages from a given player for a given number of seconds. Use in response to spam, toxic behavior, and manipulation.',
-    //     params: {
-    //         'player_name': { type: 'string', description: 'The name of the player to block.' },
-    //         'seconds': { type: 'int', description: 'The number of seconds to block the player.', domain: [1, Number.MAX_SAFE_INTEGER] }
-    //     },
-    //     perform: async function (agent) {
-    //         return;
-    //     }
-    // },
+    }
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
