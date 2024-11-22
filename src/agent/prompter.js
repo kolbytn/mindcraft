@@ -20,6 +20,13 @@ export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
+        this.default_profile = JSON.parse(readFileSync('./profiles/_default.json', 'utf8'));
+
+        for (let key in this.default_profile) {
+            if (this.profile[key] === undefined)
+                this.profile[key] = this.default_profile[key];
+        }
+
         this.convo_examples = null;
         this.coding_examples = null;
         
@@ -169,6 +176,9 @@ export class Prompter {
             let inventory = await getCommand('!inventory').perform(this.agent);
             prompt = prompt.replaceAll('$INVENTORY', inventory);
         }
+        if (prompt.includes('$ACTION')) {
+            prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
+        }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
@@ -250,6 +260,18 @@ export class Prompter {
         let prompt = this.profile.saving_memory;
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         return await this.chat_model.sendRequest([], prompt);
+    }
+
+    async promptShouldRespondToBot(new_message) {
+        await this.checkCooldown();
+        let prompt = this.profile.bot_responder;
+        let messages = this.agent.history.getHistory();
+        messages.push({role: 'user', content: new_message});
+        prompt = await this.replaceStrings(prompt, null, null, messages);
+        console.log('Full bot responder prompt:', prompt);
+        let res = await this.chat_model.sendRequest([], prompt);
+        console.log('Bot responder response:', res);
+        return res.trim().toLowerCase() === 'respond';
     }
 
     async promptGoalSetting(messages, last_goals) {
