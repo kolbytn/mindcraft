@@ -106,7 +106,8 @@ export function sendToBot(send_to, message, start=false) {
     const convo = _getConvo(send_to);
     if (convo.ignore_until_start)
         return;
-
+    convo.active = true;
+    
     const end = message.includes('!endConversation');
     const json = {
         'message': message,
@@ -139,6 +140,14 @@ export async function recieveFromBot(sender, json) {
     _scheduleProcessInMessage(sender, recieved, convo);
 }
 
+// returns true if the other bot has a scheduled response
+export function responseScheduledFor(sender) {
+    if (!isOtherAgent(sender))
+        return false;
+    const convo = _getConvo(sender);
+    return !!convo.inMessageTimer;
+}
+
 
 /*
 This function controls conversation flow by deciding when the bot responds.
@@ -149,7 +158,7 @@ The logic is as follows:
 - If both bots are busy, don't respond until someone is done, excluding a few actions that allow fast responses
 - New messages recieved during the delay will reset the delay following this logic, and be queued to respond in bulk
 */
-const talkOverActions = ['stay', 'followPlayer'];
+const talkOverActions = ['stay', 'followPlayer', 'mode:']; // all mode actions
 const fastDelay = 200;
 const longDelay = 5000;
 async function _scheduleProcessInMessage(sender, recieved, convo) {
@@ -171,10 +180,16 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
         scheduleResponse(longDelay);
     else if (!agent.isIdle()) {
         // I'm busy but other bot isn't
-        let shouldRespond = await agent.prompter.promptShouldRespondToBot(recieved.message);
-        console.log(`${agent.name} decided to ${shouldRespond?'respond':'not respond'} to ${sender}`);
-        if (shouldRespond)
+        let canTalkOver = talkOverActions.some(a => agent.actions.currentActionLabel.includes(a));
+        if (canTalkOver) {
             scheduleResponse(fastDelay);
+        }
+        else {
+            let shouldRespond = await agent.prompter.promptShouldRespondToBot(recieved.message);
+            console.log(`${agent.name} decided to ${shouldRespond?'respond':'not respond'} to ${sender}`);
+            if (shouldRespond)
+                scheduleResponse(fastDelay);
+        }
     }
     else {
         // neither are busy
@@ -182,8 +197,7 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
     }
 }
 
-
-export function _processInMessageQueue(name) {
+function _processInMessageQueue(name) {
     const convo = _getConvo(name);
     let pack = null;
     let full_message = '';
@@ -195,10 +209,11 @@ export function _processInMessageQueue(name) {
     _handleFullInMessage(name, pack);
 }
 
-export function _handleFullInMessage(sender, recieved) {
+function _handleFullInMessage(sender, recieved) {
     console.log(`responding to **${JSON.stringify(recieved)}**`);
     
     const convo = _getConvo(sender);
+    convo.active = true;
 
     const message = _tagMessage(recieved.message);
     if (recieved.end) {
@@ -209,6 +224,7 @@ export function _handleFullInMessage(sender, recieved) {
     }
     if (recieved.start)
         agent.shut_up = false;
+    convo.inMessageTimer = null;
     agent.handleMessage(sender, message);
 }
 

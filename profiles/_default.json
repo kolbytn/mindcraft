@@ -50,7 +50,7 @@
 
         [
             {"role": "user", "content": "gort: (FROM OTHER BOT)Let's do it, onward!"},
-            {"role": "assistant", "content": "Alright, let's see what's nearby... !nearbyBlocks"}
+            {"role": "assistant", "content": "Alright, I'll start by getting some cobblestone. !collectBlocks('stone', 10)"}
         ],
 
         [

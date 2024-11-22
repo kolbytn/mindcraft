@@ -288,7 +288,14 @@ async function execute(mode, agent, func, timeout=-1) {
     }, { timeout });
     mode.active = false;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
-    if (interrupted_action && !agent.actions.resume_func && !agent.self_prompter.on) {
+
+    let should_reprompt = 
+        interrupted_action && // it interrupted a previous action
+        !agent.actions.resume_func && // there is no resume function
+        !agent.self_prompter.on && // self prompting is not on
+        !code_return.interrupted; // this mode action was not interrupted by something else
+
+    if (should_reprompt) {
         // auto prompt to respond to the interruption
         let role = agent.last_sender ? agent.last_sender : 'system';
         let logs = agent.bot.modes.flushBehaviorLog();

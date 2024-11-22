@@ -226,18 +226,6 @@ export const actionsList = [
         }, false, 10) // 10 minute timeout
     },
     {
-        name: '!collectAllBlocks',
-        description: 'Collect all the nearest blocks of a given type until told to stop.',
-        params: {
-            'type': { type: 'BlockName', description: 'The block type to collect.' }
-        },
-        perform: runAsAction(async (agent, type) => {
-            let success = await skills.collectBlock(agent.bot, type, 1);
-            if (!success)
-            agent.actions.cancelResume();
-        }, true, 3) // 3 minute timeout
-    },
-    {
         name: '!craftRecipe',
         description: 'Craft the given recipe a given number of times.',
         params: {

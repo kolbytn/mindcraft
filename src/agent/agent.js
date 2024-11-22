@@ -8,7 +8,7 @@ import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import { isOtherAgent, initConversationManager, sendToBot, endAllChats } from './conversation.js';
+import { isOtherAgent, initConversationManager, sendToBot, endAllChats, responseScheduledFor} from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
@@ -191,7 +191,7 @@ export class Agent {
             }
             else if (save_data?.last_sender) {
                 this.last_sender = save_data.last_sender;
-                await this.handleMessage(this.last_sender, `(You have restarted and this message is auto-generated. Continue the conversation with ${this.last_sender})`);
+                await this.handleMessage('system', `You have restarted and this message is auto-generated. Continue the conversation with ${this.last_sender}`);
             }
             else if (init_message) {
                 await this.handleMessage('system', init_message, 2);
@@ -265,14 +265,12 @@ export class Agent {
 
         if (!self_prompt)
             this.last_sender = source;
-        else
-            this.last_sender = null;
 
         // Now translate the message
         message = await handleEnglishTranslation(message);
         console.log('received message from', source, ':', message);
 
-        const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
+        const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || responseScheduledFor(source);
 
         let behavior_log = this.bot.modes.flushBehaviorLog();
         if (behavior_log.trim().length > 0) {
@@ -347,6 +345,13 @@ export class Agent {
     }
 
     async routeResponse(to_player, message, translate_up_to=-1) {
+        let self_prompt = to_player === 'system' || to_player === this.name;
+        if (self_prompt && this.last_sender && !this.self_prompter.on) {
+            // this is for when the agent is prompted by system while still in conversation
+            // so it can respond to events like death but be routed back to the last sender
+            to_player = this.last_sender;
+        }
+
         if (isOtherAgent(to_player)) {
             sendToBot(to_player, message);
             return;
@@ -362,7 +367,7 @@ export class Agent {
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
 
-        if (to_player === 'system' || to_player === this.name) 
+        if (self_prompt) 
             this.bot.chat(message);
         else
             this.bot.whisper(to_player, message);
