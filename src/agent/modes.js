@@ -106,6 +106,7 @@ const modes_list = [
                     const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 10000);
                     await skills.moveAway(bot, 5);
                     clearTimeout(crashTimeout);
+                    say(agent, 'I\'m free.');
                 });
             }
             this.last_time = Date.now();
@@ -280,12 +281,20 @@ const modes_list = [
 async function execute(mode, agent, func, timeout=-1) {
     if (agent.self_prompter.on)
         agent.self_prompter.stopLoop();
+    let interrupted_action = agent.actions.currentActionLabel;
     mode.active = true;
     let code_return = await agent.actions.runAction(`mode:${mode.name}`, async () => {
         await func();
     }, { timeout });
     mode.active = false;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
+    if (interrupted_action && !agent.actions.resume_func && !agent.self_prompter.on) {
+        // auto prompt to respond to the interruption
+        let role = agent.last_sender ? agent.last_sender : 'system';
+        let logs = agent.bot.modes.flushBehaviorLog();
+        agent.handleMessage(role, `(AUTO MESSAGE)Your previous action '${interrupted_action}' was interrupted by ${mode.name}.
+        Your behavior log: ${logs}\nRespond accordingly.`);
+    }
 }
 
 let _agent = null;

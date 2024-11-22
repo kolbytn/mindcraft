@@ -218,29 +218,6 @@ export class Agent {
         this.bot.interrupt_code = false;
     }
 
-    async cleanChat(to_player, message, translate_up_to=-1) {
-        if (isOtherAgent(to_player)) {
-            this.bot.chat(message);
-            sendToBot(to_player, message);
-            return;
-        }
-
-        let to_translate = message;
-        let remaining = '';
-        if (translate_up_to != -1) {
-            to_translate = to_translate.substring(0, translate_up_to);
-            remaining = message.substring(translate_up_to);
-        }
-        message = (await handleTranslation(to_translate)).trim() + " " + remaining;
-        // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
-        message = message.replaceAll('\n', ' ');
-
-        if (to_player === 'system' || to_player === this.name) 
-            this.bot.chat(message);
-        else
-            this.bot.whisper(to_player, message);
-    }
-
     shutUp() {
         this.shut_up = true;
         if (this.self_prompter.on) {
@@ -281,7 +258,7 @@ export class Agent {
                 }
                 let execute_res = await executeCommand(this, message);
                 if (execute_res) 
-                    this.cleanChat(source, execute_res);
+                    this.routeResponse(source, execute_res);
                 return true;
             }
         }
@@ -336,14 +313,14 @@ export class Agent {
                 this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
                 if (settings.verbose_commands) {
-                    this.cleanChat(source, res, res.indexOf(command_name));
+                    this.routeResponse(source, res, res.indexOf(command_name));
                 }
                 else { // only output command name
                     let pre_message = res.substring(0, res.indexOf(command_name)).trim();
                     let chat_message = `*used ${command_name.substring(1)}*`;
                     if (pre_message.length > 0)
                         chat_message = `${pre_message}  ${chat_message}`;
-                    this.cleanChat(source, chat_message);
+                    this.routeResponse(source, chat_message);
                 }
 
                 let execute_res = await executeCommand(this, res);
@@ -358,7 +335,7 @@ export class Agent {
             }
             else { // conversation response
                 this.history.add(this.name, res);
-                this.cleanChat(source, res);
+                this.routeResponse(source, res);
                 console.log('Purely conversational response:', res);
                 break;
             }
@@ -367,6 +344,28 @@ export class Agent {
         }
 
         return used_command;
+    }
+
+    async routeResponse(to_player, message, translate_up_to=-1) {
+        if (isOtherAgent(to_player)) {
+            sendToBot(to_player, message);
+            return;
+        }
+
+        let to_translate = message;
+        let remaining = '';
+        if (translate_up_to != -1) {
+            to_translate = to_translate.substring(0, translate_up_to);
+            remaining = message.substring(translate_up_to);
+        }
+        message = (await handleTranslation(to_translate)).trim() + " " + remaining;
+        // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
+        message = message.replaceAll('\n', ' ');
+
+        if (to_player === 'system' || to_player === this.name) 
+            this.bot.chat(message);
+        else
+            this.bot.whisper(to_player, message);
     }
 
     startEvents() {

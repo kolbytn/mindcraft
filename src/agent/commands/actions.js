@@ -1,6 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
-import { startChat, endChat } from '../conversation.js';
+import { startConversation, endConversation, inConversation, scheduleSelfPrompter, cancelSelfPrompter } from '../conversation.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -350,7 +350,15 @@ export const actionsList = [
             'selfPrompt': { type: 'string', description: 'The goal prompt.' },
         },
         perform: async function (agent, prompt) {
-            agent.self_prompter.start(prompt); // don't await, don't return
+            if (inConversation()) {
+                // if conversing with another bot, dont start self-prompting yet
+                // wait until conversation ends
+                agent.self_prompter.setPrompt(prompt);
+                scheduleSelfPrompter();
+            }
+            else {
+                agent.self_prompter.start(prompt); // don't await, don't return
+            }
         }
     },
     {
@@ -358,29 +366,29 @@ export const actionsList = [
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
             agent.self_prompter.stop();
+            cancelSelfPrompter();
             return 'Self-prompting stopped.';
         }
     },
     {
-        name: '!startChat',
+        name: '!startConversation',
         description: 'Send a message to a specific player to initiate conversation.',
         params: {
             'player_name': { type: 'string', description: 'The name of the player to send the message to.' },
             'message': { type: 'string', description: 'The message to send.' },
-            'max_turns': { type: 'int', description: 'The maximum number of turns to allow in the conversation. -1 for unlimited.', domain: [-1, Number.MAX_SAFE_INTEGER] }
         },
-        perform: async function (agent, player_name, message, max_turns) {
-            startChat(player_name, message, max_turns);
+        perform: async function (agent, player_name, message) {
+            startConversation(player_name, message);
         }
     },
     {
-        name: '!endChat',
+        name: '!endConversation',
         description: 'End the conversation with the given player.',
         params: {
             'player_name': { type: 'string', description: 'The name of the player to end the conversation with.' }
         },
         perform: async function (agent, player_name) {
-            endChat(player_name);
+            endConversation(player_name);
         }
     },
     // {
