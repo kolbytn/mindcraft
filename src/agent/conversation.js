@@ -172,7 +172,7 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
     else if (!agent.isIdle()) {
         // I'm busy but other bot isn't
         let shouldRespond = await agent.prompter.promptShouldRespondToBot(recieved.message);
-        console.log(`${agent.name} decision to respond: ${shouldRespond}`);
+        console.log(`${agent.name} decided to ${shouldRespond?'respond':'not respond'} to ${sender}`);
         if (shouldRespond)
             scheduleResponse(fastDelay);
     }

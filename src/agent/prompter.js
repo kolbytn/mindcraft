@@ -268,9 +268,7 @@ export class Prompter {
         let messages = this.agent.history.getHistory();
         messages.push({role: 'user', content: new_message});
         prompt = await this.replaceStrings(prompt, null, null, messages);
-        console.log('Full bot responder prompt:', prompt);
         let res = await this.chat_model.sendRequest([], prompt);
-        console.log('Bot responder response:', res);
         return res.trim().toLowerCase() === 'respond';
     }
 
