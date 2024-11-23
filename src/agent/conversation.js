@@ -199,7 +199,7 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
 
 function _processInMessageQueue(name) {
     const convo = _getConvo(name);
-    let pack = null;
+    let pack = {};
     let full_message = '';
     while (convo.in_queue.length > 0) {
         pack = convo.in_queue.shift();
