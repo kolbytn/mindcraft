@@ -5,7 +5,7 @@ import { BuildGoal } from './build_goal.js';
 import { itemSatisfied, rotateXZ } from './utils.js';
 import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
+import { mc } from '../../utils/mcdata.js';
 
 
 export class NPCContoller {

@@ -1,6 +1,5 @@
 import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
-
+import { mc } from '../../utils/mcdata.js';
 
 export function getTypeOfGeneric(bot, block_name) {
     // Get type of wooden block

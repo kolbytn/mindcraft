@@ -1,5 +1,5 @@
 import pf from 'mineflayer-pathfinder';
-import * as mc from '../../utils/mcdata.js';
+import { mc } from '../../utils/mcdata.js';
 
 
 export function getNearestFreeSpace(bot, size=1, distance=8) {

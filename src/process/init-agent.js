@@ -38,6 +38,18 @@ const argv = yargs(args)
         type: 'number',
         default: 0,
         description: 'identifying count for multi-agent scenarios',
+    })
+    .option('server_host', {
+        type: 'string',
+        description: 'minecraft server host',
+    })
+    .option('server_port', {
+        type: 'number',
+        description: 'minecraft server port',
+    })
+    .option('server_version', {
+        type: 'string',
+        description: 'minecraft version'
     }).argv;
 
 // Wrap agent start in async IIFE with proper error handling
@@ -45,7 +57,7 @@ const argv = yargs(args)
     try {
         console.log('Starting agent with profile:', argv.profile);
         const agent = new Agent();
-        await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.count_id);
+        await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.server_host, argv.server_port, argv.server_version, argv.count_id);
     } catch (error) {
         console.error('Failed to start agent process:', {
             message: error.message || 'No error message',

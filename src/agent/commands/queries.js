@@ -1,5 +1,5 @@
 import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
+import { mc } from '../../utils/mcdata.js';
 
 
 const pad = (str) => {

@@ -1,6 +1,6 @@
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
-import * as mc from '../utils/mcdata.js';
+import { mc } from '../utils/mcdata.js';
 import settings from '../../settings.js'
 import { handleTranslation } from '../utils/translator.js';
 

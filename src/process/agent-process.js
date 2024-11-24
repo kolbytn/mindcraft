@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 export class AgentProcess {
     static runningCount = 0;
 
-    start(profile, load_memory=false, init_message=null, count_id=0) {
+    start(profile, load_memory=false, init_message=null, server_host=null, server_port=0, server_version=null, count_id=0) {
         let args = ['src/process/init-agent.js', this.name];
         args.push('-p', profile);
         args.push('-c', count_id);
@@ -11,6 +11,11 @@ export class AgentProcess {
             args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
+
+        // Pass server/version info to agent
+        args.push('--server_host', server_host);
+        args.push('--server_port', server_port);
+        args.push('--server_version', server_version);
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
@@ -34,7 +39,7 @@ export class AgentProcess {
                     return;
                 }
                 console.log('Restarting agent...');
-                this.start(profile, true, 'Agent process restarted.', count_id);
+                this.start(profile, true, 'Agent process restarted.', server_host, server_port, server_version, count_id);
                 last_restart = Date.now();
             }
         });
