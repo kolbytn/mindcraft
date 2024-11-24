@@ -111,7 +111,9 @@ export class ActionManager {
             console.error("Code execution triggered catch: " + err);
             await this.stop();
 
-            let message = this._getBotOutputSummary() + '!!Code threw exception!!  Error: ' + err;
+            err = err.toString();
+            let relevant_skill_docs = await this.agent.prompter.getRelevantSkillDocs(err,5);
+            let message = this._getBotOutputSummary() + '!!Code threw exception!!  Error: ' + err+'\n'+relevant_skill_docs;
             let interrupted = this.agent.bot.interrupt_code;
             this.agent.clearBotLogs();
             if (!interrupted && !this.agent.coder.generating) {
@@ -131,7 +133,7 @@ export class ActionManager {
           First outputs:\n${output.substring(0, MAX_OUT / 2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT / 2)}`;
         }
         else {
-            output = 'Code output:\n' + output;
+            output = 'Code output:\n' + output.toString();
         }
         return output;
     }

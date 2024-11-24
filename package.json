@@ -25,5 +25,10 @@
     "scripts": {
         "postinstall": "patch-package",
         "start": "node main.js"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.13.0",
+        "eslint": "^9.13.0",
+        "globals": "^15.11.0"
     }
 }
