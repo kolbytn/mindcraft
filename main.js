@@ -19,7 +19,7 @@ function getProfiles(args) {
     return args.profiles || settings.profiles;
 }
 
-function main() {
+async function main() {
     if (settings.host_mindserver) {
         const mindServer = createMindServer();
     }
@@ -32,6 +32,7 @@ function main() {
     for (let i=0; i<profiles.length; i++) {
         const agent = new AgentProcess();
         agent.start(profiles[i], load_memory, init_message, i);
+        await new Promise(resolve => setTimeout(resolve, 1000));
     }
 }
 

@@ -141,7 +141,6 @@ export class Prompter {
     }
 
     async initExamples() {
-        console.log('initializing examples...');
         try {
             this.convo_examples = new Examples(this.embedding_model);
             this.coding_examples = new Examples(this.embedding_model);
@@ -151,8 +150,8 @@ export class Prompter {
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples)
             ]);
-            
-            console.log('done initializing examples.');
+
+            console.log('Examples initialized.');
         } catch (error) {
             console.error('Failed to initialize examples:', error);
             throw error;

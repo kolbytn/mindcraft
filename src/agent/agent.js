@@ -43,15 +43,13 @@ export class Agent {
             this.memory_bank = new MemoryBank();
             console.log('Initializing self prompter...');
             this.self_prompter = new SelfPrompter(this);
-            initConversationManager(this);
-            
-            // After getting the name, register with MindServer via proxy
-            serverProxy.registerAgent(this.name);
-            
+            initConversationManager(this);            
             console.log('Initializing examples...');
             await this.prompter.initExamples();
 
-            console.log('Logging into minecraft...');
+            serverProxy.registerAgent(this.name);
+
+            console.log(this.name, 'logging into minecraft...');
             this.bot = initBot(this.name);
 
             initModes(this);

@@ -293,7 +293,7 @@ export function shouldPlaceTorch(bot) {
     if (!nearest_torch) {
         const block = bot.blockAt(pos);
         let has_torch = bot.inventory.items().find(item => item.name === 'torch');
-        return has_torch && block.name === 'air';
+        return has_torch && block?.name === 'air';
     }
     return false;
 }
