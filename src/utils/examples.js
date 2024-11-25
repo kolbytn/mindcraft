@@ -31,19 +31,26 @@ export class Examples {
 
     async load(examples) {
         this.examples = examples;
+        if (!this.model) return; // Early return if no embedding model
+        
         try {
-            if (this.model !== null) {
-                const embeddingPromises = this.examples.map(async (example) => {
-                    let turn_text = this.turnsToText(example);
-                    this.embeddings[turn_text] = await this.model.embed(turn_text);
-                });
-                await Promise.all(embeddingPromises);
-            }
+            console.log('embedding examples...');
+            // Create array of promises first
+            const embeddingPromises = examples.map(example => {
+                const turn_text = this.turnsToText(example);
+                return this.model.embed(turn_text)
+                    .then(embedding => {
+                        this.embeddings[turn_text] = embedding;
+                    });
+            });
+            
+            // Wait for all embeddings to complete
+            await Promise.all(embeddingPromises);
+            console.log('done embedding examples.');
         } catch (err) {
-            console.warn('Error with embedding model, using word overlap instead.');
+            console.warn('Error with embedding model, using word overlap instead:', err);
             this.model = null;
         }
-
     }
 
     async getRelevant(turns) {

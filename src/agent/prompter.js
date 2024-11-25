@@ -141,24 +141,18 @@ export class Prompter {
     }
 
     async initExamples() {
+        console.log('initializing examples...');
         try {
             this.convo_examples = new Examples(this.embedding_model);
             this.coding_examples = new Examples(this.embedding_model);
             
-            const [convoResult, codingResult] = await Promise.allSettled([
+            // Wait for both examples to load before proceeding
+            await Promise.all([
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples)
             ]);
-
-            // Handle potential failures
-            if (convoResult.status === 'rejected') {
-                console.error('Failed to load conversation examples:', convoResult.reason);
-                throw convoResult.reason;
-            }
-            if (codingResult.status === 'rejected') {
-                console.error('Failed to load coding examples:', codingResult.reason);
-                throw codingResult.reason;
-            }
+            
+            console.log('done initializing examples.');
         } catch (error) {
             console.error('Failed to initialize examples:', error);
             throw error;
