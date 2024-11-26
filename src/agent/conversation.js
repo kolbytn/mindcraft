@@ -121,6 +121,13 @@ export function sendToBot(send_to, message, start=false) {
 
 export async function recieveFromBot(sender, json) {
     const convo = _getConvo(sender);
+
+    // check if any convo is active besides the sender
+    if (Object.values(convos).some(c => c.active && c.name !== sender)) {
+        sendToBot(sender, 'I am currently busy. Try again later. !endConversation("' + sender + '")');
+        return;
+    }
+
     console.log(`decoding **${json}**`);
     const recieved = JSON.parse(json);
     if (recieved.start) {
@@ -216,12 +223,8 @@ function _handleFullInMessage(sender, recieved) {
     convo.active = true;
 
     const message = _tagMessage(recieved.message);
-    if (recieved.end) {
+    if (recieved.end)
         convo.end();
-        // if end signal from other bot, add to history but don't respond
-        agent.history.add(sender, message);
-        return;
-    }
     if (recieved.start)
         agent.shut_up = false;
     convo.inMessageTimer = null;
