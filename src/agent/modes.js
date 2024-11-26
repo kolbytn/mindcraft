@@ -106,6 +106,7 @@ const modes_list = [
                     const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 10000);
                     await skills.moveAway(bot, 5);
                     clearTimeout(crashTimeout);
+                    say(agent, 'I\'m free.');
                 });
             }
             this.last_time = Date.now();
@@ -210,6 +211,27 @@ const modes_list = [
         }
     },
     {
+        name: 'elbow_room',
+        description: 'Move away from nearby players when idle.',
+        interrupts: ['action:followPlayer'],
+        on: true,
+        active: false,
+        distance: 0.5,
+        update: async function (agent) {
+            const player = world.getNearestEntityWhere(agent.bot, entity => entity.type === 'player', this.distance);
+            if (player) {
+                execute(this, agent, async () => {
+                    // wait a random amount of time to avoid identical movements with other bots
+                    const wait_time = Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, wait_time));
+                    if (player.position.distanceTo(agent.bot.entity.position) < this.distance) {
+                        await skills.moveAway(agent.bot, this.distance);
+                    }
+                });
+            }
+        }
+    },
+    {
         name: 'idle_staring',
         description: 'Animation to look around at entities when idle.',
         interrupts: [],
@@ -259,12 +281,27 @@ const modes_list = [
 async function execute(mode, agent, func, timeout=-1) {
     if (agent.self_prompter.on)
         agent.self_prompter.stopLoop();
+    let interrupted_action = agent.actions.currentActionLabel;
     mode.active = true;
     let code_return = await agent.actions.runAction(`mode:${mode.name}`, async () => {
         await func();
     }, { timeout });
     mode.active = false;
     console.log(`Mode ${mode.name} finished executing, code_return: ${code_return.message}`);
+
+    let should_reprompt = 
+        interrupted_action && // it interrupted a previous action
+        !agent.actions.resume_func && // there is no resume function
+        !agent.self_prompter.on && // self prompting is not on
+        !code_return.interrupted; // this mode action was not interrupted by something else
+
+    if (should_reprompt) {
+        // auto prompt to respond to the interruption
+        let role = agent.last_sender ? agent.last_sender : 'system';
+        let logs = agent.bot.modes.flushBehaviorLog();
+        agent.handleMessage(role, `(AUTO MESSAGE)Your previous action '${interrupted_action}' was interrupted by ${mode.name}.
+        Your behavior log: ${logs}\nRespond accordingly.`);
+    }
 }
 
 let _agent = null;

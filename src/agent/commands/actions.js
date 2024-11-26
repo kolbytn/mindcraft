@@ -1,5 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
+import { startConversation, endConversation, inConversation, scheduleSelfPrompter, cancelSelfPrompter } from '../conversation.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -64,7 +65,6 @@ export const actionsList = [
         name: '!restart',
         description: 'Restart the agent process.',
         perform: async function (agent) {
-            await agent.history.save();
             agent.cleanKill();
         }
     },
@@ -230,18 +230,6 @@ export const actionsList = [
         }, false, 10) // 10 minute timeout
     },
     {
-        name: '!collectAllBlocks',
-        description: 'Collect all the nearest blocks of a given type until told to stop.',
-        params: {
-            'type': { type: 'BlockName', description: 'The block type to collect.' }
-        },
-        perform: runAsAction(async (agent, type) => {
-            let success = await skills.collectBlock(agent.bot, type, 1);
-            if (!success)
-            agent.actions.cancelResume();
-        }, true, 3) // 3 minute timeout
-    },
-    {
         name: '!craftRecipe',
         description: 'Craft the given recipe a given number of times.',
         params: {
@@ -276,7 +264,7 @@ export const actionsList = [
         perform: runAsAction(async (agent) => {
             await skills.clearNearestFurnace(agent.bot);
         })
-        },
+    },
         {
         name: '!placeHere',
         description: 'Place a given block in the current location. Do NOT use to build structures, only use for single blocks/torches.',
@@ -354,7 +342,15 @@ export const actionsList = [
             'selfPrompt': { type: 'string', description: 'The goal prompt.' },
         },
         perform: async function (agent, prompt) {
-            agent.self_prompter.start(prompt); // don't await, don't return
+            if (inConversation()) {
+                // if conversing with another bot, dont start self-prompting yet
+                // wait until conversation ends
+                agent.self_prompter.setPrompt(prompt);
+                scheduleSelfPrompter();
+            }
+            else {
+                agent.self_prompter.start(prompt); // don't await, don't return
+            }
         }
     },
     {
@@ -362,9 +358,31 @@ export const actionsList = [
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
             agent.self_prompter.stop();
+            cancelSelfPrompter();
             return 'Self-prompting stopped.';
         }
     },
+    {
+        name: '!startConversation',
+        description: 'Send a message to a specific player to initiate conversation.',
+        params: {
+            'player_name': { type: 'string', description: 'The name of the player to send the message to.' },
+            'message': { type: 'string', description: 'The message to send.' },
+        },
+        perform: async function (agent, player_name, message) {
+            startConversation(player_name, message);
+        }
+    },
+    {
+        name: '!endConversation',
+        description: 'End the conversation with the given player.',
+        params: {
+            'player_name': { type: 'string', description: 'The name of the player to end the conversation with.' }
+        },
+        perform: async function (agent, player_name) {
+            endConversation(player_name);
+        }
+    }
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
