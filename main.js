@@ -79,7 +79,7 @@ function getProfiles(args) {
 }
 
 
-function main() {
+async function main() {
     const args = parseArguments();
 
     if (args.task) {
@@ -113,6 +113,7 @@ function main() {
         try {
             const agent = new AgentProcess();
             agent.start(profiles[i], load_memory, init_message, i, args.task);
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (err) {
             console.error(`Failed to start agent ${profiles[i]}:`, err);
         }

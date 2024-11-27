@@ -32,7 +32,7 @@ export class AgentProcess {
 
             if (code === 2) {
                 console.log(`Task completed successfully`);
-                process.exit(2);
+                process.exit(2, signal);
             }
 
             if (code === 3) {
