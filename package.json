@@ -20,7 +20,10 @@
         "replicate": "^0.29.4",
         "ses": "^1.9.1",
         "vec3": "^0.1.10",
-        "yargs": "^17.7.2"
+        "yargs": "^17.7.2",
+        "socket.io": "^4.7.2",
+        "socket.io-client": "^4.7.2",
+        "express": "^4.18.2"
     },
     "scripts": {
         "postinstall": "patch-package",
