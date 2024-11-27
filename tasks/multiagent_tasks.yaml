@@ -27,7 +27,7 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
   #     - "!collectAllBlocks"
 
 multiagent_techtree_1_stone_pickaxe:
-  goal: Collaborate with other agents to build an iron pickaxe, once it is built, put it out in the world
+  goal: Collaborate with other agents to build an stone pickaxe
   agent_names:
   - andy
   - randy
