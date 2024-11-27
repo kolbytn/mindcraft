@@ -3,9 +3,12 @@ import { toSinglePrompt } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Gemini {
-    constructor(model_name, url) {
-        this.model_name = model_name;
-        this.url = url;
+    constructor(parameters) {
+        this.model_name = parameters.model_name || "gemini-1.5-flash";
+        this.temperature = parameters.temperature || 1;
+        this.max_tokens = parameters.max_tokens || 1000;
+
+        this.url = parameters.url;
         this.safetySettings = [
             {
                 "category": "HARM_CATEGORY_DANGEROUS",
@@ -32,22 +35,20 @@ export class Gemini {
         this.genAI = new GoogleGenerativeAI(getKey('GEMINI_API_KEY'));
     }
 
-    async sendRequest(turns, systemMessage) {
+    async sendRequest(turns, systemMessage, stop_seq='***') {
         let model;
-        if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
-                { baseUrl: this.url },
-                { safetySettings: this.safetySettings }
-            );
-        } else {
-            model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
-                { safetySettings: this.safetySettings }
-            );
-        }
-
-        const stop_seq = '***';
+        const pack = [
+            { model: this.model_name },
+            { generationConfig: {
+                maxOutputTokens: this.max_tokens,
+                temperature: this.temperature,
+                stopSequences: [stop_seq]
+            }},
+            { safetySettings: this.safetySettings },
+            { baseUrl: this.url },
+        ];
+        model = this.genAI.getGenerativeModel(...pack);
+;
         const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         console.log('Awaiting Google API response...');
         const result = await model.generateContent(prompt);

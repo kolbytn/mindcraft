@@ -4,9 +4,12 @@ import { getKey } from '../utils/keys.js';
 
 // llama, mistral
 export class ReplicateAPI {
-	constructor(model_name, url) {
-		this.model_name = model_name;
-		this.url = url;
+	constructor(parameters) {
+		this.model_name = parameters.model_name || 'meta/meta-llama-3-70b-instruct'; 
+        this.temperature = parameters.temperature || 1;
+		this.max_tokens = parameters.max_tokens || 1000;
+
+		this.url = parameters.url;
 
 		if (this.url) {
 			console.warn('Replicate API does not support custom URLs. Ignoring provided URL.');
@@ -20,14 +23,13 @@ export class ReplicateAPI {
 	async sendRequest(turns, systemMessage) {
 		const stop_seq = '***';
 		const prompt = toSinglePrompt(turns, null, stop_seq);
-		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
-
+		
 		const input = { prompt, system_prompt: systemMessage };
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');
 			let result = '';
-			for await (const event of this.replicate.stream(model_name, { input })) {
+			for await (const event of this.replicate.stream(this.model_name, { input })) {
 				result += event;
 				if (result === '') break;
 				if (result.includes(stop_seq)) {

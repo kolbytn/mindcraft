@@ -3,10 +3,11 @@ import { getKey } from '../utils/keys.js';
 
 // llama, mistral
 export class Novita {
-	constructor(model_name, url) {
-    this.model_name = model_name.replace('novita/', '');
-    this.url = url || 'https://api.novita.ai/v3/openai';
+	constructor(parameters) {
+    this.model_name = parameters.model_name.replace('novita/', '') || "meta-llama/llama-3.1-8b-instruct";
+    this.temperature = parameters.temperature;
 
+    this.url = parameters.url || 'https://api.novita.ai/v3/openai';
     let config = {
       baseURL: this.url
     };
@@ -18,8 +19,9 @@ export class Novita {
 	async sendRequest(turns, systemMessage, stop_seq='***') {
       let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
       const pack = {
-          model: this.model_name || "meta-llama/llama-3.1-70b-instruct",
-          messages,
+          model: this.model_name,
+          temperature: this.temperature,
+          messages: messages,
           stop: [stop_seq],
       };
 

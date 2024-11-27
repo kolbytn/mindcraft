@@ -3,9 +3,11 @@ import {getKey} from '../utils/keys.js';
 import {HfInference} from "@huggingface/inference";
 
 export class HuggingFace {
-    constructor(model_name, url) {
-        this.model_name = model_name.replace('huggingface/','');
-        this.url = url;
+    constructor(parameters) {
+        this.model_name = parameters.model_name.replace('huggingface/','')  || 'meta-llama/Meta-Llama-3-8B';
+        this.temperature = parameters.temperature || 0.6;
+
+        this.url = parameters.url;
 
         if (this.url) {
             console.warn("Hugging Face doesn't support custom urls!");
@@ -17,16 +19,19 @@ export class HuggingFace {
     async sendRequest(turns, systemMessage) {
         const stop_seq = '***';
         const prompt = toSinglePrompt(turns, null, stop_seq);
-        let model_name = this.model_name || 'meta-llama/Meta-Llama-3-8B';
-
         const input = systemMessage + "\n" + prompt;
+
+        const pack = {
+            model: this.model_name,
+            temperature: this.temperature,
+            messages: [{ role: "user", content: input }]
+        };
+
         let res = '';
         try {
             console.log('Awaiting Hugging Face API response...');
-            for await (const chunk of this.huggingface.chatCompletionStream({
-                model: model_name,
-                messages: [{ role: "user", content: input }]
-            })) {
+            const stream = this.huggingface.chatCompletionStream(pack)
+            for await (const chunk of stream) {
                 res += (chunk.choices[0]?.delta?.content || "");
             }
         } catch (err) {

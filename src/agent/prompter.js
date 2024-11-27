@@ -32,13 +32,11 @@ export class Prompter {
         
         let name = this.profile.name;
         let chat = this.profile.model;
+        let parameters = this.profile.parameters
+        parameters.model_name = chat
         this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
         this.last_prompt_time = 0;
 
-        // try to get "max_tokens" parameter, else null
-        let max_tokens = null;
-        if (this.profile.max_tokens)
-            max_tokens = this.profile.max_tokens;
         if (typeof chat === 'string' || chat instanceof String) {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
@@ -66,26 +64,25 @@ export class Prompter {
         console.log('Using chat settings:', chat);
 
         if (chat.api === 'google')
-            this.chat_model = new Gemini(chat.model, chat.url);
+            this.chat_model = new Gemini(parameters);
         else if (chat.api === 'openai')
-            this.chat_model = new GPT(chat.model, chat.url);
+            this.chat_model = new GPT(parameters);
         else if (chat.api === 'anthropic')
-            this.chat_model = new Claude(chat.model, chat.url);
+            this.chat_model = new Claude(parameters);
         else if (chat.api === 'replicate')
-            this.chat_model = new ReplicateAPI(chat.model, chat.url);
+            this.chat_model = new ReplicateAPI(parameters);
         else if (chat.api === 'ollama')
-            this.chat_model = new Local(chat.model, chat.url);
-        else if (chat.api === 'groq') {
-            this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
-        }
+            this.chat_model = new Local(parameters);
+        else if (chat.api === 'groq') 
+            this.chat_model = new GroqCloudAPI(parameters);
         else if (chat.api === 'huggingface')
-            this.chat_model = new HuggingFace(chat.model, chat.url);
+            this.chat_model = new HuggingFace(parameters);
         else if (chat.api === 'novita')
-            this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url);
+            this.chat_model = new Novita(parameters);
         else if (chat.api === 'qwen')
-            this.chat_model = new Qwen(chat.model, chat.url);
+            this.chat_model = new Qwen(parameters);
         else if (chat.api === 'xai')
-            this.chat_model = new Grok(chat.model, chat.url);
+            this.chat_model = new Grok(parameters);
         else
             throw new Error('Unknown API:', api);
 
@@ -98,20 +95,24 @@ export class Prompter {
         }
         else if (typeof embedding === 'string' || embedding instanceof String)
             embedding = {api: embedding};
+        const embedding_params = {
+            model: embedding.model,
+            url: embedding.url
+        };
 
         console.log('Using embedding settings:', embedding);
 
         try {
             if (embedding.api === 'google')
-                this.embedding_model = new Gemini(embedding.model, embedding.url);
+                this.embedding_model = new Gemini(embedding_params);
             else if (embedding.api === 'openai')
-                this.embedding_model = new GPT(embedding.model, embedding.url);
+                this.embedding_model = new GPT(embedding_params);
             else if (embedding.api === 'replicate')
-                this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
+                this.embedding_model = new ReplicateAPI(embedding_params);
             else if (embedding.api === 'ollama')
-                this.embedding_model = new Local(embedding.model, embedding.url);
+                this.embedding_model = new Local(embedding_params);
             else if (embedding.api === 'qwen')
-                this.embedding_model = new Qwen(embedding.model, embedding.url);
+                this.embedding_model = new Qwen(embedding_params);
             else {
                 this.embedding_model = null;
                 console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');

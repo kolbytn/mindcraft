@@ -2,6 +2,10 @@
     "name": "claude",
 
     "model": "claude-3-5-sonnet-latest",
+
+    "parameters": {
+        "temperature": 1.0
+    },
     
     "embedding": "openai",
 

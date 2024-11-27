@@ -3,10 +3,12 @@ import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class GPT {
-    constructor(model_name, url) {
-        this.model_name = model_name;
+    constructor(parameters) {
+        this.model_name = parameters.model_name || "gpt-3.5-turbo"; 
+        this.temperature = parameters.temperature || 1;
 
         let config = {};
+        let url = parameters.url;
         if (url)
             config.baseURL = url;
 
@@ -22,8 +24,9 @@ export class GPT {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
         const pack = {
-            model: this.model_name || "gpt-3.5-turbo",
-            messages,
+            model: this.model_name,
+            messages: messages,
+            temperature: this.temperature,
             stop: stop_seq,
         };
         if (this.model_name.includes('o1')) {
@@ -55,7 +58,7 @@ export class GPT {
 
     async embed(text) {
         const embedding = await this.openai.embeddings.create({
-            model: this.model_name || "text-embedding-3-small",
+            model: "text-embedding-3-small",
             input: text,
             encoding_format: "float",
         });

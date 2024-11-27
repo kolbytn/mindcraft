@@ -2,6 +2,10 @@
     "name": "grok",
 
     "model": "grok-beta",
+
+    "parameters": {
+        "temperature": 1.0
+    },
     
     "embedding": "openai"
 }

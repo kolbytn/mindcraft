@@ -1,6 +1,10 @@
 {
     "name": "andy",
 
-    "model": "gpt-4o-mini"
+    "model": "gpt-4o-mini",
+
+    "parameters": {
+        "temperature": 1.0
+    }
 
 }

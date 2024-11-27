@@ -1,21 +1,33 @@
 import { strictFormat } from '../utils/text.js';
 
 export class Local {
-    constructor(model_name, url) {
-        this.model_name = model_name;
-        this.url = url || 'http://127.0.0.1:11434';
+    constructor(parameters) {
+        this.model_name = parameters.model_name || 'llama3';
+        this.temperature = parameters.temperature || 0.6;
+
+        this.url = parameters.url || 'http://127.0.0.1:11434';
         this.chat_endpoint = '/api/chat';
         this.embedding_endpoint = '/api/embeddings';
     }
 
     async sendRequest(turns, systemMessage) {
-        let model = this.model_name || 'llama3';
+        let model = this.model_name;
         let messages = strictFormat(turns);
+
+        const pack = {
+            model: model, 
+            messages: messages,
+            stream: false,
+            options: {
+                temperature: this.temperature
+            }
+        };
+
         messages.unshift({role: 'system', content: systemMessage});
         let res = null;
         try {
             console.log(`Awaiting local response... (model: ${model})`)
-            res = await this.send(this.chat_endpoint, {model: model, messages: messages, stream: false});
+            res = await this.send(this.chat_endpoint, pack);
             if (res)
                 res = res['message']['content'];
         }

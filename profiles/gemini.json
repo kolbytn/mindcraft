@@ -3,5 +3,9 @@
 
     "model": "gemini-1.5-flash",
 
+    "parameters": {
+        "temperature": 1.0
+    },
+
     "cooldown": 10000
 }

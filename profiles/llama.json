@@ -3,7 +3,10 @@
 
     "model": "groq/llama-3.1-70b-versatile",
 
-    "max_tokens": 4000,
+    "parameters": {
+        "temperature": 0.6,
+        "max_tokens": 4000
+    },
 
     "embedding": "openai"
     

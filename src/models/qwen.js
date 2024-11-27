@@ -4,9 +4,10 @@
 import { getKey } from '../utils/keys.js';
 
 export class Qwen {
-    constructor(modelName, url) {
-        this.modelName = modelName;
-        this.url = url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
+    constructor(parameters) {
+        this.modelName = parameters.model_name || 'qwen-plus';
+        this.temperature = parameters.temperature
+        this.url = parameters.url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
         this.apiKey = getKey('QWEN_API_KEY');
     }
 
@@ -17,8 +18,10 @@ export class Qwen {
         }
 
         const data = {
-            model: this.modelName || 'qwen-plus',
-            input: { messages: [{ role: 'system', content: systemMessage }, ...turns] },
+            model: this.modelName,
+            input: { 
+                messages: [{ role: 'system', content: systemMessage }, ...turns], 
+                temperature: this.temperature },
             parameters: { result_format: 'message', stop: stopSeq },
         };
 
