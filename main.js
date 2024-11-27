@@ -118,6 +118,7 @@ async function main() {
             console.error(`Failed to start agent ${profiles[i]}:`, err);
         }
     }
+
 }
 
 try {

@@ -10,7 +10,7 @@ export class AgentProcess {
         count_id=0, 
         task=null) {
         let args = ['src/process/init-agent.js', this.name];
-        args.push('-p', profile);
+        args.push('-p', profile); // profile is unparsed json path atm 
         args.push('-c', count_id);
         if (load_memory)
             args.push('-l', load_memory);

@@ -323,6 +323,13 @@ export class Agent {
                     this.cleanChat(source, execute_res);
                 return true;
             }
+        } else {
+            console.log('Self-prompting:', message);
+            // if self_prompt contains something that indicates the goal is complete, stop self-prompting
+            if (message.includes('goal complete')) {
+                this.self_prompter.stop();
+                process.exit(0);
+            }
         }
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up;
@@ -423,6 +430,9 @@ export class Agent {
             else if (this.bot.time.timeOfDay == 18000)
             this.bot.emit('midnight');
         });
+        this.clearInventory();
+        this.teleportToOtherBot(this.agent_specification.collaborator_name);
+        this.fillInventoryWithItems(this.agent_specification.inventory);
 
         let prev_health = this.bot.health;
         this.bot.lastDamageTime = 0;

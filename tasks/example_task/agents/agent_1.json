@@ -1,0 +1,10 @@
+{
+    "name": "jill",
+    "inventory": [
+        {
+            "item_id": "minecraft:spruce_planks",
+            "count": 20
+        }
+    ],
+    "collaborator_name": "andy"
+}
