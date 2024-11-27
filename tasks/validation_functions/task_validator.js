@@ -14,21 +14,12 @@ export class TechTreeHarvestValidator {
     validate() {
         try{
             console.log("validate");
-            // console.log(this.target);
-            // console.log(this.bot.inventory.slots);
             let valid = false;
             let total_targets = 0;
             this.bot.inventory.slots.forEach((slot) => {
                 if (slot && slot.name.toLowerCase() === this.target) {
                     total_targets += slot.count;
                 }
-                // console.log(slot);
-                // console.log(this.target);
-                // // console.log(slot.count);
-                // console.log(this.number_of_target);
-                // console.log(slot && slot.name.toLowerCase() === this.target);
-                // console.log(slot && slot.count >= this.number_of_target);
-                // console.log(slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target);
                 if (slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target) {
                     // console.log('returning true');
                     valid = true;

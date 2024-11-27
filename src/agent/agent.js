@@ -89,12 +89,6 @@ export class Agent {
             
             //wait for a bit so inventory is cleared
             await new Promise((resolve) => setTimeout(resolve, 500));
-
-            //debug mode give one agent the target item 
-            // if (this.name === 'andy') {
-            //     this.bot.chat(`/give ${this.name} ${this.task.target} ${this.task.number_of_target}`);
-            //     console.log(`/give ${this.name} ${this.task.target} ${this.task.number_of_target}`);
-            // }
             
             
             console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
