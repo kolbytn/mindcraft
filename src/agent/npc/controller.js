@@ -39,14 +39,14 @@ export class NPCContoller {
     }
 
     init() {
-        for (let file of readdirSync('src/agent/npc/construction')) {
-            if (file.endsWith('.json')) {
-                try {
+        try {
+            for (let file of readdirSync('src/agent/npc/construction')) {
+                if (file.endsWith('.json')) {
                     this.constructions[file.slice(0, -5)] = JSON.parse(readFileSync('src/agent/npc/construction/' + file, 'utf8'));
-                } catch (e) {
-                    console.log('Error reading construction file: ', file);
                 }
             }
+        } catch (e) {
+            console.log('Error reading construction file');
         }
 
         for (let name in this.constructions) {

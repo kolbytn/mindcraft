@@ -40,10 +40,23 @@ export const queryList = [
                 res += '\n- Time: Night';
             }
 
-            let other_players = world.getNearbyPlayerNames(bot);
-            if (other_players.length > 0) {
-                res += '\n- Other Players: ' + other_players.join(', ');
+            // get the bot's current action
+            let action = agent.actions.currentActionLabel;
+            if (agent.isIdle())
+                action = 'Idle';
+            res += `\- Current Action: ${action}`;
+
+
+            let players = world.getNearbyPlayerNames(bot);
+            let bots = [];
+            for (const player of players) {
+                if (isOtherAgent(player))
+                    bots.push(player);
             }
+            players = players.filter(p => !isOtherAgent(p));
+
+            res += '\n- Nearby Human Players: ' + players.join(', ');
+            res += '\n- Nearby Bot Players: ' + bots.join(', ');
 
             res += '\n' + agent.bot.modes.getMiniDocs() + '\n';
             return pad(res);
@@ -61,7 +74,7 @@ export const queryList = [
                     res += `\n- ${item}: ${inventory[item]}`;
             }
             if (res === 'INVENTORY') {
-                res += ': none';
+                res += ': Nothing';
             }
             else if (agent.bot.game.gameMode === 'creative') {
                 res += '\n(You have infinite items in creative mode. You do not need to gather resources!!)';
@@ -81,7 +94,7 @@ export const queryList = [
             if (boots)
                 res += `\nFeet: ${boots.name}`;
             if (!helmet && !chestplate && !leggings && !boots)
-                res += 'None';
+                res += 'Nothing';
 
             return pad(res);
         }
@@ -106,14 +119,10 @@ export const queryList = [
         name: "!craftable",
         description: "Get the craftable items with the bot's inventory.",
         perform: function (agent) {
-            const bot = agent.bot;
-            const table = world.getNearestBlock(bot, 'crafting_table');
+            let craftable = world.getCraftableItems(agent.bot);
             let res = 'CRAFTABLE_ITEMS';
-            for (const item of mc.getAllItems()) {
-                let recipes = bot.recipesFor(item.id, null, 1, table);
-                if (recipes.length > 0) {
-                    res += `\n- ${item.name}`;
-                }
+            for (const item of craftable) {
+                res += `\n- ${item}`;
             }
             if (res == 'CRAFTABLE_ITEMS') {
                 res += ': none';
@@ -136,10 +145,10 @@ export const queryList = [
             players = players.filter(p => !isOtherAgent(p));
 
             for (const player of players) {
-                res += `\n- human player: ${player}`;
+                res += `\n- Human player: ${player}`;
             }
             for (const bot of bots) {
-                res += `\n- bot player: ${bot}`;
+                res += `\n- Bot player: ${bot}`;
             }
 
             for (const entity of world.getNearbyEntityTypes(bot)) {

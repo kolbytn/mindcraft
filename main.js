@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { loadTask } from './src/utils/tasks.js';
 import { hideBin } from 'yargs/helpers';
 import { readFileSync, writeFileSync } from 'fs';
-
+import { createMindServer } from './src/server/mind_server.js';
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
@@ -80,6 +80,10 @@ function getProfiles(args) {
 
 
 async function main() {
+
+    if (settings.host_mindserver) {
+        const mindServer = createMindServer();
+    }
     const args = parseArguments();
 
     if (args.task) {
