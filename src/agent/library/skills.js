@@ -505,13 +505,12 @@ export async function breakBlockAt(bot, x, y, z) {
     if (x == null || y == null || z == null) throw new Error('Invalid position to break block at.');
     let block = bot.blockAt(Vec3(x, y, z));
     if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
-        if (bot.modes.isOn('cheat')) {
+        if (bot.modes.isOn('cheat') || bot.game.gameMode === 'creative') {
             let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' air';
             bot.chat(msg);
             log(bot, `Used /setblock to break block at ${x}, ${y}, ${z}.`);
             return true;
         }
-
         if (bot.entity.position.distanceTo(block.position) > 4.5) {
             let pos = block.position;
             let movements = new pf.Movements(bot);
@@ -522,7 +521,7 @@ export async function breakBlockAt(bot, x, y, z) {
         }
         if (bot.game.gameMode !== 'creative') {
             await bot.tool.equipForBlock(block);
-            const itemId = bot.heldItem ? bot.heldItem.type : null
+            const itemId = bot.heldItem ? bot.heldItem.type : null;
             if (!block.canHarvest(itemId)) {
                 log(bot, `Don't have right tools to break ${block.name}.`);
                 return false;
