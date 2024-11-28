@@ -503,9 +503,6 @@ export class Agent {
             else if (this.bot.time.timeOfDay == 18000)
             this.bot.emit('midnight');
         });
-        this.clearInventory();
-        this.teleportToOtherBot(this.agent_specification.collaborator_name);
-        this.fillInventoryWithItems(this.agent_specification.inventory);
 
         let prev_health = this.bot.health;
         this.bot.lastDamageTime = 0;
