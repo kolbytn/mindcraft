@@ -18,13 +18,8 @@ import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_
 import {getPosition} from './library/world.js'
 import { readFileSync } from 'fs'; 
 
-
 export class Agent {
-    async start(profile_fp, 
-        load_mem=false, 
-        init_message=null, 
-        count_id=0, 
-        task=null) {
+    async start(profile_fp, load_mem=false, init_message=null, count_id=0, task=null) {
 
         this.last_sender = null;
         try {
@@ -575,15 +570,17 @@ export class Agent {
     }
 
     async killBots() {
-        console.log('Task completed!');
         this.bot.chat('Task completed!');
         this.bot.chat(`/clear @p`);
 
         // Kick other bots
         if (!this.task || !this.task.agent_number) {
             await this.cleanKill('Task completed', 2);
+            return;
         }
-        const agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name); // Replace with the list of bot names
+        const agent_names = this.task.agent_names;
+        console.log('All agent names:', agent_names);
+        console.log('My name:', this.name);
         const botNames = agent_names.filter(botName => botName !== this.name);
         console.log('Kicking bots:', botNames);
         botNames.forEach(botName => {
@@ -592,7 +589,7 @@ export class Agent {
 
         });
 
-        await this.cleanKill('Task completed', 2);
+        await this.cleanKill('Task completed, exiting', 2);
     }
 
     async update(delta) {
