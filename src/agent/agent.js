@@ -16,7 +16,6 @@ import { serverProxy } from './server_proxy.js';
 import { loadTask } from '../utils/tasks.js';
 import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
 import {getPosition} from './library/world.js'
-import { readFileSync } from 'fs'; 
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task=null) {
@@ -160,6 +159,8 @@ export class Agent {
                             break;
                         }
                         }
+                    
+                    // If there are multiple human players, teleport to the first one
 
                     // teleport near a human player if found by default
 
@@ -187,13 +188,14 @@ export class Agent {
                         await new Promise((resolve) => setTimeout(resolve, 200));
                     }
 
-                    // now all bots are teleport on top of each other
-                    // Now comes the teleportation to random distance from the human player part
+                    // now all bots are teleport on top of each other (which kinda looks ugly)
+                    // Thus, we need to teleport them to random distances to make it look better
 
                     /*
                     Note : We don't want randomness for construction task as the reference point matters a lot.
                     Another reason for no randomness for construction task is because, often times the user would fly in the air,
-                    then set a random block to dirt and teleport the bot to stand on that block for starting the construction
+                    then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
+                    This was done by MaxRobinson in one of the youtube videos.
                     */
 
                     if (this.task && this.task.type !== 'construction') {

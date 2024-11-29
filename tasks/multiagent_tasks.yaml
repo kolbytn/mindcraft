@@ -61,7 +61,7 @@ multiagent_build_wooden_pickaxe:
 
 
 multiagent_techtree_boat:
-  goal: Collaborate with other agents to build a birch boat, once it is built, place it out in the world (don't use discard)
+  goal: Collaborate with other agents to build a birch boat.
   agent_names:
   - Bob
   - Alice
@@ -71,9 +71,10 @@ multiagent_techtree_boat:
       birch_planks: 3
     Alice:
       birch_planks: 2
-  # target: birch_boat
+  target: birch_boat
   number_of_target: 1
   type: techtree
+  timeout : 60
 
 
 

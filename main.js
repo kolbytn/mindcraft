@@ -90,11 +90,10 @@ async function main() {
         var task = loadTask(args.task);
         // Inject task information into process.env for the agent to access
         process.env.MINECRAFT_TASK_GOAL = task.goal;
-        process.env.MINECRAFT_TASK_INVENTORY = JSON.stringify(task.initial_inventory || {});
         
         if ('agent_number' in task && task.agent_number > 1) {
             process.env.ALL_AGENT_NAMES = task.agent_names;
-            console.log(`\n\n\n All agents for this task are ${process.env.ALL_AGENT_NAMES}`);
+            console.log(`All agents for this task are ${process.env.ALL_AGENT_NAMES}`);
         }
     }
     // todo: do inventory
@@ -103,7 +102,7 @@ async function main() {
     console.log(profiles);
     // var { load_memory, init_message } = settings;
     var load_memory = settings.load_memory;
-    var init_message = settings.init_message
+    var init_message = settings.init_message;
 
     if (args.task) {
 
