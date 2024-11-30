@@ -1,6 +1,6 @@
 export default 
 {
-    "minecraft_version": "1.21.1", // supports up to 1.21.1
+    "minecraft_version": "1.20.4", // supports up to 1.21.1
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
     "port": 55916,
     "auth": "offline", // or "microsoft"
@@ -11,10 +11,10 @@ export default
     "mindserver_port": 8080,
     
     "profiles": [
-        //"./andy.json",
-        //"./profiles/gpt.json",
-        //"./profiles/claude.json",
-        //"./profiles/gemini.json",
+        "./andy.json",
+        // "./profiles/gpt.json",
+        // "./profiles/claude.json",
+        // "./profiles/gemini.json",
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
         // "./profiles/grok.json",
@@ -36,4 +36,3 @@ export default
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
 }
-
