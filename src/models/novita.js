@@ -5,7 +5,7 @@ import { getKey } from '../utils/keys.js';
 export class Novita {
 	constructor(parameters) {
     this.model_name = parameters.model_name.replace('novita/', '') || "meta-llama/llama-3.1-8b-instruct";
-    this.temperature = parameters.temperature;
+    this.temperature = parameters.temperature || 0.8;
 
     this.url = parameters.url || 'https://api.novita.ai/v3/openai';
     let config = {

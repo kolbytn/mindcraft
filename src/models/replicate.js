@@ -7,7 +7,6 @@ export class ReplicateAPI {
 	constructor(parameters) {
 		this.model_name = parameters.model_name || 'meta/meta-llama-3-70b-instruct'; 
         this.temperature = parameters.temperature || 1;
-		this.max_tokens = parameters.max_tokens || 1000;
 
 		this.url = parameters.url;
 
@@ -24,7 +23,7 @@ export class ReplicateAPI {
 		const stop_seq = '***';
 		const prompt = toSinglePrompt(turns, null, stop_seq);
 		
-		const input = { prompt, system_prompt: systemMessage };
+		const input = { prompt, system_prompt: systemMessage, temperature: this.temperature };
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');

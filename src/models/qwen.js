@@ -6,7 +6,7 @@ import { getKey } from '../utils/keys.js';
 export class Qwen {
     constructor(parameters) {
         this.modelName = parameters.model_name || 'qwen-plus';
-        this.temperature = parameters.temperature
+        this.temperature = parameters.temperature || 0.8;
         this.url = parameters.url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
         this.apiKey = getKey('QWEN_API_KEY');
     }
