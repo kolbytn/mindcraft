@@ -1,6 +1,10 @@
 {
     "name": "qwen",
 
+    "parameters": {
+        "temperature": 0.6
+    },
+
     "model": {
         "api": "qwen",
         "url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
