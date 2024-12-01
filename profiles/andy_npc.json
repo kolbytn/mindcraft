@@ -1,7 +1,7 @@
 {
     "name": "andy",
 
-    "model": "gpt4o-mini",
+    "model": "claude-3-5-sonnet-20240620",
 
     "embedding": "openai",
     

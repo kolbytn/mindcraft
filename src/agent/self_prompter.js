@@ -1,4 +1,3 @@
-
 export class SelfPrompter {
     constructor(agent) {
         this.agent = agent;
@@ -41,7 +40,6 @@ export class SelfPrompter {
         while (!this.interrupt) {
             const msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command !withThisSyntax. Respond:`;
             let used_command = await this.agent.handleMessage('system', msg, -1);
-            console.log('self-prompt loop iteration')
             if (!used_command) {
                 no_command_count++;
                 if (no_command_count >= MAX_NO_COMMAND) {
@@ -56,7 +54,6 @@ export class SelfPrompter {
                 no_command_count = 0;
                 await new Promise(r => setTimeout(r, this.cooldown));
             }
-            
         }
         console.log('self prompt loop stopped')
         this.loop_active = false;
