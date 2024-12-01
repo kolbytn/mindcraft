@@ -116,8 +116,10 @@ export class Agent {
                     console.log(`${this.name} spawned.`);
                     this.clearBotLogs();
                     
-                    this.bot.chat(`/clear ${this.name}`);
-                    console.log(`Cleared ${this.name}'s inventory.`);
+                    if (this.task) {
+                        this.bot.chat(`/clear ${this.name}`);
+                        console.log(`Cleared ${this.name}'s inventory.`);
+                    }
                     
                     //wait for a bit so inventory is cleared
                     await new Promise((resolve) => setTimeout(resolve, 500));
