@@ -82,14 +82,13 @@ function determine_init_message(task, agent_index) {
     if (task) {
         if ('agent_number' in task && task.agent_number > 1) {
             if (agent_index == 0) {
-                return "Start a conversation immediately and collaborate together to complete the task. Share resources and skill sets."
+                return "Use the !startConversation command to immediately start a conversation and collaborate together to complete the task. Share resources and skill sets."
             }   
             return "Collaborate together to complete the task. Share resources and skill sets."
         }
         return "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
     }
     return settings.init_message;
-
 }
 
 async function main() {
