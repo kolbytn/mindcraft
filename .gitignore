@@ -15,3 +15,4 @@ services/viaproxy/saves.json
 services/viaproxy/viaproxy.yml
 profiles/task_*
 multi_agent_task*
+*_results.txt
