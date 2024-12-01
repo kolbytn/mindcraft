@@ -166,16 +166,15 @@ export class Agent {
 
                     if (this.task && "agent_number" in this.task) {
                         var agent_names = this.task.agent_names;
-                        for (let i=0; i < this.task.agent_number; i++) {
-                            if (human_player_name) {
-                                console.log(`Teleporting ${this.name} to human ${human_player_name}`)
-                                this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
+                        if (human_player_name) {
+                            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
+                            this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
 
-                            }
-                            else {
-                                this.bot.chat(`/tp ${this.name} ${agent_names[i]}`) // teleport on top of other bots
-                            }
                         }
+                        else {
+                            this.bot.chat(`/tp ${this.name} ${agent_names[0]}`) // teleport on top of the first agent
+                        }
+                        
                         await new Promise((resolve) => setTimeout(resolve, 200));
                     }
 
