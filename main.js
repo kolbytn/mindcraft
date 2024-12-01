@@ -82,8 +82,9 @@ function determine_init_message(task, agent_index) {
     if (task) {
         if ('agent_number' in task && task.agent_number > 1) {
             if (agent_index == 0) {
+                // first agent gets this init message
                 return "Use the !startConversation command to immediately start a conversation and collaborate together to complete the task. Share resources and skill sets."
-            }   
+            }   // all other agents get this init message
             return "Collaborate together to complete the task. Share resources and skill sets."
         }
         return "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
@@ -116,14 +117,6 @@ async function main() {
     var load_memory = settings.load_memory;
     var init_message = settings.init_message;
 
-    // if (args.task) {
-
-    //     init_message = "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
-
-    //     if ('agent_number' in task && task.agent_number > 1) {
-    //         init_message = "Collaborate together to complete the task. Share resources and skill sets."
-    //     }
-    // }
     for (let i=0; i<profiles.length; i++) {
         try {
             const agent = new AgentProcess();
