@@ -619,7 +619,13 @@ export class Agent {
     cleanKill(msg='Killing agent process...', 
             code=1) {
         this.history.add('system', msg);
-        this.bot.chat('Restarting.')
+
+        if (code === 2 || code === 3 || code === 4) {
+            this.bot.chat('Exiting the world permanently.');
+        }
+        else {
+            this.bot.chat('Restarting.')
+        }
         this.history.save();
         process.exit(code);
     }
