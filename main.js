@@ -55,7 +55,7 @@ function getProfiles(args) {
     }   
 
     if (args.task) {
-        // todo: make temporary json profiles for the multiple agents
+
         var task = loadTask(args.task);
         if ('agent_number' in task && task.agent_number > 1) {
             var profile = JSON.parse(readFileSync('./multiagent_prompt_desc.json', 'utf8'));
@@ -64,8 +64,8 @@ function getProfiles(args) {
             for (let i=0; i<task.agent_number; i++) {
                 let temp_profile = profile;
                 temp_profile.name = agent_names[i];
-                //todo: contraints 
-                var filename = `profiles/task_${agent_names[i]}.json`;
+
+                var filename = `multi_agent_task_${agent_names[i]}.json`;
                 writeFileSync(filename, JSON.stringify(temp_profile, null, 2));
                 filenames.push(filename);
             }
@@ -74,7 +74,7 @@ function getProfiles(args) {
             return ['./task_andy.json'];
         }
     }
-    //todo: return two or more profiles if multi-agent
+
     return args.profiles || settings.profiles;
 }
 
@@ -106,7 +106,7 @@ async function main() {
 
     if (args.task) {
 
-        init_message = "Announce your task to everyone and get started with it immediately, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
+        init_message = "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
 
         if ('agent_number' in task && task.agent_number > 1) {
             init_message = "Immediately start a conversation with other agents and collaborate together to complete the task. Share resources and skill sets."
