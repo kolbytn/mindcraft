@@ -10,7 +10,7 @@
     "unstuck": true,
     "cowardice": true,
     "self_defense": true,
-    "hunting": true,
+    "hunting": false,
     "item_collecting": true,
     "torch_placing": true,
     "idle_staring": true,

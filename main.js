@@ -78,6 +78,19 @@ function getProfiles(args) {
     return args.profiles || settings.profiles;
 }
 
+function determine_init_message(task, agent_index) {
+    if (task) {
+        if ('agent_number' in task && task.agent_number > 1) {
+            if (agent_index == 0) {
+                return "Start a conversation immediately and collaborate together to complete the task. Share resources and skill sets."
+            }   
+            return "Collaborate together to complete the task. Share resources and skill sets."
+        }
+        return "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
+    }
+    return settings.init_message;
+
+}
 
 async function main() {
 
@@ -104,17 +117,20 @@ async function main() {
     var load_memory = settings.load_memory;
     var init_message = settings.init_message;
 
-    if (args.task) {
+    // if (args.task) {
 
-        init_message = "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
+    //     init_message = "Announce your task to everyone and get started with it immediately, set a goal if needed, if cheats are enabled then feel free to use newAction commands, no need to collect or mine or gather any items"
 
-        if ('agent_number' in task && task.agent_number > 1) {
-            init_message = "Immediately start a conversation with other agents and collaborate together to complete the task. Share resources and skill sets."
-        }
-    }
+    //     if ('agent_number' in task && task.agent_number > 1) {
+    //         init_message = "Collaborate together to complete the task. Share resources and skill sets."
+    //     }
+    // }
     for (let i=0; i<profiles.length; i++) {
         try {
             const agent = new AgentProcess();
+            if (args.task) {
+                init_message = determine_init_message(task, i);
+            }
             agent.start(profiles[i], load_memory, init_message, i, args.task);
             await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (err) {
