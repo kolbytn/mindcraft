@@ -1,7 +1,7 @@
 import settings from '../../settings.js';
 import { readFileSync } from 'fs';
 import { containsCommand } from './commands/index.js';
-import { sendBotChatToServer } from './server_proxy.js';
+import { sendBotChatToServer } from './agent_proxy.js';
 
 let agent;
 let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
@@ -12,8 +12,8 @@ export function isOtherAgent(name) {
     return agent_names.some((n) => n === name);
 }
 
-export function updateAgents(names) {
-    agent_names = names;
+export function updateAgents(agents) {
+    agent_names = agents.map(a => a.name);
 }
 
 export function initConversationManager(a) {
@@ -98,7 +98,7 @@ export async function startConversation(send_to, message) {
 
 export function sendToBot(send_to, message, start=false) {
     if (settings.chat_bot_messages)
-        agent.bot.chat(`(To ${send_to}) ${message}`);
+        agent.openChat(`(To ${send_to}) ${message}`);
     if (!isOtherAgent(send_to)) {
         agent.bot.whisper(send_to, message);
         return;

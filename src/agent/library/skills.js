@@ -4,10 +4,8 @@ import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 
 
-export function log(bot, message, chat=false) {
+export function log(bot, message) {
     bot.output += message + '\n';
-    if (chat)
-        bot.chat(message);
 }
 
 async function autoLight(bot) {
@@ -585,7 +583,9 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         if (blockType === 'ladder' || blockType === 'repeater' || blockType === 'comparator') {
             blockType += `[facing=${face}]`;
         }
-
+        if (blockType.includes('stairs')) {
+            blockType += `[facing=${face}]`;
+        }
         let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' ' + blockType;
         bot.chat(msg);
         if (blockType.includes('door'))

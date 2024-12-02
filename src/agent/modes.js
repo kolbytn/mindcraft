@@ -9,7 +9,7 @@ async function say(agent, message) {
     agent.bot.modes.behavior_log += message + '\n';
     if (agent.shut_up || !settings.narrate_behavior) return;
     let translation = await handleTranslation(message);
-    agent.bot.chat(translation);
+    agent.openChat(translation);
 }
 
 // a mode is a function that is called every tick to respond immediately to the world
