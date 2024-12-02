@@ -7,7 +7,9 @@ import { fileURLToPath } from 'url';
 // Module-level variables
 let io;
 let server;
-const connectedAgents = {};
+const registeredAgents = new Set();
+const inGameAgents = {};
+const agentManagers = {}; // socket for main process that registers/controls agents
 
 // Initialize the server
 export function createMindServer(port = 8080) {
@@ -24,28 +26,81 @@ export function createMindServer(port = 8080) {
         let curAgentName = null;
         console.log('Client connected');
 
-        socket.emit('agents-update', Object.keys(connectedAgents));
+        agentsUpdate(socket);
 
-        socket.on('register-agent', (agentName) => {
-            console.log('Agent registered:', agentName);
-            connectedAgents[agentName] = socket;
-            curAgentName = agentName;
-            io.emit('agents-update', Object.keys(connectedAgents));
+        socket.on('register-agents', (agentNames) => {
+            console.log(`Registering agents: ${agentNames}`);
+            agentNames.forEach(name => registeredAgents.add(name));
+            for (let name of agentNames) {
+                agentManagers[name] = socket;
+            }
+            socket.emit('register-agents-success');
+            agentsUpdate();
         });
 
-        socket.on('chat-message', (agentName, json) => {
-            console.log(`${curAgentName} received message from ${agentName}: ${json}`);
-            const agentSocket = connectedAgents[agentName];
-            if (agentSocket) {
-                agentSocket.emit('chat-message', curAgentName, json);
+        socket.on('login-agent', (agentName) => {
+            if (curAgentName && curAgentName !== agentName) {
+                console.warn(`Agent ${agentName} already logged in as ${curAgentName}`);
+                return;
+            }
+            if (registeredAgents.has(agentName)) {
+                curAgentName = agentName;
+                inGameAgents[agentName] = socket;
+                agentsUpdate();
+            } else {
+                console.warn(`Agent ${agentName} not registered`);
+            }
+        });
+
+        socket.on('logout-agent', (agentName) => {
+            if (inGameAgents[agentName]) {
+                delete inGameAgents[agentName];
+                agentsUpdate();
             }
         });
 
         socket.on('disconnect', () => {
             console.log('Client disconnected');
-            delete connectedAgents[socket.id];
-            io.emit('agents-update', Object.keys(connectedAgents));
+            if (inGameAgents[curAgentName]) {
+                delete inGameAgents[curAgentName];
+                agentsUpdate();
+            }
         });
+
+        socket.on('chat-message', (agentName, json) => {
+            if (!inGameAgents[agentName]) {
+                console.warn(`Agent ${agentName} tried to send a message but is not logged in`);
+                return;
+            }
+            console.log(`${curAgentName} received message from ${agentName}: ${json}`);
+            inGameAgents[agentName].emit('chat-message', curAgentName, json);
+        });
+
+        socket.on('restart-agent', (agentName) => {
+            console.log(`Restarting agent: ${agentName}`);
+            inGameAgents[agentName].emit('restart-agent');
+        });
+
+        socket.on('stop-agent', (agentName) => {
+            let manager = agentManagers[agentName];
+            if (manager) {
+                manager.emit('stop-agent', agentName);
+            }
+            else {
+                console.warn(`Stopping unregisterd agent ${agentName}`);
+            }
+        });
+
+        socket.on('start-agent', (agentName) => {
+            let manager = agentManagers[agentName];
+            if (manager) {
+                manager.emit('start-agent', agentName);
+            }
+            else {
+                console.warn(`Starting unregisterd agent ${agentName}`);
+            }
+        });
+
     });
 
     server.listen(port, 'localhost', () => {
@@ -54,6 +109,18 @@ export function createMindServer(port = 8080) {
 
     return server;
 }
+
+function agentsUpdate(socket) {
+    if (!socket) {
+        socket = io;
+    }
+    let agents = [];
+    registeredAgents.forEach(name => {
+        agents.push({name, in_game: !!inGameAgents[name]});
+    });
+    socket.emit('agents-update', agents);
+}
+
 // Optional: export these if you need access to them from other files
 export const getIO = () => io;
 export const getServer = () => server;

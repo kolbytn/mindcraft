@@ -12,7 +12,7 @@ import { isOtherAgent, initConversationManager, sendToBot, endAllChats, response
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
-import { serverProxy } from './server_proxy.js';
+import { serverProxy } from './agent_proxy.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
@@ -21,9 +21,6 @@ export class Agent {
             if (!profile_fp) {
                 throw new Error('No profile filepath provided');
             }
-
-            // Connect to MindServer via proxy
-            serverProxy.connect();
             
             console.log('Starting agent initialization with profile:', profile_fp);
             
@@ -47,7 +44,7 @@ export class Agent {
             console.log('Initializing examples...');
             await this.prompter.initExamples();
 
-            serverProxy.registerAgent(this.name);
+            serverProxy.connect(this);
 
             console.log(this.name, 'logging into minecraft...');
             this.bot = initBot(this.name);
@@ -61,6 +58,8 @@ export class Agent {
 
             this.bot.on('login', () => {
                 console.log(this.name, 'logged in!');
+
+                serverProxy.login();
                 
                 // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
                 if (this.prompter.profile.skin)
@@ -113,6 +112,7 @@ export class Agent {
         
         const respondFunc = async (username, message) => {
             if (username === this.name) return;
+            if (settings.only_chat_with.length > 0 && !settings.only_chat_with.includes(username)) return;
             try {
                 if (ignore_messages.some((m) => message.startsWith(m))) return;
 
@@ -159,7 +159,7 @@ export class Agent {
         }
         else {
             const translation = await handleTranslation("Hello world! I am "+this.name);
-            this.bot.chat(translation);
+            this.openChat(translation);
         }
     }
 
@@ -204,10 +204,10 @@ export class Agent {
             const user_command_name = containsCommand(message);
             if (user_command_name) {
                 if (!commandExists(user_command_name)) {
-                    this.bot.chat(`Command '${user_command_name}' does not exist.`);
+                    this.routeResponse(source, `Command '${user_command_name}' does not exist.`);
                     return false;
                 }
-                this.bot.chat(`*${source} used ${user_command_name.substring(1)}*`);
+                this.routeResponse(source, `*${source} used ${user_command_name.substring(1)}*`);
                 if (user_command_name === '!newAction') {
                     // all user-initiated commands are ignored by the bot except for this one
                     // add the preceding message to the history to give context for newAction
@@ -325,9 +325,20 @@ export class Agent {
         message = message.replaceAll('\n', ' ');
 
         if (self_prompt) 
-            this.bot.chat(message);
+            this.openChat(message);
         else
             this.bot.whisper(to_player, message);
+    }
+
+    openChat(message) {
+        if (settings.only_chat_with.length > 0) {
+            for (let username of settings.only_chat_with) {
+                this.bot.whisper(username, message);
+            }
+        }
+        else {
+            this.bot.chat(message);
+        }
     }
 
     startEvents() {
@@ -421,7 +432,7 @@ export class Agent {
     
     cleanKill(msg='Killing agent process...') {
         this.history.add('system', msg);
-        this.bot.chat('Restarting.')
+        this.openChat('Restarting.');
         this.history.save();
         process.exit(1);
     }
