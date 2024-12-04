@@ -1,6 +1,6 @@
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
-import { isOtherAgent } from '../conversation.js';
+import convoManager from '../conversation.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
@@ -50,10 +50,10 @@ export const queryList = [
             let players = world.getNearbyPlayerNames(bot);
             let bots = [];
             for (const player of players) {
-                if (isOtherAgent(player))
+                if (convoManager.isOtherAgent(player))
                     bots.push(player);
             }
-            players = players.filter(p => !isOtherAgent(p));
+            players = players.filter(p => !convoManager.isOtherAgent(p));
 
             res += '\n- Nearby Human Players: ' + players.join(', ');
             res += '\n- Nearby Bot Players: ' + bots.join(', ');
@@ -139,10 +139,10 @@ export const queryList = [
             let players = world.getNearbyPlayerNames(bot);
             let bots = [];
             for (const player of players) {
-                if (isOtherAgent(player))
+                if (convoManager.isOtherAgent(player))
                     bots.push(player);
             }
-            players = players.filter(p => !isOtherAgent(p));
+            players = players.filter(p => !convoManager.isOtherAgent(p));
 
             for (const player of players) {
                 res += `\n- Human player: ${player}`;

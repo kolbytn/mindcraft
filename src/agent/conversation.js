@@ -8,48 +8,6 @@ let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8'
 
 let self_prompter_paused = false;
 
-export function isOtherAgent(name) {
-    return agent_names.some((n) => n === name);
-}
-
-export function updateAgents(agents) {
-    agent_names = agents.map(a => a.name);
-}
-
-export function initConversationManager(a) {
-    agent = a;
-}
-
-export function inConversation() {
-    return Object.values(convos).some(c => c.active);
-}
-
-export function endConversation(sender) {
-    if (convos[sender]) {
-        convos[sender].end();
-        if (self_prompter_paused && !inConversation()) {
-            _resumeSelfPrompter();
-        }
-    }
-}
-
-export function endAllChats() {
-    for (const sender in convos) {
-        convos[sender].end();
-    }
-    if (self_prompter_paused) {
-        _resumeSelfPrompter();
-    }
-}
-
-export function scheduleSelfPrompter() {
-    self_prompter_paused = true;
-}
-
-export function cancelSelfPrompter() {
-    self_prompter_paused = false;
-}
-
 class Conversation {
     constructor(name) {
         this.name = name;
@@ -70,91 +28,155 @@ class Conversation {
     end() {
         this.active = false;
         this.ignore_until_start = true;
+        this.inMessageTimer = null;
+        const full_message = _compileInMessages(this);
+        if (full_message.message.trim().length > 0)
+            agent.history.add(this.name, full_message.message);
+        // add the full queued messages to history, but don't respond
+
+        if (agent.last_sender === this.name)
+            agent.last_sender = null;
     }
 
     queue(message) {
         this.in_queue.push(message);
     }
 }
-const convos = {};
 
-function _getConvo(name) {
-    if (!convos[name])
-        convos[name] = new Conversation(name);
-    return convos[name];
-}
 
-export async function startConversation(send_to, message) {
-    const convo = _getConvo(send_to);
-    convo.reset();
-    
-    if (agent.self_prompter.on) {
-        await agent.self_prompter.stop();
-        self_prompter_paused = true;
-    }
-    convo.active = true;
-    sendToBot(send_to, message, true);
-}
-
-export function sendToBot(send_to, message, start=false) {
-    if (settings.chat_bot_messages)
-        agent.openChat(`(To ${send_to}) ${message}`);
-    if (!isOtherAgent(send_to)) {
-        agent.bot.whisper(send_to, message);
-        return;
-    }
-    const convo = _getConvo(send_to);
-    if (convo.ignore_until_start)
-        return;
-    convo.active = true;
-    
-    const end = message.includes('!endConversation');
-    const json = {
-        'message': message,
-        start,
-        end,
-    };
-
-    // agent.bot.whisper(send_to, JSON.stringify(json));
-    sendBotChatToServer(send_to, JSON.stringify(json));
-}
-
-export async function recieveFromBot(sender, json) {
-    const convo = _getConvo(sender);
-
-    // check if any convo is active besides the sender
-    if (Object.values(convos).some(c => c.active && c.name !== sender)) {
-        sendToBot(sender, 'I am currently busy. Try again later. !endConversation("' + sender + '")');
-        return;
+class ConversationManager {
+    constructor() {
+        this.convos = {};
+        this.activeConversation = null;
     }
 
-    console.log(`decoding **${json}**`);
-    const recieved = JSON.parse(json);
-    if (recieved.start) {
+    initAgent(a) {
+        agent = a;
+    }
+
+    _getConvo(name) {
+        if (!this.convos[name])
+            this.convos[name] = new Conversation(name);
+        return this.convos[name];
+    }
+
+    async startConversation(send_to, message) {
+        const convo = this._getConvo(send_to);
         convo.reset();
+        
+        if (agent.self_prompter.on) {
+            await agent.self_prompter.stop();
+            self_prompter_paused = true;
+        }
+        if (convo.active)
+            return;
+        convo.active = true;
+        this.activeConversation = convo;
+        this.sendToBot(send_to, message, true);
     }
-    if (convo.ignore_until_start)
-        return;
 
-    convo.queue(recieved);
+    sendToBot(send_to, message, start=false) {
+        if (!this.isOtherAgent(send_to)) {
+            agent.bot.whisper(send_to, message);
+            return;
+        }
+        const convo = this._getConvo(send_to);
+        
+        if (settings.chat_bot_messages && !start)
+            agent.openChat(`(To ${send_to}) ${message}`);
+        
+        if (convo.ignore_until_start)
+            return;
+        convo.active = true;
+        
+        const end = message.includes('!endConversation');
+        const json = {
+            'message': message,
+            start,
+            end,
+        };
+
+        sendBotChatToServer(send_to, JSON.stringify(json));
+    }
+
+    async recieveFromBot(sender, json) {
+        const convo = this._getConvo(sender);
+
+        // check if any convo is active besides the sender
+        if (Object.values(this.convos).some(c => c.active && c.name !== sender)) {
+            this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`);
+            return;
+        }
     
-    // responding to conversation takes priority over self prompting
-    if (agent.self_prompter.on){
-        await agent.self_prompter.stopLoop();
+        const recieved = JSON.parse(json);
+        if (recieved.start) {
+            convo.reset();
+        }
+        if (convo.ignore_until_start)
+            return;
+    
+        convo.queue(recieved);
+        
+        // responding to conversation takes priority over self prompting
+        if (agent.self_prompter.on){
+            await agent.self_prompter.stopLoop();
+            self_prompter_paused = true;
+        }
+    
+        _scheduleProcessInMessage(sender, recieved, convo);
+    }
+
+    responseScheduledFor(sender) {
+        if (!this.isOtherAgent(sender) || !this.inConversation(sender))
+            return false;
+        const convo = this._getConvo(sender);
+        return !!convo.inMessageTimer;
+    }
+
+    isOtherAgent(name) {
+        return agent_names.some((n) => n === name);
+    }
+    
+    updateAgents(agents) {
+        agent_names = agents.map(a => a.name);
+    }
+    
+    inConversation(other_agent=null) {
+        if (other_agent)
+            return this.convos[other_agent]?.active;
+        return Object.values(this.convos).some(c => c.active);
+    }
+    
+    endConversation(sender) {
+        if (this.convos[sender]) {
+            this.convos[sender].end();
+            this.activeConversation = null;
+            if (self_prompter_paused && !this.inConversation()) {
+                _resumeSelfPrompter();
+            }
+        }
+    }
+    
+    endAllConversations() {
+        for (const sender in this.convos) {
+            this.convos[sender].end();
+        }
+        if (self_prompter_paused) {
+            _resumeSelfPrompter();
+        }
+    }
+    
+    scheduleSelfPrompter() {
         self_prompter_paused = true;
     }
-
-    _scheduleProcessInMessage(sender, recieved, convo);
+    
+    cancelSelfPrompter() {
+        self_prompter_paused = false;
+    }
 }
 
-// returns true if the other bot has a scheduled response
-export function responseScheduledFor(sender) {
-    if (!isOtherAgent(sender))
-        return false;
-    const convo = _getConvo(sender);
-    return !!convo.inMessageTimer;
-}
-
+const convoManager = new ConversationManager();
+export default convoManager;
 
 /*
 This function controls conversation flow by deciding when the bot responds.
@@ -205,7 +227,11 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
 }
 
 function _processInMessageQueue(name) {
-    const convo = _getConvo(name);
+    const convo = convoManager._getConvo(name);
+    _handleFullInMessage(name, _compileInMessages(convo));
+}
+
+function _compileInMessages(convo) {
     let pack = {};
     let full_message = '';
     while (convo.in_queue.length > 0) {
@@ -213,19 +239,22 @@ function _processInMessageQueue(name) {
         full_message += pack.message;
     }
     pack.message = full_message;
-    _handleFullInMessage(name, pack);
+    return pack;
 }
 
 function _handleFullInMessage(sender, recieved) {
     console.log(`responding to **${JSON.stringify(recieved)}**`);
     
-    const convo = _getConvo(sender);
+    const convo = convoManager._getConvo(sender);
     convo.active = true;
 
-    const message = _tagMessage(recieved.message);
-    if (recieved.end)
+    let message = _tagMessage(recieved.message);
+    if (recieved.end) {
         convo.end();
-    if (recieved.start)
+        sender = 'system'; // bot will respond to system instead of the other bot
+        message = `Conversation with ${sender} ended with message: "${message}"`;
+    }
+    else if (recieved.start)
         agent.shut_up = false;
     convo.inMessageTimer = null;
     agent.handleMessage(sender, message);

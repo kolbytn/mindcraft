@@ -1,6 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
-import { startConversation, endConversation, inConversation, scheduleSelfPrompter, cancelSelfPrompter } from '../conversation.js';
+import convoManager from '../conversation.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -342,14 +342,12 @@ export const actionsList = [
             'selfPrompt': { type: 'string', description: 'The goal prompt.' },
         },
         perform: async function (agent, prompt) {
-            if (inConversation()) {
-                // if conversing with another bot, dont start self-prompting yet
-                // wait until conversation ends
+            if (convoManager.inConversation()) {
                 agent.self_prompter.setPrompt(prompt);
-                scheduleSelfPrompter();
+                convoManager.scheduleSelfPrompter();
             }
             else {
-                agent.self_prompter.start(prompt); // don't await, don't return
+                agent.self_prompter.start(prompt);
             }
         }
     },
@@ -358,19 +356,23 @@ export const actionsList = [
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
             agent.self_prompter.stop();
-            cancelSelfPrompter();
+            convoManager.cancelSelfPrompter();
             return 'Self-prompting stopped.';
         }
     },
     {
         name: '!startConversation',
-        description: 'Send a message to a specific player to initiate conversation.',
+        description: 'Start a conversation with a player. Use for bots only.',
         params: {
             'player_name': { type: 'string', description: 'The name of the player to send the message to.' },
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            startConversation(player_name, message);
+            if (convoManager.inConversation())
+                return 'Already in conversation.';
+            if (!convoManager.isOtherAgent(player_name))
+                return player_name + ' is not a bot, cannot start conversation.';
+            convoManager.startConversation(player_name, message);
         }
     },
     {
@@ -380,7 +382,10 @@ export const actionsList = [
             'player_name': { type: 'string', description: 'The name of the player to end the conversation with.' }
         },
         perform: async function (agent, player_name) {
-            endConversation(player_name);
+            if (!convoManager.inConversation(player_name))
+                return `Not in conversation with ${player_name}.`;
+            convoManager.endConversation(player_name);
+            return `Converstaion with ${player_name} ended.`;
         }
     }
     // { // commented for now, causes confusion with goal command

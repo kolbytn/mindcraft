@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { recieveFromBot, updateAgents } from './conversation.js';
+import convoManager from './conversation.js';
 import settings from '../../settings.js';
 
 class AgentServerProxy {
@@ -31,11 +31,11 @@ class AgentServerProxy {
         });
 
         this.socket.on('chat-message', (agentName, json) => {
-            recieveFromBot(agentName, json);
+            convoManager.recieveFromBot(agentName, json);
         });
 
         this.socket.on('agents-update', (agents) => {
-            updateAgents(agents);
+            convoManager.updateAgents(agents);
         });
 
         this.socket.on('restart-agent', (agentName) => {

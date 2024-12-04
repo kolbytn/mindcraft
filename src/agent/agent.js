@@ -8,7 +8,7 @@ import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import { isOtherAgent, initConversationManager, sendToBot, endAllChats, responseScheduledFor} from './conversation.js';
+import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
@@ -40,7 +40,7 @@ export class Agent {
             this.memory_bank = new MemoryBank();
             console.log('Initializing self prompter...');
             this.self_prompter = new SelfPrompter(this);
-            initConversationManager(this);            
+            convoManager.initAgent(this);            
             console.log('Initializing examples...');
             await this.prompter.initExamples();
 
@@ -120,8 +120,7 @@ export class Agent {
 
                 console.log(this.name, 'received message from', username, ':', message);
 
-                if (isOtherAgent(username)) {
-                    //recieveFromBot(username, message);
+                if (convoManager.isOtherAgent(username)) {
                     console.warn('recieved whisper from other bot??')
                 }
                 else {
@@ -152,14 +151,14 @@ export class Agent {
         }
         else if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
-            await this.handleMessage('system', `You have restarted and this message is auto-generated. Continue the conversation with ${this.last_sender}`);
+            if (convoManager.isOtherAgent(this.last_sender))
+                convoManager.recieveFromBot(this.last_sender, `You have restarted and this message is auto-generated. Continue the conversation with me.`);
         }
         else if (init_message) {
             await this.handleMessage('system', init_message, 2);
         }
         else {
-            const translation = await handleTranslation("Hello world! I am "+this.name);
-            this.openChat(translation);
+            this.openChat("Hello world! I am "+this.name);
         }
     }
 
@@ -180,7 +179,7 @@ export class Agent {
         if (this.self_prompter.on) {
             this.self_prompter.stop(false);
         }
-        endAllChats();
+        convoManager.endAllConversations();
     }
 
     async handleMessage(source, message, max_responses=null) {
@@ -198,7 +197,7 @@ export class Agent {
         }
 
         const self_prompt = source === 'system' || source === this.name;
-        const from_other_bot = isOtherAgent(source);
+        const from_other_bot = convoManager.isOtherAgent(source);
 
         if (!self_prompt && !from_other_bot) { // from user, check for forced commands
             const user_command_name = containsCommand(message);
@@ -227,7 +226,12 @@ export class Agent {
         message = await handleEnglishTranslation(message);
         console.log('received message from', source, ':', message);
 
-        const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || responseScheduledFor(source);
+        const checkInterrupt = () => { 
+            const interrupt = this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
+            if (interrupt)
+                console.log('Interrupting loop!');
+            return interrupt;
+        }
 
         let behavior_log = this.bot.modes.flushBehaviorLog();
         if (behavior_log.trim().length > 0) {
@@ -243,7 +247,6 @@ export class Agent {
         await this.history.add(source, message);
         this.history.save();
 
-
         if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
@@ -251,10 +254,16 @@ export class Agent {
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
+            console.log(`${this.name} full response: ""${res}""`);
+            
+            if (res.trim().length === 0) { 
+                console.warn('no response')
+                break; // empty response ends loop
+            }
+
             let command_name = containsCommand(res);
 
             if (command_name) { // contains query or command
-                console.log(`Full response: ""${res}""`)
                 res = truncCommandMessage(res); // everything after the command is ignored
                 this.history.add(this.name, res);
                 
@@ -268,7 +277,7 @@ export class Agent {
                 this.self_prompter.handleUserPromptedCmd(self_prompt, isAction(command_name));
 
                 if (settings.verbose_commands) {
-                    this.routeResponse(source, res, res.indexOf(command_name));
+                    this.routeResponse(source, res);
                 }
                 else { // only output command name
                     let pre_message = res.substring(0, res.indexOf(command_name)).trim();
@@ -291,7 +300,6 @@ export class Agent {
             else { // conversation response
                 this.history.add(this.name, res);
                 this.routeResponse(source, res);
-                console.log('Purely conversational response:', res);
                 break;
             }
             
@@ -301,7 +309,7 @@ export class Agent {
         return used_command;
     }
 
-    async routeResponse(to_player, message, translate_up_to=-1) {
+    async routeResponse(to_player, message) {
         let self_prompt = to_player === 'system' || to_player === this.name;
         if (self_prompt && this.last_sender && !this.self_prompter.on) {
             // this is for when the agent is prompted by system while still in conversation
@@ -309,14 +317,24 @@ export class Agent {
             to_player = this.last_sender;
         }
 
-        if (isOtherAgent(to_player)) {
-            sendToBot(to_player, message);
-            return;
-        }
+        if (convoManager.isOtherAgent(to_player) && convoManager.inConversation(to_player)) {
+            // if we're in an ongoing conversation with the other bot, send the response to it
+            convoManager.sendToBot(to_player, message);
 
+        }
+        else {
+            // otherwise, use open chat
+            this.openChat(message);
+            // note that to_player could be another bot, but if we get here the conversation has ended
+        }
+    }
+
+    async openChat(message) {
         let to_translate = message;
         let remaining = '';
-        if (translate_up_to != -1) {
+        let command_name = containsCommand(message);
+        let translate_up_to = command_name ? message.indexOf(command_name) : -1;
+        if (translate_up_to != -1) { // don't translate the command
             to_translate = to_translate.substring(0, translate_up_to);
             remaining = message.substring(translate_up_to);
         }
@@ -324,13 +342,6 @@ export class Agent {
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
 
-        if (self_prompt) 
-            this.openChat(message);
-        else
-            this.bot.whisper(to_player, message);
-    }
-
-    openChat(message) {
         if (settings.only_chat_with.length > 0) {
             for (let username of settings.only_chat_with) {
                 this.bot.whisper(username, message);
@@ -432,7 +443,6 @@ export class Agent {
     
     cleanKill(msg='Killing agent process...') {
         this.history.add('system', msg);
-        this.openChat('Restarting.');
         this.history.save();
         process.exit(1);
     }
