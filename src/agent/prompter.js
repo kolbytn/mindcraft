@@ -247,13 +247,13 @@ export class Prompter {
             return generation;
         }
         this.awaiting_convo = false;
-        return "";
+        return '';
     }
 
     async promptCoding(messages) {
         if (this.awaiting_coding) {
             console.warn('Already awaiting coding response, returning no response.');
-            return '';
+            return '```//no response```';
         }
         this.awaiting_coding = true;
         await this.checkCooldown();

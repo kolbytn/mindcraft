@@ -60,6 +60,26 @@ class ConversationManager {
         return this.convos[name];
     }
 
+    _startMonitor() {
+        clearInterval(this.connection_monitor);
+        this.connection_monitor = setInterval(() => {
+            if (!this.activeConversation) {
+                clearInterval(this.connection_monitor);
+                return; // will clean itself up
+            }
+            let cur_name = this.activeConversation.name;
+            if (!this.isOtherAgent(cur_name)) {
+                if (!self_prompter_paused) {
+                    this.endConversation(cur_name);
+                    agent.handleMessage('system', `${cur_name} disconnected, conversation has ended.`);
+                }
+                else {
+                    this.endConversation(cur_name);
+                }
+            }
+        }, 10000);
+    }
+
     async startConversation(send_to, message) {
         const convo = this._getConvo(send_to);
         convo.reset();
@@ -72,6 +92,7 @@ class ConversationManager {
             return;
         convo.active = true;
         this.activeConversation = convo;
+        this._startMonitor();
         this.sendToBot(send_to, message, true);
     }
 

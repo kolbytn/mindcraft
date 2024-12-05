@@ -149,10 +149,15 @@ export class Agent {
             this.history.add('system', prompt);
             await this.self_prompter.start(prompt);
         }
-        else if (save_data?.last_sender) {
+        if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
-            if (convoManager.isOtherAgent(this.last_sender))
-                convoManager.recieveFromBot(this.last_sender, `You have restarted and this message is auto-generated. Continue the conversation with me.`);
+            if (convoManager.isOtherAgent(this.last_sender)) {
+                const package = {
+                    message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
+                    start: true
+                };
+                convoManager.recieveFromBot(this.last_sender, package);
+            }
         }
         else if (init_message) {
             await this.handleMessage('system', init_message, 2);
@@ -254,7 +259,7 @@ export class Agent {
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
-            console.log(`${this.name} full response: ""${res}""`);
+            console.log(`${this.name} full response to ${source}: ""${res}""`);
             
             if (res.trim().length === 0) { 
                 console.warn('no response')
