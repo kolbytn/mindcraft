@@ -99,15 +99,38 @@ export const actionsList = [
         }, true)
     },
     {
-        name: '!goToBlock',
-        description: 'Go to the nearest block of a given type.',
+        name: '!goToPosition',
+        description: 'Go to the given x, y, z location.',
+        params: {
+            'x': {type: 'float', description: 'The x coordinate.', domain: [0, Infinity]},
+            'y': {type: 'float', description: 'The y coordinate.', domain: [-64, 320]},
+            'z': {type: 'float', description: 'The z coordinate.', domain: [0, Infinity]},
+            'closeness': {type: 'float', description: 'How close to get to the location.', domain: [0, Infinity]}
+        },
+        perform: runAsAction(async (agent, x, y, z, closeness) => {
+            await skills.goToPosition(agent.bot, x, y, z, closeness);
+        })
+    },
+    {
+        name: '!searchForBlock',
+        description: 'Find and go to the nearest block of a given type in a given range.',
         params: {
             'type': { type: 'BlockName', description: 'The block type to go to.' },
-            'closeness': { type: 'float', description: 'How close to get to the block.', domain: [0, Infinity] },
             'search_range': { type: 'float', description: 'The range to search for the block.', domain: [0, 512] }
         },
-        perform: runAsAction(async (agent, type, closeness, range) => {
-            await skills.goToNearestBlock(agent.bot, type, closeness, range);
+        perform: runAsAction(async (agent, block_type, range) => {
+            await skills.goToNearestBlock(agent.bot, block_type, 4, range);
+        })
+    },
+    {
+        name: '!searchForEntity',
+        description: 'Find and go to the nearest entity of a given type in a given range.',
+        params: {
+            'type': { type: 'string', description: 'The type of entity to go to.' },
+            'search_range': { type: 'float', description: 'The range to search for the entity.', domain: [0, 512] }
+        },
+        perform: runAsAction(async (agent, entity_type, range) => {
+            await skills.goToNearestEntity(agent.bot, entity_type, 4, range);
         })
     },
     {
@@ -129,7 +152,7 @@ export const actionsList = [
         }
     },
     {
-        name: '!goToPlace',
+        name: '!goToRememberedPlace',
         description: 'Go to a saved location.',
         params: {'name': { type: 'string', description: 'The name of the location to go to.' }},
         perform: runAsAction(async (agent, name) => {
@@ -150,11 +173,7 @@ export const actionsList = [
             'num': { type: 'int', description: 'The number of items to give.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, player_name, item_name, num) => {
-            const modes = agent.bot.modes;
-            modes.pause('item_collecting');
             await skills.giveToPlayer(agent.bot, item_name, player_name, num);
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            modes.unpause('item_collecting');
         })
     },
     {
@@ -162,8 +181,7 @@ export const actionsList = [
         description: 'Eat/drink the given item.',
         params: {'item_name': { type: 'ItemName', description: 'The name of the item to consume.' }},
         perform: runAsAction(async (agent, item_name) => {
-            await agent.bot.consume(item_name);
-            skills.log(agent.bot, `Consumed ${item_name}.`);
+            await skills.consume(agent.bot, item_name);
         })
     },
     {
