@@ -152,11 +152,11 @@ export class Agent {
         if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
             if (convoManager.isOtherAgent(this.last_sender)) {
-                const package = {
+                const msg_package = {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
                 };
-                convoManager.recieveFromBot(this.last_sender, package);
+                convoManager.recieveFromBot(this.last_sender, msg_package);
             }
         }
         else if (init_message) {
