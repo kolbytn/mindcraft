@@ -5,6 +5,7 @@ import { sendBotChatToServer } from './agent_proxy.js';
 
 let agent;
 let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+let agents_in_game = [];
 
 let self_prompter_paused = false;
 
@@ -68,7 +69,7 @@ class ConversationManager {
                 return; // will clean itself up
             }
             let cur_name = this.activeConversation.name;
-            if (!this.isOtherAgent(cur_name)) {
+            if (!this.otherAgentInGame(cur_name)) {
                 if (!self_prompter_paused) {
                     this.endConversation(cur_name);
                     agent.handleMessage('system', `${cur_name} disconnected, conversation has ended.`);
@@ -156,9 +157,14 @@ class ConversationManager {
     isOtherAgent(name) {
         return agent_names.some((n) => n === name);
     }
+
+    otherAgentInGame(name) {
+        return agents_in_game.some((n) => n === name);
+    }
     
     updateAgents(agents) {
         agent_names = agents.map(a => a.name);
+        agents_in_game = agents.filter(a => a.in_game).map(a => a.name);
     }
     
     inConversation(other_agent=null) {

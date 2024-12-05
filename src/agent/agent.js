@@ -151,7 +151,7 @@ export class Agent {
         }
         if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
-            if (convoManager.isOtherAgent(this.last_sender)) {
+            if (convoManager.otherAgentInGame(this.last_sender)) {
                 const msg_package = {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
