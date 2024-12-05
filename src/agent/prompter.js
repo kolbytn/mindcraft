@@ -34,6 +34,8 @@ export class Prompter {
         let chat = this.profile.model;
         this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
         this.last_prompt_time = 0;
+        this.awaiting_convo = false;
+        this.awaiting_coding = false;
 
         // try to get "max_tokens" parameter, else null
         let max_tokens = null;
@@ -225,6 +227,11 @@ export class Prompter {
     }
 
     async promptConvo(messages) {
+        if (this.awaiting_convo) {
+            console.warn('Already awaiting conversation response, returning no response.');
+            return '';
+        }
+        this.awaiting_convo = true;
         for (let i = 0; i < 3; i++) { // try 3 times to avoid hallucinations
             await this.checkCooldown();
             let prompt = this.profile.conversing;
@@ -236,16 +243,25 @@ export class Prompter {
                 console.warn('LLM hallucinated message as another bot. Trying again...');
                 continue;
             }
+            this.awaiting_convo = false;
             return generation;
         }
-        return "*no response*";
+        this.awaiting_convo = false;
+        return "";
     }
 
     async promptCoding(messages) {
+        if (this.awaiting_coding) {
+            console.warn('Already awaiting coding response, returning no response.');
+            return '';
+        }
+        this.awaiting_coding = true;
         await this.checkCooldown();
         let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
-        return await this.chat_model.sendRequest(messages, prompt);
+        let resp = await this.chat_model.sendRequest(messages, prompt);
+        this.awaiting_coding = false;
+        return resp;
     }
 
     async promptMemSaving(to_summarize) {

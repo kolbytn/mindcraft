@@ -72,7 +72,7 @@ export function createMindServer(port = 8080) {
                 console.warn(`Agent ${agentName} tried to send a message but is not logged in`);
                 return;
             }
-            console.log(`${curAgentName} sending message to ${agentName}: ${json}`);
+            console.log(`${curAgentName} sending message to ${agentName}: ${json.message}`);
             inGameAgents[agentName].emit('chat-message', curAgentName, json);
         });
 

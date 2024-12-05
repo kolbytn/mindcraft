@@ -96,10 +96,10 @@ class ConversationManager {
             end,
         };
 
-        sendBotChatToServer(send_to, JSON.stringify(json));
+        sendBotChatToServer(send_to, json);
     }
 
-    async recieveFromBot(sender, json) {
+    async recieveFromBot(sender, recieved) {
         const convo = this._getConvo(sender);
 
         // check if any convo is active besides the sender
@@ -108,7 +108,6 @@ class ConversationManager {
             return;
         }
     
-        const recieved = JSON.parse(json);
         if (recieved.start) {
             convo.reset();
         }
@@ -243,7 +242,7 @@ function _compileInMessages(convo) {
 }
 
 function _handleFullInMessage(sender, recieved) {
-    console.log(`responding to **${JSON.stringify(recieved)}**`);
+    console.log(`${agent.name} responding to "${recieved.message}" from ${sender}`);
     
     const convo = convoManager._getConvo(sender);
     convo.active = true;
