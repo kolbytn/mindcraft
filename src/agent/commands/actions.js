@@ -99,12 +99,12 @@ export const actionsList = [
         }, true)
     },
     {
-        name: '!goToPosition',
+        name: '!goToCoordinates',
         description: 'Go to the given x, y, z location.',
         params: {
-            'x': {type: 'float', description: 'The x coordinate.', domain: [0, Infinity]},
-            'y': {type: 'float', description: 'The y coordinate.', domain: [-64, 320]},
-            'z': {type: 'float', description: 'The z coordinate.', domain: [0, Infinity]},
+            'x': {type: 'int', description: 'The x coordinate.', domain: [-Infinity, Infinity]},
+            'y': {type: 'int', description: 'The y coordinate.', domain: [-64, 320]},
+            'z': {type: 'int', description: 'The z coordinate.', domain: [-Infinity, Infinity]},
             'closeness': {type: 'float', description: 'How close to get to the location.', domain: [0, Infinity]}
         },
         perform: runAsAction(async (agent, x, y, z, closeness) => {
@@ -386,8 +386,8 @@ export const actionsList = [
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            if (convoManager.inConversation())
-                return 'Already in conversation.';
+            if (convoManager.inConversation() && !convoManager.inConversation(player_name))
+                return 'You are already talking to someone else.';
             if (!convoManager.isOtherAgent(player_name))
                 return player_name + ' is not a bot, cannot start conversation.';
             convoManager.startConversation(player_name, message);

@@ -197,7 +197,7 @@ export class Agent {
         if (max_responses === null) {
             max_responses = settings.max_commands === -1 ? Infinity : settings.max_commands;
         }
-        if (max_responses === -1){
+        if (max_responses === -1) {
             max_responses = Infinity;
         }
 
@@ -231,13 +231,8 @@ export class Agent {
         message = await handleEnglishTranslation(message);
         console.log('received message from', source, ':', message);
 
-        const checkInterrupt = () => { 
-            const interrupt = this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
-            if (interrupt)
-                console.log('Interrupting loop!');
-            return interrupt;
-        }
-
+        const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
+        
         let behavior_log = this.bot.modes.flushBehaviorLog();
         if (behavior_log.trim().length > 0) {
             const MAX_LOG = 500;
