@@ -34,7 +34,6 @@ export class Prompter {
         let chat = this.profile.model;
         this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
         this.last_prompt_time = 0;
-        this.awaiting_convo = false;
         this.awaiting_coding = false;
 
         // try to get "max_tokens" parameter, else null
@@ -227,11 +226,8 @@ export class Prompter {
     }
 
     async promptConvo(messages) {
-        if (this.awaiting_convo) {
-            console.warn('Already awaiting conversation response, returning no response.');
-            return '';
-        }
-        this.awaiting_convo = true;
+        this.most_recent_msg_time = Date.now();
+        let current_msg_time = this.most_recent_msg_time;
         for (let i = 0; i < 3; i++) { // try 3 times to avoid hallucinations
             await this.checkCooldown();
             let prompt = this.profile.conversing;
@@ -243,10 +239,12 @@ export class Prompter {
                 console.warn('LLM hallucinated message as another bot. Trying again...');
                 continue;
             }
-            this.awaiting_convo = false;
+            if (current_msg_time !== this.most_recent_msg_time) {
+                console.warn(this.agent.name + ' recieved new message while generating, discarding old response.');
+                return '';
+            }
             return generation;
         }
-        this.awaiting_convo = false;
         return '';
     }
 
