@@ -102,9 +102,9 @@ export const actionsList = [
         name: '!goToCoordinates',
         description: 'Go to the given x, y, z location.',
         params: {
-            'x': {type: 'int', description: 'The x coordinate.', domain: [-Infinity, Infinity]},
-            'y': {type: 'int', description: 'The y coordinate.', domain: [-64, 320]},
-            'z': {type: 'int', description: 'The z coordinate.', domain: [-Infinity, Infinity]},
+            'x': {type: 'float', description: 'The x coordinate.', domain: [-Infinity, Infinity]},
+            'y': {type: 'float', description: 'The y coordinate.', domain: [-64, 320]},
+            'z': {type: 'float', description: 'The z coordinate.', domain: [-Infinity, Infinity]},
             'closeness': {type: 'float', description: 'How close to get to the location.', domain: [0, Infinity]}
         },
         perform: runAsAction(async (agent, x, y, z, closeness) => {

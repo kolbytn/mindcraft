@@ -46,7 +46,7 @@ export class Grok {
             }
         }
         // sometimes outputs special token <|separator|>, just replace it
-        return res.replace(/<\|separator\|>/g, '.');
+        return res.replace(/<\|separator\|>/g, '*no response*');
     }
     
     async embed(text) {
