@@ -45,7 +45,8 @@ export class Grok {
                 res = 'My brain disconnected, try again.';
             }
         }
-        return res;
+        // sometimes outputs special token <|separator|>, just replace it
+        return res.replace(/<\|separator\|>/g, '.');
     }
     
     async embed(text) {

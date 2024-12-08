@@ -14,8 +14,8 @@ export function getCommand(name) {
     return commandMap[name];
 }
 
-const commandRegex = /!(\w+)(?:\(((?:-?\d+|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+|true|false|"[^"]*"))*)\))?/
-const argRegex = /-?\d+|true|false|"[^"]*"/g;
+const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
+const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
 
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);

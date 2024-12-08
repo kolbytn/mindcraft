@@ -386,8 +386,8 @@ export const actionsList = [
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            if (convoManager.inConversation() && !convoManager.inConversation(player_name))
-                return 'You are already talking to someone else.';
+            if (convoManager.inConversation())
+                return 'You are already talking to ' + convoManager.activeConversation.name;
             if (!convoManager.isOtherAgent(player_name))
                 return player_name + ' is not a bot, cannot start conversation.';
             convoManager.startConversation(player_name, message);

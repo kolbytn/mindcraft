@@ -115,12 +115,17 @@
             {"role": "system", "content": "Agent action stopped."},
             {"role": "assistant", "content": "I've stopped! What next?"}
         ],
-    
+
         [
             {"role": "system", "content": "Code output: Action failed."},
             {"role": "assistant", "content": "Apologies, I made an error. Let me try again. !newAction(\"Try again to complete the task.\")"}
         ],
-    
+
+        [
+            {"role": "system", "content": "Code output: Could not find any oak_log in 20 blocks."},
+            {"role": "assistant", "content": "I'll have to search a wider area. !searchForBlock(\"oak_log\", 100)"}
+        ],
+
         [
             {"role": "user", "content": "trixy88: craft some sticks"},
             {"role": "assistant", "content": "!craftRecipe(\"stick\", 4)"},
