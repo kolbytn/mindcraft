@@ -161,6 +161,16 @@ export class Prompter {
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
 
+        if (prompt.includes('$TASK_GOAL')) {
+            prompt = prompt.replaceAll('$TASK_GOAL', process.env.MINECRAFT_TASK_GOAL || 'No task specified');
+        }
+
+        if (prompt.includes('$OTHER_AGENTS')) {
+            const allAgentNames = process.env.ALL_AGENT_NAMES.split(',');
+            const otherAgents = allAgentNames.filter(curr_agent_name => curr_agent_name  !== this.agent.name);
+            prompt = prompt.replace('$OTHER_AGENTS', otherAgents.join(', '));
+        }
+
         if (prompt.includes('$STATS')) {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
@@ -184,6 +194,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
         if (prompt.includes('$CONVO'))
             prompt = prompt.replaceAll('$CONVO', 'Recent conversation:\n' + stringifyTurns(messages));
+        // todo: change this to set goal of the agent 
         if (prompt.includes('$SELF_PROMPT')) {
             let self_prompt = this.agent.self_prompter.on ? `YOUR CURRENT ASSIGNED GOAL: "${this.agent.self_prompter.prompt}"\n` : '';
             prompt = prompt.replaceAll('$SELF_PROMPT', self_prompt);

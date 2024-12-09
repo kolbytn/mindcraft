@@ -1,0 +1,62 @@
+construction_task_1:
+  type: construction
+  goal: Build a marble monument with a large base and a slender monument body that is grand and impressive.
+
+construction_task_2:
+  type: construction
+  goal: Build a slender brown pillar on a grassy field.
+
+construction_task_3:
+  type: construction
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_4:
+  type: construction
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_5:
+  type: construction
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_6:
+  type: construction
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_7:
+  type: construction
+  goal: Build a quirky-style small brown wooden house on a vast, endless grassland.
+  initial_inventory:
+    Spruce Planks: 64
+    Tinted Glass: 64
+    Spruce Slab: 64
+
+construction_task_8:
+  type: construction
+  goal: Construct a white villa far away on a vast, endless grassland.
+  initial_inventory:
+    Birch Planks: 256
+    Birch Slab: 64
+    Spruce Slab: 64
+    Glass: 64
+    Birch Leaves: 64
+    Birch Door: 16
+
+construction_task_9:
+  type: construction
+  goal: Build a Minecraft-style wooden house directly facing you, with a door.
+
+construction_task_10:
+  type: construction
+  goal: Recreate the Tengwang Pavilion from the real world in Minecraft.
+
+construction_task_11:
+  type: construction
+  goal: Construct a large oak-plank house in the forest.
+
+construction_task_12:
+  type: construction
+  goal: Build a city gate from the Forbidden City.
+
+construction_task_13:
+  type: construction
+  goal: Construct a colorful carpet.

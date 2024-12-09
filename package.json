@@ -6,6 +6,7 @@
         "@huggingface/inference": "^2.8.1",
         "google-translate-api-x": "^10.7.1",
         "groq-sdk": "^0.5.0",
+        "js-yaml": "^4.1.0",
         "minecraft-data": "^3.78.0",
         "mineflayer": "^4.23.0",
         "mineflayer-armor-manager": "^2.0.1",

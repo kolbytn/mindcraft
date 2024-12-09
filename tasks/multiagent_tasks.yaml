@@ -1,0 +1,69 @@
+multiagent_techtree_1_shears_with_2_iron_ingot:
+  goal: Collaborate with other agents to build a shear.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      iron_ingot: 1
+    randy:
+      iron_ingot: 1
+  target: shears
+  number_of_target: 1
+  type: techtree
+  timeout : 60
+
+multiagent_techtree_1_stone_pickaxe:
+  goal: Collaborate with other agents to build an stone pickaxe
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      wooden_pickaxe: 1
+    randy:
+      wooden_axe: 1
+  target: stone_pickaxe
+  number_of_target: 1
+  type: techtree
+  timeout : 300
+
+multiagent_build_wooden_pickaxe:
+  goal: Collaborate with other agents to build a wooden pickaxe.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      oak_log: 2
+    randy:
+      stick: 2
+  target: wooden_pickaxe
+  number_of_target: 1
+  type: techtree
+  timeout : 120
+
+
+
+multiagent_techtree_boat:
+  goal: Collaborate with other agents to build a birch boat.
+  agent_names:
+  - Bob
+  - Alice
+  agent_number: 2
+  initial_inventory:
+    Bob:
+      birch_planks: 3
+    Alice:
+      birch_planks: 2
+  target: birch_boat
+  number_of_target: 1
+  type: techtree
+  timeout : 60
+
+
+
+
