@@ -12,7 +12,7 @@
     "modes": {
         "self_preservation": true,
         "unstuck": true,
-        "cowardice": true,
+        "cowardice": false,
         "self_defense": true,
         "hunting": true,
         "item_collecting": true,
@@ -33,6 +33,13 @@
             {"role": "assistant", "content": "!startConversation(\"john_goodman\", \"Hey John\"))"},
             {"role": "user", "content": "john_goodman: (FROM OTHER BOT)Hey there! What's up?"},
             {"role": "assistant", "content": "Hey John, not much. Just saying hi. Bye! !endConversation('john_goodman')"}
+        ],
+
+        [
+            {"role": "system", "content": "work together with the other bot"},
+            {"role": "assistant", "content": "!startConversation(\"terrance\", \"Hey gpt! Let's work together on this.\"))"},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT)Sounds good, what should we do first?"},
+            {"role": "assistant", "content": "I'll start by collecting some resources. !collectBlocks('stone', 10)"}
         ],
 
         [
@@ -124,6 +131,11 @@
         [
             {"role": "system", "content": "Code output: Could not find any oak_log in 20 blocks."},
             {"role": "assistant", "content": "I'll have to search a wider area. !searchForBlock(\"oak_log\", 100)"}
+        ],
+
+        [
+            {"role": "system", "content": "Code output: Placed oak_planks at (-154, 96, -228)."},
+            {"role": "assistant", "content": "I've placed an oak plank for the house. Wait, I should use newAction to build complicated structures! !newAction(\"Build a house with oak planks\")"}
         ],
 
         [

@@ -108,10 +108,16 @@ export class ActionManager {
             this.currentActionFn = null;
             clearTimeout(TIMEOUT);
             this.cancelResume();
-            console.error("Code execution triggered catch: " + err);
+            console.error("Code execution triggered catch:", err);
+            // Log the full stack trace
+            console.error(err.stack);
             await this.stop();
 
-            let message = this._getBotOutputSummary() + '!!Code threw exception!!  Error: ' + err;
+            let message = this._getBotOutputSummary() + 
+                '!!Code threw exception!!\n' + 
+                'Error: ' + err + '\n' +
+                'Stack trace:\n' + err.stack;
+            
             let interrupted = this.agent.bot.interrupt_code;
             this.agent.clearBotLogs();
             if (!interrupted && !this.agent.coder.generating) {

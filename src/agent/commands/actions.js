@@ -116,7 +116,7 @@ export const actionsList = [
         description: 'Find and go to the nearest block of a given type in a given range.',
         params: {
             'type': { type: 'BlockName', description: 'The block type to go to.' },
-            'search_range': { type: 'float', description: 'The range to search for the block.', domain: [0, 512] }
+            'search_range': { type: 'float', description: 'The range to search for the block.', domain: [32, 512] }
         },
         perform: runAsAction(async (agent, block_type, range) => {
             await skills.goToNearestBlock(agent.bot, block_type, 4, range);
@@ -127,7 +127,7 @@ export const actionsList = [
         description: 'Find and go to the nearest entity of a given type in a given range.',
         params: {
             'type': { type: 'string', description: 'The type of entity to go to.' },
-            'search_range': { type: 'float', description: 'The range to search for the entity.', domain: [0, 512] }
+            'search_range': { type: 'float', description: 'The range to search for the entity.', domain: [32, 512] }
         },
         perform: runAsAction(async (agent, entity_type, range) => {
             await skills.goToNearestEntity(agent.bot, entity_type, 4, range);
@@ -386,10 +386,12 @@ export const actionsList = [
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            if (convoManager.inConversation())
-                return 'You are already in conversation';
+            if (convoManager.inConversation() && !convoManager.inConversation(player_name))
+                return 'You are already in conversation with other bot.';
             if (!convoManager.isOtherAgent(player_name))
                 return player_name + ' is not a bot, cannot start conversation.';
+            if (convoManager.inConversation(player_name))
+                agent.history.add('system', 'You are already in conversation with ' + player_name + ' Don\'t use this command to talk to them.');
             convoManager.startConversation(player_name, message);
         }
     },

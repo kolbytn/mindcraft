@@ -44,11 +44,14 @@ class Conversation {
     }
 }
 
-
+const WAIT_TIME_START = 30000;
 class ConversationManager {
     constructor() {
         this.convos = {};
         this.activeConversation = null;
+        this.awaiting_response = false;
+        this.connection_timeout = null;
+        this.wait_time_limit = WAIT_TIME_START;
     }
 
     initAgent(a) {
@@ -63,22 +66,59 @@ class ConversationManager {
 
     _startMonitor() {
         clearInterval(this.connection_monitor);
+        let wait_time = 0;
+        let last_time = Date.now();
         this.connection_monitor = setInterval(() => {
             if (!this.activeConversation) {
-                clearInterval(this.connection_monitor);
+                this._stopMonitor();
                 return; // will clean itself up
             }
-            let cur_name = this.activeConversation.name;
-            if (!this.otherAgentInGame(cur_name)) {
-                if (!self_prompter_paused) {
-                    this.endConversation(cur_name);
-                    agent.handleMessage('system', `${cur_name} disconnected, conversation has ended.`);
-                }
-                else {
-                    this.endConversation(cur_name);
+
+            let delta = Date.now() - last_time;
+            last_time = Date.now();
+            let convo_partner = this.activeConversation.name;
+
+            if (this.awaiting_response && agent.isIdle()) {
+                wait_time += delta;
+                if (wait_time > this.wait_time_limit) {
+                    agent.handleMessage('system', `${convo_partner} hasn't responded in ${this.wait_time_limit/1000} seconds, respond with a message to them or your own action.`);
+                    wait_time = 0;
+                    this.wait_time_limit*=2;
                 }
             }
-        }, 10000);
+            else if (!this.awaiting_response){
+                this.wait_time_limit = WAIT_TIME_START;
+                wait_time = 0;
+            }
+
+            if (!this.otherAgentInGame(convo_partner) && !this.connection_timeout) {
+                this.connection_timeout = setTimeout(() => {
+                    if (this.otherAgentInGame(convo_partner)){
+                        this._clearMonitorTimeouts();
+                        return;
+                    }
+                    if (!self_prompter_paused) {
+                        this.endConversation(convo_partner);
+                        agent.handleMessage('system', `${convo_partner} disconnected, conversation has ended.`);
+                    }
+                    else {
+                        this.endConversation(convo_partner);
+                    }
+                }, 10000);
+            }
+        }, 1000);
+    }
+
+    _stopMonitor() {
+        clearInterval(this.connection_monitor);
+        this.connection_monitor = null;
+        this._clearMonitorTimeouts();
+    }
+
+    _clearMonitorTimeouts() {
+        this.awaiting_response = false;
+        clearTimeout(this.connection_timeout);
+        this.connection_timeout = null;
     }
 
     async startConversation(send_to, message) {
@@ -95,6 +135,13 @@ class ConversationManager {
         this.activeConversation = convo;
         this._startMonitor();
         this.sendToBot(send_to, message, true);
+    }
+
+    startConversationFromOtherBot(name) {
+        const convo = this._getConvo(name);
+        convo.active = true;
+        this.activeConversation = convo;
+        this._startMonitor();
     }
 
     sendToBot(send_to, message, start=false) {
@@ -118,6 +165,7 @@ class ConversationManager {
             end,
         };
 
+        this.awaiting_response = true;
         sendBotChatToServer(send_to, json);
     }
 
@@ -132,10 +180,12 @@ class ConversationManager {
     
         if (recieved.start) {
             convo.reset();
+            this.startConversationFromOtherBot(sender);
         }
         if (convo.ignore_until_start)
             return;
-    
+        
+        this._clearMonitorTimeouts();
         convo.queue(recieved);
         
         // responding to conversation takes priority over self prompting
@@ -166,6 +216,10 @@ class ConversationManager {
         agent_names = agents.map(a => a.name);
         agents_in_game = agents.filter(a => a.in_game).map(a => a.name);
     }
+
+    getInGameAgents() {
+        return agents_in_game;
+    }
     
     inConversation(other_agent=null) {
         if (other_agent)
@@ -176,6 +230,7 @@ class ConversationManager {
     endConversation(sender) {
         if (this.convos[sender]) {
             this.convos[sender].end();
+            this._stopMonitor();
             this.activeConversation = null;
             if (self_prompter_paused && !this.inConversation()) {
                 _resumeSelfPrompter();
@@ -276,7 +331,7 @@ function _handleFullInMessage(sender, recieved) {
 
     let message = _tagMessage(recieved.message);
     if (recieved.end) {
-        convo.end();
+        convoManager.endConversation(sender);
         sender = 'system'; // bot will respond to system instead of the other bot
         message = `Conversation with ${sender} ended with message: "${message}"`;
     }

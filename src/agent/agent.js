@@ -224,7 +224,7 @@ export class Agent {
             }
         }
 
-        if (!self_prompt)
+        if (from_other_bot)
             this.last_sender = source;
 
         // Now translate the message
@@ -311,7 +311,7 @@ export class Agent {
 
     async routeResponse(to_player, message) {
         let self_prompt = to_player === 'system' || to_player === this.name;
-        if (self_prompt && this.last_sender && !this.self_prompter.on) {
+        if (self_prompt && this.last_sender) {
             // this is for when the agent is prompted by system while still in conversation
             // so it can respond to events like death but be routed back to the last sender
             to_player = this.last_sender;
@@ -320,7 +320,6 @@ export class Agent {
         if (convoManager.isOtherAgent(to_player) && convoManager.inConversation(to_player)) {
             // if we're in an ongoing conversation with the other bot, send the response to it
             convoManager.sendToBot(to_player, message);
-
         }
         else {
             // otherwise, use open chat
