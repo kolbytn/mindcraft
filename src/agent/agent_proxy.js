@@ -1,21 +1,23 @@
 import { io } from 'socket.io-client';
-import { recieveFromBot, updateAgents } from './conversation.js';
+import convoManager from './conversation.js';
 import settings from '../../settings.js';
 
-class ServerProxy {
+class AgentServerProxy {
     constructor() {
-        if (ServerProxy.instance) {
-            return ServerProxy.instance;
+        if (AgentServerProxy.instance) {
+            return AgentServerProxy.instance;
         }
         
         this.socket = null;
         this.connected = false;
-        ServerProxy.instance = this;
+        AgentServerProxy.instance = this;
     }
 
-    connect() {
+    connect(agent) {
         if (this.connected) return;
         
+        this.agent = agent;
+
         this.socket = io(`http://${settings.mindserver_host}:${settings.mindserver_port}`);
         this.connected = true;
 
@@ -29,20 +31,21 @@ class ServerProxy {
         });
 
         this.socket.on('chat-message', (agentName, json) => {
-            recieveFromBot(agentName, json);
+            convoManager.recieveFromBot(agentName, json);
         });
 
         this.socket.on('agents-update', (agents) => {
-            updateAgents(agents);
+            convoManager.updateAgents(agents);
+        });
+
+        this.socket.on('restart-agent', (agentName) => {
+            console.log(`Restarting agent: ${agentName}`);
+            this.agent.cleanKill();
         });
     }
 
-    registerAgent(agentName) {
-        if (!this.connected) {
-            console.warn('Cannot register agent: not connected to MindServer');
-            return;
-        }
-        this.socket.emit('register-agent', agentName);
+    login() {
+        this.socket.emit('login-agent', this.agent.name);
     }
 
     getSocket() {
@@ -51,7 +54,7 @@ class ServerProxy {
 }
 
 // Create and export a singleton instance
-export const serverProxy = new ServerProxy();
+export const serverProxy = new AgentServerProxy();
 
 export function sendBotChatToServer(agentName, json) {
     serverProxy.getSocket().emit('chat-message', agentName, json);
