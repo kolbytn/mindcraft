@@ -1,5 +1,6 @@
 import yaml from 'js-yaml'
 import { readFileSync } from 'fs';
+import {getPosition} from './library/world.js'
 
 export function loadTask(taskId) {
     try {
@@ -16,6 +17,101 @@ export function loadTask(taskId) {
         console.error('Error loading task:', error);
         process.exit(1);
     }
+}
+
+export async function initBotTask(bot, task, name) {
+    if (task) {
+        bot.chat(`/clear ${bot.username}`);
+        console.log(`Cleared ${bot.username}'s inventory.`);
+    }
+    
+    //wait for a bit so inventory is cleared
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    console.log(task && "agent_number" in task && task.agent_number > 1);
+    if (task && "agent_number" in task && task.agent_number > 1) {
+        var initial_inventory = task.initial_inventory[bot.username];
+        console.log("Initial inventory:", initial_inventory);
+    } else if (task) {
+        console.log("Initial inventory:", task.initial_inventory);
+        var initial_inventory = task.initial_inventory;
+    }
+
+    if (task && "initial_inventory" in task) {
+        console.log("Setting inventory...");
+        console.log("Inventory to set:", initial_inventory);
+        for (let key of Object.keys(initial_inventory)) {
+            console.log('Giving item:', key);
+            bot.chat(`/give ${bot.username} ${key} ${initial_inventory[key]}`);
+        };
+        //wait for a bit so inventory is set
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        console.log("Done giving inventory items.");
+    }
+    // Function to generate random numbers
+
+    function getRandomOffset(range) {
+        return Math.floor(Math.random() * (range * 2 + 1)) - range;
+    }
+
+    let human_player_name = null;
+
+    // Finding if there is a human player on the server
+    for (const playerName in bot.players) {
+        const player = bot.players[playerName];
+        if (!isOtherAgent(player.username)) {
+            console.log('Found human player:', player.username);
+            human_player_name = player.username
+            break;
+        }
+        }
+    
+    // If there are multiple human players, teleport to the first one
+
+    // teleport near a human player if found by default
+
+    if (task && "agent_number" in task) {
+        var agent_names = task.agent_names;
+        if (human_player_name) {
+            console.log(`Teleporting ${bot.username} to human ${human_player_name}`)
+            bot.chat(`/tp ${bot.username} ${human_player_name}`) // teleport on top of the human player
+
+        }
+        else {
+            bot.chat(`/tp ${bot.username} ${agent_names[0]}`) // teleport on top of the first agent
+        }
+        
+        await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    else if (task) {
+        if (human_player_name) {
+            console.log(`Teleporting ${bot.username} to human ${human_player_name}`)
+            bot.chat(`/tp ${bot.username} ${human_player_name}`) // teleport on top of the human player
+
+        }
+        await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+    // now all bots are teleport on top of each other (which kinda looks ugly)
+    // Thus, we need to teleport them to random distances to make it look better
+
+    /*
+    Note : We don't want randomness for construction task as the reference point matters a lot.
+    Another reason for no randomness for construction task is because, often times the user would fly in the air,
+    then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
+    This was done by MaxRobinson in one of the youtube videos.
+    */
+
+    if (task && task.type !== 'construction') {
+        const pos = getPosition(bot);
+        const xOffset = getRandomOffset(5);
+        const zOffset = getRandomOffset(5);
+        bot.chat(`/tp ${bot.username} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
+        await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
+
 }
 
 export class TechTreeHarvestValidator {
