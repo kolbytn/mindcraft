@@ -8,7 +8,7 @@ import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import { isOtherAgent, initConversationManager, sendToBot, endAllChats, responseScheduledFor} from './conversation.js';
+import { isOtherAgent, initConversationManager, sendToBot, endAllChats, responseScheduledFor, inConversation } from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
@@ -18,6 +18,7 @@ import { loadTask, initBotTask, TechTreeHarvestValidator } from '../utils/tasks.
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.last_sender = null;
+        this.count_id = count_id;
         try {
             if (!profile_fp) {
                 throw new Error('No profile filepath provided');
@@ -66,10 +67,16 @@ export class Agent {
                 this.taskTimeout = this.task.timeout || 300;
                 this.taskStartTime = Date.now();
                 this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+                this.blocked_actions = this.task.blocked_actions || [];
+                if (this.task.goal)
+                    this.blocked_actions.push('!endGoal');
+                if (this.task.conversation)
+                    this.blocked_actions.push('!endConversation');
             } else {
                 this.task = null;
                 this.taskTimeout = null;
                 this.validator = null;
+                this.blocked_actions = [];
             }
             console.log("Is validated:", this.validator && this.validator.validate());
 
@@ -96,18 +103,13 @@ export class Agent {
                     
                     console.log(`${this.name} spawned.`);
                     this.clearBotLogs();
-                    
-                    if (this.task) {
-                        await initBotTask(this.bot, this.task);
-                        await new Promise((resolve) => setTimeout(resolve, 10000));
-                        if (this.task.agent_names && this.task.agent_names.filter(name => !this.bot.players[name]).length) {
-                            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
-                            this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
-                        }
-                    }
 
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
+
+                    if (this.task)
+                        await initBotTask(this);
+
                 } catch (error) {
                     console.error('Error in spawn event:', error);
                     process.exit(0);
@@ -437,18 +439,24 @@ export class Agent {
         }, INTERVAL);
 
         // Check for task completion
-        setInterval(async () => {
-            if (this.task && this.validator && this.validator.validate())
-                this.killBots();
-            if (this.task && this.taskTimeout) {
-                const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
-                if (elapsedTime >= this.taskTimeout) {
-                    console.log('Task timeout reached. Task unsuccessful.');
-                    this.cleanKill('Task unsuccessful: Timeout reached', 3);
+        if (this.task) {
+            setInterval(async () => {
+                if (this.validator && this.validator.validate())
+                    this.killBots();
+                if (this.task.goal && !this.self_prompter.on)
+                    this.cleanKill('Task unsuccessful: Agent ended goal', 3);
+                if (this.task.conversation && !inConversation())
+                    this.cleanKill('Task unsuccessful: Agent ended conversation', 3);
+                if (this.taskTimeout) {
+                    const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
+                    if (elapsedTime >= this.taskTimeout) {
+                        console.log('Task timeout reached. Task unsuccessful.');
+                        this.cleanKill('Task unsuccessful: Timeout reached', 3);
+                    }
                 }
-            }
-    
-        }, 1000);
+        
+            }, 1000);
+        }
 
         this.bot.emit('idle');
     }

@@ -26,19 +26,9 @@ export class AgentProcess {
         agentProcess.on('exit', (code, signal) => {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);
             
-            if (code === 2) {
-                console.log(`Task completed successfully`);
-                process.exit(2, signal);
-            }
-
-            if (code === 3) {
-                console.log(`Task failed due to reaching timeout`);
-                process.exit(3);
-            }
-
-            if (code === 4) {
-                console.log(`Task failed as all agents weren't correctly spawned `);
-                process.exit(4);
+            if (code > 1) {
+                console.log(`Ending task`);
+                process.exit(code);
             }
 
             if (code !== 0) {

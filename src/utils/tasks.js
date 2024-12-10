@@ -1,6 +1,7 @@
 import yaml from 'js-yaml'
 import { readFileSync } from 'fs';
-import {getPosition} from './library/world.js'
+import { executeCommand } from './commands/index.js';
+import { getPosition } from './library/world.js'
 
 export function loadTask(taskId) {
     try {
@@ -19,17 +20,18 @@ export function loadTask(taskId) {
     }
 }
 
-export async function initBotTask(bot, task, name) {
-    if (task) {
-        bot.chat(`/clear ${bot.username}`);
-        console.log(`Cleared ${bot.username}'s inventory.`);
-    }
+export async function initBotTask(agent) {
+    let bot = agent.bot;
+    let task = agent.task;
+
+    bot.chat(`/clear ${bot.username}`);
+    console.log(`Cleared ${bot.username}'s inventory.`);
     
     //wait for a bit so inventory is cleared
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    console.log(task && "agent_number" in task && task.agent_number > 1);
-    if (task && "agent_number" in task && task.agent_number > 1) {
+    console.log("agent_number" in task.agent_number > 1);
+    if ("agent_number" in task.agent_number > 1) {
         var initial_inventory = task.initial_inventory[bot.username];
         console.log("Initial inventory:", initial_inventory);
     } else if (task) {
@@ -37,7 +39,7 @@ export async function initBotTask(bot, task, name) {
         var initial_inventory = task.initial_inventory;
     }
 
-    if (task && "initial_inventory" in task) {
+    if ("initial_inventory" in task) {
         console.log("Setting inventory...");
         console.log("Inventory to set:", initial_inventory);
         for (let key of Object.keys(initial_inventory)) {
@@ -70,7 +72,7 @@ export async function initBotTask(bot, task, name) {
 
     // teleport near a human player if found by default
 
-    if (task && "agent_number" in task) {
+    if ("agent_number" in task) {
         var agent_names = task.agent_names;
         if (human_player_name) {
             console.log(`Teleporting ${bot.username} to human ${human_player_name}`)
@@ -103,7 +105,7 @@ export async function initBotTask(bot, task, name) {
     This was done by MaxRobinson in one of the youtube videos.
     */
 
-    if (task && task.type !== 'construction') {
+    if (task.type !== 'construction') {
         const pos = getPosition(bot);
         const xOffset = getRandomOffset(5);
         const zOffset = getRandomOffset(5);
@@ -111,7 +113,22 @@ export async function initBotTask(bot, task, name) {
         await new Promise((resolve) => setTimeout(resolve, 200));
     }
 
+    if (task.goal) {
+        await executeCommand(agent, `!goal("${task.goal}")`);
+    }
 
+    if (task.agent_names) {
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+        if (task.agent_names.filter(name => !bot.players[name]).length) {
+            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+            agent.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+        }
+    }
+
+    if (task.conversation && agent.count_id === 0) {
+        let other_name = task.agent_names.filter(name => name !== bot.username)[0];
+        await executeCommand(agent, `!startConversation("${other_name}", "${task.conversation}")`);
+    }
 }
 
 export class TechTreeHarvestValidator {
