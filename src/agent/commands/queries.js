@@ -1,6 +1,6 @@
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
-import { isOtherAgent } from '../conversation.js';
+import convoManager from '../conversation.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
@@ -48,15 +48,11 @@ export const queryList = [
 
 
             let players = world.getNearbyPlayerNames(bot);
-            let bots = [];
-            for (const player of players) {
-                if (isOtherAgent(player))
-                    bots.push(player);
-            }
-            players = players.filter(p => !isOtherAgent(p));
+            let bots = convoManager.getInGameAgents().filter(b => b !== agent.name);
+            players = players.filter(p => !bots.includes(p));
 
-            res += '\n- Nearby Human Players: ' + players.join(', ');
-            res += '\n- Nearby Bot Players: ' + bots.join(', ');
+            res += '\n- Nearby Human Players: ' + (players.length > 0 ? players.join(', ') : 'None.');
+            res += '\n- Nearby Bot Players: ' + (bots.length > 0 ? bots.join(', ') : 'None.');
 
             res += '\n' + agent.bot.modes.getMiniDocs() + '\n';
             return pad(res);
@@ -137,12 +133,8 @@ export const queryList = [
             let bot = agent.bot;
             let res = 'NEARBY_ENTITIES';
             let players = world.getNearbyPlayerNames(bot);
-            let bots = [];
-            for (const player of players) {
-                if (isOtherAgent(player))
-                    bots.push(player);
-            }
-            players = players.filter(p => !isOtherAgent(p));
+            let bots = convoManager.getInGameAgents().filter(b => b !== agent.name);
+            players = players.filter(p => !bots.includes(p));
 
             for (const player of players) {
                 res += `\n- Human player: ${player}`;

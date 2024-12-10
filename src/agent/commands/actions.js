@@ -1,6 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
-import { startConversation, endConversation, inConversation, scheduleSelfPrompter, cancelSelfPrompter } from '../conversation.js';
+import convoManager from '../conversation.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -56,7 +56,7 @@ export const actionsList = [
         name: '!stfu',
         description: 'Stop all chatting and self prompting, but continue current action.',
         perform: async function (agent) {
-            agent.bot.chat('Shutting up.');
+            agent.openChat('Shutting up.');
             agent.shutUp();
             return;
         }
@@ -99,15 +99,38 @@ export const actionsList = [
         }, true)
     },
     {
-        name: '!goToBlock',
-        description: 'Go to the nearest block of a given type.',
+        name: '!goToCoordinates',
+        description: 'Go to the given x, y, z location.',
+        params: {
+            'x': {type: 'float', description: 'The x coordinate.', domain: [-Infinity, Infinity]},
+            'y': {type: 'float', description: 'The y coordinate.', domain: [-64, 320]},
+            'z': {type: 'float', description: 'The z coordinate.', domain: [-Infinity, Infinity]},
+            'closeness': {type: 'float', description: 'How close to get to the location.', domain: [0, Infinity]}
+        },
+        perform: runAsAction(async (agent, x, y, z, closeness) => {
+            await skills.goToPosition(agent.bot, x, y, z, closeness);
+        })
+    },
+    {
+        name: '!searchForBlock',
+        description: 'Find and go to the nearest block of a given type in a given range.',
         params: {
             'type': { type: 'BlockName', description: 'The block type to go to.' },
-            'closeness': { type: 'float', description: 'How close to get to the block.', domain: [0, Infinity] },
-            'search_range': { type: 'float', description: 'The range to search for the block.', domain: [0, 512] }
+            'search_range': { type: 'float', description: 'The range to search for the block.', domain: [32, 512] }
         },
-        perform: runAsAction(async (agent, type, closeness, range) => {
-            await skills.goToNearestBlock(agent.bot, type, closeness, range);
+        perform: runAsAction(async (agent, block_type, range) => {
+            await skills.goToNearestBlock(agent.bot, block_type, 4, range);
+        })
+    },
+    {
+        name: '!searchForEntity',
+        description: 'Find and go to the nearest entity of a given type in a given range.',
+        params: {
+            'type': { type: 'string', description: 'The type of entity to go to.' },
+            'search_range': { type: 'float', description: 'The range to search for the entity.', domain: [32, 512] }
+        },
+        perform: runAsAction(async (agent, entity_type, range) => {
+            await skills.goToNearestEntity(agent.bot, entity_type, 4, range);
         })
     },
     {
@@ -129,7 +152,7 @@ export const actionsList = [
         }
     },
     {
-        name: '!goToPlace',
+        name: '!goToRememberedPlace',
         description: 'Go to a saved location.',
         params: {'name': { type: 'string', description: 'The name of the location to go to.' }},
         perform: runAsAction(async (agent, name) => {
@@ -150,11 +173,7 @@ export const actionsList = [
             'num': { type: 'int', description: 'The number of items to give.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, player_name, item_name, num) => {
-            const modes = agent.bot.modes;
-            modes.pause('item_collecting');
             await skills.giveToPlayer(agent.bot, item_name, player_name, num);
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            modes.unpause('item_collecting');
         })
     },
     {
@@ -162,8 +181,7 @@ export const actionsList = [
         description: 'Eat/drink the given item.',
         params: {'item_name': { type: 'ItemName', description: 'The name of the item to consume.' }},
         perform: runAsAction(async (agent, item_name) => {
-            await agent.bot.consume(item_name);
-            skills.log(agent.bot, `Consumed ${item_name}.`);
+            await skills.consume(agent.bot, item_name);
         })
     },
     {
@@ -342,14 +360,12 @@ export const actionsList = [
             'selfPrompt': { type: 'string', description: 'The goal prompt.' },
         },
         perform: async function (agent, prompt) {
-            if (inConversation()) {
-                // if conversing with another bot, dont start self-prompting yet
-                // wait until conversation ends
+            if (convoManager.inConversation()) {
                 agent.self_prompter.setPrompt(prompt);
-                scheduleSelfPrompter();
+                convoManager.scheduleSelfPrompter();
             }
             else {
-                agent.self_prompter.start(prompt); // don't await, don't return
+                agent.self_prompter.start(prompt);
             }
         }
     },
@@ -358,19 +374,25 @@ export const actionsList = [
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
             agent.self_prompter.stop();
-            cancelSelfPrompter();
+            convoManager.cancelSelfPrompter();
             return 'Self-prompting stopped.';
         }
     },
     {
         name: '!startConversation',
-        description: 'Send a message to a specific player to initiate conversation.',
+        description: 'Start a conversation with a player. Use for bots only.',
         params: {
             'player_name': { type: 'string', description: 'The name of the player to send the message to.' },
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            startConversation(player_name, message);
+            if (convoManager.inConversation() && !convoManager.inConversation(player_name))
+                return 'You are already in conversation with other bot.';
+            if (!convoManager.isOtherAgent(player_name))
+                return player_name + ' is not a bot, cannot start conversation.';
+            if (convoManager.inConversation(player_name))
+                agent.history.add('system', 'You are already in conversation with ' + player_name + ' Don\'t use this command to talk to them.');
+            convoManager.startConversation(player_name, message);
         }
     },
     {
@@ -380,7 +402,10 @@ export const actionsList = [
             'player_name': { type: 'string', description: 'The name of the player to end the conversation with.' }
         },
         perform: async function (agent, player_name) {
-            endConversation(player_name);
+            if (!convoManager.inConversation(player_name))
+                return `Not in conversation with ${player_name}.`;
+            convoManager.endConversation(player_name);
+            return `Converstaion with ${player_name} ended.`;
         }
     }
     // { // commented for now, causes confusion with goal command

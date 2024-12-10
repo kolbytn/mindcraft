@@ -14,8 +14,8 @@ export function getCommand(name) {
     return commandMap[name];
 }
 
-const commandRegex = /!(\w+)(?:\(((?:\d+|true|false|"[^"]*")(?:\s*,\s*(?:\d+|true|false|"[^"]*"))*)\))?/
-const argRegex = /\d+|true|false|"[^"]*"/g;
+const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
+const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
 
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);
@@ -108,12 +108,6 @@ export function parseCommandMessage(message) {
         let arg = args[i].trim();
         if ((arg.startsWith('"') && arg.endsWith('"')) || (arg.startsWith("'") && arg.endsWith("'"))) {
             arg = arg.substring(1, arg.length-1);
-        }
-
-        if (arg.includes('=')) {
-            // this sanitizes syntaxes like "x=2" and ignores the param name
-            let split = arg.split('=');
-            args[i] = split[1];
         }
         
         //Convert to the correct type

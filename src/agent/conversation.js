@@ -1,54 +1,13 @@
 import settings from '../../settings.js';
 import { readFileSync } from 'fs';
 import { containsCommand } from './commands/index.js';
-import { sendBotChatToServer } from './server_proxy.js';
+import { sendBotChatToServer } from './agent_proxy.js';
 
 let agent;
 let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+let agents_in_game = [];
 
 let self_prompter_paused = false;
-
-export function isOtherAgent(name) {
-    return agent_names.some((n) => n === name);
-}
-
-export function updateAgents(names) {
-    agent_names = names;
-}
-
-export function initConversationManager(a) {
-    agent = a;
-}
-
-export function inConversation() {
-    return Object.values(convos).some(c => c.active);
-}
-
-export function endConversation(sender) {
-    if (convos[sender]) {
-        convos[sender].end();
-        if (self_prompter_paused && !inConversation()) {
-            _resumeSelfPrompter();
-        }
-    }
-}
-
-export function endAllChats() {
-    for (const sender in convos) {
-        convos[sender].end();
-    }
-    if (self_prompter_paused) {
-        _resumeSelfPrompter();
-    }
-}
-
-export function scheduleSelfPrompter() {
-    self_prompter_paused = true;
-}
-
-export function cancelSelfPrompter() {
-    self_prompter_paused = false;
-}
 
 class Conversation {
     constructor(name) {
@@ -70,91 +29,235 @@ class Conversation {
     end() {
         this.active = false;
         this.ignore_until_start = true;
+        this.inMessageTimer = null;
+        const full_message = _compileInMessages(this);
+        if (full_message.message.trim().length > 0)
+            agent.history.add(this.name, full_message.message);
+        // add the full queued messages to history, but don't respond
+
+        if (agent.last_sender === this.name)
+            agent.last_sender = null;
     }
 
     queue(message) {
         this.in_queue.push(message);
     }
 }
-const convos = {};
 
-function _getConvo(name) {
-    if (!convos[name])
-        convos[name] = new Conversation(name);
-    return convos[name];
-}
-
-export async function startConversation(send_to, message) {
-    const convo = _getConvo(send_to);
-    convo.reset();
-    
-    if (agent.self_prompter.on) {
-        await agent.self_prompter.stop();
-        self_prompter_paused = true;
-    }
-    convo.active = true;
-    sendToBot(send_to, message, true);
-}
-
-export function sendToBot(send_to, message, start=false) {
-    if (settings.chat_bot_messages)
-        agent.bot.chat(`(To ${send_to}) ${message}`);
-    if (!isOtherAgent(send_to)) {
-        agent.bot.whisper(send_to, message);
-        return;
-    }
-    const convo = _getConvo(send_to);
-    if (convo.ignore_until_start)
-        return;
-    convo.active = true;
-    
-    const end = message.includes('!endConversation');
-    const json = {
-        'message': message,
-        start,
-        end,
-    };
-
-    // agent.bot.whisper(send_to, JSON.stringify(json));
-    sendBotChatToServer(send_to, JSON.stringify(json));
-}
-
-export async function recieveFromBot(sender, json) {
-    const convo = _getConvo(sender);
-
-    // check if any convo is active besides the sender
-    if (Object.values(convos).some(c => c.active && c.name !== sender)) {
-        sendToBot(sender, 'I am currently busy. Try again later. !endConversation("' + sender + '")');
-        return;
+const WAIT_TIME_START = 30000;
+class ConversationManager {
+    constructor() {
+        this.convos = {};
+        this.activeConversation = null;
+        this.awaiting_response = false;
+        this.connection_timeout = null;
+        this.wait_time_limit = WAIT_TIME_START;
     }
 
-    console.log(`decoding **${json}**`);
-    const recieved = JSON.parse(json);
-    if (recieved.start) {
+    initAgent(a) {
+        agent = a;
+    }
+
+    _getConvo(name) {
+        if (!this.convos[name])
+            this.convos[name] = new Conversation(name);
+        return this.convos[name];
+    }
+
+    _startMonitor() {
+        clearInterval(this.connection_monitor);
+        let wait_time = 0;
+        let last_time = Date.now();
+        this.connection_monitor = setInterval(() => {
+            if (!this.activeConversation) {
+                this._stopMonitor();
+                return; // will clean itself up
+            }
+
+            let delta = Date.now() - last_time;
+            last_time = Date.now();
+            let convo_partner = this.activeConversation.name;
+
+            if (this.awaiting_response && agent.isIdle()) {
+                wait_time += delta;
+                if (wait_time > this.wait_time_limit) {
+                    agent.handleMessage('system', `${convo_partner} hasn't responded in ${this.wait_time_limit/1000} seconds, respond with a message to them or your own action.`);
+                    wait_time = 0;
+                    this.wait_time_limit*=2;
+                }
+            }
+            else if (!this.awaiting_response){
+                this.wait_time_limit = WAIT_TIME_START;
+                wait_time = 0;
+            }
+
+            if (!this.otherAgentInGame(convo_partner) && !this.connection_timeout) {
+                this.connection_timeout = setTimeout(() => {
+                    if (this.otherAgentInGame(convo_partner)){
+                        this._clearMonitorTimeouts();
+                        return;
+                    }
+                    if (!self_prompter_paused) {
+                        this.endConversation(convo_partner);
+                        agent.handleMessage('system', `${convo_partner} disconnected, conversation has ended.`);
+                    }
+                    else {
+                        this.endConversation(convo_partner);
+                    }
+                }, 10000);
+            }
+        }, 1000);
+    }
+
+    _stopMonitor() {
+        clearInterval(this.connection_monitor);
+        this.connection_monitor = null;
+        this._clearMonitorTimeouts();
+    }
+
+    _clearMonitorTimeouts() {
+        this.awaiting_response = false;
+        clearTimeout(this.connection_timeout);
+        this.connection_timeout = null;
+    }
+
+    async startConversation(send_to, message) {
+        const convo = this._getConvo(send_to);
         convo.reset();
+        
+        if (agent.self_prompter.on) {
+            await agent.self_prompter.stop();
+            self_prompter_paused = true;
+        }
+        if (convo.active)
+            return;
+        convo.active = true;
+        this.activeConversation = convo;
+        this._startMonitor();
+        this.sendToBot(send_to, message, true);
     }
-    if (convo.ignore_until_start)
-        return;
 
-    convo.queue(recieved);
+    startConversationFromOtherBot(name) {
+        const convo = this._getConvo(name);
+        convo.active = true;
+        this.activeConversation = convo;
+        this._startMonitor();
+    }
+
+    sendToBot(send_to, message, start=false) {
+        if (!this.isOtherAgent(send_to)) {
+            agent.bot.whisper(send_to, message);
+            return;
+        }
+        const convo = this._getConvo(send_to);
+        
+        if (settings.chat_bot_messages && !start)
+            agent.openChat(`(To ${send_to}) ${message}`);
+        
+        if (convo.ignore_until_start)
+            return;
+        convo.active = true;
+        
+        const end = message.includes('!endConversation');
+        const json = {
+            'message': message,
+            start,
+            end,
+        };
+
+        this.awaiting_response = true;
+        sendBotChatToServer(send_to, json);
+    }
+
+    async recieveFromBot(sender, recieved) {
+        const convo = this._getConvo(sender);
+
+        // check if any convo is active besides the sender
+        if (Object.values(this.convos).some(c => c.active && c.name !== sender)) {
+            this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`);
+            return;
+        }
     
-    // responding to conversation takes priority over self prompting
-    if (agent.self_prompter.on){
-        await agent.self_prompter.stopLoop();
+        if (recieved.start) {
+            convo.reset();
+            this.startConversationFromOtherBot(sender);
+        }
+        if (convo.ignore_until_start)
+            return;
+        
+        this._clearMonitorTimeouts();
+        convo.queue(recieved);
+        
+        // responding to conversation takes priority over self prompting
+        if (agent.self_prompter.on){
+            await agent.self_prompter.stopLoop();
+            self_prompter_paused = true;
+        }
+    
+        _scheduleProcessInMessage(sender, recieved, convo);
+    }
+
+    responseScheduledFor(sender) {
+        if (!this.isOtherAgent(sender) || !this.inConversation(sender))
+            return false;
+        const convo = this._getConvo(sender);
+        return !!convo.inMessageTimer;
+    }
+
+    isOtherAgent(name) {
+        return agent_names.some((n) => n === name);
+    }
+
+    otherAgentInGame(name) {
+        return agents_in_game.some((n) => n === name);
+    }
+    
+    updateAgents(agents) {
+        agent_names = agents.map(a => a.name);
+        agents_in_game = agents.filter(a => a.in_game).map(a => a.name);
+    }
+
+    getInGameAgents() {
+        return agents_in_game;
+    }
+    
+    inConversation(other_agent=null) {
+        if (other_agent)
+            return this.convos[other_agent]?.active;
+        return Object.values(this.convos).some(c => c.active);
+    }
+    
+    endConversation(sender) {
+        if (this.convos[sender]) {
+            this.convos[sender].end();
+            this._stopMonitor();
+            this.activeConversation = null;
+            if (self_prompter_paused && !this.inConversation()) {
+                _resumeSelfPrompter();
+            }
+        }
+    }
+    
+    endAllConversations() {
+        for (const sender in this.convos) {
+            this.convos[sender].end();
+        }
+        if (self_prompter_paused) {
+            _resumeSelfPrompter();
+        }
+    }
+    
+    scheduleSelfPrompter() {
         self_prompter_paused = true;
     }
-
-    _scheduleProcessInMessage(sender, recieved, convo);
+    
+    cancelSelfPrompter() {
+        self_prompter_paused = false;
+    }
 }
 
-// returns true if the other bot has a scheduled response
-export function responseScheduledFor(sender) {
-    if (!isOtherAgent(sender))
-        return false;
-    const convo = _getConvo(sender);
-    return !!convo.inMessageTimer;
-}
-
+const convoManager = new ConversationManager();
+export default convoManager;
 
 /*
 This function controls conversation flow by deciding when the bot responds.
@@ -205,7 +308,11 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
 }
 
 function _processInMessageQueue(name) {
-    const convo = _getConvo(name);
+    const convo = convoManager._getConvo(name);
+    _handleFullInMessage(name, _compileInMessages(convo));
+}
+
+function _compileInMessages(convo) {
     let pack = {};
     let full_message = '';
     while (convo.in_queue.length > 0) {
@@ -213,19 +320,22 @@ function _processInMessageQueue(name) {
         full_message += pack.message;
     }
     pack.message = full_message;
-    _handleFullInMessage(name, pack);
+    return pack;
 }
 
 function _handleFullInMessage(sender, recieved) {
-    console.log(`responding to **${JSON.stringify(recieved)}**`);
+    console.log(`${agent.name} responding to "${recieved.message}" from ${sender}`);
     
-    const convo = _getConvo(sender);
+    const convo = convoManager._getConvo(sender);
     convo.active = true;
 
-    const message = _tagMessage(recieved.message);
-    if (recieved.end)
-        convo.end();
-    if (recieved.start)
+    let message = _tagMessage(recieved.message);
+    if (recieved.end) {
+        convoManager.endConversation(sender);
+        sender = 'system'; // bot will respond to system instead of the other bot
+        message = `Conversation with ${sender} ended with message: "${message}"`;
+    }
+    else if (recieved.start)
         agent.shut_up = false;
     convo.inMessageTimer = null;
     agent.handleMessage(sender, message);

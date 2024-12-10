@@ -2,14 +2,12 @@ import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
 import settings from '../../settings.js'
-import { handleTranslation } from '../utils/translator.js';
-
+import convoManager from './conversation.js';
 
 async function say(agent, message) {
     agent.bot.modes.behavior_log += message + '\n';
     if (agent.shut_up || !settings.narrate_behavior) return;
-    let translation = await handleTranslation(message);
-    agent.bot.chat(translation);
+    agent.openChat(message);
 }
 
 // a mode is a function that is called every tick to respond immediately to the world
@@ -297,7 +295,7 @@ async function execute(mode, agent, func, timeout=-1) {
 
     if (should_reprompt) {
         // auto prompt to respond to the interruption
-        let role = agent.last_sender ? agent.last_sender : 'system';
+        let role = convoManager.inConversation() ? agent.last_sender : 'system';
         let logs = agent.bot.modes.flushBehaviorLog();
         agent.handleMessage(role, `(AUTO MESSAGE)Your previous action '${interrupted_action}' was interrupted by ${mode.name}.
         Your behavior log: ${logs}\nRespond accordingly.`);

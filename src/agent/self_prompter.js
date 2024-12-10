@@ -45,7 +45,7 @@ export class SelfPrompter {
                 no_command_count++;
                 if (no_command_count >= MAX_NO_COMMAND) {
                     let out = `Agent did not use command in the last ${MAX_NO_COMMAND} auto-prompts. Stopping auto-prompting.`;
-                    this.agent.bot.chat(out);
+                    this.agent.openChat(out);
                     console.warn(out);
                     this.on = false;
                     break;
