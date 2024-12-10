@@ -23,17 +23,15 @@
     },
     "construction": {
         "type": "construction",
-        "goal": "Build a house"
+        "goal": "Build a house",
+        "initial_inventory": {
+            "oak_planks": 20
+        }
     },
     "techtree_1_shears_with_2_iron_ingot": {
         "goal": "Build a shear.",
         "initial_inventory": {
-            "andy": {
-                "iron_ingot": 1
-            },
-            "randy": {
-                "iron_ingot": 1
-            }
+            "iron_ingot": 1
         },
         "target": "shears",
         "number_of_target": 1,
@@ -41,8 +39,7 @@
         "timeout": 60
     },
     "multiagent_techtree_1_stone_pickaxe": {
-        "goal": "Collaborate with other agents to build an stone pickaxe",
-        "conversation": "Let's build a stone pickaxe",
+        "conversation": "Let's collaborate to build a stone pickaxe",
         "agent_names": [
             "andy",
             "randy"

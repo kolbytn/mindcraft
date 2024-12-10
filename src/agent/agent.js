@@ -8,7 +8,7 @@ import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
-import { isOtherAgent, initConversationManager, sendToBot, endAllChats, responseScheduledFor, inConversation } from './conversation.js';
+import { isOtherAgent, initConversationManager, sendToBot, endAllChats, responseScheduledFor } from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
@@ -78,7 +78,6 @@ export class Agent {
                 this.validator = null;
                 this.blocked_actions = [];
             }
-            console.log("Is validated:", this.validator && this.validator.validate());
 
             this.bot.on('login', () => {
                 console.log(this.name, 'logged in!');
@@ -438,15 +437,18 @@ export class Agent {
             }
         }, INTERVAL);
 
+        this.bot.emit('idle');
+
         // Check for task completion
         if (this.task) {
-            setInterval(async () => {
+            setInterval(() => {
                 if (this.validator && this.validator.validate())
                     this.killBots();
-                if (this.task.goal && !this.self_prompter.on)
-                    this.cleanKill('Task unsuccessful: Agent ended goal', 3);
-                if (this.task.conversation && !inConversation())
-                    this.cleanKill('Task unsuccessful: Agent ended conversation', 3);
+                // TODO check for other terminal conditions
+                // if (this.task.goal && !this.self_prompter.on)
+                //     this.cleanKill('Agent ended goal', 3);
+                // if (this.task.conversation && !inConversation())
+                //     this.cleanKill('Agent ended conversation', 3);
                 if (this.taskTimeout) {
                     const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
                     if (elapsedTime >= this.taskTimeout) {
@@ -457,8 +459,6 @@ export class Agent {
         
             }, 1000);
         }
-
-        this.bot.emit('idle');
     }
 
     async killBots() {

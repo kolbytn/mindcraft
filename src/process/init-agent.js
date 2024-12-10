@@ -33,8 +33,13 @@ const argv = yargs(args)
         type: 'string',
         description: 'automatically prompt the agent on startup'
     })
-    .option('task', {
+    .option('task_path', {
         alias: 't',
+        type: 'string',
+        description: 'task filepath to use for agent'
+    })
+    .option('task_id', {
+        alias: 'i',
         type: 'string',
         description: 'task ID to execute'
     })
@@ -50,7 +55,7 @@ const argv = yargs(args)
     try {
         console.log('Starting agent with profile:', argv.profile);
         const agent = new Agent();
-        await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.count_id, argv.task);
+        await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.count_id, argv.task_path, argv.task_id);
     } catch (error) {
         console.error('Failed to start agent process:', {
             message: error.message || 'No error message',

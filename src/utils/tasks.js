@@ -1,18 +1,17 @@
-import yaml from 'js-yaml'
 import { readFileSync } from 'fs';
-import { executeCommand } from './commands/index.js';
-import { getPosition } from './library/world.js'
+import { isOtherAgent } from '../agent/conversation.js';
+import { executeCommand } from '../agent/commands/index.js';
+import { getPosition } from '../agent/library/world.js'
 
-export function loadTask(taskId) {
+export function loadTask(task_path, task_id) {
     try {
-        const taskType = taskId.split('_')[0];
-        const tasksFile = readFileSync(`tasks/${taskType}_tasks.yaml`, 'utf8');
-        const tasks = yaml.load(tasksFile);
-        const task = tasks[taskId];
+        const tasksFile = readFileSync(task_path, 'utf8');
+        const tasks = JSON.parse(tasksFile);
+        const task = tasks[task_id];
         if (!task) {
-            throw new Error(`Task ${taskId} not found`);
+            throw new Error(`Task ${task_id} not found`);
         }
-        
+
         return task;
     } catch (error) {
         console.error('Error loading task:', error);
@@ -30,8 +29,7 @@ export async function initBotTask(agent) {
     //wait for a bit so inventory is cleared
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    console.log("agent_number" in task.agent_number > 1);
-    if ("agent_number" in task.agent_number > 1) {
+    if (task.agent_number > 1) {
         var initial_inventory = task.initial_inventory[bot.username];
         console.log("Initial inventory:", initial_inventory);
     } else if (task) {
