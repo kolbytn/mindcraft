@@ -376,13 +376,6 @@ export class Agent {
     }
 
     startEvents() {
-        // Custom events
-        // this.bot.on('spawn', () => {
-            
-        //     //check that inventory has been set
-        // });
-
-
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
             this.bot.emit('sunrise');

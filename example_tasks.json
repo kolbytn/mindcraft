@@ -7,15 +7,12 @@
     },
     "debug_multi_agent": {
         "goal": "Just stand at a place and don't do anything",
-        "agent_names": [
-            "andy",
-            "randy"
-        ],
+        "agent_count": 2,
         "initial_inventory": {
-            "andy": {
+            "0": {
                 "iron_ingot": 1
             },
-            "randy": {
+            "1": {
                 "iron_ingot": 1
             }
         },
@@ -40,15 +37,12 @@
     },
     "multiagent_techtree_1_stone_pickaxe": {
         "conversation": "Let's collaborate to build a stone pickaxe",
-        "agent_names": [
-            "andy",
-            "randy"
-        ],
+        "agent_count": 2,
         "initial_inventory": {
-            "andy": {
+            "0": {
                 "wooden_pickaxe": 1
             },
-            "randy": {
+            "1": {
                 "wooden_axe": 1
             }
         },

@@ -31,7 +31,7 @@ export async function initBotTask(agent) {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (task.agent_number > 1) {
-        var initial_inventory = task.initial_inventory[name];
+        var initial_inventory = task.initial_inventory[agent.count_id.toString()];
         console.log("Initial inventory:", initial_inventory);
     } else if (task) {
         console.log("Initial inventory:", task.initial_inventory);
@@ -56,11 +56,12 @@ export async function initBotTask(agent) {
     }
 
     let human_player_name = null;
+    let available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
 
     // Finding if there is a human player on the server
     for (const playerName in bot.players) {
         const player = bot.players[playerName];
-        if (!settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name).some((n) => n === name)) {
+        if (!available_agents.some((n) => n === name)) {
             console.log('Found human player:', player.username);
             human_player_name = player.username
             break;
@@ -71,28 +72,12 @@ export async function initBotTask(agent) {
 
     // teleport near a human player if found by default
 
-    if ("agent_number" in task) {
-        var agent_names = task.agent_names;
-        if (human_player_name) {
-            console.log(`Teleporting ${name} to human ${human_player_name}`)
-            bot.chat(`/tp ${name} ${human_player_name}`) // teleport on top of the human player
+    if (human_player_name) {
+        console.log(`Teleporting ${name} to human ${human_player_name}`)
+        bot.chat(`/tp ${name} ${human_player_name}`) // teleport on top of the human player
 
-        }
-        else {
-            bot.chat(`/tp ${name} ${agent_names[0]}`) // teleport on top of the first agent
-        }
-        
-        await new Promise((resolve) => setTimeout(resolve, 200));
     }
-
-    else if (task) {
-        if (human_player_name) {
-            console.log(`Teleporting ${name} to human ${human_player_name}`)
-            bot.chat(`/tp ${name} ${human_player_name}`) // teleport on top of the human player
-
-        }
-        await new Promise((resolve) => setTimeout(resolve, 200));
-    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // now all bots are teleport on top of each other (which kinda looks ugly)
     // Thus, we need to teleport them to random distances to make it look better
@@ -112,12 +97,13 @@ export async function initBotTask(agent) {
         await new Promise((resolve) => setTimeout(resolve, 200));
     }
 
-    if (task.agent_names) {
+    if (task.agent_count && task.agent_count > 1) {
         await new Promise((resolve) => setTimeout(resolve, 10000));
-        if (task.agent_names.filter(name => !bot.players[name]).length) {
-            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+        if (available_agents.length < task.agent_count) {
+            console.log(`Missing ${task.agent_count - available_agents.length} bot(s).`);
             agent.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
         }
+
     }
 
     if (task.goal) {
@@ -125,7 +111,7 @@ export async function initBotTask(agent) {
     }
 
     if (task.conversation && agent.count_id === 0) {
-        let other_name = task.agent_names.filter(n => n !== name)[0];
+        let other_name = available_agents.filter(n => n !== name)[0];
         await executeCommand(agent, `!startConversation("${other_name}", "${task.conversation}")`);
     }
 }
