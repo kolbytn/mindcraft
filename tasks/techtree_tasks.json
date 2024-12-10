@@ -1,0 +1,1938 @@
+{
+    "techtree_1_shears": {
+        "goal": "techtree 1 shears",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "shears",
+        "type": "techtree"
+    },
+    "techtree_8_shears": {
+        "goal": "techtree 8 shears",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "shears",
+        "type": "techtree"
+    },
+    "techtree_1_shears_with_2_iron_ingot": {
+        "goal": "techtree 1 shears with 2 iron ingot",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_ingot": 2
+        },
+        "number_of_target": 1,
+        "target": "shears",
+        "type": "techtree"
+    },
+    "techtree_8_shears_with_16_iron_ingot": {
+        "goal": "techtree 8 shears with 16 iron ingot",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_ingot": 16
+        },
+        "number_of_target": 8,
+        "target": "shears",
+        "type": "techtree"
+    },
+    "techtree_1_shears_with_1_iron_pickaxe": {
+        "goal": " techtree 1 shears with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "shears",
+        "type": "techtree"
+    },
+    "techtree_8_shears_with_1_iron_pickaxe": {
+        "goal": " techtree 8 shears with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "shears",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_sword_with_64_oak_planks": {
+        "goal": "techtree 1 wooden sword with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 1,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_sword_with_64_oak_planks": {
+        "goal": "techtree 8 wooden sword with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 8,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_pickaxe_with_64_oak_planks": {
+        "goal": "techtree 1 wooden pickaxe with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 1,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_pickaxe_with_64_oak_planks": {
+        "goal": "techtree 8 wooden pickaxe with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 8,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_shovel_with_64_oak_planks": {
+        "goal": "techtree 1 wooden shovel with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 1,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_shovel_with_64_oak_planks": {
+        "goal": "techtree 8 wooden shovel with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 8,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_axe_with_64_oak_planks": {
+        "goal": "techtree 1 wooden axe with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 1,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_axe_with_64_oak_planks": {
+        "goal": "techtree 8 wooden axe with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 8,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_hoe_with_64_oak_planks": {
+        "goal": "techtree 1 wooden hoe with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 1,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_hoe_with_64_oak_planks": {
+        "goal": "techtree 8 wooden hoe with 64 oak planks",
+        "guidance": null,
+        "initial_inventory": {
+            "oak_planks": 64
+        },
+        "number_of_target": 8,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_sword_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 1 wooden sword with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 1,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_sword_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 8 wooden sword with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 8,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_pickaxe_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 1 wooden pickaxe with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 1,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_pickaxe_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 8 wooden pickaxe with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 8,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_shovel_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 1 wooden shovel with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 1,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_shovel_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 8 wooden shovel with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 8,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_axe_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 1 wooden axe with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 1,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_axe_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 8 wooden axe with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 8,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_hoe_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 1 wooden hoe with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 1,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_hoe_with_16_oak_planks_and_1_crafting_table_and_8_stick": {
+        "goal": "techtree 8 wooden hoe with 16 oak planks and 1 crafting table and 8 stick",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 16,
+            "stick": 8
+        },
+        "number_of_target": 8,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_sword": {
+        "goal": "techtree 1 wooden sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_sword": {
+        "goal": "techtree 8 wooden sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_pickaxe": {
+        "goal": "techtree 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_pickaxe": {
+        "goal": "techtree 8 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_shovel": {
+        "goal": "techtree 1 wooden shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_shovel": {
+        "goal": "techtree 8 wooden shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_axe": {
+        "goal": "techtree 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_axe": {
+        "goal": "techtree 8 wooden axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_hoe": {
+        "goal": "techtree 1 wooden hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_hoe": {
+        "goal": "techtree 8 wooden hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_stone_sword": {
+        "goal": "techtree 1 stone sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_sword",
+        "type": "techtree"
+    },
+    "techtree_8_stone_sword": {
+        "goal": "techtree 8 stone sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_sword",
+        "type": "techtree"
+    },
+    "techtree_1_stone_pickaxe": {
+        "goal": "techtree 1 stone pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_stone_pickaxe": {
+        "goal": "techtree 8 stone pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_stone_shovel": {
+        "goal": "techtree 1 stone shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_stone_shovel": {
+        "goal": "techtree 8 stone shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_stone_axe": {
+        "goal": "techtree 1 stone axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_axe",
+        "type": "techtree"
+    },
+    "techtree_8_stone_axe": {
+        "goal": "techtree 8 stone axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_axe",
+        "type": "techtree"
+    },
+    "techtree_1_stone_hoe": {
+        "goal": "techtree 1 stone hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_stone_hoe": {
+        "goal": "techtree 8 stone hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_iron_sword": {
+        "goal": "techtree 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_sword",
+        "type": "techtree"
+    },
+    "techtree_8_iron_sword": {
+        "goal": "techtree 8 iron sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_sword",
+        "type": "techtree"
+    },
+    "techtree_1_iron_pickaxe": {
+        "goal": "techtree 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_iron_pickaxe": {
+        "goal": "techtree 8 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_iron_shovel": {
+        "goal": "techtree 1 iron shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_iron_shovel": {
+        "goal": "techtree 8 iron shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_iron_axe": {
+        "goal": "techtree 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_axe",
+        "type": "techtree"
+    },
+    "techtree_8_iron_axe": {
+        "goal": "techtree 8 iron axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_axe",
+        "type": "techtree"
+    },
+    "techtree_1_iron_hoe": {
+        "goal": "techtree 1 iron hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_iron_hoe": {
+        "goal": "techtree 8 iron hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_golden_sword": {
+        "goal": "techtree 1 golden sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_sword",
+        "type": "techtree"
+    },
+    "techtree_8_golden_sword": {
+        "goal": "techtree 8 golden sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_sword",
+        "type": "techtree"
+    },
+    "techtree_1_golden_pickaxe": {
+        "goal": "techtree 1 golden pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_golden_pickaxe": {
+        "goal": "techtree 8 golden pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_golden_shovel": {
+        "goal": "techtree 1 golden shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_golden_shovel": {
+        "goal": "techtree 8 golden shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_golden_axe": {
+        "goal": "techtree 1 golden axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_axe",
+        "type": "techtree"
+    },
+    "techtree_8_golden_axe": {
+        "goal": "techtree 8 golden axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_axe",
+        "type": "techtree"
+    },
+    "techtree_1_golden_hoe": {
+        "goal": "techtree 1 golden hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_golden_hoe": {
+        "goal": "techtree 8 golden hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_sword": {
+        "goal": "techtree 1 diamond sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_sword",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_sword": {
+        "goal": "techtree 8 diamond sword",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_sword",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_pickaxe": {
+        "goal": "techtree 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_pickaxe": {
+        "goal": "techtree 8 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_shovel": {
+        "goal": "techtree 1 diamond shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_shovel": {
+        "goal": "techtree 8 diamond shovel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_axe": {
+        "goal": "techtree 1 diamond axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_axe",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_axe": {
+        "goal": "techtree 8 diamond axe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_axe",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_hoe": {
+        "goal": "techtree 1 diamond hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_hoe": {
+        "goal": "techtree 8 diamond hoe",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 1 wooden sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 8 wooden sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "wooden_sword",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 wooden pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 wooden pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "wooden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 1 wooden shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 8 wooden shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "wooden_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 wooden axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 wooden axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "wooden_axe",
+        "type": "techtree"
+    },
+    "techtree_1_wooden_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 wooden hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_wooden_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 wooden hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "wooden_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_stone_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 1 stone sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_sword",
+        "type": "techtree"
+    },
+    "techtree_8_stone_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 8 stone sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_sword",
+        "type": "techtree"
+    },
+    "techtree_1_stone_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 stone pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_stone_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 stone pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_stone_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 1 stone shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_stone_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 8 stone shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_stone_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 stone axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_axe",
+        "type": "techtree"
+    },
+    "techtree_8_stone_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 stone axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_axe",
+        "type": "techtree"
+    },
+    "techtree_1_stone_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 stone hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_stone_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 stone hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_iron_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 1 iron sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_sword",
+        "type": "techtree"
+    },
+    "techtree_8_iron_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 8 iron sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_sword",
+        "type": "techtree"
+    },
+    "techtree_1_iron_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 iron pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_iron_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 iron pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_iron_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 1 iron shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_iron_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 8 iron shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_iron_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 iron axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_axe",
+        "type": "techtree"
+    },
+    "techtree_8_iron_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 iron axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_axe",
+        "type": "techtree"
+    },
+    "techtree_1_iron_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 iron hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_iron_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 iron hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_golden_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 1 golden sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_sword",
+        "type": "techtree"
+    },
+    "techtree_8_golden_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 8 golden sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_sword",
+        "type": "techtree"
+    },
+    "techtree_1_golden_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 golden pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_golden_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 golden pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_golden_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 1 golden shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_golden_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 8 golden shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_golden_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 golden axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_axe",
+        "type": "techtree"
+    },
+    "techtree_8_golden_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 golden axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_axe",
+        "type": "techtree"
+    },
+    "techtree_1_golden_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 golden hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_golden_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 golden hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 1 diamond sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_sword",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_sword_with_1_iron_pickaxe": {
+        "goal": "techtree 8 diamond sword with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_sword",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 diamond pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_pickaxe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 diamond pickaxe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_pickaxe",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 1 diamond shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_shovel",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_shovel_with_1_iron_pickaxe": {
+        "goal": "techtree 8 diamond shovel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_shovel",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 diamond axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_axe",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_axe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 diamond axe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_axe",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 1 diamond hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_hoe",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_hoe_with_1_iron_pickaxe": {
+        "goal": "techtree 8 diamond hoe with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_hoe",
+        "type": "techtree"
+    },
+    "techtree_1_leather_helmet": {
+        "goal": "techtree 1 leather helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "leather_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_leather_helmet": {
+        "goal": "techtree 8 leather helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "leather_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_leather_chestplate": {
+        "goal": "techtree 1 leather chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "leather_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_leather_chestplate": {
+        "goal": "techtree 8 leather chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "leather_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_leather_leggings": {
+        "goal": "techtree 1 leather leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "leather_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_leather_leggings": {
+        "goal": "techtree 8 leather leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "leather_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_leather_boots": {
+        "goal": "techtree 1 leather boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "leather_boots",
+        "type": "techtree"
+    },
+    "techtree_8_leather_boots": {
+        "goal": "techtree 8 leather boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "leather_boots",
+        "type": "techtree"
+    },
+    "techtree_1_iron_helmet": {
+        "goal": "techtree 1 iron helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_iron_helmet": {
+        "goal": "techtree 8 iron helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_iron_chestplate": {
+        "goal": "techtree 1 iron chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_iron_chestplate": {
+        "goal": "techtree 8 iron chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_iron_leggings": {
+        "goal": "techtree 1 iron leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_iron_leggings": {
+        "goal": "techtree 8 iron leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_iron_boots": {
+        "goal": "techtree 1 iron boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_boots",
+        "type": "techtree"
+    },
+    "techtree_8_iron_boots": {
+        "goal": "techtree 8 iron boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_boots",
+        "type": "techtree"
+    },
+    "techtree_1_golden_helmet": {
+        "goal": "techtree 1 golden helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_golden_helmet": {
+        "goal": "techtree 8 golden helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_golden_chestplate": {
+        "goal": "techtree 1 golden chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_golden_chestplate": {
+        "goal": "techtree 8 golden chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_golden_leggings": {
+        "goal": "techtree 1 golden leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_golden_leggings": {
+        "goal": "techtree 8 golden leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_golden_boots": {
+        "goal": "techtree 1 golden boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_boots",
+        "type": "techtree"
+    },
+    "techtree_8_golden_boots": {
+        "goal": "techtree 8 golden boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_boots",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_helmet": {
+        "goal": "techtree 1 diamond helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_helmet": {
+        "goal": "techtree 8 diamond helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_chestplate": {
+        "goal": "techtree 1 diamond chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_chestplate": {
+        "goal": "techtree 8 diamond chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_leggings": {
+        "goal": "techtree 1 diamond leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_leggings": {
+        "goal": "techtree 8 diamond leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_boots": {
+        "goal": "techtree 1 diamond boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond_boots",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_boots": {
+        "goal": "techtree 8 diamond boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond_boots",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_helmet": {
+        "goal": "techtree 1 chainmail helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "chainmail_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_helmet": {
+        "goal": "techtree 8 chainmail helmet",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "chainmail_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_chestplate": {
+        "goal": "techtree 1 chainmail chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "chainmail_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_chestplate": {
+        "goal": "techtree 8 chainmail chestplate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "chainmail_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_leggings": {
+        "goal": "techtree 1 chainmail leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "chainmail_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_leggings": {
+        "goal": "techtree 8 chainmail leggings",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "chainmail_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_boots": {
+        "goal": "techtree 1 chainmail boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "chainmail_boots",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_boots": {
+        "goal": "techtree 8 chainmail boots",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "chainmail_boots",
+        "type": "techtree"
+    },
+    "techtree_1_leather_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 leather helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "leather_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_leather_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 leather helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "leather_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_leather_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 leather chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "leather_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_leather_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 leather chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "leather_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_leather_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 leather leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "leather_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_leather_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 leather leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "leather_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_leather_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 leather boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "leather_boots",
+        "type": "techtree"
+    },
+    "techtree_8_leather_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 leather boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "leather_boots",
+        "type": "techtree"
+    },
+    "techtree_1_iron_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 iron helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_iron_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 iron helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_iron_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 iron chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_iron_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 iron chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_iron_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 iron leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_iron_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 iron leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_iron_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 iron boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_boots",
+        "type": "techtree"
+    },
+    "techtree_8_iron_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 iron boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_boots",
+        "type": "techtree"
+    },
+    "techtree_1_golden_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 golden helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_golden_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 golden helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_golden_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 golden chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_golden_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 golden chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_golden_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 golden leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_golden_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 golden leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_golden_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 golden boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "golden_boots",
+        "type": "techtree"
+    },
+    "techtree_8_golden_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 golden boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "golden_boots",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 diamond helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 diamond helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 diamond chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 diamond chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 diamond leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 diamond leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_diamond_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 diamond boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond_boots",
+        "type": "techtree"
+    },
+    "techtree_8_diamond_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 diamond boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond_boots",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 chainmail helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "chainmail_helmet",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_helmet_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 chainmail helmet with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "chainmail_helmet",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 chainmail chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "chainmail_chestplate",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_chestplate_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 chainmail chestplate with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "chainmail_chestplate",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 chainmail leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "chainmail_leggings",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_leggings_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 chainmail leggings with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "chainmail_leggings",
+        "type": "techtree"
+    },
+    "techtree_1_chainmail_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 1 chainmail boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "chainmail_boots",
+        "type": "techtree"
+    },
+    "techtree_8_chainmail_boots_with_1_iron_sword_and_1_iron_axe": {
+        "goal": "techtree 8 chainmail boots with 1 iron sword and 1 iron axe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_axe": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "chainmail_boots",
+        "type": "techtree"
+    }
+}

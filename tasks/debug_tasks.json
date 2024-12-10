@@ -1,0 +1,60 @@
+{
+    "debug_single_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "guidance": null,
+        "initial_inventory": {},
+        "type": "debug"
+    },
+    "debug_multi_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_names": [
+            "andy",
+            "randy"
+        ],
+        "agent_number": 2,
+        "initial_inventory": {
+            "andy": {
+                "iron_ingot": 1
+            },
+            "randy": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug"
+    },
+    "debug_mass_multi_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_names": [
+            "andy",
+            "randy",
+            "Bob",
+            "Alice",
+            "Megan",
+            "Stuart",
+            "Charlie"
+        ],
+        "agent_number": 7,
+        "initial_inventory": {
+            "andy": {
+                "iron_ingot": 1
+            },
+            "randy": {
+                "iron_ingot": 1
+            },
+            "Bob": {
+                "iron_ingot": 1
+            },
+            "Alice": {
+                "iron_ingot": 1
+            },
+            "Megan": {
+                "iron_ingot": 1
+            },
+            "Stuart": {},
+            "Charlie": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug"
+    }
+}

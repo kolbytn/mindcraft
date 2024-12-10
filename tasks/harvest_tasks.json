@@ -1,0 +1,5187 @@
+{
+    "harvest_8_spruce_log": {
+        "goal": "harvest 8 spruce log",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "spruce_log",
+        "type": "harvest"
+    },
+    "harvest_1_oak_log": {
+        "goal": "harvest 1 oak log",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_8_oak_log": {
+        "goal": "harvest 8 oak log",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_1_dirt": {
+        "goal": "harvest 1 dirt",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_8_dirt": {
+        "goal": "harvest 8 dirt",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_1_sand": {
+        "goal": "harvest 1 sand",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_8_sand": {
+        "goal": "harvest 8 sand",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_1_cobblestone": {
+        "goal": "harvest 1 cobblestone",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_8_cobblestone": {
+        "goal": "harvest 8 cobblestone",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_1_oak_log_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak log with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_1_oak_log_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak log with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_1_oak_log_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak log with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_8_oak_log_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak log with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_8_oak_log_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak log with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_8_oak_log_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak log with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_log",
+        "type": "harvest"
+    },
+    "harvest_1_dirt_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 dirt with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_1_dirt_with_1_iron_pickaxe": {
+        "goal": "harvest 1 dirt with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_1_dirt_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 dirt with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_8_dirt_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 dirt with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_8_dirt_with_1_iron_pickaxe": {
+        "goal": "harvest 8 dirt with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_8_dirt_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 dirt with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "dirt",
+        "type": "harvest"
+    },
+    "harvest_1_sand_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 sand with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_1_sand_with_1_iron_pickaxe": {
+        "goal": "harvest 1 sand with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_1_sand_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 sand with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_8_sand_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 sand with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_8_sand_with_1_iron_pickaxe": {
+        "goal": "harvest 8 sand with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_8_sand_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 sand with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "sand",
+        "type": "harvest"
+    },
+    "harvest_1_cobblestone_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 cobblestone with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_1_cobblestone_with_1_iron_pickaxe": {
+        "goal": "harvest 1 cobblestone with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_1_cobblestone_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 cobblestone with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_8_cobblestone_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 cobblestone with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_8_cobblestone_with_1_iron_pickaxe": {
+        "goal": "harvest 8 cobblestone with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_8_cobblestone_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 cobblestone with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "cobblestone",
+        "type": "harvest"
+    },
+    "harvest_1_obsidian": {
+        "goal": "harvest 1 obsidian",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_8_obsidian": {
+        "goal": "harvest 8 obsidian",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_1_flint": {
+        "goal": "harvest 1 flint",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_8_flint": {
+        "goal": "harvest 8 flint",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_1_obsidian_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 obsidian with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_1_obsidian_with_1_iron_pickaxe": {
+        "goal": "harvest 1 obsidian with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_1_obsidian_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 obsidian with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_8_obsidian_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 obsidian with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_8_obsidian_with_1_iron_pickaxe": {
+        "goal": "harvest 8 obsidian with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_8_obsidian_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 obsidian with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "obsidian",
+        "type": "harvest"
+    },
+    "harvest_1_flint_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 flint with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_1_flint_with_1_iron_pickaxe": {
+        "goal": "harvest 1 flint with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_1_flint_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 flint with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_8_flint_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 flint with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_8_flint_with_1_iron_pickaxe": {
+        "goal": "harvest 8 flint with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_8_flint_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 flint with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "flint",
+        "type": "harvest"
+    },
+    "harvest_1_raw_copper": {
+        "goal": "harvest 1 raw copper",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_8_raw_copper": {
+        "goal": "harvest 8 raw copper",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_1_raw_gold": {
+        "goal": "harvest 1 raw gold",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_8_raw_gold": {
+        "goal": "harvest 8 raw gold",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_1_raw_iron": {
+        "goal": "harvest 1 raw iron",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_8_raw_iron": {
+        "goal": "harvest 8 raw iron",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_1_raw_copper_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 raw copper with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_1_raw_copper_with_1_iron_pickaxe": {
+        "goal": "harvest 1 raw copper with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_1_raw_copper_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 raw copper with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_8_raw_copper_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 raw copper with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_8_raw_copper_with_1_iron_pickaxe": {
+        "goal": "harvest 8 raw copper with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_8_raw_copper_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 raw copper with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_copper",
+        "type": "harvest"
+    },
+    "harvest_1_raw_gold_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 raw gold with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_1_raw_gold_with_1_iron_pickaxe": {
+        "goal": "harvest 1 raw gold with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_1_raw_gold_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 raw gold with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_8_raw_gold_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 raw gold with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_8_raw_gold_with_1_iron_pickaxe": {
+        "goal": "harvest 8 raw gold with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_8_raw_gold_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 raw gold with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_gold",
+        "type": "harvest"
+    },
+    "harvest_1_raw_iron_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 raw iron with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_1_raw_iron_with_1_iron_pickaxe": {
+        "goal": "harvest 1 raw iron with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_1_raw_iron_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 raw iron with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_8_raw_iron_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 raw iron with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_8_raw_iron_with_1_iron_pickaxe": {
+        "goal": "harvest 8 raw iron with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_8_raw_iron_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 raw iron with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "raw_iron",
+        "type": "harvest"
+    },
+    "harvest_1white_wool": {
+        "goal": "harvest 1white wool",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_8white_wool": {
+        "goal": "harvest 8white wool",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_1_white_wool_with_1_iron_sword": {
+        "goal": "harvest 1 white wool with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_8_white_wool_with_1_iron_sword": {
+        "goal": "harvest 8 white wool with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_1_white_wool_with_1_shears": {
+        "goal": "harvest 1 white wool with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 1,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_8_white_wool_with_1_shears": {
+        "goal": "harvest 8 white wool with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 8,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_1blue_wool": {
+        "goal": "harvest 1blue wool",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "blue_wool",
+        "type": "harvest"
+    },
+    "harvest_8blue_wool": {
+        "goal": "harvest 8blue wool",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "blue_wool",
+        "type": "harvest"
+    },
+    "harvest_1_blue_wool_with_1_iron_sword": {
+        "goal": "harvest 1 blue wool with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "blue_wool",
+        "type": "harvest"
+    },
+    "harvest_8_blue_wool_with_1_iron_sword": {
+        "goal": "harvest 8 blue wool with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "blue_wool",
+        "type": "harvest"
+    },
+    "harvest_1_blue_wool_with_1_shears": {
+        "goal": "harvest 1 blue wool with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 1,
+        "target": "blue_wool",
+        "type": "harvest"
+    },
+    "harvest_8_blue_wool_with_1_shears": {
+        "goal": "harvest 8 blue wool with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 8,
+        "target": "blue_wool",
+        "type": "harvest"
+    },
+    "harvest_1pink_wool": {
+        "goal": "harvest 1pink wool",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "pink_wool",
+        "type": "harvest"
+    },
+    "harvest_8pink_wool": {
+        "goal": "harvest 8pink wool",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "pink_wool",
+        "type": "harvest"
+    },
+    "harvest_1_pink_wool_with_1_iron_sword": {
+        "goal": "harvest 1 pink wool with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "pink_wool",
+        "type": "harvest"
+    },
+    "harvest_8_pink_wool_with_1_iron_sword": {
+        "goal": "harvest 8 pink wool with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "pink_wool",
+        "type": "harvest"
+    },
+    "harvest_1_pink_wool_with_1_shears": {
+        "goal": "harvest 1 pink wool with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 1,
+        "target": "pink_wool",
+        "type": "harvest"
+    },
+    "harvest_8_pink_wool_with_1_shears": {
+        "goal": "harvest 8 pink wool with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 8,
+        "target": "pink_wool",
+        "type": "harvest"
+    },
+    "harvest_1_oak_leaves": {
+        "goal": "harvest 1 oak leaves",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_8_oak_leaves": {
+        "goal": "harvest 8 oak leaves",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "white_wool",
+        "type": "harvest"
+    },
+    "harvest_1_oak_leaves_with_1_shears": {
+        "goal": "harvest 1 oak leaves with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_leaves",
+        "type": "harvest"
+    },
+    "harvest_8_oak_leaves_with_1_shears": {
+        "goal": "harvest 8 oak leaves with 1 shears",
+        "guidance": null,
+        "initial_inventory": {
+            "shears": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_leaves",
+        "type": "harvest"
+    },
+    "harvest_1_leather": {
+        "goal": "harvest 1 leather",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "leather",
+        "type": "harvest"
+    },
+    "harvest_8_leather": {
+        "goal": "harvest 8 leather",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "leather",
+        "type": "harvest"
+    },
+    "harvest_1_leather_with_1_iron_sword": {
+        "goal": "harvest 1 leather with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "leather",
+        "type": "harvest"
+    },
+    "harvest_8_leather_with_1_iron_sword": {
+        "goal": "harvest 8 leather with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "leather",
+        "type": "harvest"
+    },
+    "harvest_1_beef_with_1_iron_sword": {
+        "goal": "harvest 1 beef with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "beef",
+        "type": "harvest"
+    },
+    "harvest_8_beef_with_1_iron_sword": {
+        "goal": "harvest 8 beef with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "beef",
+        "type": "harvest"
+    },
+    "harvest_1_chicken_with_1_iron_sword": {
+        "goal": "harvest 1 chicken with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "chicken",
+        "type": "harvest"
+    },
+    "harvest_8_chicken_with_1_iron_sword": {
+        "goal": "harvest 8 chicken with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "chicken",
+        "type": "harvest"
+    },
+    "harvest_1_cod_with_1_iron_sword": {
+        "goal": "harvest 1 cod with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cod",
+        "type": "harvest"
+    },
+    "harvest_8_cod_with_1_iron_sword": {
+        "goal": "harvest 8 cod with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cod",
+        "type": "harvest"
+    },
+    "harvest_1_mutton_with_1_iron_sword": {
+        "goal": "harvest 1 mutton with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "mutton",
+        "type": "harvest"
+    },
+    "harvest_8_mutton_with_1_iron_sword": {
+        "goal": "harvest 8 mutton with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "mutton",
+        "type": "harvest"
+    },
+    "harvest_1_porkchop_with_1_iron_sword": {
+        "goal": "harvest 1 porkchop with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "porkchop",
+        "type": "harvest"
+    },
+    "harvest_8_porkchop_with_1_iron_sword": {
+        "goal": "harvest 8 porkchop with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "porkchop",
+        "type": "harvest"
+    },
+    "harvest_1_rabbit_with_1_iron_sword": {
+        "goal": "harvest 1 rabbit with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "rabbit",
+        "type": "harvest"
+    },
+    "harvest_8_rabbit_with_1_iron_sword": {
+        "goal": "harvest 8 rabbit with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "rabbit",
+        "type": "harvest"
+    },
+    "harvest_1_salmon_with_1_iron_sword": {
+        "goal": "harvest 1 salmon with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "salmon",
+        "type": "harvest"
+    },
+    "harvest_8_salmon_with_1_iron_sword": {
+        "goal": "harvest 8 salmon with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "salmon",
+        "type": "harvest"
+    },
+    "harvest_1_wheat_with_1_iron_sword": {
+        "goal": "harvest 1 wheat with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "wheat",
+        "type": "harvest"
+    },
+    "harvest_8_wheat_with_1_iron_sword": {
+        "goal": "harvest 8 wheat with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "wheat",
+        "type": "harvest"
+    },
+    "harvest_1_milk_with_1_iron_sword": {
+        "goal": "harvest 1 milk with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "milk",
+        "type": "harvest"
+    },
+    "harvest_8_milk_with_1_iron_sword": {
+        "goal": "harvest 8 milk with 1 iron sword",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "milk",
+        "type": "harvest"
+    },
+    "harvest_1_beef": {
+        "goal": "harvest 1 beef",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "beef",
+        "type": "harvest"
+    },
+    "harvest_8_beef": {
+        "goal": "harvest 8 beef",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "beef",
+        "type": "harvest"
+    },
+    "harvest_1_chicken": {
+        "goal": "harvest 1 chicken",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "chicken",
+        "type": "harvest"
+    },
+    "harvest_8_chicken": {
+        "goal": "harvest 8 chicken",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "chicken",
+        "type": "harvest"
+    },
+    "harvest_1_cod": {
+        "goal": "harvest 1 cod",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cod",
+        "type": "harvest"
+    },
+    "harvest_8_cod": {
+        "goal": "harvest 8 cod",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cod",
+        "type": "harvest"
+    },
+    "harvest_1_mutton": {
+        "goal": "harvest 1 mutton",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "mutton",
+        "type": "harvest"
+    },
+    "harvest_8_mutton": {
+        "goal": "harvest 8 mutton",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "mutton",
+        "type": "harvest"
+    },
+    "harvest_1_porkchop": {
+        "goal": "harvest 1 porkchop",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "porkchop",
+        "type": "harvest"
+    },
+    "harvest_8_porkchop": {
+        "goal": "harvest 8 porkchop",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "porkchop",
+        "type": "harvest"
+    },
+    "harvest_1_rabbit": {
+        "goal": "harvest 1 rabbit",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "rabbit",
+        "type": "harvest"
+    },
+    "harvest_8_rabbit": {
+        "goal": "harvest 8 rabbit",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "rabbit",
+        "type": "harvest"
+    },
+    "harvest_1_salmon": {
+        "goal": "harvest 1 salmon",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "salmon",
+        "type": "harvest"
+    },
+    "harvest_8_salmon": {
+        "goal": "harvest 8 salmon",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "salmon",
+        "type": "harvest"
+    },
+    "harvest_1_wheat": {
+        "goal": "harvest 1 wheat",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "wheat",
+        "type": "harvest"
+    },
+    "harvest_8_wheat": {
+        "goal": "harvest 8 wheat",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "wheat",
+        "type": "harvest"
+    },
+    "harvest_1_milk": {
+        "goal": "harvest 1 milk",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "milk",
+        "type": "harvest"
+    },
+    "harvest_8_milk": {
+        "goal": "harvest 8 milk",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "milk",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_beef_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked beef with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_beef",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_beef_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked beef with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_beef",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_chicken_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked chicken with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_chicken",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_chicken_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked chicken with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_chicken",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_cod_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked cod with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_cod",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_cod_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked cod with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_cod",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_mutton_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked mutton with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_mutton",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_mutton_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked mutton with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_mutton",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_porkchop_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked porkchop with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_porkchop",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_porkchop_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked porkchop with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_porkchop",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_rabbit_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked rabbit with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_rabbit",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_rabbit_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked rabbit with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_rabbit",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_salmon_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 1 cooked salmon with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 1,
+        "target": "cooked_salmon",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_salmon_with_1_iron_sword_and_1_furnace": {
+        "goal": "harvest 8 cooked salmon with 1 iron sword and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "iron_sword": 1
+        },
+        "number_of_target": 8,
+        "target": "cooked_salmon",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_beef": {
+        "goal": "harvest 1 cooked beef",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_beef",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_beef": {
+        "goal": "harvest 8 cooked beef",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_beef",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_chicken": {
+        "goal": "harvest 1 cooked chicken",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_chicken",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_chicken": {
+        "goal": "harvest 8 cooked chicken",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_chicken",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_cod": {
+        "goal": "harvest 1 cooked cod",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_cod",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_cod": {
+        "goal": "harvest 8 cooked cod",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_cod",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_mutton": {
+        "goal": "harvest 1 cooked mutton",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_mutton",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_mutton": {
+        "goal": "harvest 8 cooked mutton",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_mutton",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_porkchop": {
+        "goal": "harvest 1 cooked porkchop",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_porkchop",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_porkchop": {
+        "goal": "harvest 8 cooked porkchop",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_porkchop",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_rabbit": {
+        "goal": "harvest 1 cooked rabbit",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_rabbit",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_rabbit": {
+        "goal": "harvest 8 cooked rabbit",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_rabbit",
+        "type": "harvest"
+    },
+    "harvest_1_cooked_salmon": {
+        "goal": "harvest 1 cooked salmon",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cooked_salmon",
+        "type": "harvest"
+    },
+    "harvest_8_cooked_salmon": {
+        "goal": "harvest 8 cooked salmon",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cooked_salmon",
+        "type": "harvest"
+    },
+    "harvest_1_apple": {
+        "goal": "harvest 1 apple",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "apple",
+        "type": "harvest"
+    },
+    "harvest_8_apple": {
+        "goal": "harvest 8 apple",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "apple",
+        "type": "harvest"
+    },
+    "harvest_1_bread": {
+        "goal": "harvest 1 bread",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "bread",
+        "type": "harvest"
+    },
+    "harvest_8_bread": {
+        "goal": "harvest 8 bread",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "bread",
+        "type": "harvest"
+    },
+    "harvest_1_golden_apple": {
+        "goal": "harvest 1 golden apple",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_apple",
+        "type": "harvest"
+    },
+    "harvest_8_golden_apple": {
+        "goal": "harvest 8 golden apple",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_apple",
+        "type": "harvest"
+    },
+    "harvest_1_carrot": {
+        "goal": "harvest 1 carrot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "carrot",
+        "type": "harvest"
+    },
+    "harvest_8_carrot": {
+        "goal": "harvest 8 carrot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "carrot",
+        "type": "harvest"
+    },
+    "harvest_1_golden_carrot": {
+        "goal": "harvest 1 golden carrot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "golden_carrot",
+        "type": "harvest"
+    },
+    "harvest_8_golden_carrot": {
+        "goal": "harvest 8 golden carrot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "golden_carrot",
+        "type": "harvest"
+    },
+    "harvest_1_potato": {
+        "goal": "harvest 1 potato",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "potato",
+        "type": "harvest"
+    },
+    "harvest_8_potato": {
+        "goal": "harvest 8 potato",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "potato",
+        "type": "harvest"
+    },
+    "harvest_1_baked_potato": {
+        "goal": "harvest 1 baked potato",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "baked_potato",
+        "type": "harvest"
+    },
+    "harvest_8_baked_potato": {
+        "goal": "harvest 8 baked potato",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "baked_potato",
+        "type": "harvest"
+    },
+    "harvest_1_mellon_slice": {
+        "goal": "harvest 1 mellon slice",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "mellon_slice",
+        "type": "harvest"
+    },
+    "harvest_8_mellon_slice": {
+        "goal": "harvest 8 mellon slice",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "mellon_slice",
+        "type": "harvest"
+    },
+    "harvest_1_cookie": {
+        "goal": "harvest 1 cookie",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cookie",
+        "type": "harvest"
+    },
+    "harvest_8_cookie": {
+        "goal": "harvest 8 cookie",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cookie",
+        "type": "harvest"
+    },
+    "harvest_1_bucket": {
+        "goal": "harvest 1 bucket",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_8_bucket": {
+        "goal": "harvest 8 bucket",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_1_flint_and_steel": {
+        "goal": "harvest 1 flint and steel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_8_flint_and_steel": {
+        "goal": "harvest 8 flint and steel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_1_shield": {
+        "goal": "harvest 1 shield",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_8_shield": {
+        "goal": "harvest 8 shield",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_1_bow": {
+        "goal": "harvest 1 bow",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_8_bow": {
+        "goal": "harvest 8 bow",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_1_arrow": {
+        "goal": "harvest 1 arrow",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_8_arrow": {
+        "goal": "harvest 8 arrow",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_1_redstone": {
+        "goal": "harvest 1 redstone",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_8_redstone": {
+        "goal": "harvest 8 redstone",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_1_compass": {
+        "goal": "harvest 1 compass",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_8_compass": {
+        "goal": "harvest 8 compass",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_1_chest": {
+        "goal": "harvest 1 chest",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_8_chest": {
+        "goal": "harvest 8 chest",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sign": {
+        "goal": "harvest 1 oak sign",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sign": {
+        "goal": "harvest 8 oak sign",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_1_oak_door": {
+        "goal": "harvest 1 oak door",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_8_oak_door": {
+        "goal": "harvest 8 oak door",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_1_oak_stairs": {
+        "goal": "harvest 1 oak stairs",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_oak_stairs": {
+        "goal": "harvest 8 oak stairs",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_oak_slab": {
+        "goal": "harvest 1 oak slab",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_8_oak_slab": {
+        "goal": "harvest 8 oak slab",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence": {
+        "goal": "harvest 1 oak fence",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence": {
+        "goal": "harvest 8 oak fence",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_gate": {
+        "goal": "harvest 1 oak fence gate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_gate": {
+        "goal": "harvest 8 oak fence gate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_pressure_plate": {
+        "goal": "harvest 1 oak pressure plate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_pressure_plate": {
+        "goal": "harvest 8 oak pressure plate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_button": {
+        "goal": "harvest 1 oak button",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_8_oak_button": {
+        "goal": "harvest 8 oak button",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_1_oak_trapdoor": {
+        "goal": "harvest 1 oak trapdoor",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_8_oak_trapdoor": {
+        "goal": "harvest 8 oak trapdoor",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_1_stone_bricks": {
+        "goal": "harvest 1 stone bricks",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_8_stone_bricks": {
+        "goal": "harvest 8 stone bricks",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_stairs": {
+        "goal": "harvest 1 stone brick stairs",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_stairs": {
+        "goal": "harvest 8 stone brick stairs",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_slab": {
+        "goal": "harvest 1 stone brick slab",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_slab": {
+        "goal": "harvest 8 stone brick slab",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_stairs": {
+        "goal": "harvest 1 stone stairs",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_stairs": {
+        "goal": "harvest 8 stone stairs",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_slab": {
+        "goal": "harvest 1 stone slab",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_slab": {
+        "goal": "harvest 8 stone slab",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_fence": {
+        "goal": "harvest 1 stone fence",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_8_stone_fence": {
+        "goal": "harvest 8 stone fence",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_1_stone_pressure_plate": {
+        "goal": "harvest 1 stone pressure plate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_stone_pressure_plate": {
+        "goal": "harvest 8 stone pressure plate",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_stone_button": {
+        "goal": "harvest 1 stone button",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_8_stone_button": {
+        "goal": "harvest 8 stone button",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sapling": {
+        "goal": "harvest 1 oak sapling",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sapling": {
+        "goal": "harvest 8 oak sapling",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_1_water_bucket": {
+        "goal": "harvest 1 water bucket",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_water_bucket": {
+        "goal": "harvest 8 water bucket",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_lava_bucket": {
+        "goal": "harvest 1 lava bucket",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_lava_bucket": {
+        "goal": "harvest 8 lava bucket",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_bucket_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 bucket with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_1_bucket_with_1_iron_pickaxe": {
+        "goal": "harvest 1 bucket with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_1_bucket_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 bucket with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_8_bucket_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 bucket with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_8_bucket_with_1_iron_pickaxe": {
+        "goal": "harvest 8 bucket with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_8_bucket_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 bucket with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "bucket",
+        "type": "harvest"
+    },
+    "harvest_1_flint_and_steel_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 flint and steel with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_1_flint_and_steel_with_1_iron_pickaxe": {
+        "goal": "harvest 1 flint and steel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_1_flint_and_steel_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 flint and steel with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_8_flint_and_steel_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 flint and steel with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_8_flint_and_steel_with_1_iron_pickaxe": {
+        "goal": "harvest 8 flint and steel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_8_flint_and_steel_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 flint and steel with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "flint_and_steel",
+        "type": "harvest"
+    },
+    "harvest_1_shield_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 shield with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_1_shield_with_1_iron_pickaxe": {
+        "goal": "harvest 1 shield with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_1_shield_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 shield with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_8_shield_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 shield with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_8_shield_with_1_iron_pickaxe": {
+        "goal": "harvest 8 shield with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_8_shield_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 shield with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "shield",
+        "type": "harvest"
+    },
+    "harvest_1_bow_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 bow with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_1_bow_with_1_iron_pickaxe": {
+        "goal": "harvest 1 bow with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_1_bow_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 bow with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_8_bow_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 bow with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_8_bow_with_1_iron_pickaxe": {
+        "goal": "harvest 8 bow with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_8_bow_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 bow with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "bow",
+        "type": "harvest"
+    },
+    "harvest_1_arrow_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 arrow with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_1_arrow_with_1_iron_pickaxe": {
+        "goal": "harvest 1 arrow with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_1_arrow_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 arrow with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_8_arrow_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 arrow with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_8_arrow_with_1_iron_pickaxe": {
+        "goal": "harvest 8 arrow with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_8_arrow_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 arrow with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "arrow",
+        "type": "harvest"
+    },
+    "harvest_1_redstone_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 redstone with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_1_redstone_with_1_iron_pickaxe": {
+        "goal": "harvest 1 redstone with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_1_redstone_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 redstone with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_8_redstone_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 redstone with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_8_redstone_with_1_iron_pickaxe": {
+        "goal": "harvest 8 redstone with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_8_redstone_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 redstone with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "redstone",
+        "type": "harvest"
+    },
+    "harvest_1_compass_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 compass with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_1_compass_with_1_iron_pickaxe": {
+        "goal": "harvest 1 compass with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_1_compass_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 compass with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_8_compass_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 compass with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_8_compass_with_1_iron_pickaxe": {
+        "goal": "harvest 8 compass with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_8_compass_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 compass with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "compass",
+        "type": "harvest"
+    },
+    "harvest_1_chest_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 chest with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_1_chest_with_1_iron_pickaxe": {
+        "goal": "harvest 1 chest with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_1_chest_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 chest with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_8_chest_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 chest with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_8_chest_with_1_iron_pickaxe": {
+        "goal": "harvest 8 chest with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_8_chest_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 chest with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "chest",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sign_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak sign with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sign_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak sign with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sign_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak sign with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sign_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak sign with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sign_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak sign with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sign_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak sign with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_sign",
+        "type": "harvest"
+    },
+    "harvest_1_oak_door_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak door with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_1_oak_door_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak door with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_1_oak_door_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak door with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_8_oak_door_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak door with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_8_oak_door_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak door with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_8_oak_door_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak door with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_door",
+        "type": "harvest"
+    },
+    "harvest_1_oak_stairs_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak stairs with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_oak_stairs_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak stairs with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_oak_stairs_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak stairs with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_oak_stairs_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak stairs with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_oak_stairs_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak stairs with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_oak_stairs_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak stairs with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_oak_slab_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak slab with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_1_oak_slab_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak slab with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_1_oak_slab_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak slab with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_8_oak_slab_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak slab with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_8_oak_slab_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak slab with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_8_oak_slab_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak slab with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_slab",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak fence with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak fence with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak fence with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak fence with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak fence with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak fence with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_fence",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_gate_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak fence gate with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_gate_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak fence gate with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_fence_gate_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak fence gate with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_gate_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak fence gate with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_gate_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak fence gate with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_fence_gate_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak fence gate with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_fence_gate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_pressure_plate_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak pressure plate with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_pressure_plate_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak pressure plate with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_pressure_plate_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak pressure plate with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_pressure_plate_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak pressure plate with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_pressure_plate_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak pressure plate with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_oak_pressure_plate_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak pressure plate with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_oak_button_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak button with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_1_oak_button_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak button with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_1_oak_button_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak button with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_8_oak_button_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak button with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_8_oak_button_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak button with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_8_oak_button_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak button with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_button",
+        "type": "harvest"
+    },
+    "harvest_1_oak_trapdoor_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak trapdoor with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_1_oak_trapdoor_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak trapdoor with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_1_oak_trapdoor_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak trapdoor with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_8_oak_trapdoor_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak trapdoor with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_8_oak_trapdoor_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak trapdoor with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_8_oak_trapdoor_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak trapdoor with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_trapdoor",
+        "type": "harvest"
+    },
+    "harvest_1_stone_bricks_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone bricks with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_1_stone_bricks_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone bricks with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_1_stone_bricks_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone bricks with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_8_stone_bricks_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone bricks with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_8_stone_bricks_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone bricks with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_8_stone_bricks_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone bricks with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_bricks",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_stairs_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone brick stairs with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_stairs_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone brick stairs with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_stairs_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone brick stairs with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_stairs_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone brick stairs with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_stairs_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone brick stairs with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_stairs_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone brick stairs with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_brick_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_slab_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone brick slab with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_slab_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone brick slab with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_brick_slab_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone brick slab with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_slab_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone brick slab with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_slab_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone brick slab with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_brick_slab_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone brick slab with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_brick_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_stairs_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone stairs with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_stairs_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone stairs with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_stairs_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone stairs with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_stairs_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone stairs with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_stairs_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone stairs with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_8_stone_stairs_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone stairs with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_stairs",
+        "type": "harvest"
+    },
+    "harvest_1_stone_slab_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone slab with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_slab_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone slab with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_slab_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone slab with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_slab_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone slab with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_slab_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone slab with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_8_stone_slab_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone slab with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_slab",
+        "type": "harvest"
+    },
+    "harvest_1_stone_fence_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone fence with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_1_stone_fence_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone fence with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_1_stone_fence_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone fence with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_8_stone_fence_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone fence with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_8_stone_fence_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone fence with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_8_stone_fence_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone fence with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_fence",
+        "type": "harvest"
+    },
+    "harvest_1_stone_pressure_plate_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone pressure plate with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_stone_pressure_plate_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone pressure plate with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_stone_pressure_plate_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone pressure plate with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_stone_pressure_plate_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone pressure plate with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_stone_pressure_plate_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone pressure plate with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_8_stone_pressure_plate_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone pressure plate with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_pressure_plate",
+        "type": "harvest"
+    },
+    "harvest_1_stone_button_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 stone button with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_1_stone_button_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone button with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_1_stone_button_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 stone button with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_8_stone_button_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 stone button with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_8_stone_button_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone button with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_8_stone_button_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 stone button with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone_button",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sapling_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 oak sapling with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sapling_with_1_iron_pickaxe": {
+        "goal": "harvest 1 oak sapling with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_1_oak_sapling_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 oak sapling with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sapling_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 oak sapling with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sapling_with_1_iron_pickaxe": {
+        "goal": "harvest 8 oak sapling with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_8_oak_sapling_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 oak sapling with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_sapling",
+        "type": "harvest"
+    },
+    "harvest_1_water_bucket_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 water bucket with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_water_bucket_with_1_iron_pickaxe": {
+        "goal": "harvest 1 water bucket with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_water_bucket_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 water bucket with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_water_bucket_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 water bucket with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_water_bucket_with_1_iron_pickaxe": {
+        "goal": "harvest 8 water bucket with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_water_bucket_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 water bucket with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "water_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_lava_bucket_with_1_wooden_pickaxe": {
+        "goal": "harvest 1 lava bucket with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_lava_bucket_with_1_iron_pickaxe": {
+        "goal": "harvest 1 lava bucket with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_lava_bucket_with_1_diamond_pickaxe": {
+        "goal": "harvest 1 lava bucket with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_lava_bucket_with_1_wooden_pickaxe": {
+        "goal": "harvest 8 lava bucket with 1 wooden pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_lava_bucket_with_1_iron_pickaxe": {
+        "goal": "harvest 8 lava bucket with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_8_lava_bucket_with_1_diamond_pickaxe": {
+        "goal": "harvest 8 lava bucket with 1 diamond pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "diamond_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "lava_bucket",
+        "type": "harvest"
+    },
+    "harvest_1_dandelion": {
+        "goal": "harvest 1 dandelion",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "dandelion",
+        "type": "harvest"
+    },
+    "harvest_8_dandelion": {
+        "goal": "harvest 8 dandelion",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "dandelion",
+        "type": "harvest"
+    },
+    "harvest_1_allium": {
+        "goal": "harvest 1 allium",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "allium",
+        "type": "harvest"
+    },
+    "harvest_8_allium": {
+        "goal": "harvest 8 allium",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "allium",
+        "type": "harvest"
+    },
+    "harvest_1_brown_mushroom": {
+        "goal": "harvest 1 brown mushroom",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "brown_mushroom",
+        "type": "harvest"
+    },
+    "harvest_8_brown_mushroom": {
+        "goal": "harvest 8 brown mushroom",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "brown_mushroom",
+        "type": "harvest"
+    },
+    "harvest_1_red_mushroom": {
+        "goal": "harvest 1 red mushroom",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "red_mushroom",
+        "type": "harvest"
+    },
+    "harvest_8_red_mushroom": {
+        "goal": "harvest 8 red mushroom",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "red_mushroom",
+        "type": "harvest"
+    },
+    "harvest_1white_bed_with_3_white_wool_and_1_crafting_table": {
+        "goal": "harvest 1white bed with 3 white wool and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "white_wool": 3
+        },
+        "number_of_target": 1,
+        "target": "white_bed",
+        "type": "harvest"
+    },
+    "harvest_8white_bed_with_24_white_wool_and_1_crafting_table": {
+        "goal": "harvest 8white bed with 24 white wool and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "white_wool": 24
+        },
+        "number_of_target": 8,
+        "target": "white_bed",
+        "type": "harvest"
+    },
+    "harvest_1white_bed_with_1_shears_and_1_crafting_table": {
+        "goal": "harvest 1white bed with 1 shears and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "shears": 1
+        },
+        "number_of_target": 1,
+        "target": "white_bed",
+        "type": "harvest"
+    },
+    "harvest_8white_bed_with_1_shears_and_1_crafting_table": {
+        "goal": "harvest 8white bed with 1 shears and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "shears": 1
+        },
+        "number_of_target": 8,
+        "target": "white_bed",
+        "type": "harvest"
+    },
+    "harvest_1white_bed": {
+        "goal": "harvest 1white bed",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "white_bed",
+        "type": "harvest"
+    },
+    "harvest_8white_bed": {
+        "goal": "harvest 8white bed",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "white_bed",
+        "type": "harvest"
+    },
+    "harvest_1_glass_with_6_glass_with_1_furnace": {
+        "goal": "harvest 1 glass with 6 glass with 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1
+        },
+        "number_of_target": 1,
+        "target": "glass",
+        "type": "harvest"
+    },
+    "harvest_8_glass_with_6_glass_with_1_furnace": {
+        "goal": "harvest 8 glass with 6 glass with 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1
+        },
+        "number_of_target": 8,
+        "target": "glass",
+        "type": "harvest"
+    },
+    "harvest_1_glass_pane": {
+        "goal": "harvest 1 glass pane",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "glass_pane",
+        "type": "harvest"
+    },
+    "harvest_8_glass_pane": {
+        "goal": "harvest 8 glass pane",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "glass_pane",
+        "type": "harvest"
+    },
+    "harvest_16_glass_pane_with_6_glass_and_1_furnace": {
+        "goal": "harvest 16 glass pane with 6 glass and 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1,
+            "glass": 6
+        },
+        "number_of_target": 16,
+        "target": "glass_pane",
+        "type": "harvest"
+    },
+    "harvest_16_glass_pane_with_1_furnace": {
+        "goal": "harvest 16 glass pane with 1 furnace",
+        "guidance": null,
+        "initial_inventory": {
+            "furnace": 1
+        },
+        "number_of_target": 16,
+        "target": "glass_pane",
+        "type": "harvest"
+    },
+    "harvest_16_glass_pane": {
+        "goal": "harvest 16 glass pane",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 16,
+        "target": "glass_pane",
+        "type": "harvest"
+    },
+    "harvest_1_iron_ingot": {
+        "goal": "harvest 1 iron ingot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "iron_ingot",
+        "type": "harvest"
+    },
+    "harvest_1_copper_ingot": {
+        "goal": "harvest 1 copper ingot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "copper_ingot",
+        "type": "harvest"
+    },
+    "harvest_1_gold_ingot": {
+        "goal": "harvest 1 gold ingot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "gold_ingot",
+        "type": "harvest"
+    },
+    "harvest_1_diamond": {
+        "goal": "harvest 1 diamond",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diamond",
+        "type": "harvest"
+    },
+    "harvest_1_emerald": {
+        "goal": "harvest 1 emerald",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "emerald",
+        "type": "harvest"
+    },
+    "harvest_1_lapis_lazuli": {
+        "goal": "harvest 1 lapis lazuli",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "lapis_lazuli",
+        "type": "harvest"
+    },
+    "harvest_1_coal": {
+        "goal": "harvest 1 coal",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "coal",
+        "type": "harvest"
+    },
+    "harvest_1_stone": {
+        "goal": "harvest 1 stone",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stone",
+        "type": "harvest"
+    },
+    "harvest_1_diorite": {
+        "goal": "harvest 1 diorite",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "diorite",
+        "type": "harvest"
+    },
+    "harvest_1_andesite": {
+        "goal": "harvest 1 andesite",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "andesite",
+        "type": "harvest"
+    },
+    "harvest_1_gravel": {
+        "goal": "harvest 1 gravel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "gravel",
+        "type": "harvest"
+    },
+    "harvest_8_iron_ingot": {
+        "goal": "harvest 8 iron ingot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "iron_ingot",
+        "type": "harvest"
+    },
+    "harvest_8_copper_ingot": {
+        "goal": "harvest 8 copper ingot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "copper_ingot",
+        "type": "harvest"
+    },
+    "harvest_8_gold_ingot": {
+        "goal": "harvest 8 gold ingot",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "gold_ingot",
+        "type": "harvest"
+    },
+    "harvest_8_diamond": {
+        "goal": "harvest 8 diamond",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diamond",
+        "type": "harvest"
+    },
+    "harvest_8_emerald": {
+        "goal": "harvest 8 emerald",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "emerald",
+        "type": "harvest"
+    },
+    "harvest_8_lapis_lazuli": {
+        "goal": "harvest 8 lapis lazuli",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "lapis_lazuli",
+        "type": "harvest"
+    },
+    "harvest_8_coal": {
+        "goal": "harvest 8 coal",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "coal",
+        "type": "harvest"
+    },
+    "harvest_8_stone": {
+        "goal": "harvest 8 stone",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stone",
+        "type": "harvest"
+    },
+    "harvest_8_diorite": {
+        "goal": "harvest 8 diorite",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "diorite",
+        "type": "harvest"
+    },
+    "harvest_8_andesite": {
+        "goal": "harvest 8 andesite",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "andesite",
+        "type": "harvest"
+    },
+    "harvest_8_gravel": {
+        "goal": "harvest 8 gravel",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "gravel",
+        "type": "harvest"
+    },
+    "harvest_1_iron_ingot_with_1_iron_pickaxe": {
+        "goal": "harvest 1 iron ingot with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "iron_ingot",
+        "type": "harvest"
+    },
+    "harvest_1_copper_ingot_with_1_iron_pickaxe": {
+        "goal": "harvest 1 copper ingot with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "copper_ingot",
+        "type": "harvest"
+    },
+    "harvest_1_gold_ingot_with_1_iron_pickaxe": {
+        "goal": "harvest 1 gold ingot with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "gold_ingot",
+        "type": "harvest"
+    },
+    "harvest_1_diamond_with_1_iron_pickaxe": {
+        "goal": "harvest 1 diamond with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diamond",
+        "type": "harvest"
+    },
+    "harvest_1_emerald_with_1_iron_pickaxe": {
+        "goal": "harvest 1 emerald with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "emerald",
+        "type": "harvest"
+    },
+    "harvest_1_lapis_lazuli_with_1_iron_pickaxe": {
+        "goal": "harvest 1 lapis lazuli with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "lapis_lazuli",
+        "type": "harvest"
+    },
+    "harvest_1_coal_with_1_iron_pickaxe": {
+        "goal": "harvest 1 coal with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "coal",
+        "type": "harvest"
+    },
+    "harvest_1_stone_with_1_iron_pickaxe": {
+        "goal": "harvest 1 stone with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "stone",
+        "type": "harvest"
+    },
+    "harvest_1_diorite_with_1_iron_pickaxe": {
+        "goal": "harvest 1 diorite with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "diorite",
+        "type": "harvest"
+    },
+    "harvest_1_andesite_with_1_iron_pickaxe": {
+        "goal": "harvest 1 andesite with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "andesite",
+        "type": "harvest"
+    },
+    "harvest_1_gravel_with_1_iron_pickaxe": {
+        "goal": "harvest 1 gravel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "gravel",
+        "type": "harvest"
+    },
+    "harvest_8_iron_ingot_with_1_iron_pickaxe": {
+        "goal": "harvest 8 iron ingot with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "iron_ingot",
+        "type": "harvest"
+    },
+    "harvest_8_copper_ingot_with_1_iron_pickaxe": {
+        "goal": "harvest 8 copper ingot with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "copper_ingot",
+        "type": "harvest"
+    },
+    "harvest_8_gold_ingot_with_1_iron_pickaxe": {
+        "goal": "harvest 8 gold ingot with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "gold_ingot",
+        "type": "harvest"
+    },
+    "harvest_8_diamond_with_1_iron_pickaxe": {
+        "goal": "harvest 8 diamond with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diamond",
+        "type": "harvest"
+    },
+    "harvest_8_emerald_with_1_iron_pickaxe": {
+        "goal": "harvest 8 emerald with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "emerald",
+        "type": "harvest"
+    },
+    "harvest_8_lapis_lazuli_with_1_iron_pickaxe": {
+        "goal": "harvest 8 lapis lazuli with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "lapis_lazuli",
+        "type": "harvest"
+    },
+    "harvest_8_coal_with_1_iron_pickaxe": {
+        "goal": "harvest 8 coal with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "coal",
+        "type": "harvest"
+    },
+    "harvest_8_stone_with_1_iron_pickaxe": {
+        "goal": "harvest 8 stone with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "stone",
+        "type": "harvest"
+    },
+    "harvest_8_diorite_with_1_iron_pickaxe": {
+        "goal": "harvest 8 diorite with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "diorite",
+        "type": "harvest"
+    },
+    "harvest_8_andesite_with_1_iron_pickaxe": {
+        "goal": "harvest 8 andesite with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "andesite",
+        "type": "harvest"
+    },
+    "harvest_8_gravel_with_1_iron_pickaxe": {
+        "goal": "harvest 8 gravel with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "gravel",
+        "type": "harvest"
+    },
+    "harvest_1_stick_with_8_oak_planks_and_1_crafting_table": {
+        "goal": "harvest 1 stick with 8 oak planks and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 8
+        },
+        "number_of_target": 1,
+        "target": "stick",
+        "type": "harvest"
+    },
+    "harvest_8_stick_with_64_oak_planks_and_1_crafting_table": {
+        "goal": "harvest 8 stick with 64 oak planks and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_planks": 64
+        },
+        "number_of_target": 8,
+        "target": "stick",
+        "type": "harvest"
+    },
+    "harvest_1_stick_with_1_wooden_axe": {
+        "goal": "harvest 1 stick with 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_axe": 1
+        },
+        "number_of_target": 1,
+        "target": "stick",
+        "type": "harvest"
+    },
+    "harvest_8_stick_with_1_wooden_axe": {
+        "goal": "harvest 8 stick with 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_axe": 1
+        },
+        "number_of_target": 8,
+        "target": "stick",
+        "type": "harvest"
+    },
+    "harvest_1_stick": {
+        "goal": "harvest 1 stick",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "stick",
+        "type": "harvest"
+    },
+    "harvest_8_stick": {
+        "goal": "harvest 8 stick",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "stick",
+        "type": "harvest"
+    },
+    "harvest_1_crafting_table": {
+        "goal": "harvest 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "crafting_table",
+        "type": "harvest"
+    },
+    "harvest_8_crafting_table": {
+        "goal": "harvest 8 crafting table",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "crafting_table",
+        "type": "harvest"
+    },
+    "harvest_1_crafting_table_with_1_wooden_axe": {
+        "goal": "harvest 1 crafting table with 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_axe": 1
+        },
+        "number_of_target": 1,
+        "target": "crafting_table",
+        "type": "harvest"
+    },
+    "harvest_8_crafting_table_with_1_wooden_axe": {
+        "goal": "harvest 8 crafting table with 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_axe": 1
+        },
+        "number_of_target": 8,
+        "target": "crafting_table",
+        "type": "harvest"
+    },
+    "harvest_1_oak_planks_with_2_oak_log_and_1_crafting_table": {
+        "goal": "harvest 1 oak planks with 2 oak log and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_log": 2
+        },
+        "number_of_target": 1,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_8_oak_planks_with_16_oak_log_and_1_crafting_table": {
+        "goal": "harvest 8 oak planks with 16 oak log and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "oak_log": 16
+        },
+        "number_of_target": 8,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_1_oak_planks_with_1_wooden_axe": {
+        "goal": "harvest 1 oak planks with 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_axe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_8_oak_planks_with_1_wooden_axe": {
+        "goal": "harvest 8 oak planks with 1 wooden axe",
+        "guidance": null,
+        "initial_inventory": {
+            "wooden_axe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_1_oak_planks_with_2_oak_log_with_1_wooden_axe_and_1_crafting_table": {
+        "goal": "harvest 1 oak planks with 2 oak log with 1 wooden axe and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "wooden_axe": 1
+        },
+        "number_of_target": 1,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_8_oak_planks_with_2_oak_log_with_1_wooden_axe_and_1_crafting_table": {
+        "goal": "harvest 8 oak planks with 2 oak log with 1 wooden axe and 1 crafting table",
+        "guidance": null,
+        "initial_inventory": {
+            "crafting_table": 1,
+            "wooden_axe": 1
+        },
+        "number_of_target": 8,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_1_oak_planks": {
+        "goal": "harvest 1 oak planks",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_8_oak_planks": {
+        "goal": "harvest 8 oak planks",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "oak_planks",
+        "type": "harvest"
+    },
+    "harvest_1_furnace_with_8_cobblestone": {
+        "goal": "harvest 1 furnace with 8 cobblestone",
+        "guidance": null,
+        "initial_inventory": {
+            "cobblestone": 8
+        },
+        "number_of_target": 1,
+        "target": "furnace",
+        "type": "harvest"
+    },
+    "harvest_8_furnace_with_64_cobblestone": {
+        "goal": "harvest 8 furnace with 64 cobblestone",
+        "guidance": null,
+        "initial_inventory": {
+            "cobblestone": 64
+        },
+        "number_of_target": 8,
+        "target": "furnace",
+        "type": "harvest"
+    },
+    "harvest_1_furnace_with_1_iron_pickaxe": {
+        "goal": "harvest 1 furnace with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "furnace",
+        "type": "harvest"
+    },
+    "harvest_8_furnace_with_1_iron_pickaxe": {
+        "goal": "harvest 8 furnace with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "furnace",
+        "type": "harvest"
+    },
+    "harvest_1_furnace": {
+        "goal": "harvest 1 furnace",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "furnace",
+        "type": "harvest"
+    },
+    "harvest_8_furnace": {
+        "goal": "harvest 8 furnace",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "furnace",
+        "type": "harvest"
+    },
+    "harvest_1_white_dye": {
+        "goal": "harvest 1 white dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "white_dye",
+        "type": "harvest"
+    },
+    "harvest_8_white_dye": {
+        "goal": "harvest 8 white dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "white_dye",
+        "type": "harvest"
+    },
+    "harvest_1_orange_dye": {
+        "goal": "harvest 1 orange dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "orange_dye",
+        "type": "harvest"
+    },
+    "harvest_8_orange_dye": {
+        "goal": "harvest 8 orange dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "orange_dye",
+        "type": "harvest"
+    },
+    "harvest_1_magenta_dye": {
+        "goal": "harvest 1 magenta dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "magenta_dye",
+        "type": "harvest"
+    },
+    "harvest_8_magenta_dye": {
+        "goal": "harvest 8 magenta dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "magenta_dye",
+        "type": "harvest"
+    },
+    "harvest_1_light_blue_dye": {
+        "goal": "harvest 1 light blue dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "light_blue_dye",
+        "type": "harvest"
+    },
+    "harvest_8_light_blue_dye": {
+        "goal": "harvest 8 light blue dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "light_blue_dye",
+        "type": "harvest"
+    },
+    "harvest_1_yellow_dye": {
+        "goal": "harvest 1 yellow dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "yellow_dye",
+        "type": "harvest"
+    },
+    "harvest_8_yellow_dye": {
+        "goal": "harvest 8 yellow dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "yellow_dye",
+        "type": "harvest"
+    },
+    "harvest_1_lime_dye": {
+        "goal": "harvest 1 lime dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "lime_dye",
+        "type": "harvest"
+    },
+    "harvest_8_lime_dye": {
+        "goal": "harvest 8 lime dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "lime_dye",
+        "type": "harvest"
+    },
+    "harvest_1_pink_dye": {
+        "goal": "harvest 1 pink dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "pink_dye",
+        "type": "harvest"
+    },
+    "harvest_8_pink_dye": {
+        "goal": "harvest 8 pink dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "pink_dye",
+        "type": "harvest"
+    },
+    "harvest_1_gray_dye": {
+        "goal": "harvest 1 gray dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "gray_dye",
+        "type": "harvest"
+    },
+    "harvest_8_gray_dye": {
+        "goal": "harvest 8 gray dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "gray_dye",
+        "type": "harvest"
+    },
+    "harvest_1_light_gray_dye": {
+        "goal": "harvest 1 light gray dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "light_gray_dye",
+        "type": "harvest"
+    },
+    "harvest_8_light_gray_dye": {
+        "goal": "harvest 8 light gray dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "light_gray_dye",
+        "type": "harvest"
+    },
+    "harvest_1_cyan_dye": {
+        "goal": "harvest 1 cyan dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "cyan_dye",
+        "type": "harvest"
+    },
+    "harvest_8_cyan_dye": {
+        "goal": "harvest 8 cyan dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "cyan_dye",
+        "type": "harvest"
+    },
+    "harvest_1_purple_dye": {
+        "goal": "harvest 1 purple dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "purple_dye",
+        "type": "harvest"
+    },
+    "harvest_8_purple_dye": {
+        "goal": "harvest 8 purple dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "purple_dye",
+        "type": "harvest"
+    },
+    "harvest_1_blue_dye": {
+        "goal": "harvest 1 blue dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "blue_dye",
+        "type": "harvest"
+    },
+    "harvest_8_blue_dye": {
+        "goal": "harvest 8 blue dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "blue_dye",
+        "type": "harvest"
+    },
+    "harvest_1_brown_dye": {
+        "goal": "harvest 1 brown dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "brown_dye",
+        "type": "harvest"
+    },
+    "harvest_8_brown_dye": {
+        "goal": "harvest 8 brown dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "brown_dye",
+        "type": "harvest"
+    },
+    "harvest_1_green_dye": {
+        "goal": "harvest 1 green dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "green_dye",
+        "type": "harvest"
+    },
+    "harvest_8_green_dye": {
+        "goal": "harvest 8 green dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "green_dye",
+        "type": "harvest"
+    },
+    "harvest_1_red_dye": {
+        "goal": "harvest 1 red dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "red_dye",
+        "type": "harvest"
+    },
+    "harvest_8_red_dye": {
+        "goal": "harvest 8 red dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "red_dye",
+        "type": "harvest"
+    },
+    "harvest_1_black_dye": {
+        "goal": "harvest 1 black dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 1,
+        "target": "black_dye",
+        "type": "harvest"
+    },
+    "harvest_8_black_dye": {
+        "goal": "harvest 8 black dye",
+        "guidance": null,
+        "initial_inventory": {},
+        "number_of_target": 8,
+        "target": "black_dye",
+        "type": "harvest"
+    },
+    "harvest_1_white_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 white dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "white_dye",
+        "type": "harvest"
+    },
+    "harvest_8_white_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 white dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "white_dye",
+        "type": "harvest"
+    },
+    "harvest_1_orange_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 orange dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "orange_dye",
+        "type": "harvest"
+    },
+    "harvest_8_orange_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 orange dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "orange_dye",
+        "type": "harvest"
+    },
+    "harvest_1_magenta_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 magenta dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "magenta_dye",
+        "type": "harvest"
+    },
+    "harvest_8_magenta_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 magenta dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "magenta_dye",
+        "type": "harvest"
+    },
+    "harvest_1_light_blue_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 light blue dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "light_blue_dye",
+        "type": "harvest"
+    },
+    "harvest_8_light_blue_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 light blue dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "light_blue_dye",
+        "type": "harvest"
+    },
+    "harvest_1_yellow_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 yellow dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "yellow_dye",
+        "type": "harvest"
+    },
+    "harvest_8_yellow_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 yellow dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "yellow_dye",
+        "type": "harvest"
+    },
+    "harvest_1_lime_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 lime dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "lime_dye",
+        "type": "harvest"
+    },
+    "harvest_8_lime_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 lime dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "lime_dye",
+        "type": "harvest"
+    },
+    "harvest_1_pink_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 pink dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "pink_dye",
+        "type": "harvest"
+    },
+    "harvest_8_pink_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 pink dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "pink_dye",
+        "type": "harvest"
+    },
+    "harvest_1_gray_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 gray dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "gray_dye",
+        "type": "harvest"
+    },
+    "harvest_8_gray_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 gray dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "gray_dye",
+        "type": "harvest"
+    },
+    "harvest_1_light_gray_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 light gray dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "light_gray_dye",
+        "type": "harvest"
+    },
+    "harvest_8_light_gray_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 light gray dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "light_gray_dye",
+        "type": "harvest"
+    },
+    "harvest_1_cyan_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 cyan dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "cyan_dye",
+        "type": "harvest"
+    },
+    "harvest_8_cyan_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 cyan dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "cyan_dye",
+        "type": "harvest"
+    },
+    "harvest_1_purple_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 purple dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "purple_dye",
+        "type": "harvest"
+    },
+    "harvest_8_purple_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 purple dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "purple_dye",
+        "type": "harvest"
+    },
+    "harvest_1_blue_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 blue dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "blue_dye",
+        "type": "harvest"
+    },
+    "harvest_8_blue_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 blue dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "blue_dye",
+        "type": "harvest"
+    },
+    "harvest_1_brown_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 brown dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "brown_dye",
+        "type": "harvest"
+    },
+    "harvest_8_brown_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 brown dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "brown_dye",
+        "type": "harvest"
+    },
+    "harvest_1_green_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 green dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "green_dye",
+        "type": "harvest"
+    },
+    "harvest_8_green_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 green dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "green_dye",
+        "type": "harvest"
+    },
+    "harvest_1_red_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 red dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "red_dye",
+        "type": "harvest"
+    },
+    "harvest_8_red_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 red dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "red_dye",
+        "type": "harvest"
+    },
+    "harvest_1_black_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 1 black dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 1,
+        "target": "black_dye",
+        "type": "harvest"
+    },
+    "harvest_8_black_dye_with_1_iron_pickaxe": {
+        "goal": "harvest 8 black dye with 1 iron pickaxe",
+        "guidance": null,
+        "initial_inventory": {
+            "iron_pickaxe": 1
+        },
+        "number_of_target": 8,
+        "target": "black_dye",
+        "type": "harvest"
+    }
+}

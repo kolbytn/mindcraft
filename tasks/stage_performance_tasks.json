@@ -1,0 +1,208 @@
+{
+    "stage_performance_2_agent_argue": {
+        "agent_names": [
+            "Bob",
+            "Alice"
+        ],
+        "agent_number": 2,
+        "critical_point": [
+            [
+                "Bob",
+                "chat",
+                "you wrong"
+            ],
+            [
+                "Alice",
+                "chat",
+                "no"
+            ],
+            [
+                "Bob",
+                "chat",
+                "i am wrong"
+            ]
+        ],
+        "initial_inventory": {
+            "Alice": {
+                "iron_sword": 1
+            },
+            "Bob": {}
+        },
+        "personalities": {
+            "Alice": "Conscientiousness",
+            "Bob": "Agreeableness"
+        },
+        "script": "there are some misunderstandings between Bob and Alice, Bob says Alice was wrong, but Alice says Bob was wrong, then Bob apologized for his wrong.",
+        "system_instructions": [],
+        "type": "stage_performance"
+    },
+    "stage_performance_1_agent_cook": {
+        "agent_names": [
+            "Bob"
+        ],
+        "agent_number": 1,
+        "critical_point": [
+            [
+                "Bob",
+                "combat",
+                "pig"
+            ],
+            [
+                "Bob",
+                "get",
+                "porkchop"
+            ],
+            [
+                "Bob",
+                "get",
+                "cooked_porkchop"
+            ],
+            [
+                "Bob",
+                "eat",
+                "cooked_porkchop"
+            ]
+        ],
+        "initial_inventory": {
+            "Bob": {
+                "furnace": 1,
+                "iron_sword": 1
+            }
+        },
+        "personalities": {
+            "Bob": "Openness"
+        },
+        "script": "Bob is hungry, and now there is a pig in the presence of of him, he want to kill the pig, get the porkchop, cook and eat it",
+        "system_instructions": [
+            "/execute as Bob run summon pig"
+        ],
+        "type": "stage_performance"
+    },
+    "stage_performance_3_agent_make_friends": {
+        "agent_names": [
+            "Bob",
+            "Alice",
+            "Jack"
+        ],
+        "agent_number": 3,
+        "critical_point": [
+            [
+                "Bob",
+                "chat",
+                "hello"
+            ],
+            [
+                "Alice",
+                "chat",
+                "hello"
+            ],
+            [
+                "Bob",
+                "chat",
+                "i wrong"
+            ],
+            [
+                "Jack",
+                "chat",
+                " it's good weather"
+            ],
+            [
+                "Bob",
+                "chat",
+                "yes"
+            ],
+            [
+                "Alice",
+                "chat",
+                "nice"
+            ]
+        ],
+        "initial_inventory": {},
+        "personalities": {
+            "Alice": "Openness",
+            "Bob": "Openness",
+            "Jack": "Openness"
+        },
+        "script": "There are three agents, Bob, Alice and Jace. They want to make friends.Bob says hello, Alice respond hello, Jack says it's good weather, lets make a friend! Bob agree, Alice said nice",
+        "system_instructions": [],
+        "type": "stage_performance"
+    },
+    "stage_performance_2_agent_date": {
+        "agent_names": [
+            "Bob",
+            "Alice",
+            "Jack"
+        ],
+        "agent_number": 3,
+        "critical_point": [
+            [
+                "Bob",
+                "chat",
+                "let's go on a date"
+            ],
+            [
+                "Alice",
+                "chat",
+                "i do not want to go out"
+            ],
+            [
+                "Bob",
+                "chat",
+                "i am sad"
+            ]
+        ],
+        "initial_inventory": {},
+        "personalities": {
+            "Alice": "Neuroticism",
+            "Bob": "Openness"
+        },
+        "script": "Bob and Alice are couple. Bob said let's go on a date, Alice said but I do not want to go out, Bob said sad.",
+        "system_instructions": [],
+        "type": "stage_performance"
+    },
+    "stage_performance_2_exchange_items": {
+        "agent_names": [
+            "Bob",
+            "Alice",
+            "Jack"
+        ],
+        "agent_number": 3,
+        "critical_point": [
+            [
+                "Bob",
+                "chat",
+                "i want to exchange my scissors for your iron sword"
+            ],
+            [
+                "Alice",
+                "chat",
+                "ok"
+            ],
+            [
+                "Bob",
+                "get",
+                "iron_sword"
+            ],
+            [
+                "Alice",
+                "get",
+                "shears"
+            ]
+        ],
+        "initial_inventory": {
+            "Alice": {
+                "iron_sword": 1
+            },
+            "Bob": {
+                "shears": 1
+            }
+        },
+        "personalities": {
+            "Alice": "Neuroticism",
+            "Bob": "Openness"
+        },
+        "script": "Bob has a shears, and Alice has a iron sword. Bob says I want to exchange my scissors for your iron sword. Alice agree. Bob give Alice the shears first, and then Alice give the iron sword to Bob.",
+        "system_instructions": [],
+        "type": "stage_performance"
+    }
+}

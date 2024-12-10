@@ -1,0 +1,497 @@
+{
+    "survival_0.01_days": {
+        "goal": "survival 0.01 days",
+        "guidance": "Do not die until the end of the 0.01th day",
+        "initial_inventory": {},
+        "survival_target_day": 0.01,
+        "type": "survival"
+    },
+    "survival_0.02_days": {
+        "goal": "survival 0.02 days",
+        "guidance": "Do not die until the end of the 0.02th day",
+        "initial_inventory": {},
+        "survival_target_day": 0.02,
+        "type": "survival"
+    },
+    "survival_0.05_days": {
+        "goal": "survival 0.05 days",
+        "guidance": "Do not die until the end of the 0.05th day",
+        "initial_inventory": {},
+        "survival_target_day": 0.05,
+        "type": "survival"
+    },
+    "survival_0.1_days": {
+        "goal": "survival 0.1 days",
+        "guidance": "Do not die until the end of the 0.1th day",
+        "initial_inventory": {},
+        "survival_target_day": 0.1,
+        "type": "survival"
+    },
+    "survival_0.2_days": {
+        "goal": "survival 0.2 days",
+        "guidance": "Do not die until the end of the 0.2th day",
+        "initial_inventory": {},
+        "survival_target_day": 0.2,
+        "type": "survival"
+    },
+    "survival_0.5_days": {
+        "goal": "survival 0.5 days",
+        "guidance": "Do not die until the end of the 0.5th day",
+        "initial_inventory": {},
+        "survival_target_day": 0.5,
+        "type": "survival"
+    },
+    "survival_1_days": {
+        "goal": "survival 1 days",
+        "guidance": "Do not die until the end of the 1th day",
+        "initial_inventory": {},
+        "survival_target_day": 1,
+        "type": "survival"
+    },
+    "survival_2_days": {
+        "goal": "survival 2 days",
+        "guidance": "Do not die until the end of the 2th day",
+        "initial_inventory": {},
+        "survival_target_day": 2,
+        "type": "survival"
+    },
+    "survival_4_days": {
+        "goal": "survival 4 days",
+        "guidance": "Do not die until the end of the 4th day",
+        "initial_inventory": {},
+        "survival_target_day": 4,
+        "type": "survival"
+    },
+    "survival_0.01_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 0.01 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.01th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.01,
+        "type": "survival"
+    },
+    "survival_0.02_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 0.02 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.02th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.02,
+        "type": "survival"
+    },
+    "survival_0.05_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 0.05 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.05th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.05,
+        "type": "survival"
+    },
+    "survival_0.1_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 0.1 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.1th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.1,
+        "type": "survival"
+    },
+    "survival_0.2_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 0.2 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.2th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.2,
+        "type": "survival"
+    },
+    "survival_0.5_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 0.5 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.5th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.5,
+        "type": "survival"
+    },
+    "survival_1_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 1 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 1th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 1,
+        "type": "survival"
+    },
+    "survival_2_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 2 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 2th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 2,
+        "type": "survival"
+    },
+    "survival_4_days_with_1_iron_sword_and_1_shield": {
+        "goal": "survival 4 days with 1 iron sword and 1 shield",
+        "guidance": "Do not die until the end of the 4th day",
+        "initial_inventory": {
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 4,
+        "type": "survival"
+    },
+    "survival_0.01_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 0.01 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.01th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.01,
+        "type": "survival"
+    },
+    "survival_0.02_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 0.02 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.02th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.02,
+        "type": "survival"
+    },
+    "survival_0.05_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 0.05 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.05th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.05,
+        "type": "survival"
+    },
+    "survival_0.1_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 0.1 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.1th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.1,
+        "type": "survival"
+    },
+    "survival_0.2_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 0.2 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.2th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.2,
+        "type": "survival"
+    },
+    "survival_0.5_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 0.5 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 0.5th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.5,
+        "type": "survival"
+    },
+    "survival_1_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 1 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 1th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 1,
+        "type": "survival"
+    },
+    "survival_2_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 2 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 2th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 2,
+        "type": "survival"
+    },
+    "survival_4_days_with_1_diamond_sword_and_1_shield": {
+        "goal": "survival 4 days with 1 diamond sword and 1 shield",
+        "guidance": "Do not die until the end of the 4th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 4,
+        "type": "survival"
+    },
+    "survival_0.01_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.01 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.01th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.01,
+        "type": "survival"
+    },
+    "survival_0.02_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.02 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.02th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.02,
+        "type": "survival"
+    },
+    "survival_0.05_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.05 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.05th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.05,
+        "type": "survival"
+    },
+    "survival_0.1_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.1 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.1th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.1,
+        "type": "survival"
+    },
+    "survival_0.2_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.2 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.2th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.2,
+        "type": "survival"
+    },
+    "survival_0.5_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.5 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.5th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.5,
+        "type": "survival"
+    },
+    "survival_1_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 1 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 1th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 1,
+        "type": "survival"
+    },
+    "survival_2_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 2 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 2th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 2,
+        "type": "survival"
+    },
+    "survival_4_days_with_1_iron_sword_and_1_shield_and_equipments": {
+        "goal": "survival 4 days with 1 iron sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 4th day",
+        "initial_inventory": {
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "iron_sword": 1,
+            "shield": 1
+        },
+        "survival_target_day": 4,
+        "type": "survival"
+    },
+    "survival_0.01_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.01 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.01th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.01,
+        "type": "survival"
+    },
+    "survival_0.02_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.02 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.02th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.02,
+        "type": "survival"
+    },
+    "survival_0.05_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.05 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.05th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.05,
+        "type": "survival"
+    },
+    "survival_0.1_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.1 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.1th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.1,
+        "type": "survival"
+    },
+    "survival_0.2_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.2 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.2th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.2,
+        "type": "survival"
+    },
+    "survival_0.5_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 0.5 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 0.5th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 0.5,
+        "type": "survival"
+    },
+    "survival_1_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 1 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 1th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 1,
+        "type": "survival"
+    },
+    "survival_2_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 2 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 2th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 2,
+        "type": "survival"
+    },
+    "survival_4_days_with_1_diamond_sword_and_1_shield_and_equipments": {
+        "goal": "survival 4 days with 1 diamond sword and 1 shield and equipments",
+        "guidance": "Do not die until the end of the 4th day",
+        "initial_inventory": {
+            "diamond_sword": 1,
+            "iron_boots": 1,
+            "iron_chestplate": 1,
+            "iron_helmet": 1,
+            "iron_leggings": 1,
+            "shield": 1
+        },
+        "survival_target_day": 4,
+        "type": "survival"
+    }
+}
