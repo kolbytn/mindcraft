@@ -13,10 +13,12 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
+import { Task } from './tasks.js';
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
+    async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.last_sender = null;
+        this.count_id = count_id;
         try {
             if (!profile_fp) {
                 throw new Error('No profile filepath provided');
@@ -43,6 +45,9 @@ export class Agent {
             convoManager.initAgent(this);            
             console.log('Initializing examples...');
             await this.prompter.initExamples();
+            console.log('Initializing task...');
+            this.task = new Task(this, task_path, task_id);
+            this.blocked_actions = this.task.blocked_actions || [];
 
             serverProxy.connect(this);
 
@@ -81,9 +86,12 @@ export class Agent {
                     
                     console.log(`${this.name} spawned.`);
                     this.clearBotLogs();
-                    
+
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
+
+                    this.task.initBotTask();
+
                 } catch (error) {
                     console.error('Error in spawn event:', error);
                     process.exit(0);
@@ -429,20 +437,32 @@ export class Agent {
         }, INTERVAL);
 
         this.bot.emit('idle');
+
+        // Check for task completion
+        if (this.task.data) {
+            setInterval(() => {
+                let res = this.task.isDone();
+                if (res) {
+                    // TODO kill other bots
+                    this.cleanKill(res.message, res.code);
+                }
+            }, 1000);
+        }
     }
 
     async update(delta) {
         await this.bot.modes.update();
-        await this.self_prompter.update(delta);
+        this.self_prompter.update(delta);
     }
 
     isIdle() {
         return !this.actions.executing && !this.coder.generating;
     }
     
-    cleanKill(msg='Killing agent process...') {
+    cleanKill(msg='Killing agent process...', code=1) {
         this.history.add('system', msg);
+        this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
-        process.exit(1);
+        process.exit(code);
     }
 }
