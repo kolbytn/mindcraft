@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
-import { isOtherAgent } from '../agent/conversation.js';
 import { executeCommand } from '../agent/commands/index.js';
 import { getPosition } from '../agent/library/world.js'
+import settings from '../../settings.js';
 
 export function loadTask(task_path, task_id) {
     try {
@@ -22,15 +22,16 @@ export function loadTask(task_path, task_id) {
 export async function initBotTask(agent) {
     let bot = agent.bot;
     let task = agent.task;
+    let name = bot.username;
 
-    bot.chat(`/clear ${bot.username}`);
-    console.log(`Cleared ${bot.username}'s inventory.`);
+    bot.chat(`/clear ${name}`);
+    console.log(`Cleared ${name}'s inventory.`);
     
     //wait for a bit so inventory is cleared
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (task.agent_number > 1) {
-        var initial_inventory = task.initial_inventory[bot.username];
+        var initial_inventory = task.initial_inventory[name];
         console.log("Initial inventory:", initial_inventory);
     } else if (task) {
         console.log("Initial inventory:", task.initial_inventory);
@@ -42,7 +43,7 @@ export async function initBotTask(agent) {
         console.log("Inventory to set:", initial_inventory);
         for (let key of Object.keys(initial_inventory)) {
             console.log('Giving item:', key);
-            bot.chat(`/give ${bot.username} ${key} ${initial_inventory[key]}`);
+            bot.chat(`/give ${name} ${key} ${initial_inventory[key]}`);
         };
         //wait for a bit so inventory is set
         await new Promise((resolve) => setTimeout(resolve, 500));
@@ -59,7 +60,7 @@ export async function initBotTask(agent) {
     // Finding if there is a human player on the server
     for (const playerName in bot.players) {
         const player = bot.players[playerName];
-        if (!isOtherAgent(player.username)) {
+        if (!settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name).some((n) => n === name)) {
             console.log('Found human player:', player.username);
             human_player_name = player.username
             break;
@@ -73,12 +74,12 @@ export async function initBotTask(agent) {
     if ("agent_number" in task) {
         var agent_names = task.agent_names;
         if (human_player_name) {
-            console.log(`Teleporting ${bot.username} to human ${human_player_name}`)
-            bot.chat(`/tp ${bot.username} ${human_player_name}`) // teleport on top of the human player
+            console.log(`Teleporting ${name} to human ${human_player_name}`)
+            bot.chat(`/tp ${name} ${human_player_name}`) // teleport on top of the human player
 
         }
         else {
-            bot.chat(`/tp ${bot.username} ${agent_names[0]}`) // teleport on top of the first agent
+            bot.chat(`/tp ${name} ${agent_names[0]}`) // teleport on top of the first agent
         }
         
         await new Promise((resolve) => setTimeout(resolve, 200));
@@ -86,8 +87,8 @@ export async function initBotTask(agent) {
 
     else if (task) {
         if (human_player_name) {
-            console.log(`Teleporting ${bot.username} to human ${human_player_name}`)
-            bot.chat(`/tp ${bot.username} ${human_player_name}`) // teleport on top of the human player
+            console.log(`Teleporting ${name} to human ${human_player_name}`)
+            bot.chat(`/tp ${name} ${human_player_name}`) // teleport on top of the human player
 
         }
         await new Promise((resolve) => setTimeout(resolve, 200));
@@ -107,12 +108,8 @@ export async function initBotTask(agent) {
         const pos = getPosition(bot);
         const xOffset = getRandomOffset(5);
         const zOffset = getRandomOffset(5);
-        bot.chat(`/tp ${bot.username} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
+        bot.chat(`/tp ${name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
         await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-
-    if (task.goal) {
-        await executeCommand(agent, `!goal("${task.goal}")`);
     }
 
     if (task.agent_names) {
@@ -123,8 +120,12 @@ export async function initBotTask(agent) {
         }
     }
 
+    if (task.goal) {
+        await executeCommand(agent, `!goal("${task.goal}")`);
+    }
+
     if (task.conversation && agent.count_id === 0) {
-        let other_name = task.agent_names.filter(name => name !== bot.username)[0];
+        let other_name = task.agent_names.filter(n => n !== name)[0];
         await executeCommand(agent, `!startConversation("${other_name}", "${task.conversation}")`);
     }
 }
@@ -138,7 +139,6 @@ export class TechTreeHarvestValidator {
 
     validate() {
         try{
-            console.log("validate");
             let valid = false;
             let total_targets = 0;
             this.bot.inventory.slots.forEach((slot) => {

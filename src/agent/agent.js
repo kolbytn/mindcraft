@@ -12,7 +12,7 @@ import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
-import { serverProxy } from './server_proxy.js';
+import { serverProxy } from './agent_proxy.js';
 import { loadTask, initBotTask, TechTreeHarvestValidator } from '../utils/tasks.js';
 
 export class Agent {
@@ -106,7 +106,7 @@ export class Agent {
                     this.startEvents();
 
                     if (this.task)
-                        await initBotTask(this);
+                        initBotTask(this);
 
                 } catch (error) {
                     console.error('Error in spawn event:', error);
