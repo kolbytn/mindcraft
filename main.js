@@ -25,7 +25,6 @@ function parseArguments() {
         .parse();
 }
 
-//todo: modify for multiple agents
 function getProfiles(args) {
     return args.profiles || settings.profiles;
 }
@@ -35,7 +34,7 @@ async function main() {
         const mindServer = createMindServer();
     }
     mainProxy.connect();
-    
+
     const args = parseArguments();
     const profiles = getProfiles(args);
     console.log(profiles);

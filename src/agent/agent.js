@@ -13,7 +13,7 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-import { loadTask, initBotTask, TechTreeHarvestValidator } from '../utils/tasks.js';
+import { Task } from './tasks.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
@@ -45,6 +45,9 @@ export class Agent {
             convoManager.initAgent(this);            
             console.log('Initializing examples...');
             await this.prompter.initExamples();
+            console.log('Initializing task...');
+            this.task = new Task(this, task_path, task_id);
+            this.blocked_actions = this.task.blocked_actions || [];
 
             serverProxy.connect(this);
 
@@ -56,24 +59,6 @@ export class Agent {
             let save_data = null;
             if (load_mem) {
                 save_data = this.history.load();
-            }
-
-            // Load task if provided
-            if (task_path) {
-                this.task = loadTask(task_path, task_id);
-                this.taskTimeout = this.task.timeout || 300;
-                this.taskStartTime = Date.now();
-                this.validator = new TechTreeHarvestValidator(this.task, this.bot);
-                this.blocked_actions = this.task.blocked_actions || [];
-                if (this.task.goal)
-                    this.blocked_actions.push('!endGoal');
-                if (this.task.conversation)
-                    this.blocked_actions.push('!endConversation');
-            } else {
-                this.task = null;
-                this.taskTimeout = null;
-                this.validator = null;
-                this.blocked_actions = [];
             }
 
             this.bot.on('login', () => {
@@ -105,8 +90,7 @@ export class Agent {
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
 
-                    if (this.task)
-                        initBotTask(this);
+                    this.task.initBotTask();
 
                 } catch (error) {
                     console.error('Error in spawn event:', error);
@@ -376,6 +360,7 @@ export class Agent {
     }
 
     startEvents() {
+        // Custom events
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
             this.bot.emit('sunrise');
@@ -454,44 +439,15 @@ export class Agent {
         this.bot.emit('idle');
 
         // Check for task completion
-        if (this.task) {
+        if (this.task.data) {
             setInterval(() => {
-                if (this.validator && this.validator.validate())
-                    this.killBots();
-                // TODO check for other terminal conditions
-                // if (this.task.goal && !this.self_prompter.on)
-                //     this.cleanKill('Agent ended goal', 3);
-                // if (this.task.conversation && !inConversation())
-                //     this.cleanKill('Agent ended conversation', 3);
-                if (this.taskTimeout) {
-                    const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
-                    if (elapsedTime >= this.taskTimeout) {
-                        console.log('Task timeout reached. Task unsuccessful.');
-                        this.cleanKill('Task unsuccessful: Timeout reached', 3);
-                    }
+                let res = this.task.isDone();
+                if (res) {
+                    // TODO kill other bots
+                    this.cleanKill(res.message, res.code);
                 }
-        
             }, 1000);
         }
-    }
-
-    async killBots() {
-        this.bot.chat('Task completed!');
-        this.bot.chat(`/clear @p`);
-        // Kick other bots
-        if (this.task && this.task.agent_number) {
-            const agent_names = this.task.agent_names;
-            console.log('All agent names:', agent_names);
-            console.log('My name:', this.name);
-            const botNames = agent_names.filter(botName => botName !== this.name);
-            console.log('Kicking bots:', botNames);
-            botNames.forEach(botName => {
-                this.bot.chat(`/kick ${botName}`);
-                console.log(`/kick ${botName}`);
-    
-            });
-        }
-        this.cleanKill('Task completed, exiting', 2);
     }
 
     async update(delta) {
