@@ -66,7 +66,10 @@ export class Task {
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
-    
+            if ((!task.agent_count || task.agent_count <= 1) && this.agent.count_id > 0) {
+                task = null;
+            }
+
             return task;
         } catch (error) {
             console.error('Error loading task:', error);
@@ -104,7 +107,7 @@ export class Task {
         //wait for a bit so inventory is cleared
         await new Promise((resolve) => setTimeout(resolve, 500));
     
-        if (this.data.agent_number > 1) {
+        if (this.data.agent_count > 1) {
             var initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
             console.log("Initial inventory:", initial_inventory);
         } else if (this.data) {
@@ -135,13 +138,13 @@ export class Task {
         // Finding if there is a human player on the server
         for (const playerName in bot.players) {
             const player = bot.players[playerName];
-            if (!available_agents.some((n) => n === name)) {
+            if (!available_agents.some((n) => n === playerName)) {
                 console.log('Found human player:', player.username);
                 human_player_name = player.username
                 break;
             }
-            }
-        
+        }
+
         // If there are multiple human players, teleport to the first one
     
         // teleport near a human player if found by default
