@@ -134,7 +134,7 @@ class ConversationManager {
         convo.active = true;
         this.activeConversation = convo;
         this._startMonitor();
-        this.sendToBot(send_to, message, true);
+        this.sendToBot(send_to, message, true, false);
     }
 
     startConversationFromOtherBot(name) {
@@ -144,14 +144,14 @@ class ConversationManager {
         this._startMonitor();
     }
 
-    sendToBot(send_to, message, start=false) {
+    sendToBot(send_to, message, start=false, open_chat=true) {
         if (!this.isOtherAgent(send_to)) {
-            agent.bot.whisper(send_to, message);
+            console.warn(`${agent.name} tried to send bot message to non-bot ${send_to}`);
             return;
         }
         const convo = this._getConvo(send_to);
         
-        if (settings.chat_bot_messages && !start)
+        if (settings.chat_bot_messages && open_chat)
             agent.openChat(`(To ${send_to}) ${message}`);
         
         if (convo.ignore_until_start)
@@ -174,7 +174,7 @@ class ConversationManager {
 
         // check if any convo is active besides the sender
         if (Object.values(this.convos).some(c => c.active && c.name !== sender)) {
-            this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`);
+            this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`, false, false);
             return;
         }
     
@@ -240,7 +240,7 @@ class ConversationManager {
     
     endAllConversations() {
         for (const sender in this.convos) {
-            this.convos[sender].end();
+            this.endConversation(sender);
         }
         if (self_prompter_paused) {
             _resumeSelfPrompter();

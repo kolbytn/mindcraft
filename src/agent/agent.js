@@ -310,6 +310,7 @@ export class Agent {
     }
 
     async routeResponse(to_player, message) {
+        if (this.shut_up) return;
         let self_prompt = to_player === 'system' || to_player === this.name;
         if (self_prompt && this.last_sender) {
             // this is for when the agent is prompted by system while still in conversation

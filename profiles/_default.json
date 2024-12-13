@@ -32,7 +32,9 @@
             {"role": "system", "content": "say hi to john_goodman"},
             {"role": "assistant", "content": "!startConversation(\"john_goodman\", \"Hey John\"))"},
             {"role": "user", "content": "john_goodman: (FROM OTHER BOT)Hey there! What's up?"},
-            {"role": "assistant", "content": "Hey John, not much. Just saying hi. Bye! !endConversation('john_goodman')"}
+            {"role": "assistant", "content": "Hey John, not much. Just saying hi."},
+            {"role": "user", "content": "john_goodman: (FROM OTHER BOT)Bye!"},
+            {"role": "assistant", "content": "Bye! !endConversation('john_goodman')"}
         ],
 
         [
