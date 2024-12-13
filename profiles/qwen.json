@@ -4,12 +4,12 @@
     "model": {
         "api": "qwen",
         "url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
-        "model": "qwen-max"
+        "model": "qwen-plus"
     },
 
     "embedding": {
         "api": "qwen",
         "url": "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding",
-        "model": "text-embedding-v2"
+        "model": "text-embedding-v3"
     }
 }
