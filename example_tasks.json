@@ -1,7 +1,6 @@
 {
     "debug_single_agent": {
         "goal": "Just stand at a place and don't do anything",
-        "guidance": null,
         "initial_inventory": {},
         "type": "debug"
     },
