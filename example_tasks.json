@@ -1,0 +1,53 @@
+{
+    "debug_single_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "initial_inventory": {},
+        "type": "debug"
+    },
+    "debug_multi_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug"
+    },
+    "construction": {
+        "type": "construction",
+        "goal": "Build a house",
+        "initial_inventory": {
+            "oak_planks": 20
+        }
+    },
+    "techtree_1_shears_with_2_iron_ingot": {
+        "goal": "Build a shear.",
+        "initial_inventory": {
+            "iron_ingot": 1
+        },
+        "target": "shears",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 60
+    },
+    "multiagent_techtree_1_stone_pickaxe": {
+        "conversation": "Let's collaborate to build a stone pickaxe",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "wooden_pickaxe": 1
+            },
+            "1": {
+                "wooden_axe": 1
+            }
+        },
+        "target": "stone_pickaxe",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
+    }
+}

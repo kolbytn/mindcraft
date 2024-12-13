@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import { mainProxy } from './main_proxy.js';
 
 export class AgentProcess {
-    start(profile, load_memory=false, init_message=null, count_id=0) {
+    start(profile, load_memory=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.profile = profile;
         this.count_id = count_id;
         this.running = true;
@@ -14,6 +14,10 @@ export class AgentProcess {
             args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
+        if (task_path)
+            args.push('-t', task_path);
+        if (task_id)
+            args.push('-i', task_id);
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
@@ -26,6 +30,11 @@ export class AgentProcess {
             this.running = false;
             mainProxy.logoutAgent(this.name);
             
+            if (code > 1) {
+                console.log(`Ending task`);
+                process.exit(code);
+            }
+
             if (code !== 0 && signal !== 'SIGINT') {
                 // agent must run for at least 10 seconds before restarting
                 if (Date.now() - last_restart < 10000) {
@@ -33,7 +42,7 @@ export class AgentProcess {
                     return;
                 }
                 console.log('Restarting agent...');
-                this.start(profile, true, 'Agent process restarted.', count_id);
+                this.start(profile, true, 'Agent process restarted.', count_id, task_path, task_id);
                 last_restart = Date.now();
             }
         });

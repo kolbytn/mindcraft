@@ -12,6 +12,14 @@ function parseArguments() {
             type: 'array',
             describe: 'List of agent profile paths',
         })
+        .option('task_path', {
+            type: 'string',
+            describe: 'Path to task file to execute'
+        })
+        .option('task_id', {
+            type: 'string',
+            describe: 'Task ID to execute'
+        })
         .help()
         .alias('help', 'h')
         .parse();
@@ -37,7 +45,7 @@ async function main() {
         const profile = readFileSync(profiles[i], 'utf8');
         const agent_json = JSON.parse(profile);
         mainProxy.registerAgent(agent_json.name, agent_process);
-        agent_process.start(profiles[i], load_memory, init_message, i);
+        agent_process.start(profiles[i], load_memory, init_message, i, args.task_path, args.task_id);
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 }
