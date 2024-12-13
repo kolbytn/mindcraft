@@ -179,7 +179,7 @@ export class Task {
             await new Promise((resolve) => setTimeout(resolve, 10000));
             if (available_agents.length < this.data.agent_count) {
                 console.log(`Missing ${this.data.agent_count - available_agents.length} bot(s).`);
-                this.agent.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+                this.agent.killAll();
             }
         }
 

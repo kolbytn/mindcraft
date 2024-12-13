@@ -35,6 +35,16 @@ class MainProxy {
         this.socket.on('register-agents-success', () => {
             console.log('Agents registered');
         });
+
+        this.socket.on('shutdown', () => {
+            console.log('Shutting down');
+            for (let agentName in this.agent_processes) {
+                this.agent_processes[agentName].stop();
+            }
+            setTimeout(() => {
+                process.exit(0);
+            }, 2000);
+        });
     }
 
     addAgent(agent) {
