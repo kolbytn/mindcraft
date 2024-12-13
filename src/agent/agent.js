@@ -438,22 +438,18 @@ export class Agent {
         }, INTERVAL);
 
         this.bot.emit('idle');
-
-        // Check for task completion
-        if (this.task.data) {
-            setInterval(() => {
-                let res = this.task.isDone();
-                if (res) {
-                    // TODO kill other bots
-                    this.cleanKill(res.message, res.code);
-                }
-            }, 1000);
-        }
     }
 
     async update(delta) {
         await this.bot.modes.update();
         this.self_prompter.update(delta);
+        if (this.task.data) {
+            let res = this.task.isDone();
+            if (res) {
+                console.log('Task finished:', res.message);
+                this.killAll();
+            }
+        }
     }
 
     isIdle() {
@@ -465,5 +461,9 @@ export class Agent {
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
+    }
+
+    killAll() {
+        serverProxy.shutdown();
     }
 }
