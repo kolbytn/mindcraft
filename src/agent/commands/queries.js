@@ -1,6 +1,6 @@
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
-
+import convoManager from '../conversation.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
@@ -40,10 +40,19 @@ export const queryList = [
                 res += '\n- Time: Night';
             }
 
-            let other_players = world.getNearbyPlayerNames(bot);
-            if (other_players.length > 0) {
-                res += '\n- Other Players: ' + other_players.join(', ');
-            }
+            // get the bot's current action
+            let action = agent.actions.currentActionLabel;
+            if (agent.isIdle())
+                action = 'Idle';
+            res += `\- Current Action: ${action}`;
+
+
+            let players = world.getNearbyPlayerNames(bot);
+            let bots = convoManager.getInGameAgents().filter(b => b !== agent.name);
+            players = players.filter(p => !bots.includes(p));
+
+            res += '\n- Nearby Human Players: ' + (players.length > 0 ? players.join(', ') : 'None.');
+            res += '\n- Nearby Bot Players: ' + (bots.length > 0 ? bots.join(', ') : 'None.');
 
             res += '\n' + agent.bot.modes.getMiniDocs() + '\n';
             return pad(res);
@@ -61,7 +70,7 @@ export const queryList = [
                     res += `\n- ${item}: ${inventory[item]}`;
             }
             if (res === 'INVENTORY') {
-                res += ': none';
+                res += ': Nothing';
             }
             else if (agent.bot.game.gameMode === 'creative') {
                 res += '\n(You have infinite items in creative mode. You do not need to gather resources!!)';
@@ -81,7 +90,7 @@ export const queryList = [
             if (boots)
                 res += `\nFeet: ${boots.name}`;
             if (!helmet && !chestplate && !leggings && !boots)
-                res += 'None';
+                res += 'Nothing';
 
             return pad(res);
         }
@@ -123,9 +132,17 @@ export const queryList = [
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'NEARBY_ENTITIES';
-            for (const entity of world.getNearbyPlayerNames(bot)) {
-                res += `\n- player: ${entity}`;
+            let players = world.getNearbyPlayerNames(bot);
+            let bots = convoManager.getInGameAgents().filter(b => b !== agent.name);
+            players = players.filter(p => !bots.includes(p));
+
+            for (const player of players) {
+                res += `\n- Human player: ${player}`;
             }
+            for (const bot of bots) {
+                res += `\n- Bot player: ${bot}`;
+            }
+
             for (const entity of world.getNearbyEntityTypes(bot)) {
                 if (entity === 'player' || entity === 'item')
                     continue;

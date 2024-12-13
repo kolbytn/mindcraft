@@ -238,7 +238,7 @@ export function getNearbyPlayerNames(bot) {
      * @example
      * let players = world.getNearbyPlayerNames(bot);
      **/
-    let players = getNearbyPlayers(bot, 16);
+    let players = getNearbyPlayers(bot, 64);
     let found = [];
     for (let i = 0; i < players.length; i++) {
         if (!found.includes(players[i].username) && players[i].username != bot.username) {
@@ -293,7 +293,7 @@ export function shouldPlaceTorch(bot) {
     if (!nearest_torch) {
         const block = bot.blockAt(pos);
         let has_torch = bot.inventory.items().find(item => item.name === 'torch');
-        return has_torch && block.name === 'air';
+        return has_torch && block?.name === 'air';
     }
     return false;
 }
