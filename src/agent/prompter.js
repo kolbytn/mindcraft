@@ -174,7 +174,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent.blocked_actions));
         if (prompt.includes('$CODE_DOCS'))
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)
