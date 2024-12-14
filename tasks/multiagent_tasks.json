@@ -78,5 +78,28 @@
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 60
+    },
+
+    "multiagent_make_cake": {
+        "goal": "Collaborate with other agents to make a cake.",
+        "agent_names": [
+            "andy",
+            "randy"
+        ],
+        "agent_number": 2,
+        "initial_inventory": {
+            "andy": {
+                "wheat": 3,
+                "egg": 1
+            },
+            "randy": {
+                "sugar": 2,
+                "milk_bucket": 3
+            }
+        },
+        "target": "cake",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
     }
 }

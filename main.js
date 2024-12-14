@@ -83,7 +83,7 @@ function determine_init_message(task, agent_index) {
         if ('agent_number' in task && task.agent_number > 1) {
             if (agent_index == 0) {
                 // first agent gets this init message
-                return "Immediately start a conversation and collaborate together to complete the task. Share resources and skill sets. Use the !startConversation function if needed."
+                return "Immediately start a conversation using !startConversation function and collaborate together to complete the task. Share resources and skill sets."
             }   // all other agents get this init message
             return "Collaborate together to complete the task. Share resources and skill sets."
         }
