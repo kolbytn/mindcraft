@@ -1,7 +1,7 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from './commands/index.js';
-import { getSkillDocs } from './library/index.js';
+// import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
 
@@ -15,7 +15,8 @@ import { GroqCloudAPI } from '../models/groq.js';
 import { HuggingFace } from '../models/huggingface.js';
 import { Qwen } from "../models/qwen.js";
 import { Grok } from "../models/grok.js";
-import {cosineSimilarity} from "../utils/math.js";
+// import {cosineSimilarity} from "../utils/math.js";
+import {SkillLibrary} from "./library/skill_library.js";
 
 export class Prompter {
     constructor(agent, fp) {
@@ -30,7 +31,7 @@ export class Prompter {
 
         this.convo_examples = null;
         this.coding_examples = null;
-        this.skill_docs_embeddings = {};
+
 
         let name = this.profile.name;
         let chat = this.profile.model;
@@ -125,7 +126,7 @@ export class Prompter {
             console.log('Continuing anyway, using word overlap instead.');
             this.embedding_model = null;
         }
-
+        this.skill_libary = new SkillLibrary(agent, this.embedding_model);
         mkdirSync(`./bots/${name}`, { recursive: true });
         writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {
             if (err) {
@@ -152,10 +153,7 @@ export class Prompter {
             await Promise.all([
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples),
-                ...getSkillDocs().map(async (doc) => {
-                    let func_name_desc = doc.split('\n').slice(0, 2).join('');
-                    this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
-                })
+                this.skill_libary.initSkillLibrary()
             ]);
 
             console.log('Examples initialized.');
@@ -163,30 +161,6 @@ export class Prompter {
             console.error('Failed to initialize examples:', error);
             throw error;
         }
-    }
-    async getRelevantSkillDocs(message, select_num) {
-        let latest_message_embedding = '';
-        if(message) //message is not empty, get the relevant skill docs, else return all skill docs
-            latest_message_embedding = await this.embedding_model.embed(message);
-
-        let skill_doc_similarities = Object.keys(this.skill_docs_embeddings)
-            .map(doc_key => ({
-                doc_key,
-                similarity_score: cosineSimilarity(latest_message_embedding, this.skill_docs_embeddings[doc_key])
-            }))
-            .sort((a, b) => b.similarity_score - a.similarity_score);
-
-        let length = skill_doc_similarities.length;
-        if (typeof select_num !== 'number' || isNaN(select_num) || select_num < 0) {
-            select_num = length;
-        } else {
-            select_num = Math.min(Math.floor(select_num), length);
-        }
-        let selected_docs = skill_doc_similarities.slice(0, select_num);
-        let relevant_skill_docs = '#### RELEVENT DOCS INFO ###\nThe following functions are listed in descending order of relevance.\n';
-        relevant_skill_docs += 'SkillDocs:\n'
-        relevant_skill_docs += selected_docs.map(doc => `${doc.doc_key}`).join('\n### ');
-        return relevant_skill_docs;
     }
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
@@ -216,7 +190,7 @@ export class Prompter {
 
             prompt = prompt.replaceAll(
                 '$CODE_DOCS',
-                await this.getRelevantSkillDocs(code_task_content, 5)
+                await this.skill_libary.getRelevantSkillDocs(code_task_content, 5)
             );
         }
         if (prompt.includes('$EXAMPLES') && examples !== null)

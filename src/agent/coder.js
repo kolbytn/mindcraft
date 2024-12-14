@@ -35,7 +35,7 @@ export class Coder {
         while ((match = skillRegex.exec(code)) !== null) {
             skills.push(match[1]);
         }
-        const allDocs = await this.agent.prompter.getRelevantSkillDocs();
+        const allDocs = await this.agent.prompter.skill_libary.getRelevantSkillDocs();
         //Check if the function exists
         const missingSkills = skills.filter(skill => !allDocs.includes(skill));
         if (missingSkills.length > 0) {
@@ -193,7 +193,7 @@ export class Coder {
             let src_check_copy = result.src_check_copy;
             const analysisResult = await this.checkCode(src_check_copy);
             if (analysisResult) {
-                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.getRelevantSkillDocs(analysisResult,3);
+                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.skill_libary.getRelevantSkillDocs(analysisResult,3);
                 messages.push({ role: 'system', content: message });
                 continue;
             }

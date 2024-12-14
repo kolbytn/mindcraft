@@ -113,7 +113,7 @@ export class ActionManager {
             console.error(err.stack);
             await this.stop();
             err = err.toString();
-            let relevant_skill_docs = await this.agent.prompter.getRelevantSkillDocs(err,5);
+            let relevant_skill_docs = await this.agent.prompter.skill_libary.getRelevantSkillDocs(err,5);
 
             let message = this._getBotOutputSummary() +
                 '!!Code threw exception!!\n' +
