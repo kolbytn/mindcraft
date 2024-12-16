@@ -4,7 +4,7 @@ import { getCommandDocs } from './commands/index.js';
 // import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
-
+import settings from '../../settings.js';
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
@@ -178,19 +178,14 @@ export class Prompter {
         }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent.blocked_actions));
-        if (prompt.includes('$CODE_DOCS')){
-            // Find the most recent non-system message containing '!newAction('
-            let code_task_content = messages.slice().reverse().find(msg =>
+        if (prompt.includes('$CODE_DOCS')) {
+            const code_task_content = messages.slice().reverse().find(msg =>
                 msg.role !== 'system' && msg.content.includes('!newAction(')
-            )?.content || '';
-
-            // Extract content between '!newAction(' and ')'
-            const match = code_task_content.match(/!newAction\((.*?)\)/);
-            code_task_content = match ? match[1] : '';
+            )?.content?.match(/!newAction\((.*?)\)/)?.[1] || '';
 
             prompt = prompt.replaceAll(
                 '$CODE_DOCS',
-                await this.skill_libary.getRelevantSkillDocs(code_task_content, 5)
+                await this.skill_libary.getRelevantSkillDocs(code_task_content, settings.relevant_docs_count)
             );
         }
         if (prompt.includes('$EXAMPLES') && examples !== null)
