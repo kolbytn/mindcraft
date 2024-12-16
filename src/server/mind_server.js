@@ -101,6 +101,19 @@ export function createMindServer(port = 8080) {
             }
         });
 
+        socket.on('stop-all-agents', () => {
+            console.log('Killing all agents');
+            stopAllAgents();
+        });
+
+        socket.on('shutdown', () => {
+            console.log('Shutting down');
+            for (let manager of Object.values(agentManagers)) {
+                manager.emit('shutdown');
+            }
+            process.exit(0);
+        });
+
     });
 
     server.listen(port, 'localhost', () => {
@@ -119,6 +132,15 @@ function agentsUpdate(socket) {
         agents.push({name, in_game: !!inGameAgents[name]});
     });
     socket.emit('agents-update', agents);
+}
+
+function stopAllAgents() {
+    for (const agentName in inGameAgents) {
+        let manager = agentManagers[agentName];
+        if (manager) {
+            manager.emit('stop-agent', agentName);
+        }
+    }
 }
 
 // Optional: export these if you need access to them from other files

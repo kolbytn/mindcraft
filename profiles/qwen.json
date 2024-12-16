@@ -1,10 +1,12 @@
 {
     "name": "qwen",
 
+    "cooldown": 5000,
+
     "model": {
         "api": "qwen",
         "url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
-        "model": "qwen-plus"
+        "model": "qwen-max"
     },
 
     "embedding": {

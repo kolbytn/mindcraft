@@ -897,10 +897,7 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
     }
     // if we are too close, make some distance
     if (bot.entity.position.distanceTo(player.position) < 2) {
-        let goal = new pf.goals.GoalNear(player.position.x, player.position.y, player.position.z, 2);
-        let inverted_goal = new pf.goals.GoalInvert(goal);
-        bot.pathfinder.setMovements(new pf.Movements(bot));
-        await bot.pathfinder.goto(inverted_goal);
+        await moveAwayFromEntity(bot, player, 2);
     }
     await bot.lookAt(player.position);
     if (await discard(bot, itemType, num)) {
@@ -1103,6 +1100,21 @@ export async function moveAway(bot, distance) {
     await bot.pathfinder.goto(inverted_goal);
     let new_pos = bot.entity.position;
     log(bot, `Moved away from nearest entity to ${new_pos}.`);
+    return true;
+}
+
+export async function moveAwayFromEntity(bot, entity, distance=16) {
+    /**
+     * Move away from the given entity.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {Entity} entity, the entity to move away from.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     **/
+    let goal = new pf.goals.GoalFollow(entity, distance);
+    let inverted_goal = new pf.goals.GoalInvert(goal);
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    await bot.pathfinder.goto(inverted_goal);
     return true;
 }
 

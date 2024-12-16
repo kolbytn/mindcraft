@@ -48,6 +48,10 @@ class AgentServerProxy {
         this.socket.emit('login-agent', this.agent.name);
     }
 
+    shutdown() {
+        this.socket.emit('shutdown');
+    }
+
     getSocket() {
         return this.socket;
     }
