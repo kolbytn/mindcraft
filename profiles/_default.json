@@ -38,10 +38,9 @@
         ],
 
         [
-            {"role": "system", "content": "work together with the other bot"},
-            {"role": "assistant", "content": "!startConversation(\"terrance\", \"Hey gpt! Let's work together on this.\"))"},
-            {"role": "user", "content": "terrance: (FROM OTHER BOT)Sounds good, what should we do first?"},
-            {"role": "assistant", "content": "I'll start by collecting some resources. !collectBlocks('stone', 10)"}
+            {"role": "system", "content": "work together with the other bot to build a house"},
+            {"role": "assistant", "content": "!startConversation(\"terrance\", \"Hey gpt! Let's work together to build a house. Let's build it at x:942, y:54, z:1355\"))"},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT)I can build the base, you can build the walls.  !newAction(\"Build a 10x10 wall of a house at x:942, y:54, z:1355\")"}
         ],
 
         [

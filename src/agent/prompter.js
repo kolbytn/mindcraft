@@ -230,6 +230,9 @@ export class Prompter {
         let current_msg_time = this.most_recent_msg_time;
         for (let i = 0; i < 3; i++) { // try 3 times to avoid hallucinations
             await this.checkCooldown();
+            if (current_msg_time !== this.most_recent_msg_time) {
+                return '';
+            }
             let prompt = this.profile.conversing;
             prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
             let generation = await this.chat_model.sendRequest(messages, prompt);
