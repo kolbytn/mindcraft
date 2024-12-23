@@ -35,7 +35,7 @@
     "techtree_1_shears_with_2_iron_ingot": {
         "goal": "Build a shear.",
         "initial_inventory": {
-            "iron_ingot": 1
+            "iron_ingot": 2
         },
         "target": "shears",
         "number_of_target": 1,
@@ -113,7 +113,7 @@
     
     "construction_house": {
         "type": "construction",
-        "goal": "Make a house with a blueprint below",
+        "goal": "Make a house with the blueprint below",
         "blueprint": {
             "materials": {
                 "plank": {
@@ -154,8 +154,8 @@
                     "placement":
                     [
                         ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "air", "air", "air", "plank"],
-                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"],
                         ["plank", "plank", "plank", "plank", "plank"]
                     ]
                 }
