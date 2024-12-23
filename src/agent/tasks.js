@@ -50,7 +50,6 @@ export class Blueprint {
         }
         return explanation;
     }
-
     _getPlacementString(placement) {
         var placement_string = "[\n";
         for (let row of placement) {
@@ -67,7 +66,6 @@ export class Blueprint {
     }
 }
 
-
 export class Task {
     constructor(agent, task_path, task_id) {
         this.agent = agent;
@@ -78,11 +76,25 @@ export class Task {
         this.blocked_actions = [];
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
+            this.task_type = this.data.type;
+            console.log('Task type:', this.task_type);
+            if (this.task_type === 'construction' && this.data.blueprint) {
+                //add the blueprint to the goal if it is a construction task
+                //todo: fix this for multi-agent scenarios with partial blueprints
+                this.blueprint = new Blueprint(this.data.blueprint);
+                console.log('Blueprint:', this.blueprint.explain());
+                this.goal = this.data.goal + ' \n' + this.blueprint.explain();
+                console.log('Goal:', this.goal);
+            } else {
+                this.goal = this.data.goal;
+                console.log('Goal:', this.goal);
+            }
+            
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
             this.validator = new TaskValidator(this.data, this.agent);
             this.blocked_actions = this.data.blocked_actions || [];
-            if (this.data.goal)
+            if (this.goal)
                 this.blocked_actions.push('!endGoal');
             if (this.data.conversation)
                 this.blocked_actions.push('!endConversation');
@@ -214,8 +226,9 @@ export class Task {
             }
         }
 
-        if (this.data.goal) {
-            await executeCommand(this.agent, `!goal("${this.data.goal}")`);
+        if (this.goal) {
+            console.log('Setting goal:', this.goal);
+            await executeCommand(this.agent, `!goal("${this.goal}")`);
         }
     
         if (this.data.conversation && this.agent.count_id === 0) {
