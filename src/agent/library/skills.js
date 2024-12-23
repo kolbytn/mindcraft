@@ -1270,7 +1270,7 @@ export async function sow(bot, x, y, z, seedType='wheat_seeds') {
     block = bot.blockAt(block.position.offset(new Vec3(0,-1,0)));
   }
   if (!block || block.name !== 'farmland') {
-      log(bot, `Cannot sow ${block.name}, must be farmland.`);
+      log(bot, `Cannot sow ${block?.name}, must be farmland.`);
       return false;
   }
   let above = bot.blockAt(block.position.offset(new Vec3(0, 1, 0)));

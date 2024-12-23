@@ -268,7 +268,7 @@ export function getNearbyBlockTypes(bot, distance=16) {
     return found;
 }
 
-export function getNearbyBlocksDetailed(bot, distance=4) {
+export function getNearbyBlocksDetailed(bot, distance=3) {
   /**
    * Get a detailed list of all nearby block names, including location and relevant metadata.
    * @param {Bot} bot - The bot to get nearby blocks for.
@@ -300,7 +300,7 @@ function getBlockMetadataString(bot, block) {
     } else {
       sownDetails = ` (ready to be sown)`;
     }
-    return(`Arable (from 0-7): ${block.metadata}${sownDetails}`)
+    return(`Arable: [${block.metadata}/7] ${sownDetails}`)
   } else if (crops.includes(block?.name)) {
     return(`Harvestable?: ${block.name==="beetroot" ? block.metadata === 3 : block.metadata === 7}`)
   }
