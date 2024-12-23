@@ -320,6 +320,31 @@ export const actionsList = [
         })
     },
     {
+      name: '!sowLocation',
+      description: 'Sow the crop type in the specified location. ',
+      params: { 
+        'x_coord': { type: 'string', description: 'The x coordinate to farm.' },
+        'y_coord': { type: 'string', description: 'The y coordinate to farm.' },
+        'z_coord': { type: 'string', description: 'The z coordinate to farm.' },
+        'type': { type: 'ItemName', description: 'The seed type to saw, e.g. wheat_seeds.' },
+      },
+      perform: runAsAction(async (agent, x_coord, y_coord, z_coord, type) => {
+          await skills.sow(agent.bot, x_coord, y_coord, z_coord, type);
+      })
+    },
+    {
+      name: '!harvestLocation',
+      description: 'Harvest the specified location.',
+      params: { 
+        'x_coord': { type: 'string', description: 'The x coordinate to harvest.' },
+        'y_coord': { type: 'string', description: 'The y coordinate to harvest.' },
+        'z_coord': { type: 'string', description: 'The z coordinate to harvest.' },
+      },
+      perform: runAsAction(async (agent, x_coord, y_coord, z_coord) => {
+          await skills.harvest(agent.bot, x_coord, y_coord, z_coord);
+      })
+    },
+    {
         name: '!activate',
         description: 'Activate the nearest object of a given type.',
         params: {'type': { type: 'BlockName', description: 'The type of object to activate.' }},

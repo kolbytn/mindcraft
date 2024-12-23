@@ -6,6 +6,7 @@
     "REPLICATE_API_KEY": "",
     "GROQCLOUD_API_KEY": "",
     "HUGGINGFACE_API_KEY": "",
+    "TABBY_API_KEY":"",
     "QWEN_API_KEY": "",
     "XAI_API_KEY": ""
 }
