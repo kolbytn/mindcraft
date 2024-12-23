@@ -112,6 +112,22 @@ export const queryList = [
         }
     },
     {
+      name: "!scanBlocks",
+      description: "Get detailed information about the nearby blocks.",
+      perform: function (agent) {
+          let bot = agent.bot;
+          let res = 'SCAN_BLOCKS';
+          let blocks = world.getNearbyBlocksDetailed(bot);
+          for (let i = 0; i < blocks.length; i++) {
+              res += `\n- ${blocks[i]}`;
+          }
+          if (blocks.length == 0) {
+              res += ': none';
+          }
+          return pad(res);
+      }
+    },
+    {
         name: "!craftable",
         description: "Get the craftable items with the bot's inventory.",
         perform: function (agent) {

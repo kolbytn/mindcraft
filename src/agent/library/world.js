@@ -268,6 +268,45 @@ export function getNearbyBlockTypes(bot, distance=16) {
     return found;
 }
 
+export function getNearbyBlocksDetailed(bot, distance=4) {
+  /**
+   * Get a detailed list of all nearby block names, including location and relevant metadata.
+   * @param {Bot} bot - The bot to get nearby blocks for.
+   * @param {number} distance - The maximum distance to search, default 16.
+   * @returns {string[]} - A list of all nearby blocks.
+   * @example
+   * let blocks = world.getNearbyBlocksDetailed(bot);
+   **/
+  let blocks = getNearestBlocks(bot, null, distance);
+  let found = [];
+  for (let i = 0; i < blocks.length; i++) {
+      if (!found.includes(blocks[i].name)) {
+        found.push(`${blocks[i].name}: [${blocks[i].position.x}, ${blocks[i].position.y}, ${blocks[i].position.z}] ${getBlockMetadataString(bot, blocks[i])}`);
+      }
+  }
+  return found;
+}
+
+let crops = ["wheat", "beetroot", "potatoes", "carrots"]
+
+function getBlockMetadataString(bot, block) {
+  if (block?.name === "farmland") {
+    let above = bot.blockAt(block.position.offset(0,1,0));
+    var sownDetails = "";
+    if (above && (above.name === 'wheat' || above.name === 'carrots' || above.name === 'potatoes')) {
+      sownDetails = ` (sown with ${above.metadata === 7 ? "harvestable" : "unripe"} ${above.name})`;
+    } else if (above && (above.name === 'beetroot')) {
+      sownDetails = ` (sown with ${above.metadata === 3 ? "harvestable" : "unripe"} ${above.name})`;
+    } else {
+      sownDetails = ` (ready to be sown)`;
+    }
+    return(`Arable (from 0-7): ${block.metadata}${sownDetails}`)
+  } else if (crops.includes(block?.name)) {
+    return(`Harvestable?: ${block.name==="beetroot" ? block.metadata === 3 : block.metadata === 7}`)
+  }
+  return "";
+}
+
 export async function isClearPath(bot, target) {
     /**
      * Check if there is a path to the target that requires no digging or placing blocks.
