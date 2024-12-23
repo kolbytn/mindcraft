@@ -3,7 +3,6 @@ import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js'
 import settings from '../../settings.js';
 
-
 export class TaskValidator {
     constructor(data, agent) {
         this.target = data.target;
@@ -35,6 +34,39 @@ export class TaskValidator {
         }
     }
 }
+
+export class Blueprint {
+    constructor(blueprint) {
+        this.blueprint = blueprint;
+    }
+    explain() {
+        var explanation = "";
+        for (let item of this.blueprint.levels) {
+            var coordinates = item.coordinates;
+            explanation += `Level ${item.level}: `;
+            explanation += `Start at coordinates X: ${coordinates[0]}, Y: ${coordinates[1]}, Z: ${coordinates[2]}`;
+            let placement_string = this._getPlacementString(item.placement);
+            explanation += `\n${placement_string}\n`;
+        }
+        return explanation;
+    }
+
+    _getPlacementString(placement) {
+        var placement_string = "[\n";
+        for (let row of placement) {
+            placement_string += "[";
+            for (let i = 0; i < row.length - 1; i++) {
+                let item = row[i];
+                placement_string += `${item}, `;
+            }
+            let final_item = row[row.length - 1];
+            placement_string += `${final_item}],\n`;
+        }
+        placement_string += "]";
+        return placement_string;
+    }
+}
+
 
 export class Task {
     constructor(agent, task_path, task_id) {
@@ -195,4 +227,15 @@ export class Task {
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
     }    
+}
+
+export function giveBlueprint(agent, blueprint) {
+    let bot = agent.bot;
+    let name = agent.name;
+    let blueprint_name = blueprint.name;
+    let blueprint_count = blueprint.count;
+    bot.chat(`/clear ${name}`);
+    console.log(`Cleared ${name}'s inventory.`);
+    bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
+    console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
 }
