@@ -49,5 +49,60 @@
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
+    }, 
+    "construction_house": {
+        "type": "construction",
+        "goal": "Make a house with a blueprint below",
+        "blueprint": {
+            "materials": {
+                "plank": {
+                    "id": "oak_plank",
+                    "number": 40
+                },
+                "door": {
+                    "id": "oak_door",
+                    "number": 1
+                }
+            },
+            "levels": [
+                {   
+                    "level": 0,
+                    "coordinates": [142, -60, -179], 
+                    "placement":
+                    [
+                        ["plank", "plank", "door", "plank", "plank"],
+                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"]
+                    ]
+                },
+                {
+                    "level": 1,
+                    "coordinates": [142, -59, -179],
+                    "placement":
+                    [
+                        ["plank", "plank", "air", "plank", "plank"],
+                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"]
+                    ]
+                },
+                {
+                    "level": 2,
+                    "coordinates": [142, -58, -179],
+                    "placement":
+                    [
+                        ["plank", "plank", "plank", "plank", "plank"],
+                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "air", "air", "air", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"]
+                    ]
+                }
+            ]
+        },
+        "initial_inventory": {
+            "oak_planks": 40, 
+            "oak_door": 1
+        }
     }
 }
