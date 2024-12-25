@@ -190,7 +190,10 @@ export function getItemCraftingRecipes(itemName) {
                 recipe[ingredientName] = 0;
             recipe[ingredientName]++;
         }
-        recipes.push(recipe);
+        recipes.push([
+            recipe,
+            {craftedCount : r.result.count}
+        ]);
     }
 
     return recipes;
@@ -325,4 +328,225 @@ export function calculateLimitingResource(availableItems, requiredItems, discret
     }
     if(discrete) num = Math.floor(num);
     return {num, limitingResource}
+}
+
+export function getDetailedCraftingPlan(currentInventory, targetItem, count = 1) {
+    initializeLoopingItems();
+
+    const missingItems = {};
+    const craftingSteps = [];
+    const remainingInventory = { ...currentInventory };
+    const visited = new Set();
+
+    // Helper function to check if we have enough of an item
+    function checkInventory(item, neededCount) {
+        const available = remainingInventory[item] || 0;
+        if (available >= neededCount) {
+            remainingInventory[item] = available - neededCount;
+            return true;
+        }
+        return false;
+    }
+
+    // Helper function to add missing items
+    function addMissingItem(item, count) {
+        missingItems[item] = (missingItems[item] || 0) + count;
+    }
+
+    // Helper function to create a step key for aggregation
+    function createStepKey(ingredients, output, craftedCount) {
+        const sortedIngredients = Object.entries(ingredients)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([item, count]) => `${count} ${item}`)
+            .join(" + ");
+        return `${sortedIngredients} -> ${craftedCount} ${output}`;
+    }
+
+    function generateCraftingSteps(item, requiredCount, depth = 0) {
+        // Check for looping items first
+        if (loopingItems.has(item)) {
+            if (!checkInventory(item, requiredCount)) { addMissingItem(item, requiredCount); }
+            return;
+        }
+    
+        // Check for cycles in recipe chain
+        if (visited.has(item)) {
+            if (!checkInventory(item, requiredCount)) { addMissingItem(item, requiredCount); }
+            return;
+        }
+    
+        visited.add(item);
+    
+        // First check if we already have enough of the item
+        const neededFromCrafting = requiredCount;
+        if (checkInventory(item, requiredCount)) {
+            visited.delete(item);
+            return;
+        }
+    
+        const recipes = getItemCraftingRecipes(item);
+        if (!recipes || recipes.length === 0) {
+            addMissingItem(item, requiredCount);
+            visited.delete(item);
+            return;
+        }
+    
+        // Get the first recipe assuming its the simplest
+        const [ingredients, craftingInfo] = recipes[0];
+        const craftedCount = craftingInfo.craftedCount;
+        const batchesNeeded = Math.ceil(neededFromCrafting / craftedCount);
+    
+        // Add crafting step with the total batches needed
+        const stepKey = createStepKey(ingredients, item, craftedCount);
+        craftingSteps.push({
+            depth,
+            stepKey,
+            input: ingredients,
+            output: item,
+            outputCount: craftedCount,
+            batchesNeeded,
+            recipe: ingredients
+        });
+    
+        // Process each ingredient recursively
+        for (const [ingredient, ingredientCount] of Object.entries(ingredients)) {
+            const totalNeeded = ingredientCount * batchesNeeded;
+            generateCraftingSteps(ingredient, totalNeeded, depth + 1);
+        }
+    
+        visited.delete(item);
+    }
+
+    // Generate the complete crafting plan
+    generateCraftingSteps(targetItem, count);
+
+    // Format the response
+    let response = "";
+    
+    const hasMissingItems = Object.keys(missingItems).length > 0;
+    
+    if (!hasMissingItems && craftingSteps.length === 0) {
+        response += `You have all the items needed to craft ${targetItem}. `;
+        const recipe = getItemCraftingRecipes(targetItem)[0][0];
+        response += `Just combine ${Object.entries(recipe)
+            .map(([item, count]) => `${count} ${item}`)
+            .join(" + ")}.`;
+    } else {
+        if (hasMissingItems) {
+            response += "You are missing the following items:\n";
+            for (const [item, count] of Object.entries(missingItems)) {
+                response += `- ${count} ${item}\n`;
+            }
+            response += "\nOnce you have these items, ";
+        } else {
+            response += "You have all the required materials. ";
+        }
+        
+        if (craftingSteps.length > 0) {
+            response += "Here's your crafting plan:\n\n";
+            
+            // Sort crafting steps by depth in reverse order
+            craftingSteps.sort((a, b) => b.depth - a.depth);
+            
+            // Aggregate similar steps
+            const stepCounts = new Map();
+            craftingSteps.forEach(step => {
+                stepCounts.set(step.stepKey, (stepCounts.get(step.stepKey) || 0) + step.batchesNeeded);
+            });
+            
+            // Output aggregated steps
+            const printedSteps = new Set();
+            craftingSteps.forEach(step => {
+                if (!printedSteps.has(step.stepKey)) {
+                    const count = stepCounts.get(step.stepKey);
+                    const times = count === 1 ? "time" : "times";
+                    const inputs = Object.entries(step.input)
+                        .map(([item, itemCount]) => `${itemCount} ${item}`)
+                        .join(" + ");
+                    response += `${count}x ${times} ${inputs} -> ${step.outputCount} ${step.output}\n`;
+                    printedSteps.add(step.stepKey);
+                }
+            });
+        }
+    }
+
+    return {
+        canCraftNow: !hasMissingItems,
+        missingItems,
+        craftingSteps,
+        response
+    };
+}
+
+let loopingItems = new Set();
+
+function detectLoopingItems() {
+    const allItems = getAllItems();
+    const loopingItemsSet = new Set();
+    const problematicItems = [];
+
+    // Helper function to detect if an item is part of a crafting loop
+    function checkForLoop(item, visited = new Set()) {
+        if (visited.has(item)) {
+            return true;
+        }
+        visited.add(item);
+
+        const recipes = getItemCraftingRecipes(item);
+        if (!recipes || recipes.length === 0) {
+            visited.delete(item);
+            return false;
+        }
+
+        const [ingredients] = recipes[0];
+
+        // Check each ingredient for loops
+        for (const ingredient of Object.keys(ingredients)) {
+            if (checkForLoop(ingredient, new Set(visited))) {
+                loopingItemsSet.add(ingredient);
+                return true;
+            }
+        }
+
+        visited.delete(item);
+        return false;
+    }
+
+    // Check each item for loops
+    for (const item of allItems) {
+        const recipes = getItemCraftingRecipes(item.name);
+        if (!recipes || recipes.length === 0) {
+            continue;
+        }
+
+        const [ingredients] = recipes[0];
+        const problematicIngredients = [];
+
+        for (const ingredient of Object.keys(ingredients)) {
+            if (checkForLoop(ingredient, new Set())) {
+                loopingItemsSet.add(ingredient);
+                problematicIngredients.push(ingredient);
+            }
+        }
+
+        if (problematicIngredients.length > 0) {
+            problematicItems.push({
+                item: item.name,
+                recipe : recipes[0],
+                problematicIngredients
+            });
+        }
+    }
+
+    return {
+        loopingItems: Array.from(loopingItemsSet),
+        problematicItems
+    };
+}
+
+function initializeLoopingItems() {
+    if (loopingItems.size === 0) {
+        const { loopingItems: detectedLoopingItems } = detectLoopingItems();
+        detectedLoopingItems.forEach(item => loopingItems.add(item));
+    }
 }
