@@ -268,11 +268,11 @@ export function getNearbyBlockTypes(bot, distance=16) {
     return found;
 }
 
-export function getNearbyBlocksDetailed(bot, distance=5) {
+export function getNearbyBlocksDetailed(bot, distance=4) {
   /**
    * Get a detailed list of all nearby eye-level blocks, including location and relevant metadata.
    * @param {Bot} bot - The bot to get nearby blocks for.
-   * @param {number} distance - The maximum distance to search, default 5.
+   * @param {number} distance - The maximum distance to search, default 4.
    * @returns {string[]} - A list of all nearby blocks.
    * @example
    * let blocks = world.getNearbyBlocksDetailed(bot);
