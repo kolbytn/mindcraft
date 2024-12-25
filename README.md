@@ -44,6 +44,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | Replicate | `REPLICATE_API_KEY` | `meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
 | Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
+| TabbyAPI (local) | `TABBY_API_KEY` | `Dracones_Llama-3.3-70B-Instruct_exl2_4.0bpw` | [docs](https://github.com/theroyallab/tabbyAPI) |
 | Groq | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
 | Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
 | Novita AI | `NOVITA_API_KEY` | `gryphe/mythomax-l2-13b` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
