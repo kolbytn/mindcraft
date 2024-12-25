@@ -281,7 +281,7 @@ export function getNearbyBlocksDetailed(bot, distance=4) {
   let botPosition = bot.entity.position;
   let found = [];
   for (let i = 0; i < blocks.length; i++) {
-    if (botPosition.y - 1 > blocks[i].position.y) {
+    if (botPosition.y - 2 > blocks[i].position.y) {
       continue; // skip blocks below bot
     } else if (botPosition.y + 1 < blocks[i].position.y) {
       continue; // skip blocks above bot
@@ -299,15 +299,15 @@ function getBlockMetadataString(bot, block) {
     let above = bot.blockAt(block.position.offset(0,1,0));
     var sownDetails = "";
     if (above && (above.name === 'wheat' || above.name === 'carrots' || above.name === 'potatoes')) {
-      sownDetails = ` (sown with ${above.metadata === 7 ? "harvestable" : "unripe"} ${above.name})`;
+      sownDetails = `(sown with ${above.metadata === 7 ? "harvestable" : "unripe"} ${above.name})`;
     } else if (above && (above.name === 'beetroot')) {
-      sownDetails = ` (sown with ${above.metadata === 3 ? "harvestable" : "unripe"} ${above.name})`;
+      sownDetails = `(sown with ${above.metadata === 3 ? "harvestable" : "unripe"} ${above.name})`;
     } else {
-      sownDetails = ` (ready to be sown)`;
+      sownDetails = `(ready to be sown)`;
     }
     return(`Arable: [${block.metadata}/7] ${sownDetails}`)
   } else if (crops.includes(block?.name)) {
-    return(`Harvestable?: ${block.name==="beetroot" ? block.metadata === 3 : block.metadata === 7}`)
+    return(`Is${(block.name==="beetroot" ? block.metadata === 3 : block.metadata === 7) ? "" : " NOT"} ready for harvest.`)
   }
   return "";
 }
