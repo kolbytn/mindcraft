@@ -173,16 +173,16 @@ export class Task {
             bot.chat(`/tp ${name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
             await new Promise((resolve) => setTimeout(resolve, 200));
         }
-    
+
         if (this.data.agent_count && this.data.agent_count > 1) {
+            // TODO wait for other bots to join
             await new Promise((resolve) => setTimeout(resolve, 10000));
             if (available_agents.length < this.data.agent_count) {
                 console.log(`Missing ${this.data.agent_count - available_agents.length} bot(s).`);
-                this.agent.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+                this.agent.killAll();
             }
-    
         }
-    
+
         if (this.data.goal) {
             await executeCommand(this.agent, `!goal("${this.data.goal}")`);
         }

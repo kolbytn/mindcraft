@@ -85,7 +85,9 @@
                             `}
                         </div>
                     </div>
-                `).join('') :
+                `).join('') + 
+                `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
+                <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
                 '<div class="agent">No agents connected</div>';
         });
 
@@ -99,6 +101,14 @@
 
         function stopAgent(agentName) {
             socket.emit('stop-agent', agentName);
+        }
+
+        function killAllAgents() {
+            socket.emit('stop-all-agents');
+        }
+
+        function shutdown() {
+            socket.emit('shutdown');
         }
     </script>
 </body>
