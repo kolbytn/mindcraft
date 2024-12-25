@@ -1274,7 +1274,7 @@ export async function sow(bot, x, y, z, seedType='wheat_seeds') {
       return false;
   }
   let above = bot.blockAt(block.position.offset(new Vec3(0, 1, 0)));
-  console.log(`----- Sowing ${block.name}; Block above: ${above?.name}`);
+  console.log(`Sowing ${block.name}; Block above: ${above?.name}`);
   if (above && above.name !== 'air') {
       log(bot, `Warning, can't sow; there is ${above.name} above the block.`);
       return false;
@@ -1332,18 +1332,18 @@ export async function harvest(bot, x, y, z) {
     return false;
   }
 
-  if (block?.name === "wheat" || block?.name === "carrots" || block?.name === "potatoes") {
-    if (block.metadata !== 7) {
-      log(bot, `Sorry, ${block?.name} isn't ready to harvest! Crop maturity: ${block?.name}/7`);
+  if (block.name === "wheat" || block.name === "carrots" || block.name === "potatoes") {
+    if (block.metadata < 7) {
+      log(bot, `Sorry, ${block.name} isn't ready to harvest! Crop maturity: [${block.metadata}/7]`);
       return false;
     } 
-  } else if (block?.name === "beetroot") {
+  } else if (block.name === "beetroot") {
     if (block.metadata < 3) {
-      log(bot, `Sorry, ${block?.name} isn't ready to harvest! Crop maturity: ${block?.name}/3`);
+      log(bot, `Sorry, ${block.name} isn't ready to harvest! Crop maturity: [${block.metadata}/3]`);
       return false;
     } 
   } else {
-    log(bot, `Sorry, couldn't harvest ${block?.name}`);
+    log(bot, `Sorry, couldn't harvest ${block.name}`);
     return false;
   }
 
