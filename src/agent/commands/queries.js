@@ -167,5 +167,33 @@ export const queryList = [
         perform: async function (agent) {
             return "Saved place names: " + agent.memory_bank.getKeys();
         }
+    },
+    {
+        name: "!getCraftingPlan",
+        description: "Provides a comprehensive crafting plan for a specified item. This includes a breakdown of required ingredients, the exact quantities needed, and an analysis of missing ingredients or extra items needed based on the bot's current inventory.",
+        params: {
+            targetItem: { 
+                type: 'string', 
+                description: 'The item that we are trying to craft' 
+            },
+            quantity: { 
+                type: 'int',
+                description: 'The quantity of the item that we are trying to craft',
+                optional: true,
+                domain: [1, Infinity, '[)'], // Quantity must be at least 1,
+                default: 1
+            }
+        },
+        perform: function (agent, targetItem, quantity = 1) {
+            let bot = agent.bot;
+    
+            // Fetch the bot's inventory
+            const curr_inventory = world.getInventoryCounts(bot); 
+            const target_item = targetItem;
+            // Generate crafting plan
+            const craftingPlan = mc.getDetailedCraftingPlan(curr_inventory, target_item, quantity);
+    
+            return pad(craftingPlan.response);
+        }
     }
 ];
