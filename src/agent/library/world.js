@@ -268,21 +268,26 @@ export function getNearbyBlockTypes(bot, distance=16) {
     return found;
 }
 
-export function getNearbyBlocksDetailed(bot, distance=3) {
+export function getNearbyBlocksDetailed(bot, distance=5) {
   /**
-   * Get a detailed list of all nearby block names, including location and relevant metadata.
+   * Get a detailed list of all nearby eye-level blocks, including location and relevant metadata.
    * @param {Bot} bot - The bot to get nearby blocks for.
-   * @param {number} distance - The maximum distance to search, default 16.
+   * @param {number} distance - The maximum distance to search, default 5.
    * @returns {string[]} - A list of all nearby blocks.
    * @example
    * let blocks = world.getNearbyBlocksDetailed(bot);
    **/
   let blocks = getNearestBlocks(bot, null, distance);
+  let botPosition = bot.entity.position;
   let found = [];
   for (let i = 0; i < blocks.length; i++) {
-      if (!found.includes(blocks[i].name)) {
-        found.push(`${blocks[i].name}: [${blocks[i].position.x}, ${blocks[i].position.y}, ${blocks[i].position.z}] ${getBlockMetadataString(bot, blocks[i])}`);
-      }
+    if (botPosition.y - 1 > blocks[i].position.y) {
+      continue; // skip blocks below bot
+    } else if (botPosition.y + 1 < blocks[i].position.y) {
+      continue; // skip blocks above bot
+    } else {
+      found.push(`${blocks[i].name}: [${blocks[i].position.x}, ${blocks[i].position.y}, ${blocks[i].position.z}] ${getBlockMetadataString(bot, blocks[i])}`);
+    }
   }
   return found;
 }

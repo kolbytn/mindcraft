@@ -97,7 +97,7 @@ export const queryList = [
     },
     {
         name: "!nearbyBlocks",
-        description: "Get the blocks near the bot. Use scanBlocks for a closer view.",
+        description: "Get the blocks near the bot. Use scanBlocks for a detailed view.",
         perform: function (agent) {
             let bot = agent.bot;
             let res = 'NEARBY_BLOCKS';
@@ -113,7 +113,7 @@ export const queryList = [
     },
     {
       name: "!scanBlocks",
-      description: "Get detailed information about the closest blocks.",
+      description: "Get detailed information about nearby eye-level blocks.",
       perform: function (agent) {
           let bot = agent.bot;
           let res = 'SCAN_BLOCKS';
