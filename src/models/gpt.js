@@ -3,8 +3,10 @@ import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class GPT {
-    constructor(model_name, url) {
+    constructor(model_name, url, { temperature = null, max_tokens = null } = {}) {
         this.model_name = model_name;
+        this.temperature = temperature;
+        this.max_tokens = max_tokens;
 
         let config = {};
         if (url)
@@ -25,6 +27,8 @@ export class GPT {
             model: this.model_name || "gpt-3.5-turbo",
             messages,
             stop: stop_seq,
+            temperature: this.temperature,
+            max_completion_tokens: this.max_tokens, // OpenAI: max_tokens is deprecated, use max_completion_tokens instead
         };
         if (this.model_name.includes('o1')) {
             pack.messages = strictFormat(messages);

@@ -3,8 +3,10 @@ import { strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Claude {
-    constructor(model_name, url) {
+    constructor(model_name, url, { temperature = null, max_tokens = null } = {}) {
         this.model_name = model_name;
+        this.temperature = temperature;
+        this.max_tokens = max_tokens;
 
         let config = {};
         if (url)
@@ -24,7 +26,8 @@ export class Claude {
             const resp = await this.anthropic.messages.create({
                 model: this.model_name || "claude-3-sonnet-20240229",
                 system: systemMessage,
-                max_tokens: 2048,
+                max_tokens: this.max_tokens,
+                temperature: this.temperature,
                 messages: messages,
             });
             console.log('Received.')

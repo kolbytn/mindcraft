@@ -36,10 +36,12 @@ export class Prompter {
         this.last_prompt_time = 0;
         this.awaiting_coding = false;
 
-        // try to get "max_tokens" parameter, else null
-        let max_tokens = null;
-        if (this.profile.max_tokens)
-            max_tokens = this.profile.max_tokens;
+        // optional parameters for the LLM
+        const llm_params = {
+            max_tokens: this.profile.max_tokens ?? null,
+            temperature: this.profile.temperature ?? null,
+        };
+
         if (typeof chat === 'string' || chat instanceof String) {
             chat = {model: chat};
             if (chat.model.includes('gemini'))
@@ -64,29 +66,33 @@ export class Prompter {
                 chat.api = 'ollama';
         }
 
-        console.log('Using chat settings:', chat);
+        // Only display llm params that are explicitly set
+        const displayParams = { ...chat };
+        if (llm_params.max_tokens !== null) displayParams.max_tokens = llm_params.max_tokens;
+        if (llm_params.temperature !== null) displayParams.temperature = llm_params.temperature;
+        console.log('Using chat settings:', displayParams);
 
         if (chat.api === 'google')
-            this.chat_model = new Gemini(chat.model, chat.url);
+            this.chat_model = new Gemini(chat.model, chat.url, llm_params);
         else if (chat.api === 'openai')
-            this.chat_model = new GPT(chat.model, chat.url);
+            this.chat_model = new GPT(chat.model, chat.url, llm_params);
         else if (chat.api === 'anthropic')
-            this.chat_model = new Claude(chat.model, chat.url);
+            this.chat_model = new Claude(chat.model, chat.url, llm_params);
         else if (chat.api === 'replicate')
-            this.chat_model = new ReplicateAPI(chat.model, chat.url);
+            this.chat_model = new ReplicateAPI(chat.model, chat.url, llm_params);
         else if (chat.api === 'ollama')
-            this.chat_model = new Local(chat.model, chat.url);
+            this.chat_model = new Local(chat.model, chat.url, llm_params);
         else if (chat.api === 'groq') {
-            this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
+            this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, llm_params);
         }
         else if (chat.api === 'huggingface')
-            this.chat_model = new HuggingFace(chat.model, chat.url);
+            this.chat_model = new HuggingFace(chat.model, chat.url, llm_params);
         else if (chat.api === 'novita')
-            this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url);
+            this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url, llm_params);
         else if (chat.api === 'qwen')
-            this.chat_model = new Qwen(chat.model, chat.url);
+            this.chat_model = new Qwen(chat.model, chat.url, llm_params);
         else if (chat.api === 'xai')
-            this.chat_model = new Grok(chat.model, chat.url);
+            this.chat_model = new Grok(chat.model, chat.url, llm_params);
         else
             throw new Error('Unknown API:', api);
 

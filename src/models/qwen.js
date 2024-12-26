@@ -4,10 +4,12 @@
 import { getKey } from '../utils/keys.js';
 
 export class Qwen {
-    constructor(modelName, url) {
+    constructor(modelName, url, { temperature = null, max_tokens = null } = {}) {
         this.modelName = modelName;
         this.url = url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
         this.apiKey = getKey('QWEN_API_KEY');
+        this.temperature = temperature;
+        this.max_tokens = max_tokens;
     }
 
     async sendRequest(turns, systemMessage, stopSeq = '***', retryCount = 0) {
@@ -19,7 +21,7 @@ export class Qwen {
         const data = {
             model: this.modelName || 'qwen-plus',
             input: { messages: [{ role: 'system', content: systemMessage }, ...turns] },
-            parameters: { result_format: 'message', stop: stopSeq },
+            parameters: { result_format: 'message', stop: stopSeq, temperature: this.temperature, max_tokens: this.max_tokens },
         };
 
         // Add default user message if all messages are 'system' role

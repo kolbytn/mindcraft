@@ -3,9 +3,11 @@ import { toSinglePrompt } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Gemini {
-    constructor(model_name, url) {
+    constructor(model_name, url, { temperature = null, max_tokens = null } = {}) {
         this.model_name = model_name;
         this.url = url;
+        this.temperature = temperature;
+        this.max_tokens = max_tokens;
         this.safetySettings = [
             {
                 "category": "HARM_CATEGORY_DANGEROUS",
@@ -33,16 +35,17 @@ export class Gemini {
     }
 
     async sendRequest(turns, systemMessage) {
+        const generationConfig = { temperature: this.temperature, maxOutputTokens: this.max_tokens };
         let model;
         if (this.url) {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                { model: this.model_name || "gemini-1.5-flash", generationConfig },
                 { baseUrl: this.url },
                 { safetySettings: this.safetySettings }
             );
         } else {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                { model: this.model_name || "gemini-1.5-flash", generationConfig },
                 { safetySettings: this.safetySettings }
             );
         }

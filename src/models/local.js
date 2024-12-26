@@ -1,9 +1,11 @@
 import { strictFormat } from '../utils/text.js';
 
 export class Local {
-    constructor(model_name, url) {
+    constructor(model_name, url, { temperature = null, max_tokens = null } = {}) {
         this.model_name = model_name;
         this.url = url || 'http://127.0.0.1:11434';
+        this.temperature = temperature;
+        this.max_tokens = max_tokens;
         this.chat_endpoint = '/api/chat';
         this.embedding_endpoint = '/api/embeddings';
     }
@@ -15,7 +17,7 @@ export class Local {
         let res = null;
         try {
             console.log(`Awaiting local response... (model: ${model})`)
-            res = await this.send(this.chat_endpoint, {model: model, messages: messages, stream: false});
+            res = await this.send(this.chat_endpoint, {model: model, messages: messages, stream: false, temperature: this.temperature, max_tokens: this.max_tokens});
             if (res)
                 res = res['message']['content'];
         }

@@ -4,10 +4,11 @@ import { getKey } from '../utils/keys.js';
 
 // Umbrella class for Mixtral, LLama, Gemma...
 export class GroqCloudAPI {
-    constructor(model_name, url, max_tokens=16384) {
+    constructor(model_name, url, { temperature = 0.2, max_tokens = 16384 } = {}) {
         this.model_name = model_name;
         this.url = url;
         this.max_tokens = max_tokens;
+        this.temperature = temperature;
         // ReplicateAPI theft :3
         if (this.url) {
             console.warn("Groq Cloud has no implementation for custom URLs. Ignoring provided URL.");
@@ -23,7 +24,7 @@ export class GroqCloudAPI {
             let completion = await this.groq.chat.completions.create({
                 "messages": messages,
                 "model": this.model_name || "mixtral-8x7b-32768",
-                "temperature": 0.2,
+                "temperature": this.temperature,
                 "max_tokens": this.max_tokens, // maximum token limit, differs from model to model
                 "top_p": 1,
                 "stream": true,
