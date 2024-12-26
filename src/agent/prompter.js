@@ -39,7 +39,16 @@ export class Prompter {
         // optional parameters for the LLM
         const llm_params = {
             max_tokens: this.profile.max_tokens ?? null,
-            temperature: this.profile.temperature ?? null,
+            temperature: this.profile.temperature === undefined ? null : 
+                (() => {
+                    if (typeof this.profile.temperature !== 'number') {
+                        throw new Error('Temperature must be a number, or unset. Found: ' + this.profile.temperature);
+                    }
+                    if (this.profile.temperature < 0 || this.profile.temperature > 1) {
+                        throw new Error('Temperature must be between 0 and 1. Found: ' + this.profile.temperature);
+                    }
+                    return this.profile.temperature;
+                })(),
         };
 
         if (typeof chat === 'string' || chat instanceof String) {
