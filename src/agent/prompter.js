@@ -15,6 +15,7 @@ import { GroqCloudAPI } from '../models/groq.js';
 import { HuggingFace } from '../models/huggingface.js';
 import { Qwen } from "../models/qwen.js";
 import { Grok } from "../models/grok.js";
+import { DeepSeek } from '../models/deepseek.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -60,6 +61,8 @@ export class Prompter {
                 chat.api = 'qwen';
             else if (chat.model.includes('grok'))
                 chat.api = 'xai';
+            else if (chat.model.includes('deepseek'))
+                chat.api = 'deepseek';
             else
                 chat.api = 'ollama';
         }
@@ -87,6 +90,8 @@ export class Prompter {
             this.chat_model = new Qwen(chat.model, chat.url);
         else if (chat.api === 'xai')
             this.chat_model = new Grok(chat.model, chat.url);
+        else if (chat.api === 'deepseek')
+            this.chat_model = new DeepSeek(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
