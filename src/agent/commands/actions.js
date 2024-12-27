@@ -1,6 +1,7 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 import convoManager from '../conversation.js';
+import { checkLevelBlueprint, checkBlueprint } from '../tasks.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -407,6 +408,34 @@ export const actionsList = [
             convoManager.endConversation(player_name);
             return `Converstaion with ${player_name} ended.`;
         }
+    }, 
+    {
+        name: '!checkLevelComplete',
+        description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
+        perform: runAsAction(async (agent, levelNum) => {
+            return await checkLevelBlueprint(agent, levelNum);
+        })
+    }, 
+    {
+        name: '!checkBlueprint',
+        description: 'Check what blocks still need to be placed for the blueprint',
+        perform: runAsAction(async (agent) => {
+            return await checkBlueprint(agent);
+        })
+    }, 
+    {
+        name: '!getBlueprint',
+        description: 'Get the blueprint for the building',
+        perform: runAsAction(async (agent) => {
+            return await agent.task.blueprint.explain();
+        })
+    }, 
+    {
+        name: '!getBlueprintLevel',
+        description: 'Get the blueprint for the building',
+        perform: runAsAction(async (agent, levelNum) => {
+            return await agent.task.blueprint.explainLevel(levelNum);
+        })
     }
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',

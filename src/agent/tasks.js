@@ -2,8 +2,9 @@ import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js'
 import settings from '../../settings.js';
+import { check } from 'yargs';
 
-export class TaskValidator {
+export class CraftTaskValidator {
     constructor(data, agent) {
         this.target = data.target;
         this.number_of_target = data.number_of_target;
@@ -35,13 +36,48 @@ export class TaskValidator {
     }
 }
 
+export class ConstructionTaskValidator {
+    constructor(data, agent) {
+        this.blueprint = new Blueprint(data.blueprint);
+        this.agent = agent;
+    }
+    validate() {
+        try {
+            //todo: somehow make this more of a percentage or something
+            let valid = false;
+            this.blueprint.checkBluepint(this.agent.bot).then((result) => {
+                if (result.mismatches.length === 0) {
+                    valid = true;
+                    console.log('Task is complete');
+                }
+            });
+            return valid;
+        } catch (error) {
+            console.error('Error validating task:', error);
+            return false;
+        }
+    }
+}
+
+export async function checkLevelBlueprint(agent, levelNum) {
+    const blueprint = agent.task.blueprint.data;
+    const bot = agent.bot;
+    const levelData = blueprint.levels[levelNum];
+    return Blueprint.checkLevelBlueprint(bot, levelData);
+}
+
+export async function checkBlueprint(agent) {
+    const blueprint = agent.task.blueprint.data;
+    const bot = agent.bot;
+    return Blueprint.checkBlueprint(bot, blueprint);
+}
 export class Blueprint {
     constructor(blueprint) {
-        this.blueprint = blueprint;
+        this.data = blueprint;
     }
     explain() {
         var explanation = "";
-        for (let item of this.blueprint.levels) {
+        for (let item of this.data.levels) {
             var coordinates = item.coordinates;
             explanation += `Level ${item.level}: `;
             explanation += `Start at coordinates X: ${coordinates[0]}, Y: ${coordinates[1]}, Z: ${coordinates[2]}`;
@@ -64,6 +100,97 @@ export class Blueprint {
         placement_string += "]";
         return placement_string;
     }
+    explainLevel(levelNum) {
+        const levelData = this.data.levels[levelNum];
+        var explanation = `Level ${levelData.level} `;
+        explanation += `at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
+        let placement_string = this._getPlacementString(levelData.placement);
+        explanation += `\n${placement_string}\n`;
+    }
+    async explainBlueprintDifference(bot, blueprint) {
+        var explanation = "";
+        for (let levelData of blueprint.levels) {
+            let level_explanation = await this.explainLevelDifference(bot, levelData);
+            explanation += level_explanation + "\n";
+        }
+        return explanation;
+    }
+
+    async explainLevelDifference(bot, levelData) {
+        const results = await this.checkLevelBlueprint(bot, levelData);
+        const mismatches = results.mismatches;
+
+        if (mismatches.length === 0) {
+            return `Level ${levelData.level} is correct`;
+        }
+        var explanation = `Level ${levelData.level} `;
+        explanation += `at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
+        explanation += " has the following mismatches:\n";
+        for (let item of mismatches) {
+            explanation += `At coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]}`;
+            explanation += `Expected ${item.expected}, but found ${item.actual}\n`;
+        }
+        return explanation;
+    }
+    async checkBluepint(bot) {
+        const levels = this.data.levels;
+        const mismatches = [];
+        const matches = [];
+    
+        for (let i = 0; i < levels.length; i++) {
+            const levelData = levels[i];
+            const result = await checkLevelBlueprint(bot, levelData);
+            mismatches.push(...result.mismatches);
+            matches.push(...result.matches);
+        }
+        return {
+            "mismatches": mismatches,
+            "matches": matches
+        };
+    }
+    async checkLevelBlueprint(bot, levelData) {
+        const startCoords = levelData.coordinates;
+        const placement = levelData.placement;
+        const mismatches = [];
+        const matches = [];
+    
+        for (let zOffset = 0; zOffset < placement.length; zOffset++) {
+            const row = placement[zOffset];
+            for (let xOffset = 0; xOffset < row.length; xOffset++) {
+                const blockName = row[xOffset];
+    
+                const x = startCoords[0] + xOffset;
+                const y = startCoords[1];
+                const z = startCoords[2] + zOffset;
+    
+                try {
+                    const blockAtLocation = await bot.blockAt(new Vec3(x, y, z));
+                    if (!blockAtLocation || blockAtLocation.name !== blockName) {
+                        mismatches.push({
+                            level: levelData.level,
+                            coordinates: [x, y, z],
+                            expected: blockName,
+                            actual: blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : 'air' // Assuming air if no block
+                        });
+                    } else {
+                        matches.push({
+                            level: levelData.level,
+                            coordinates: [x, y, z],
+                            expected: blockName,
+                            actual: blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : 'air' // Assuming air if no block
+                        });
+                    }
+                } catch (err) {
+                    console.error(`Error getting block at (${x}, ${y}, ${z}):`, err);
+                    return false; // Stop checking if there's an issue getting blocks
+                }
+            }
+        }
+        return {
+            "mismatches": mismatches,
+            "matches": matches
+        };
+    }
 }
 
 export class Task {
@@ -77,27 +204,27 @@ export class Task {
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
             this.task_type = this.data.type;
-            console.log('Task type:', this.task_type);
             if (this.task_type === 'construction' && this.data.blueprint) {
-                //add the blueprint to the goal if it is a construction task
-                //todo: fix this for multi-agent scenarios with partial blueprints
                 this.blueprint = new Blueprint(this.data.blueprint);
-                console.log('Blueprint:', this.blueprint.explain());
-                this.goal = this.data.goal + ' \n' + this.blueprint.explain();
-                console.log('Goal:', this.goal);
+                this.goal = this.data.goal + ' \n' + this.blueprint.explain() + " \n" + "make sure to place the lower levels of the blueprint first";
+                this.conversation = this.data.conversation + ' \n' + this.blueprint.explain();
             } else {
                 this.goal = this.data.goal;
-                console.log('Goal:', this.goal);
+                this.conversation = this.data.conversation;
             }
-            
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
-            this.validator = new TaskValidator(this.data, this.agent);
+            if (this.task_type === 'construction') {
+                this.validator = new ConstructionTaskValidator(this.data, this.agent);
+            } else if (this.task_type === 'techtree') {
+                this.validator = new CraftTaskValidator(this.data, this.agent);
+            }
             this.blocked_actions = this.data.blocked_actions || [];
             if (this.goal)
                 this.blocked_actions.push('!endGoal');
-            if (this.data.conversation)
+            if (this.conversation)
                 this.blocked_actions.push('!endConversation');
+            console.log('Task loaded:', this.data);
         }
     }
 
@@ -106,6 +233,7 @@ export class Task {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
             const task = tasks[task_id];
+            console.log('Loaded task:', task);
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
@@ -231,9 +359,9 @@ export class Task {
             await executeCommand(this.agent, `!goal("${this.goal}")`);
         }
     
-        if (this.data.conversation && this.agent.count_id === 0) {
+        if (this.conversation && this.agent.count_id === 0) {
             let other_name = available_agents.filter(n => n !== name)[0];
-            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
+            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
         }
     }    
 }

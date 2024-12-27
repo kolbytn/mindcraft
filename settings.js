@@ -12,6 +12,7 @@ export default
     
     "profiles": [
         "./andy.json",
+        "./jill.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",

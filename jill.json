@@ -1,7 +1,7 @@
 {
-    "name": "andy",
+    "name": "jill",
 
-    "model": "gpt-4o", 
+    "model": "gpt-4o",
 
     "conversation_examples": [
         [
@@ -24,7 +24,6 @@
             {"role": "assistant", "content": "I've placed the planks for level 1. Your turn!"},
             {"role": "assistant", "content": "Great work! I'll start placing the planks for level 2. !newAction(\"Place plank blocks for level 2\")"}
         ]
-
     ]
 
 }
