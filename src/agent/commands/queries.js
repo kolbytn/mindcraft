@@ -113,7 +113,7 @@ export const queryList = [
     },
     {
       name: "!scanBlocks",
-      description: "Get detailed information about nearby eye-level blocks.",
+      description: "Get detailed information about interesting nearby eye-level blocks.",
       perform: function (agent) {
           let bot = agent.bot;
           let res = 'SCAN_BLOCKS';
