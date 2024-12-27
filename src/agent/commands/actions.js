@@ -1,6 +1,7 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 import convoManager from '../conversation.js';
+import { checkLevelBlueprint, checkBlueprint } from '../tasks.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -415,52 +416,46 @@ export const actionsList = [
             convoManager.endConversation(player_name);
             return `Converstaion with ${player_name} ended.`;
         }
-    },
+    }, 
     {
-        name: '!lookAtPlayer',
-        description: 'Look at a player or look in the same direction as the player.',
-        params: {
-            'player_name': { type: 'string', description: 'Name of the target player' },
-            'direction': {
-                type: 'string',
-                description: 'How to look ("at": look at the player, "with": look in the same direction as the player)',
-            }
-        },
-        perform: async function(agent, player_name, direction) {
-            if (direction !== 'at' && direction !== 'with') {
-                return "Invalid direction. Use 'at' or 'with'.";
-            }
-            let result = "";
-            const actionFn = async () => {
-                result = await agent.vision_interpreter.lookAtPlayer(player_name, direction);
-            };
-            await agent.actions.runAction('action:lookAtPlayer', actionFn);
-            return result;
-        }
-    },
-    {
-        name: '!lookAtPosition',
-        description: 'Look at specified coordinates.',
-        params: {
-            'x': { type: 'int', description: 'x coordinate' },
-            'y': { type: 'int', description: 'y coordinate' },
-            'z': { type: 'int', description: 'z coordinate' }
-        },
-        perform: async function(agent, x, y, z) {
-            let result = "";
-            const actionFn = async () => {
-                result = await agent.vision_interpreter.lookAtPosition(x, y, z);
-            };
-            await agent.actions.runAction('action:lookAtPosition', actionFn);
-            return result;
-        }
-    },
-    {
-        name: '!digDown',
-        description: 'Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.',
-        params: {'distance': { type: 'int', description: 'Distance to dig down', domain: [1, Number.MAX_SAFE_INTEGER] }},
-        perform: runAsAction(async (agent, distance) => {
-            await skills.digDown(agent.bot, distance)
+        name: '!checkLevelComplete',
+        description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
+        perform: runAsAction(async (agent, levelNum) => {
+            return await checkLevelBlueprint(agent, levelNum);
         })
-    },
+    }, 
+    {
+        name: '!checkBlueprint',
+        description: 'Check what blocks still need to be placed for the blueprint',
+        perform: runAsAction(async (agent) => {
+            return await checkBlueprint(agent);
+        })
+    }, 
+    {
+        name: '!getBlueprint',
+        description: 'Get the blueprint for the building',
+        perform: runAsAction(async (agent) => {
+            return await agent.task.blueprint.explain();
+        })
+    }, 
+    {
+        name: '!getBlueprintLevel',
+        description: 'Get the blueprint for the building',
+        perform: runAsAction(async (agent, levelNum) => {
+            return await agent.task.blueprint.explainLevel(levelNum);
+        })
+    }
+    // { // commented for now, causes confusion with goal command
+    //     name: '!npcGoal',
+    //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
+    //     params: {
+    //         'name': { type: 'string', description: 'The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.' },
+    //         'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', domain: [1, Number.MAX_SAFE_INTEGER] }
+    //     },
+    //     perform: async function (agent, name=null, quantity=1) {
+    //         await agent.npc.setGoal(name, quantity);
+    //         agent.bot.emit('idle');  // to trigger the goal
+    //         return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
+    //     }
+    // },
 ];

@@ -1,0 +1,29 @@
+{
+    "name": "jill",
+
+    "model": "gpt-4o",
+
+    "conversation_examples": [
+        [
+            {"role": "assistant", "content": " I've got stone. What about you jack?"},
+            {"role": "assistant", "content": "I have a door and planks. Great we have everything we need from the blueprint. Let's start building!"},
+            {"role": "assistant", "content": "Great! I'll start by placing the stone blocks for level 0. !newAction(\"Place stone blocks for the base level.\")"}, 
+            {"role": "assistant", "content": "Since the blueprint for level 1 only has stone, I'll start placing those. !newAction(\"Place stone blocks for level 1.\")"}, 
+            {"role": "assistant", "content": "jill: I'll place the planks for level 2. !newAction(\"Place planks for level 2.\")"}
+        ], 
+        [
+            {"role": "assistant", "content": "I've got some oak planks for level 2. Let's start building the base with stone. Since I don't have stone, could you help out? "},
+            {"role": "assistant", "content": "For sure! I will build levels 0 and 1 with stone and let you know when I am done. !newAction(\"Place stone blocks for levels 0 and 1 \")"},
+            {"role": "assistant", "content": "I've placed the stone blocks for levels 0 and 1. Your turn!"},
+            {"role": "assistant", "content": "I'll start placing the planks for level 2. !newAction(\"Place plank blocks for level 2\")"}
+        ], 
+        [
+            {"role": "assistant", "content": "Looks like level 0 requires stone, since I only have oak planks and no stone, I will let you build that. Let me know when you are done!"},
+            {"role": "assistant", "content": "Ok, placing for level 0 at the specified coordinates now !newAction(\"Place stone blocks for level 0\")"},
+            {"role": "assistant", "content": "Looks like level 1 requires stone, since I only have oak planks and no stone, I will let you build that. Let me know when you are done!"},
+            {"role": "assistant", "content": "I've placed the planks for level 1. Your turn!"},
+            {"role": "assistant", "content": "Great work! I'll start placing the planks for level 2. !newAction(\"Place plank blocks for level 2\")"}
+        ]
+    ]
+
+}

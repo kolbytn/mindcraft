@@ -114,6 +114,7 @@
     "construction_house": {
         "type": "construction",
         "goal": "Make a house with the blueprint below",
+        "agent_count": 1,
         "blueprint": {
             "materials": {
                 "plank": {
@@ -165,5 +166,68 @@
             "oak_planks": 40, 
             "oak_door": 1
         }
+    }, 
+    "multiagent_construction_house": {
+        "type": "construction",
+        "goal": "Make a house with the blueprint above, tell the other agents what materials you have and share them to finish the blueprint. You and the other agent have all the necessary materials for the blueprint at this point. ",
+        "conversation": "Let's share materials and make a house with this blueprint. You and the other agent have all materials necessary at this point:",
+        "agent_count": 2, 
+        "blueprint": {
+            "materials": {
+                "plank": {
+                    "id": "oak_plank",
+                    "number": 20
+                },
+                "door": {
+                    "id": "oak_door",
+                    "number": 1
+                }
+            },
+            "levels": [
+                {   
+                    "level": 0,
+                    "coordinates": [142, -60, -179], 
+                    "placement":
+                    [
+                        ["stone", "stone", "door", "stone", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "stone", "stone", "stone", "stone"]
+                    ]
+                },
+                {
+                    "level": 1,
+                    "coordinates": [142, -59, -179],
+                    "placement":
+                    [
+                        ["stone", "stone", "air", "stone", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "stone", "stone", "stone", "stone"]
+                    ]
+                },
+                {
+                    "level": 2,
+                    "coordinates": [142, -58, -179],
+                    "placement":
+                    [
+                        ["plank", "plank", "plank", "plank", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"],
+                        ["plank", "plank", "plank", "plank", "plank"]
+                    ]
+                }
+            ]
+        },
+        "initial_inventory": {
+            "0": {
+                "oak_planks": 20
+            },
+            "1": {
+                "oak_door": 1,
+                "stone": 26
+            }
+        }
     }
+
 }
