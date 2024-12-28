@@ -248,24 +248,74 @@ export function getNearbyPlayerNames(bot) {
     return found;
 }
 
+let crops = ["wheat", "beetroot", "potatoes", "carrots"]
 
-export function getNearbyBlockTypes(bot, distance=16) {
+export function getNearbyBlockDetails(bot, distance=16, max_per_type=2) {
     /**
-     * Get a list of all nearby block names.
+     * Get a list of nearby blocks and their details such as location and metadata.
      * @param {Bot} bot - The bot to get nearby blocks for.
      * @param {number} distance - The maximum distance to search, default 16.
+     * @param {number} max_per_type - The maximum number of blocks per type, default 2.
      * @returns {string[]} - A list of all nearby blocks.
      * @example
      * let blocks = world.getNearbyBlockTypes(bot);
      **/
     let blocks = getNearestBlocks(bot, null, distance);
-    let found = [];
+    let blockCounts = {};
+    let result = [];
     for (let i = 0; i < blocks.length; i++) {
-        if (!found.includes(blocks[i].name)) {
-            found.push(blocks[i].name);
+        let blockKey = getBlockKey(bot, blocks[i]);
+        if (!blockCounts[blockKey]) {
+            blockCounts[blockKey] = 0;
+        }
+        if (blockCounts[blockKey] < max_per_type) {
+            result.push(`${blocks[i].name} at [${blocks[i].position.x}, ${blocks[i].position.y}, ${blocks[i].position.z}] ${getBlockMetadataString(bot, blocks[i])}`);
+            blockCounts[blockKey]++;
+        } 
+    }
+    return result;
+
+    function getBlockKey(bot, block) {
+        let above = bot.blockAt(block.position.offset(0,1,0));
+        if (crops.includes(above.name)) {
+            if (isReadyForHarvest(above)) {
+                return `${block.name}|${above.name}`;
+            } 
+        }
+        if (block?.name.includes("_sign") && block.getSignText()) {
+            return `${block.name}|${block.getSignText()[0].substring(0,8)}|${block.getSignText()[1].substring(0,8)}`;
+        }
+        return block.name;
+    }
+
+    function getBlockMetadataString(bot, block) {
+        if (block?.name === "farmland") {
+            let above = bot.blockAt(block.position.offset(0,1,0));
+            return(`Is ${block.metadata > 4 ? "" : " NOT "}watered. ${getCropDetails(above)}`)
+        } else if (crops.includes(block?.name)) {
+            return(`Is ${isReadyForHarvest(block) ? "" : " NOT "}ready for harvest.`)
+        } else if (block?.name.includes("_sign")) {
+            let frontText = block.getSignText()[0].replaceAll('\n', '|');
+            let backText = block.getSignText()[1].replaceAll('\n', '|');
+            return `Front: {${frontText}} Back: {${backText}}`;
+        }
+        return "";
+    }
+
+    function getCropDetails(block) {
+        if (crops.includes(block?.name)) {
+            return `Has ${isReadyForHarvest(block) ? "harvestable" : "seedling"} ${block.name}.`;
+        } else {
+            return `Ready for seeds.`;
         }
     }
-    return found;
+
+    function isReadyForHarvest(block) {
+        if (!block || !block.metadata) {
+            return false;
+        }
+        return block.name === "beetroot" ? block.metadata === 3 : block.metadata === 7;
+    }
 }
 
 export async function isClearPath(bot, target) {
