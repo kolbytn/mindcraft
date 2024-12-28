@@ -1,5 +1,7 @@
 import mineflayer from 'mineflayer';
 import { Vec3 } from 'vec3';
+import { ConstructionTaskValidator, Blueprint } from '../src/agent/tasks.js';
+import { Agent } from '../src/agent/agent.js';
 
 const bot = mineflayer.createBot({
     host: 'localhost', // Replace with your server IP or hostname
@@ -10,14 +12,28 @@ const bot = mineflayer.createBot({
 
 bot.on('spawn', async () => {
     console.log("Bot spawned. Starting blueprint check...");
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     const blockAtLocation = await bot.blockAt(new Vec3(142, -60, -179));
     console.log(blockAtLocation);
-    const results = await checkLevelBlueprint(bot, blueprintData.levels[0]);
-    console.log(results)
-    const matchesBlueprint = await checkBluepint(bot, blueprintData);
-    console.log(`Blueprint check result: \n`);
-    console.log(matchesBlueprint.mismatches)
+    const blueprint = new Blueprint(blueprintData);
+    console.log(blueprint.explain());
+    console.log(blueprint.explainLevel(0));
+    try {
+        const check_level = await blueprint.checkLevel(bot, 0);
+        console.log(check_level);
+        let check_blueprint = await blueprint.check(bot);
+        console.log(check_blueprint);
+        let level_diff = await blueprint.explainLevelDifference(bot, 0);
+        console.log(level_diff);
+        let blueprint_diff = await blueprint.explainBlueprintDifference(bot);
+        console.log(blueprint_diff);
+    } catch (err) {
+        console.error("Error checking blueprint:", err);
+    }
+    // console.log(blueprint.checkLevel(bot, 0));
+    // console.log(blueprint.check(bot));
+    // console.log(blueprint.explainBlueprintDifference(bot, blueprintData));
+    // console.log(blueprint.explainLevelDifference(bot, 0));
     bot.quit();
 });
 
@@ -125,4 +141,6 @@ const blueprintData = {
         }
     ]
 };
+
+
 

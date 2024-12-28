@@ -414,6 +414,7 @@ export const actionsList = [
         description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
         perform: runAsAction(async (agent, levelNum) => {
             return await checkLevelBlueprint(agent, levelNum);
+            //todo: if not complete, explain what still needs to be done
         })
     }, 
     {

@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js'
 import settings from '../../settings.js';
-import { check } from 'yargs';
+import { Vec3 } from 'vec3';
 
 export class CraftTaskValidator {
     constructor(data, agent) {
@@ -45,11 +45,15 @@ export class ConstructionTaskValidator {
         try {
             //todo: somehow make this more of a percentage or something
             let valid = false;
+            let score = 0;
             this.blueprint.checkBluepint(this.agent.bot).then((result) => {
                 if (result.mismatches.length === 0) {
                     valid = true;
                     console.log('Task is complete');
                 }
+                let total_blocks = result.mismatches.length + result.matches.length;
+                score = (result.matches.length / total_blocks) * 100;
+                console.log(`Task is ${score}% complete`);
             });
             return valid;
         } catch (error) {
@@ -62,14 +66,14 @@ export class ConstructionTaskValidator {
 export async function checkLevelBlueprint(agent, levelNum) {
     const blueprint = agent.task.blueprint.data;
     const bot = agent.bot;
-    const levelData = blueprint.levels[levelNum];
-    return Blueprint.checkLevelBlueprint(bot, levelData);
+    //todo: in addition to checking the level, explain the differences 
+    return blueprint.checkLevel(bot, levelNum);
 }
 
 export async function checkBlueprint(agent) {
     const blueprint = agent.task.blueprint.data;
     const bot = agent.bot;
-    return Blueprint.checkBlueprint(bot, blueprint);
+    return blueprint.check(bot);
 }
 export class Blueprint {
     constructor(blueprint) {
@@ -103,43 +107,43 @@ export class Blueprint {
     explainLevel(levelNum) {
         const levelData = this.data.levels[levelNum];
         var explanation = `Level ${levelData.level} `;
-        explanation += `at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
+        explanation += `starting at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
         let placement_string = this._getPlacementString(levelData.placement);
         explanation += `\n${placement_string}\n`;
+        return explanation;
     }
-    async explainBlueprintDifference(bot, blueprint) {
+    async explainBlueprintDifference(bot) {
         var explanation = "";
-        for (let levelData of blueprint.levels) {
-            let level_explanation = await this.explainLevelDifference(bot, levelData);
+        const levels = this.data.levels;
+        for (let i = 0; i < levels.length; i++) {
+            let level_explanation = await this.explainLevelDifference(bot, i);
             explanation += level_explanation + "\n";
         }
         return explanation;
     }
-
-    async explainLevelDifference(bot, levelData) {
-        const results = await this.checkLevelBlueprint(bot, levelData);
+    async explainLevelDifference(bot, levelNum) {
+        const results = await this.checkLevel(bot, levelNum);
         const mismatches = results.mismatches;
+        const levelData = this.data.levels[levelNum];
 
         if (mismatches.length === 0) {
             return `Level ${levelData.level} is correct`;
         }
         var explanation = `Level ${levelData.level} `;
-        explanation += `at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
+        // explanation += `at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
         explanation += " has the following mismatches:\n";
         for (let item of mismatches) {
-            explanation += `At coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]}`;
-            explanation += `Expected ${item.expected}, but found ${item.actual}\n`;
+            explanation += `At coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]} `;
+            explanation += `expected ${item.expected}, but found ${item.actual}\n`;
         }
         return explanation;
     }
-    async checkBluepint(bot) {
+    async check(bot) {
         const levels = this.data.levels;
         const mismatches = [];
         const matches = [];
-    
         for (let i = 0; i < levels.length; i++) {
-            const levelData = levels[i];
-            const result = await checkLevelBlueprint(bot, levelData);
+            const result = await this.checkLevel(bot, i);
             mismatches.push(...result.mismatches);
             matches.push(...result.matches);
         }
@@ -148,7 +152,8 @@ export class Blueprint {
             "matches": matches
         };
     }
-    async checkLevelBlueprint(bot, levelData) {
+    async checkLevel(bot, levelNum) {
+        const levelData = this.data.levels[levelNum];
         const startCoords = levelData.coordinates;
         const placement = levelData.placement;
         const mismatches = [];
