@@ -248,8 +248,6 @@ export function getNearbyPlayerNames(bot) {
     return found;
 }
 
-let crops = ["wheat", "beetroot", "potatoes", "carrots"]
-
 export function getNearbyBlockDetails(bot, distance=16, max_per_type=2) {
     /**
      * Get a list of nearby blocks and their details such as location and metadata.
@@ -260,62 +258,16 @@ export function getNearbyBlockDetails(bot, distance=16, max_per_type=2) {
      * @example
      * let blocks = world.getNearbyBlockTypes(bot);
      **/
-    let blocks = getNearestBlocks(bot, null, distance);
-    let blockCounts = {};
-    let result = [];
-    for (let i = 0; i < blocks.length; i++) {
-        let blockKey = getBlockKey(bot, blocks[i]);
-        if (!blockCounts[blockKey]) {
-            blockCounts[blockKey] = 0;
-        }
-        if (blockCounts[blockKey] < max_per_type) {
-            result.push(`${blocks[i].name} at [${blocks[i].position.x}, ${blocks[i].position.y}, ${blocks[i].position.z}] ${getBlockMetadataString(bot, blocks[i])}`);
-            blockCounts[blockKey]++;
-        } 
-    }
+    const blockCounts = new Map();
+    const result = getNearestBlocks(bot, null, distance).filter(block => {
+      const blockKey = getBlockKey(bot, block);
+      const count = blockCounts.get(blockKey) || 0;
+      blockCounts.set(blockKey, count + 1);
+      return count < max_per_type;
+    }).map(block => 
+      `${block.name} at [${block.position.x}, ${block.position.y}, ${block.position.z}] ${getBlockMetadataString(bot, block)}`
+    );
     return result;
-
-    function getBlockKey(bot, block) {
-        let above = bot.blockAt(block.position.offset(0,1,0));
-        if (crops.includes(above.name)) {
-            if (isReadyForHarvest(above)) {
-                return `${block.name}|${above.name}`;
-            } 
-        }
-        if (block?.name.includes("_sign") && block.getSignText()) {
-            return `${block.name}|${block.getSignText()[0].substring(0,8)}|${block.getSignText()[1].substring(0,8)}`;
-        }
-        return block.name;
-    }
-
-    function getBlockMetadataString(bot, block) {
-        if (block?.name === "farmland") {
-            let above = bot.blockAt(block.position.offset(0,1,0));
-            return(`Is ${block.metadata > 4 ? "" : " NOT "}watered. ${getCropDetails(above)}`)
-        } else if (crops.includes(block?.name)) {
-            return(`Is ${isReadyForHarvest(block) ? "" : " NOT "}ready for harvest.`)
-        } else if (block?.name.includes("_sign")) {
-            let frontText = block.getSignText()[0].replaceAll('\n', '|');
-            let backText = block.getSignText()[1].replaceAll('\n', '|');
-            return `Front: {${frontText}} Back: {${backText}}`;
-        }
-        return "";
-    }
-
-    function getCropDetails(block) {
-        if (crops.includes(block?.name)) {
-            return `Has ${isReadyForHarvest(block) ? "harvestable" : "seedling"} ${block.name}.`;
-        } else {
-            return `Ready for seeds.`;
-        }
-    }
-
-    function isReadyForHarvest(block) {
-        if (!block || !block.metadata) {
-            return false;
-        }
-        return block.name === "beetroot" ? block.metadata === 3 : block.metadata === 7;
-    }
 }
 
 export async function isClearPath(bot, target) {
@@ -358,4 +310,59 @@ export function getBiomeName(bot) {
      **/
     const biomeId = bot.world.getBiome(bot.entity.position);
     return mc.getAllBiomes()[biomeId].name;
+}
+
+export function getBlockKey(bot, block) {
+      /**
+     * Create a deterministic key for a given block, considering specific block metadata 
+     * and the block above. The key is generated based on the following rules:
+     * 1. If the block above is a harvestable crop, the key is a combination of the current block's name and the block above's name.
+     * 2. If the current block is a sign with text, the key includes the block's name and the first 8 characters of each line of the sign's text.
+     * 3. Otherwise, the key is simply the current block's name.
+     * @param {Bot} bot - The bot making the call.
+     * @param {Block} block - The block used to determine the key.
+     * @returns {String} - string representing a deterministic key for the given block
+     */
+  let above = bot.blockAt(block.position.offset(0,1,0));
+  if (isHarvestableCrop(above)) {
+      return `${block.name}|${above.name}`;
+  } 
+  if (block?.name.includes("_sign") && block.getSignText()) {
+      return `${block.name}|${block.getSignText()[0].substring(0,8)}|${block.getSignText()[1].substring(0,8)}`;
+  }
+  return block?.name;
+}
+
+let crops = ["wheat", "beetroot", "potatoes", "carrots"]
+
+function getBlockMetadataString(bot, block) {
+  if (block?.name === "farmland") {
+      let above = bot.blockAt(block.position.offset(0,1,0));
+      return(`Is ${block.metadata > 4 ? "" : " NOT "}watered. ${getCropDetails(above)}`)
+  } else if (crops.includes(block?.name)) {
+      return(`Is ${isHarvestableCrop(block) ? "" : " NOT "}ready for harvest.`)
+  } else if (block?.name.includes("_sign")) {
+      let frontText = block.getSignText()[0].replaceAll('\n', '|');
+      let backText = block.getSignText()[1].replaceAll('\n', '|');
+      return `Front: {${frontText}} Back: {${backText}}`;
+  }
+  return "";
+}
+
+function getCropDetails(block) {
+  if (crops.includes(block?.name)) {
+      return `Has ${isHarvestableCrop(block) ? "harvestable" : "seedling"} ${block.name}.`;
+  } else {
+      return `Ready for seeds.`;
+  }
+}
+
+function isHarvestableCrop(block) {
+  if (!block || !block.metadata) {
+      return false;
+  }
+  if (!crops.includes(block.name)) {
+    return false;
+  }
+  return block.name === "beetroot" ? block.metadata === 3 : block.metadata === 7;
 }

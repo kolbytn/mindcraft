@@ -1,10 +1,6 @@
 import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
 import convoManager from '../conversation.js';
-
-const pad = (str) => {
-    return '\n' + str + '\n';
-}
+import { getAdjacentBlocksString, getInventoryString, pad } from '../npc/utils.js';
 
 // queries are commands that just return strings and don't affect anything in the world
 export const queryList = [
@@ -57,6 +53,10 @@ export const queryList = [
             res += getInventoryString(agent);
             res += agent.bot.modes.getMiniDocs();
             res += getAdjacentBlocksString(bot);
+            if (agent.memory_bank.getKeys()) {
+                res += "\nSAVED PLACES\n- ";
+                res += agent.memory_bank.getKeys().replaceAll(', ', '\n- ');
+            }
             return pad(res);
         }
     },
@@ -144,64 +144,4 @@ export const queryList = [
     }
 ];
 
-function getAdjacentBlocksString(bot) {
-    let result = '';
-    let below = bot.blockAt(bot.entity.position.offset(0, -1, 0));
-    if (below?.name && below.name !== "air") {
-        result += `\nStanding on: ${below.name}`;
-    }
-    let standingIn = bot.blockAt(bot.entity.position);
-    if (standingIn?.name && standingIn.name !== "air") {
-        result += `\nStanding in: ${standingIn.name}`;
-    }
-    let headIn = bot.blockAt(bot.entity.position.offset(0, 1, 0));
-    if (headIn?.name && headIn.name !== "air") {
-        result += `\nHead in: ${headIn.name}`;
-    }
-    let above = null;
-    let maxAboveHeight = 10;
-    let currentAbovePosition = 1;
-    while ((!above?.name || above?.name === "air") && currentAbovePosition < maxAboveHeight){
-        currentAbovePosition += 1;
-        above = bot.blockAt(bot.entity.position.offset(0, currentAbovePosition, 0));
-    }
-    if (above?.name && above.name !== "air") {
-        result += `\n${currentAbovePosition} block(s) above: ${above.name}`;
-    }
-    return result;
-}
-
-function getInventoryString(agent) {
-    let bot = agent.bot;
-    let inventory = world.getInventoryCounts(bot);
-    let res = 'INVENTORY';
-    for (const item in inventory) {
-        if (inventory[item] && inventory[item] > 0)
-            res += `\n- ${item}: ${inventory[item]}`;
-    }
-    if (res === 'INVENTORY') {
-        res += ': Nothing';
-    }
-    else if (agent.bot.game.gameMode === 'creative') {
-        res += '\n(You have infinite items in creative mode. You do not need to gather resources!!)';
-    }
-
-    let helmet = bot.inventory.slots[5];
-    let chestplate = bot.inventory.slots[6];
-    let leggings = bot.inventory.slots[7];
-    let boots = bot.inventory.slots[8];
-    res += '\nWEARING: ';
-    if (helmet)
-        res += `\nHead: ${helmet.name}`;
-    if (chestplate)
-        res += `\nTorso: ${chestplate.name}`;
-    if (leggings)
-        res += `\nLegs: ${leggings.name}`;
-    if (boots)
-        res += `\nFeet: ${boots.name}`;
-    if (!helmet && !chestplate && !leggings && !boots)
-        res += 'Nothing';
-
-    return pad(res);
-}
 
