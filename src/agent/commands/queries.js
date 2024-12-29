@@ -170,7 +170,7 @@ export const queryList = [
         }
     }, 
     {
-        name: '!checkLevelComplete',
+        name: '!checkBlueprintLevel',
         description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
         params: {
             'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }

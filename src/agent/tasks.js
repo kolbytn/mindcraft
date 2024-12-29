@@ -49,15 +49,14 @@ export class ConstructionTaskValidator {
             console.log('Validating task...');
             let valid = false;
             let score = 0;
-            this.blueprint.check(this.agent.bot).then((result) => {
-                if (result.mismatches.length === 0) {
-                    valid = true;
-                    console.log('Task is complete');
-                }
-                let total_blocks = result.mismatches.length + result.matches.length;
-                score = (result.matches.length / total_blocks) * 100;
-                console.log(`Task is ${score}% complete`);
-            });
+            let result = this.blueprint.check(this.agent.bot);
+            if (result.mismatches.length === 0) {
+                valid = true;
+                console.log('Task is complete');
+            }
+            let total_blocks = result.mismatches.length + result.matches.length;
+            score = (result.matches.length / total_blocks) * 100;
+            console.log(`Task is ${score}% complete`);
             return valid;
         } catch (error) {
             console.error('Error validating task:', error);
@@ -143,18 +142,26 @@ export class Blueprint {
         const levelData = this.data.levels[levelNum];
 
         if (mismatches.length === 0) {
-            return `Level ${levelData.level} is correct`;
+            return `Level ${levelData.level} is complete`;
         }
         var explanation = `Level ${levelData.level} `;
         // explanation += `at coordinates X: ${levelData.coordinates[0]}, Y: ${levelData.coordinates[1]}, Z: ${levelData.coordinates[2]}`;
-        explanation += " has the following mismatches:\n";
+        explanation += " requires the following fixes:\n";
         for (let item of mismatches) {
-            explanation += `At coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]} `;
-            explanation += `expected ${item.expected}, but found ${item.actual}\n`;
+            if (item.actual === 'air') { 
+                explanation += `Place ${item.expected} at coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]}\n`;
+            } else if (item.expected === 'air') {
+                explanation += `Remove the ${item.actual} at coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]}\n`;
+            } else {
+                explanation += `Replace the ${item.actual} with a ${item.expected} at coordinates X: ${item.coordinates[0]}, Y: ${item.coordinates[1]}, Z: ${item.coordinates[2]} \n`;
+            }
         }
         return explanation;
     }
     check(bot) {
+        if (!bot || typeof bot !== 'object' || !bot.hasOwnProperty('blockAt')) {
+            throw new Error('Invalid bot object. Expected a mineflayer bot.');
+        }
         const levels = this.data.levels;
         const mismatches = [];
         const matches = [];
