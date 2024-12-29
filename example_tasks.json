@@ -58,7 +58,7 @@
         "blueprint": {
             "materials": {
                 "plank": {
-                    "id": "oak_plank",
+                    "id": "oak_planks",
                     "number": 40
                 },
                 "door": {
@@ -72,10 +72,10 @@
                     "coordinates": [142, -60, -179], 
                     "placement":
                     [
-                        ["plank", "plank", "door", "plank", "plank"],
-                        ["plank", "air", "air", "air", "plank"],
-                        ["plank", "air", "air", "air", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"]
+                        ["oak_planks", "oak_planks", "oak_door", "oak_planks", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
                     ]
                 },
                 {
@@ -83,10 +83,10 @@
                     "coordinates": [142, -59, -179],
                     "placement":
                     [
-                        ["plank", "plank", "air", "plank", "plank"],
-                        ["plank", "air", "air", "air", "plank"],
-                        ["plank", "air", "air", "air", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"]
+                        ["oak_planks", "oak_planks", "oak_door", "oak_planks", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
                     ]
                 },
                 {
@@ -94,10 +94,10 @@
                     "coordinates": [142, -58, -179],
                     "placement":
                     [
-                        ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"]
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
                     ]
                 }
             ]
@@ -129,7 +129,7 @@
                     "coordinates": [142, -60, -179], 
                     "placement":
                     [
-                        ["stone", "stone", "door", "stone", "stone"],
+                        ["stone", "stone", "oak_door", "stone", "stone"],
                         ["stone", "air", "air", "air", "stone"],
                         ["stone", "air", "air", "air", "stone"],
                         ["stone", "stone", "stone", "stone", "stone"]
@@ -140,7 +140,7 @@
                     "coordinates": [142, -59, -179],
                     "placement":
                     [
-                        ["stone", "stone", "air", "stone", "stone"],
+                        ["stone", "stone", "oak_door", "stone", "stone"],
                         ["stone", "air", "air", "air", "stone"],
                         ["stone", "air", "air", "air", "stone"],
                         ["stone", "stone", "stone", "stone", "stone"]
@@ -151,10 +151,10 @@
                     "coordinates": [142, -58, -179],
                     "placement":
                     [
-                        ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"],
-                        ["plank", "plank", "plank", "plank", "plank"]
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
                     ]
                 }
             ]
