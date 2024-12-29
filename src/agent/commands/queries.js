@@ -1,8 +1,7 @@
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
-import { getCommandDocs } from './index.js';
 import convoManager from '../conversation.js';
-import { load } from 'cheerio';
+import { checkLevelBlueprint, checkBlueprint } from '../tasks.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
@@ -19,7 +18,6 @@ export const queryList = [
             let pos = bot.entity.position;
             // display position to 2 decimal places
             res += `\n- Position: x: ${pos.x.toFixed(2)}, y: ${pos.y.toFixed(2)}, z: ${pos.z.toFixed(2)}`;
-            // Gameplay
             res += `\n- Gamemode: ${bot.game.gameMode}`;
             res += `\n- Health: ${Math.round(bot.health)} / 20`;
             res += `\n- Hunger: ${Math.round(bot.food)} / 20`;
@@ -34,9 +32,6 @@ export const queryList = [
             // res += `\n- Artficial light: ${block.skyLight}`;
             // res += `\n- Sky light: ${block.light}`;
             // light properties are bugged, they are not accurate
-            res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
-            res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
-
 
             if (bot.time.timeOfDay < 6000) {
                 res += '\n- Time: Morning';
@@ -113,11 +108,6 @@ export const queryList = [
             }
             if (blocks.length == 0) {
                 res += ': none';
-            } 
-            else {
-                // Environmental Awareness
-                res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
-                res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
             }
             return pad(res);
         }
@@ -178,76 +168,45 @@ export const queryList = [
         perform: async function (agent) {
             return "Saved place names: " + agent.memory_bank.getKeys();
         }
-    },
+    }, 
     {
-        name: '!getCraftingPlan',
-        description: "Provides a comprehensive crafting plan for a specified item. This includes a breakdown of required ingredients, the exact quantities needed, and an analysis of missing ingredients or extra items needed based on the bot's current inventory.",
+        name: '!checkLevelComplete',
+        description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
         params: {
-            targetItem: { 
-                type: 'string', 
-                description: 'The item that we are trying to craft' 
-            },
-            quantity: { 
-                type: 'int',
-                description: 'The quantity of the item that we are trying to craft',
-                optional: true,
-                domain: [1, Infinity, '[)'], // Quantity must be at least 1,
-                default: 1
-            }
+            'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }
         },
-        perform: function (agent, targetItem, quantity = 1) {
-            let bot = agent.bot;
-
-            // Fetch the bot's inventory
-            const curr_inventory = world.getInventoryCounts(bot); 
-            const target_item = targetItem;
-            let existingCount = curr_inventory[target_item] || 0;
-            let prefixMessage = '';
-            if (existingCount > 0) {
-                curr_inventory[target_item] -= existingCount;
-                prefixMessage = `You already have ${existingCount} ${target_item} in your inventory. If you need to craft more,\n`;
-            }
-
-            // Generate crafting plan
-            let craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
-            craftingPlan = prefixMessage + craftingPlan;
-            return pad(craftingPlan);
-        },
-    },
+        perform: function (agent, levelNum) {
+            let res = checkLevelBlueprint(agent, levelNum);
+            console.log(res);
+            return pad(res);
+        }
+    }, 
     {
-        name: '!searchWiki',
-        description: 'Search the Minecraft Wiki for the given query.',
+        name: '!checkBlueprint',
+        description: 'Check what blocks still need to be placed for the blueprint',
+        perform: function (agent) {
+            let res = checkBlueprint(agent);
+            return pad(res);
+        }
+    }, 
+    {
+        name: '!getBlueprint',
+        description: 'Get the blueprint for the building',
+        perform: function (agent) {
+            let res = agent.task.blueprint.explain();
+            return pad(res);
+        }
+    }, 
+    {
+        name: '!getBlueprintLevel',
+        description: 'Get the blueprint for the building',
         params: {
-            'query': { type: 'string', description: 'The query to search for.' }
+            'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }
         },
-        perform: async function (agent, query) {
-            const url = `https://minecraft.wiki/w/${query}`
-            try {
-                const response = await fetch(url);
-                if (response.status === 404) {
-                  return `${query} was not found on the Minecraft Wiki. Try adjusting your search term.`;
-                }
-                const html = await response.text();
-                const $ = load(html);
-            
-                const parserOutput = $("div.mw-parser-output");
-                
-                parserOutput.find("table.navbox").remove();
-
-                const divContent = parserOutput.text();
-            
-                return divContent.trim();
-              } catch (error) {
-                console.error("Error fetching or parsing HTML:", error);
-                return `The following error occurred: ${error}`
-              }
+        perform: function (agent, levelNum) {
+            let res = agent.task.blueprint.explainLevel(levelNum);
+            console.log(res);
+            return pad(res);
         }
-    },
-    {
-        name: '!help',
-        description: 'Lists all available commands and their descriptions.',
-        perform: async function (agent) {
-            return getCommandDocs();
-        }
-    },
+    }
 ];

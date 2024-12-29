@@ -4,6 +4,8 @@ import { getPosition } from './library/world.js'
 import settings from '../../settings.js';
 import { Vec3 } from 'vec3';
 
+//todo: modify validator code to return an object with valid and score -> do more testing hahah
+//todo: figure out how to log these things to the same place as bots/histories
 export class CraftTaskValidator {
     constructor(data, agent) {
         this.target = data.target;
@@ -44,9 +46,10 @@ export class ConstructionTaskValidator {
     validate() {
         try {
             //todo: somehow make this more of a percentage or something
+            console.log('Validating task...');
             let valid = false;
             let score = 0;
-            this.blueprint.checkBluepint(this.agent.bot).then((result) => {
+            this.blueprint.check(this.agent.bot).then((result) => {
                 if (result.mismatches.length === 0) {
                     valid = true;
                     console.log('Task is complete');
@@ -63,17 +66,30 @@ export class ConstructionTaskValidator {
     }
 }
 
-export async function checkLevelBlueprint(agent, levelNum) {
-    const blueprint = agent.task.blueprint.data;
+export function checkLevelBlueprint(agent, levelNum) {
+    const blueprint = agent.task.blueprint;
     const bot = agent.bot;
-    //todo: in addition to checking the level, explain the differences 
-    return blueprint.checkLevel(bot, levelNum);
+    const result = blueprint.checkLevel(bot, levelNum);
+    if (result.mismatches.length === 0) {
+        return `Level ${levelNum} is correct`;
+    } else {
+        let explanation = blueprint.explainLevelDifference(bot, levelNum);
+        return explanation;
+    }
 }
 
-export async function checkBlueprint(agent) {
-    const blueprint = agent.task.blueprint.data;
+export function checkBlueprint(agent) {
+    console.log('Checking blueprint...');
+    console.log(agent);
+    const blueprint = agent.task.blueprint;
     const bot = agent.bot;
-    return blueprint.check(bot);
+    const result = blueprint.check(bot);
+    if (result.mismatches.length === 0) {
+        return "Blueprint is correct";
+    } else {
+        let explanation = blueprint.explainBlueprintDifference(bot);
+        return explanation;
+    }
 }
 export class Blueprint {
     constructor(blueprint) {
@@ -112,17 +128,17 @@ export class Blueprint {
         explanation += `\n${placement_string}\n`;
         return explanation;
     }
-    async explainBlueprintDifference(bot) {
+    explainBlueprintDifference(bot) {
         var explanation = "";
         const levels = this.data.levels;
         for (let i = 0; i < levels.length; i++) {
-            let level_explanation = await this.explainLevelDifference(bot, i);
+            let level_explanation = this.explainLevelDifference(bot, i);
             explanation += level_explanation + "\n";
         }
         return explanation;
     }
-    async explainLevelDifference(bot, levelNum) {
-        const results = await this.checkLevel(bot, levelNum);
+    explainLevelDifference(bot, levelNum) {
+        const results = this.checkLevel(bot, levelNum);
         const mismatches = results.mismatches;
         const levelData = this.data.levels[levelNum];
 
@@ -138,12 +154,12 @@ export class Blueprint {
         }
         return explanation;
     }
-    async check(bot) {
+    check(bot) {
         const levels = this.data.levels;
         const mismatches = [];
         const matches = [];
         for (let i = 0; i < levels.length; i++) {
-            const result = await this.checkLevel(bot, i);
+            const result = this.checkLevel(bot, i);
             mismatches.push(...result.mismatches);
             matches.push(...result.matches);
         }
@@ -152,7 +168,7 @@ export class Blueprint {
             "matches": matches
         };
     }
-    async checkLevel(bot, levelNum) {
+    checkLevel(bot, levelNum) {
         const levelData = this.data.levels[levelNum];
         const startCoords = levelData.coordinates;
         const placement = levelData.placement;
@@ -169,7 +185,7 @@ export class Blueprint {
                 const z = startCoords[2] + zOffset;
     
                 try {
-                    const blockAtLocation = await bot.blockAt(new Vec3(x, y, z));
+                    const blockAtLocation = bot.blockAt(new Vec3(x, y, z));
                     if (!blockAtLocation || blockAtLocation.name !== blockName) {
                         mismatches.push({
                             level: levelData.level,
