@@ -5,7 +5,14 @@
 
     "conversation_examples": [
         [
-            {"role": "assistant", "content": " I've got stone. What about you jack?"},
+            {"role": "assistant", "content": "Alright I have the necessary materials to build, what needs to be done for the first level of the blueprint? !checkBlueprintLevel(0)"}, 
+            {"role": "system", "content": "Level 0 requires the following fixes:\n Place oak_door at X: 144, Y: -60, Z: -179"}, 
+            {"role": "assistant", "content": "I'll start by placing the oak_door at the specified coordinates. !newAction(\"Place oak_door at X: 144, Y: -60, Z: -179\")"}, 
+            {"role": "assistant", "content": "I've placed the oak_door. What's next? !checkBlueprintLevel(0)"}, 
+            {"role": "system", "content": "Level 0 is complete"}   
+        ],
+        [
+            {"role": "assistant", "content": "I've got stone. What about you jack?"},
             {"role": "assistant", "content": "I have a door and planks. Great we have everything we need from the blueprint. Let's start building!"},
             {"role": "assistant", "content": "Great! I'll start by placing the stone blocks for level 0. !newAction(\"Place stone blocks for the base level.\")"}, 
             {"role": "assistant", "content": "Since the blueprint for level 1 only has stone, I'll start placing those. !newAction(\"Place stone blocks for level 1.\")"}, 
