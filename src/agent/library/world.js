@@ -323,46 +323,48 @@ export function getBlockKey(bot, block) {
      * @param {Block} block - The block used to determine the key.
      * @returns {String} - string representing a deterministic key for the given block
      */
-  let above = bot.blockAt(block.position.offset(0,1,0));
-  if (isHarvestableCrop(above)) {
-      return `${block.name}|${above.name}`;
-  } 
-  if (block?.name.includes("_sign") && block.getSignText()) {
-      return `${block.name}|${block.getSignText()[0].substring(0,8)}|${block.getSignText()[1].substring(0,8)}`;
-  }
-  return block?.name;
+    let above = bot.blockAt(block.position.offset(0,1,0));
+    if (isHarvestableCrop(above)) {
+        return `${block.name}|${above.name}`;
+    } 
+    if (block?.name.includes("_sign") && block.getSignText()) {
+        return `${block.name}|${block.getSignText()[0].substring(0,8)}|${block.getSignText()[1].substring(0,8)}`;
+    }
+    return block?.name;
 }
 
 let crops = ["wheat", "beetroot", "potatoes", "carrots"]
 
 function getBlockMetadataString(bot, block) {
-  if (block?.name === "farmland") {
-      let above = bot.blockAt(block.position.offset(0,1,0));
-      return(`Is ${block.metadata > 4 ? "" : " NOT "}watered. ${getCropDetails(above)}`)
-  } else if (crops.includes(block?.name)) {
-      return(`Is ${isHarvestableCrop(block) ? "" : " NOT "}ready for harvest.`)
-  } else if (block?.name.includes("_sign")) {
-      let frontText = block.getSignText()[0].replaceAll('\n', '|');
-      let backText = block.getSignText()[1].replaceAll('\n', '|');
-      return `Front: {${frontText}} Back: {${backText}}`;
-  }
-  return "";
+    if (!block) {
+        return "";
+    } else if (block.name === "farmland") {
+        let above = bot.blockAt(block.position.offset(0,1,0));
+        return(`Is ${block.metadata > 4 ? "" : " NOT "}watered. ${getCropDetails(above)}`)
+    } else if (crops.includes(block?.name)) {
+        return(`Is ${isHarvestableCrop(block) ? "" : " NOT "}ready for harvest.`)
+    } else if (block.name.includes("_sign")) {
+        let frontText = block.getSignText()[0].replaceAll('\n', '|');
+        let backText = block.getSignText()[1].replaceAll('\n', '|');
+        return `Front: {${frontText}} Back: {${backText}}`;
+    }
+    return "";
 }
 
 function getCropDetails(block) {
-  if (crops.includes(block?.name)) {
-      return `Has ${isHarvestableCrop(block) ? "harvestable" : "seedling"} ${block.name}.`;
-  } else {
-      return `Ready for seeds.`;
-  }
+    if (crops.includes(block?.name)) {
+        return `Has ${isHarvestableCrop(block) ? "harvestable" : "seedling"} ${block.name}.`;
+    } else {
+        return `Ready for seeds.`;
+    }
 }
 
 function isHarvestableCrop(block) {
-  if (!block || !block.metadata) {
-      return false;
-  }
-  if (!crops.includes(block.name)) {
-    return false;
-  }
-  return block.name === "beetroot" ? block.metadata === 3 : block.metadata === 7;
+    if (!block || !block.metadata) {
+        return false;
+    }
+    if (!crops.includes(block.name)) {
+        return false;
+    }
+    return block.name === "beetroot" ? block.metadata === 3 : block.metadata === 7;
 }
