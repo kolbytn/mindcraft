@@ -340,9 +340,9 @@ function getBlockMetadataString(bot, block) {
         return "";
     } else if (block.name === "farmland") {
         let above = bot.blockAt(block.position.offset(0,1,0));
-        return(`Is ${block.metadata > 4 ? "" : " NOT "}watered. ${getCropDetails(above)}`)
+        return(`Is ${block.metadata > 4 ? "" : "NOT "}watered. ${getCropDetails(above)}`)
     } else if (crops.includes(block?.name)) {
-        return(`Is ${isHarvestableCrop(block) ? "" : " NOT "}ready for harvest.`)
+        return(`Is ${isHarvestableCrop(block) ? "" : "NOT "}ready for harvest.`)
     } else if (block.name.includes("_sign")) {
         let frontText = block.getSignText()[0].replaceAll('\n', '|');
         let backText = block.getSignText()[1].replaceAll('\n', '|');
