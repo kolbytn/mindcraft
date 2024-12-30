@@ -68,6 +68,8 @@ export class Prompter {
 
         if (chat.api === 'google')
             this.chat_model = new Gemini(chat.model, chat.url);
+        else if (chat.api === 'azure')
+            this.chat_model = new GPT(chat.model, chat.url, true);
         else if (chat.api === 'openai')
             this.chat_model = new GPT(chat.model, chat.url);
         else if (chat.api === 'anthropic')
@@ -105,6 +107,8 @@ export class Prompter {
         try {
             if (embedding.api === 'google')
                 this.embedding_model = new Gemini(embedding.model, embedding.url);
+            else if (embedding.api === 'azure')
+                this.embedding_model = new GPT(embedding.model, embedding.url, true);
             else if (embedding.api === 'openai')
                 this.embedding_model = new GPT(embedding.model, embedding.url);
             else if (embedding.api === 'replicate')

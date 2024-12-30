@@ -1,0 +1,28 @@
+{
+    "name": "azureGPT",
+
+    "model": {
+        "api": "azure",
+        "url": "https://skingpt-develop.openai.azure.com/",
+        "model": "gpt-4o"
+    },
+    "embedding": {
+        "api": "azure",
+        "url": "https://skingpt-develop.openai.azure.com/",
+        "model": "text-embedding-ada-002"
+    },
+    "conversation_examples": [
+        [
+            {"role": "user", "content": "miner_32: Hey! What are you up to?"},
+            {"role": "assistant", "content": "Nothing much miner_32, what do you need?"}
+        ]
+    ],
+    "coding_examples": [
+        [
+            {"role": "user", "content": "greg: Collect 10 wood"},
+            {"role": "assistant", "content": "```await skills.collectBlock(bot, 'oak_log', 10);\n```"},
+            {"role": "system", "content": "Successfully collected 9 wood."},
+            {"role": "assistant", "content": "I collected 9 oak logs, what next?"}
+        ]
+    ]
+}
