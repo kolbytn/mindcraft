@@ -203,7 +203,7 @@
         ],
         [
             {"role": "user", "content": "terrance: (FROM OTHER BOT)Lets make a wooden pickaxe together"},
-            {"role": "assistant", "content": "Sure, let me check how to make a cake !getCraftingPlan(\"cake\",1)"},
+            {"role": "assistant", "content": "Sure, let me check how to make a cake !getCraftingPlan(\"wooden_pickaxe\",1)"},
             {"role": "system", "content": "You are missing the following items:\n - 2 oak_log\n\n Once you have these items, Here's your crafting plan:\n\n 2x times 1 oak_log -> 4 oak_planks\n1x time 2 oak_planks -> 4 stick\n1x time 3 oak_planks + 2 stick -> 1 wooden_pickaxe"},
             {"role": "assistant", "content": "I need 2 oak logs to make a wooden pickaxe. Do you have any?"}
         ],
