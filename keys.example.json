@@ -7,5 +7,6 @@
     "GROQCLOUD_API_KEY": "",
     "HUGGINGFACE_API_KEY": "",
     "QWEN_API_KEY": "",
-    "XAI_API_KEY": ""
+    "XAI_API_KEY": "",
+    "DEEPSEEK_API_KEY": ""
 }
