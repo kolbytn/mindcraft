@@ -13,15 +13,21 @@ export class Coder {
         this.fp = '/bots/'+agent.name+'/action-code/';
         this.generating = false;
         this.code_template = '';
-        this.code_chack_template = '';
+        this.code_check_template = '';
 
-        readFile('./bots/template.js', 'utf8', (err, data) => {
-            if (err) throw err;
-            this.code_template = data;
-        });
-        readFile('./bots/codeCheckTemplate.js', 'utf8', (err, data) => {
-            if (err) throw err;
-            this.code_chack_template = data;
+        readFile('./bots/codeTemplate.json', 'utf8', (err, data) => {
+            if (err) {
+                console.error('Error reading codeTemplate.json:', err);
+                throw err;
+            }
+            try {
+                const templates = JSON.parse(data);
+                this.code_template = templates.execTemplate;
+                this.code_check_template = templates.checkTemplate;
+            } catch (parseErr) {
+                console.error('Error parsing codeTemplate.json:', parseErr);
+                throw parseErr;
+            }
         });
         mkdirSync('.' + this.fp, { recursive: true });
     }
@@ -83,7 +89,7 @@ export class Coder {
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
-        let src_check_copy = this.code_chack_template.replace('/* CODE HERE */', src);
+        let src_check_copy = this.code_check_template.replace('/* CODE HERE */', src);
         src = this.code_template.replace('/* CODE HERE */', src);
 
         let filename = this.file_counter + '.js';
