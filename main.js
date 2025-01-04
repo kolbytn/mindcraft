@@ -31,7 +31,7 @@ function getProfiles(args) {
 
 async function main() {
     if (settings.host_mindserver) {
-        const mindServer = createMindServer();
+        const mindServer = createMindServer(settings.mindserver_port);
     }
     mainProxy.connect();
 
