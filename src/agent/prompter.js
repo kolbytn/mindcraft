@@ -1,7 +1,6 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from './commands/index.js';
-// import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
 import settings from '../../settings.js';
@@ -15,7 +14,6 @@ import { GroqCloudAPI } from '../models/groq.js';
 import { HuggingFace } from '../models/huggingface.js';
 import { Qwen } from "../models/qwen.js";
 import { Grok } from "../models/grok.js";
-// import {cosineSimilarity} from "../utils/math.js";
 import {SkillLibrary} from "./library/skill_library.js";
 import { DeepSeek } from '../models/deepseek.js';
 
