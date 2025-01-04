@@ -46,7 +46,7 @@ export class ActionManager {
             assert(actionLabel != null, 'actionLabel is required for new resume');
             this.resume_name = actionLabel;
         }
-        if (this.resume_func != null && (this.agent.isIdle() || new_resume) && (!this.agent.self_prompter.on || new_resume)) {
+        if (this.resume_func != null && this.agent.isIdle() && (!this.agent.self_prompter.on || new_resume)) {
             this.currentActionLabel = this.resume_name;
             let res = await this._executeAction(this.resume_name, this.resume_func, timeout);
             this.currentActionLabel = '';
@@ -112,12 +112,14 @@ export class ActionManager {
             // Log the full stack trace
             console.error(err.stack);
             await this.stop();
+            err = err.toString();
+            let relevant_skill_docs = await this.agent.prompter.skill_libary.getRelevantSkillDocs(err,5);
 
-            let message = this._getBotOutputSummary() + 
-                '!!Code threw exception!!\n' + 
+            let message = this._getBotOutputSummary() +
+                '!!Code threw exception!!\n' +
                 'Error: ' + err + '\n' +
-                'Stack trace:\n' + err.stack;
-            
+                'Stack trace:\n' + err.stack+'\n'+relevant_skill_docs;
+
             let interrupted = this.agent.bot.interrupt_code;
             this.agent.clearBotLogs();
             if (!interrupted && !this.agent.coder.generating) {
@@ -137,7 +139,7 @@ export class ActionManager {
           First outputs:\n${output.substring(0, MAX_OUT / 2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT / 2)}`;
         }
         else {
-            output = 'Code output:\n' + output;
+            output = 'Code output:\n' + output.toString();
         }
         return output;
     }
