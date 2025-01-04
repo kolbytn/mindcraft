@@ -17,6 +17,7 @@ import { Qwen } from "../models/qwen.js";
 import { Grok } from "../models/grok.js";
 // import {cosineSimilarity} from "../utils/math.js";
 import {SkillLibrary} from "./library/skill_library.js";
+import { DeepSeek } from '../models/deepseek.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -31,8 +32,7 @@ export class Prompter {
 
         this.convo_examples = null;
         this.coding_examples = null;
-
-
+        
         let name = this.profile.name;
         let chat = this.profile.model;
         this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
@@ -63,6 +63,8 @@ export class Prompter {
                 chat.api = 'qwen';
             else if (chat.model.includes('grok'))
                 chat.api = 'xai';
+            else if (chat.model.includes('deepseek'))
+                chat.api = 'deepseek';
             else
                 chat.api = 'ollama';
         }
@@ -90,6 +92,8 @@ export class Prompter {
             this.chat_model = new Qwen(chat.model, chat.url);
         else if (chat.api === 'xai')
             this.chat_model = new Grok(chat.model, chat.url);
+        else if (chat.api === 'deepseek')
+            this.chat_model = new DeepSeek(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
@@ -162,6 +166,7 @@ export class Prompter {
             throw error;
         }
     }
+
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
 
@@ -241,6 +246,9 @@ export class Prompter {
         let current_msg_time = this.most_recent_msg_time;
         for (let i = 0; i < 3; i++) { // try 3 times to avoid hallucinations
             await this.checkCooldown();
+            if (current_msg_time !== this.most_recent_msg_time) {
+                return '';
+            }
             let prompt = this.profile.conversing;
             prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
             let generation = await this.chat_model.sendRequest(messages, prompt);

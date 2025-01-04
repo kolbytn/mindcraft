@@ -172,19 +172,21 @@ class ConversationManager {
     async recieveFromBot(sender, recieved) {
         const convo = this._getConvo(sender);
 
+        if (convo.ignore_until_start && !recieved.start)
+            return;
+
         // check if any convo is active besides the sender
-        if (Object.values(this.convos).some(c => c.active && c.name !== sender)) {
+        if (this.inConversation() && !this.inConversation(sender)) {
             this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`, false, false);
+            this.endConversation(sender);
             return;
         }
-    
+
         if (recieved.start) {
             convo.reset();
             this.startConversationFromOtherBot(sender);
         }
-        if (convo.ignore_until_start)
-            return;
-        
+
         this._clearMonitorTimeouts();
         convo.queue(recieved);
         
@@ -230,10 +232,12 @@ class ConversationManager {
     endConversation(sender) {
         if (this.convos[sender]) {
             this.convos[sender].end();
-            this._stopMonitor();
-            this.activeConversation = null;
-            if (self_prompter_paused && !this.inConversation()) {
-                _resumeSelfPrompter();
+            if (this.activeConversation.name === sender) {
+                this._stopMonitor();
+                this.activeConversation = null;
+                if (self_prompter_paused && !this.inConversation()) {
+                    _resumeSelfPrompter();
+                }
             }
         }
     }
@@ -246,7 +250,15 @@ class ConversationManager {
             _resumeSelfPrompter();
         }
     }
-    
+
+    forceEndCurrentConversation() {
+        if (this.activeConversation) {
+            let sender = this.activeConversation.name;
+            this.sendToBot(sender, '!endConversation("' + sender + '")', false, false);
+            this.endConversation(sender);
+        }
+    }
+
     scheduleSelfPrompter() {
         self_prompter_paused = true;
     }
@@ -332,8 +344,8 @@ function _handleFullInMessage(sender, recieved) {
     let message = _tagMessage(recieved.message);
     if (recieved.end) {
         convoManager.endConversation(sender);
-        sender = 'system'; // bot will respond to system instead of the other bot
         message = `Conversation with ${sender} ended with message: "${message}"`;
+        sender = 'system'; // bot will respond to system instead of the other bot
     }
     else if (recieved.start)
         agent.shut_up = false;
@@ -348,6 +360,8 @@ function _tagMessage(message) {
 
 async function _resumeSelfPrompter() {
     await new Promise(resolve => setTimeout(resolve, 5000));
-    self_prompter_paused = false;
-    agent.self_prompter.start();
+    if (self_prompter_paused && !convoManager.inConversation()) {
+        self_prompter_paused = false;
+        agent.self_prompter.start();
+    }
 }

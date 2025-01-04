@@ -18,6 +18,7 @@ export default
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
         // "./profiles/grok.json",
+        // "./profiles/deepseek.json",
         
         // using more than 1 profile requires you to /msg each bot indivually
     ],

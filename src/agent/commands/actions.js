@@ -266,13 +266,12 @@ export const actionsList = [
             'num': { type: 'int', description: 'The number of times to smelt the item.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, item_name, num) => {
-            let response = await skills.smeltItem(agent.bot, item_name, num);
-            if (response.indexOf('Successfully') !== -1) {
-            // there is a bug where the bot's inventory is not updated after smelting
-            // only updates after a restart
-            agent.cleanKill(response + ' Safely restarting to update inventory.');
+            let success = await skills.smeltItem(agent.bot, item_name, num);
+            if (success) {
+                setTimeout(() => {
+                    agent.cleanKill('Safely restarting to update inventory.');
+                }, 500);
             }
-            return response;
         })
     },
     {
@@ -386,12 +385,12 @@ export const actionsList = [
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            if (convoManager.inConversation() && !convoManager.inConversation(player_name))
-                return 'You are already in conversation with other bot.';
             if (!convoManager.isOtherAgent(player_name))
                 return player_name + ' is not a bot, cannot start conversation.';
-            if (convoManager.inConversation(player_name))
-                agent.history.add('system', 'You are already in conversation with ' + player_name + ' Don\'t use this command to talk to them.');
+            if (convoManager.inConversation() && !convoManager.inConversation(player_name)) 
+                convoManager.forceEndCurrentConversation();
+            else if (convoManager.inConversation(player_name))
+                agent.history.add('system', 'You are already in conversation with ' + player_name + '. Don\'t use this command to talk to them.');
             convoManager.startConversation(player_name, message);
         }
     },
