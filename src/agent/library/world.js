@@ -67,10 +67,9 @@ export function getSurroundingBlocks(bot) {
      **/
     // Create a list of block position results that can be unpacked.
     let res = [];
-    res.push(`Block Above: ${getBlockAtPosition(bot, 0, 2, 0).name}`);
     res.push(`Block Below: ${getBlockAtPosition(bot, 0, -1, 0).name}`);
-    res.push(`Block at Head: ${getBlockAtPosition(bot, 0, 1, 0).name}`);
     res.push(`Block at Legs: ${getBlockAtPosition(bot, 0, 0, 0).name}`);
+    res.push(`Block at Head: ${getBlockAtPosition(bot, 0, 1, 0).name}`);
 
     return res;
 }
@@ -92,8 +91,8 @@ export function getFirstBlockAboveHead(bot, ignore_types=null, distance=32) {
     else {
         if (!Array.isArray(ignore_types))
             ignore_types = [ignore_types];
-        for(let ingnore_type of ignore_types) {
-            if (mc.getBlockId(ingnore_type)) ignore_blocks.push(ingnore_type);
+        for(let ignore_type of ignore_types) {
+            if (mc.getBlockId(ignore_type)) ignore_blocks.push(ignore_type);
         }
     }
     // The block above, stops when it finds a solid block .
@@ -109,6 +108,8 @@ export function getFirstBlockAboveHead(bot, ignore_types=null, distance=32) {
         height = i;
         break;
     }
+
+    if (ignore_blocks.includes(block_above.name)) return 'none';
     
     return `${block_above.name} (${height} blocks up)`;
 }
