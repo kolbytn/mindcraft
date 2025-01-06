@@ -169,10 +169,10 @@ class ConversationManager {
         sendBotChatToServer(send_to, json);
     }
 
-    async recieveFromBot(sender, recieved) {
+    async receiveFromBot(sender, received) {
         const convo = this._getConvo(sender);
 
-        if (convo.ignore_until_start && !recieved.start)
+        if (convo.ignore_until_start && !received.start)
             return;
 
         // check if any convo is active besides the sender
@@ -182,13 +182,13 @@ class ConversationManager {
             return;
         }
 
-        if (recieved.start) {
+        if (received.start) {
             convo.reset();
             this.startConversationFromOtherBot(sender);
         }
 
         this._clearMonitorTimeouts();
-        convo.queue(recieved);
+        convo.queue(received);
         
         // responding to conversation takes priority over self prompting
         if (agent.self_prompter.on){
@@ -196,7 +196,7 @@ class ConversationManager {
             self_prompter_paused = true;
         }
     
-        _scheduleProcessInMessage(sender, recieved, convo);
+        _scheduleProcessInMessage(sender, received, convo);
     }
 
     responseScheduledFor(sender) {
@@ -278,15 +278,15 @@ The logic is as follows:
 - If only the other bot is busy, respond with a long delay to allow it to finish short actions (ex check inventory)
 - If I'm busy but other bot isn't, let LLM decide whether to respond
 - If both bots are busy, don't respond until someone is done, excluding a few actions that allow fast responses
-- New messages recieved during the delay will reset the delay following this logic, and be queued to respond in bulk
+- New messages received during the delay will reset the delay following this logic, and be queued to respond in bulk
 */
 const talkOverActions = ['stay', 'followPlayer', 'mode:']; // all mode actions
 const fastDelay = 200;
 const longDelay = 5000;
-async function _scheduleProcessInMessage(sender, recieved, convo) {
+async function _scheduleProcessInMessage(sender, received, convo) {
     if (convo.inMessageTimer)
         clearTimeout(convo.inMessageTimer);
-    let otherAgentBusy = containsCommand(recieved.message);
+    let otherAgentBusy = containsCommand(received.message);
 
     const scheduleResponse = (delay) => convo.inMessageTimer = setTimeout(() => _processInMessageQueue(sender), delay);
 
@@ -307,7 +307,7 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
             scheduleResponse(fastDelay);
         }
         else {
-            let shouldRespond = await agent.prompter.promptShouldRespondToBot(recieved.message);
+            let shouldRespond = await agent.prompter.promptShouldRespondToBot(received.message);
             console.log(`${agent.name} decided to ${shouldRespond?'respond':'not respond'} to ${sender}`);
             if (shouldRespond)
                 scheduleResponse(fastDelay);
@@ -335,19 +335,19 @@ function _compileInMessages(convo) {
     return pack;
 }
 
-function _handleFullInMessage(sender, recieved) {
-    console.log(`${agent.name} responding to "${recieved.message}" from ${sender}`);
+function _handleFullInMessage(sender, received) {
+    console.log(`${agent.name} responding to "${received.message}" from ${sender}`);
     
     const convo = convoManager._getConvo(sender);
     convo.active = true;
 
-    let message = _tagMessage(recieved.message);
-    if (recieved.end) {
+    let message = _tagMessage(received.message);
+    if (received.end) {
         convoManager.endConversation(sender);
         message = `Conversation with ${sender} ended with message: "${message}"`;
         sender = 'system'; // bot will respond to system instead of the other bot
     }
-    else if (recieved.start)
+    else if (received.start)
         agent.shut_up = false;
     convo.inMessageTimer = null;
     agent.handleMessage(sender, message);

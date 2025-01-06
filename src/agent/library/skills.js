@@ -905,7 +905,7 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
         bot.once('playerCollect', (collector, collected) => {
             console.log(collected.name);
             if (collector.username === username) {
-                log(bot, `${username} recieved ${itemType}.`);
+                log(bot, `${username} received ${itemType}.`);
                 given = true;
             }
         });

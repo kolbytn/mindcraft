@@ -248,7 +248,7 @@ export class Prompter {
                 continue;
             }
             if (current_msg_time !== this.most_recent_msg_time) {
-                console.warn(this.agent.name + ' recieved new message while generating, discarding old response.');
+                console.warn(this.agent.name + ' received new message while generating, discarding old response.');
                 return '';
             }
             return generation;
