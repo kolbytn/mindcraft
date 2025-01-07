@@ -406,7 +406,7 @@ export const actionsList = [
             convoManager.endConversation(player_name);
             return `Converstaion with ${player_name} ended.`;
         }
-    }
+    },
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
@@ -420,16 +420,4 @@ export const actionsList = [
     //         return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
     //     }
     // },
-    {
-        name: '!help',
-        description: 'Lists all available commands and their descriptions.',
-        perform: async function (agent) {
-            const commandList = actionsList.map(action => {
-                return `${action.name.padEnd(15)} - ${action.description}`; // Ensure consistent spacing
-            }).join('\n');
-
-            console.log(commandList);
-            return `Available Commands:\n${commandList}`;
-        }
-    },
 ];
