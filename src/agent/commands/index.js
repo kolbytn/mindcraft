@@ -14,8 +14,8 @@ export function getCommand(name) {
     return commandMap[name];
 }
 
-const commandRegex = /!(\w+)(?:\(([\s\S]*)\))?/
-const argRegex = /(?:"[^"]*"|'[^']*'|[^,])+/g;
+const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
+const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
 
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);
@@ -82,7 +82,7 @@ function checkInInterval(number, lowerBound, upperBound, endpointType) {
  * @param {string} message - A message from a player or language model containing a command.
  * @returns {string | Object}
  */
-function parseCommandMessage(message) {
+export function parseCommandMessage(message) {
     const commandMatch = message.match(commandRegex);
     if (!commandMatch) return `Command is incorrectly formatted`;
 
@@ -108,12 +108,6 @@ function parseCommandMessage(message) {
         let arg = args[i].trim();
         if ((arg.startsWith('"') && arg.endsWith('"')) || (arg.startsWith("'") && arg.endsWith("'"))) {
             arg = arg.substring(1, arg.length-1);
-        }
-
-        if (arg.includes('=')) {
-            // this sanitizes syntaxes like "x=2" and ignores the param name
-            let split = arg.split('=');
-            args[i] = split[1];
         }
         
         //Convert to the correct type
@@ -207,7 +201,6 @@ export async function executeCommand(agent, message) {
     else {
         console.log('parsed command:', parsed);
         const command = getCommand(parsed.commandName);
-        const is_action = isAction(command.name);
         let numArgs = 0;
         if (parsed.args) {
             numArgs = parsed.args.length;
@@ -215,17 +208,13 @@ export async function executeCommand(agent, message) {
         if (numArgs !== numParams(command))
             return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
         else {
-            if (is_action)
-                agent.coder.setCurActionName(command.name);
             const result = await command.perform(agent, ...parsed.args);
-            if (is_action)
-                agent.coder.setCurActionName('');
             return result;
         }
     }
 }
 
-export function getCommandDocs() {
+export function getCommandDocs(blacklist=null) {
     const typeTranslations = {
         //This was added to keep the prompt the same as before type checks were implemented.
         //If the language model is giving invalid inputs changing this might help.
@@ -237,8 +226,11 @@ export function getCommandDocs() {
     }
     let docs = `\n*COMMAND DOCS\n You can use the following commands to perform actions and get information about the world. 
     Use the commands with the syntax: !commandName or !commandName("arg1", 1.2, ...) if the command takes arguments.\n
-    Do not use codeblocks. Only use one command in each response, trailing commands and comments will be ignored.\n`;
+    Do not use codeblocks. Use double quotes for strings. Only use one command in each response, trailing commands and comments will be ignored.\n`;
     for (let command of commandList) {
+        if (blacklist && blacklist.includes(command.name)) {
+            continue;
+        }
         docs += command.name + ': ' + command.description + '\n';
         if (command.params) {
             docs += 'Params:\n';

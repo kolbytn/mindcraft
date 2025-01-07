@@ -1,4 +1,4 @@
-import { writeFileSync, readFileSync, mkdirSync } from 'fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs';
 import { NPCData } from './npc/data.js';
 import settings from '../../settings.js';
 
@@ -23,6 +23,7 @@ export class History {
         // Number of messages to remove from current history and save into memory
         this.summary_chunk_size = 5; 
         // chunking reduces expensive calls to promptMemSaving and appendFullHistory
+        // and improves the quality of the memory summary
     }
 
     getHistory() { // expects an Examples object
@@ -78,50 +79,37 @@ export class History {
         }
     }
 
-    save() {
-        // save history object to json file
-        let data = {
-            'name': this.name,
-            'memory': this.memory,
-            'turns': this.turns
-        };
-        if (this.agent.npc.data !== null)
-            data.npc = this.agent.npc.data.toObject();
-        const modes = this.agent.bot.modes.getJson();
-        if (modes !== null)
-            data.modes = modes;
-        const memory_bank = this.agent.memory_bank.getJson();
-        if (memory_bank !== null)
-            data.memory_bank = memory_bank;
-        if (this.agent.self_prompter.on) {
-            data.self_prompt = this.agent.self_prompter.prompt;
+    async save() {
+        try {
+            const data = {
+                memory: this.memory,
+                turns: this.turns,
+                self_prompt: this.agent.self_prompter.on ? this.agent.self_prompter.prompt : null,
+                last_sender: this.agent.last_sender
+            };
+            writeFileSync(this.memory_fp, JSON.stringify(data, null, 2));
+            console.log('Saved memory to:', this.memory_fp);
+        } catch (error) {
+            console.error('Failed to save history:', error);
+            throw error;
         }
-        const json_data = JSON.stringify(data, null, 4);
-        writeFileSync(this.memory_fp, json_data, (err) => {
-            if (err) {
-                throw err;
-            }
-            console.log("JSON data is saved.");
-        });
     }
 
     load() {
         try {
-            // load history object from json file
-            const data = readFileSync(this.memory_fp, 'utf8');
-            const obj = JSON.parse(data);
-            this.memory = obj.memory;
-            this.agent.npc.data = NPCData.fromObject(obj.npc);
-            if (obj.modes)
-                this.agent.bot.modes.loadJson(obj.modes);
-            if (obj.memory_bank)
-                this.agent.memory_bank.loadJson(obj.memory_bank);
-            this.turns = obj.turns;
-            return obj;
-        } catch (err) {
-            console.error(`Error reading ${this.name}'s memory file: ${err.message}`);
+            if (!existsSync(this.memory_fp)) {
+                console.log('No memory file found.');
+                return null;
+            }
+            const data = JSON.parse(readFileSync(this.memory_fp, 'utf8'));
+            this.memory = data.memory || '';
+            this.turns = data.turns || [];
+            console.log('Loaded memory:', this.memory);
+            return data;
+        } catch (error) {
+            console.error('Failed to load history:', error);
+            throw error;
         }
-        return null;
     }
 
     clear() {

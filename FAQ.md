@@ -13,6 +13,11 @@
 - `I'm stuck!` or other issues with constantly getting stuck:
   - Mineflayer's pathfinder is imperfect. We have improved upon it with patches, but these might not have been applied properly. Make sure your code is up to date with main, delete the `node_modules` folder, and run `npm install`
   - The bot will still get stuck occasionally, but not constantly.
+    
+- `Why I added the api key but still prompted that the key can't be found?`
+  - Possible reason 1: Did not modify keys.example.json to keys.json.
+  - Possible reason 2: If you use vscode to edit, you need to `ctrl+s` to save the file for the changes to take effect.
+  - Possible reason 3: Not setting the code path correctly in setting.js, use andy.js by default. 
 
 # Common Questions
 - Mod Support? Mindcraft only supports client-side mods like optifine and sodium, though they can be tricky to set up. Mods that change minecraft game mechanics are not supported.

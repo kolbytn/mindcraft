@@ -4,10 +4,8 @@ import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 
 
-export function log(bot, message, chat=false) {
+export function log(bot, message) {
     bot.output += message + '\n';
-    if (chat)
-        bot.chat(message);
 }
 
 async function autoLight(bot) {
@@ -312,8 +310,6 @@ export async function attackEntity(bot, entity, kill=true) {
      **/
 
     let pos = entity.position;
-    console.log(bot.entity.position.distanceTo(pos))
-
     await equipHighestAttack(bot)
 
     if (!kill) {
@@ -585,7 +581,9 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         if (blockType === 'ladder' || blockType === 'repeater' || blockType === 'comparator') {
             blockType += `[facing=${face}]`;
         }
-
+        if (blockType.includes('stairs')) {
+            blockType += `[facing=${face}]`;
+        }
         let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' ' + blockType;
         bot.chat(msg);
         if (blockType.includes('door'))
@@ -758,7 +756,7 @@ export async function discard(bot, itemName, num=-1) {
         log(bot, `You do not have any ${itemName} to discard.`);
         return false;
     }
-    log(bot, `Successfully discarded ${discarded} ${itemName}.`);
+    log(bot, `Discarded ${discarded} ${itemName}.`);
     return true;
 }
 
@@ -850,23 +848,19 @@ export async function viewChest(bot) {
     return true;
 }
 
-export async function eat(bot, foodName="") {
+export async function consume(bot, itemName="") {
     /**
-     * Eat the given item. If no item is given, it will eat the first food item in the bot's inventory.
+     * Eat/drink the given item.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
-     * @param {string} item, the item to eat.
+     * @param {string} itemName, the item to eat/drink.
      * @returns {Promise<boolean>} true if the item was eaten, false otherwise.
      * @example
      * await skills.eat(bot, "apple");
      **/
     let item, name;
-    if (foodName) {
-        item = bot.inventory.items().find(item => item.name === foodName);
-        name = foodName;
-    }
-    else {
-        item = bot.inventory.items().find(item => item.foodRecovery > 0);
-        name = "food";
+    if (itemName) {
+        item = bot.inventory.items().find(item => item.name === itemName);
+        name = itemName;
     }
     if (!item) {
         log(bot, `You do not have any ${name} to eat.`);
@@ -874,7 +868,7 @@ export async function eat(bot, foodName="") {
     }
     await bot.equip(item, 'hand');
     await bot.consume();
-    log(bot, `Successfully ate ${item.name}.`);
+    log(bot, `Consumed ${item.name}.`);
     return true;
 }
 
@@ -891,14 +885,43 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
      * await skills.giveToPlayer(bot, "oak_log", "player1");
      **/
     let player = bot.players[username].entity
-    if (!player){
+    if (!player) {
         log(bot, `Could not find ${username}.`);
         return false;
     }
-    await goToPlayer(bot, username);
+    await goToPlayer(bot, username, 3);
+    // if we are 2 below the player
+    log(bot, bot.entity.position.y, player.position.y);
+    if (bot.entity.position.y < player.position.y - 1) {
+        await goToPlayer(bot, username, 1);
+    }
+    // if we are too close, make some distance
+    if (bot.entity.position.distanceTo(player.position) < 2) {
+        await moveAwayFromEntity(bot, player, 2);
+    }
     await bot.lookAt(player.position);
-    discard(bot, itemType, num);
-    return true;
+    if (await discard(bot, itemType, num)) {
+        let given = false;
+        bot.once('playerCollect', (collector, collected) => {
+            console.log(collected.name);
+            if (collector.username === username) {
+                log(bot, `${username} received ${itemType}.`);
+                given = true;
+            }
+        });
+        let start = Date.now();
+        while (!given && !bot.interrupt_code) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (given) {
+                return true;
+            }
+            if (Date.now() - start > 3000) {
+                break;
+            }
+        }
+    }
+    log(bot, `Failed to give ${itemType} to ${username}, it was never received.`);
+    return false;
 }
 
 
@@ -955,6 +978,26 @@ export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64
     await goToPosition(bot, block.position.x, block.position.y, block.position.z, min_distance);
     return true;
     
+}
+
+export async function goToNearestEntity(bot, entityType, min_distance=2, range=64) {
+    /**
+     * Navigate to the nearest entity of the given type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} entityType, the type of entity to navigate to.
+     * @param {number} min_distance, the distance to keep from the entity. Defaults to 2.
+     * @param {number} range, the range to look for the entity. Defaults to 64.
+     * @returns {Promise<boolean>} true if the entity was reached, false otherwise.
+     **/
+    let entity = world.getNearestEntityWhere(bot, entity => entity.name === entityType, range);
+    if (!entity) {
+        log(bot, `Could not find any ${entityType} in ${range} blocks.`);
+        return false;
+    }
+    let distance = bot.entity.position.distanceTo(entity.position);
+    log(bot, `Found ${entityType} ${distance} blocks away.`);
+    await goToPosition(bot, entity.position.x, entity.position.y, entity.position.z, min_distance);
+    return true;
 }
 
 export async function goToPlayer(bot, username, distance=3) {
@@ -1057,6 +1100,21 @@ export async function moveAway(bot, distance) {
     await bot.pathfinder.goto(inverted_goal);
     let new_pos = bot.entity.position;
     log(bot, `Moved away from nearest entity to ${new_pos}.`);
+    return true;
+}
+
+export async function moveAwayFromEntity(bot, entity, distance=16) {
+    /**
+     * Move away from the given entity.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {Entity} entity, the entity to move away from.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     **/
+    let goal = new pf.goals.GoalFollow(entity, distance);
+    let inverted_goal = new pf.goals.GoalInvert(goal);
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    await bot.pathfinder.goto(inverted_goal);
     return true;
 }
 
