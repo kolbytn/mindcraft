@@ -65,6 +65,28 @@ export class ConstructionTaskValidator {
     }
 }
 
+export function resetConstructionWorld(bot, blueprint) {
+    console.log('Resetting world...');
+    const starting_position = blueprint.levels[0].coordinates;
+    const length = blueprint.levels[0].placement.length + 5;
+    const height = blueprint.levels.length + 5;
+    const width = blueprint.levels[0].placement[0].length + 5;
+    const command = `/fill ${starting_position[0]} ${starting_position[1]} ${starting_position[2]} ${starting_position[0] + width} ${starting_position[1] + height} ${starting_position[2] + length} air`;
+    bot.chat(command);
+    console.log('World reset');
+}
+
+// export function resetConstructionWorld(bot) {
+//     console.log('Resetting world...');
+//     const pos = getPosition(bot);
+//     const xOffset = 25;
+//     const zOffset = 25;
+//     const command = `/fill ${Math.floor(pos.x - xOffset)} -60 ${Math.floor(pos.z - zOffset)} ${Math.floor(pos.x + xOffset)} -50 ${Math.floor(pos.z + zOffset)} air`;
+//     console.log('Command:', command);
+//     bot.chat(command);
+//     console.log('World reset');
+// }
+
 export function checkLevelBlueprint(agent, levelNum) {
     const blueprint = agent.task.blueprint;
     const bot = agent.bot;
@@ -219,6 +241,8 @@ export class Blueprint {
             "matches": matches
         };
     }
+
+    
 }
 
 export class Task {
@@ -228,6 +252,7 @@ export class Task {
         this.taskTimeout = 300;
         this.taskStartTime = Date.now();
         this.validator = null;
+        this.reset_function = null;
         this.blocked_actions = [];
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
@@ -293,6 +318,8 @@ export class Task {
         }
         return false;
     }
+
+    
 
     async initBotTask() {
         if (this.data === null)
