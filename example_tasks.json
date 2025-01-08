@@ -169,8 +169,8 @@
     }, 
     "multiagent_construction_house": {
         "type": "construction",
-        "goal": "Make a house with the blueprint above, tell the other agents what materials you have and share them to finish the blueprint. You and the other agent have all the necessary materials for the blueprint at this point. ",
-        "conversation": "Let's share materials and make a house with this blueprint. You and the other agent have all materials necessary at this point:",
+        "goal": "Make a house with the blueprint below ",
+        "conversation": "Let's share materials and make a house with the blueprint",
         "agent_count": 2, 
         "blueprint": {
             "materials": {
@@ -224,10 +224,105 @@
                 "oak_planks": 20
             },
             "1": {
-                "oak_door": 1,
-                "stone": 26
+                "stone": 40,
+                "oak_door": 1
             }
         }
+    }, 
+    "construction_large_house": {
+        "type": "construction",
+        "goal": "Make a large house with the blueprint below ",
+        "agent_count": 1,
+        "blueprint": {
+            "materials": {
+                "bricks": {
+                    "id": "bricks",
+                    "number": 200
+                },
+                "glass_pane": {
+                    "id": "glass_pane",
+                    "number": 24
+                },
+                "oak_door": {
+                    "id": "oak_door",
+                    "number": 2
+                }
+            },
+            "levels": [
+                {   
+                    "level": 0,
+                    "coordinates": [162, -60, -180], 
+                    "placement":
+                    [
+                        ["bricks", "bricks", "bricks", "bricks", "dark_oak_door", "dark_oak_door", "bricks", "bricks", "bricks", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                },
+                {
+                    "level": 1,
+                    "coordinates": [162, -59, -180],
+                    "placement":
+                    [
+                        ["bricks", "glass_pane", "glass_pane", "bricks", "dark_oak_door", "dark_oak_door", "bricks", "glass_pane", "glass_pane", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                },
+                {
+                    "level": 2,
+                    "coordinates": [162, -58, -180],
+                    "placement":
+                    [
+                        ["bricks", "glass_pane", "glass_pane", "bricks", "air", "air", "bricks", "glass_pane", "glass_pane", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                }, 
+                {
+                    "level": 3,
+                    "coordinates": [162, -57, -180],
+                    "placement":
+                    [
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                }
+            ]
+        }, 
+        "initial_inventory": {
+            "bricks": 200, 
+            "dark_oak_door": 2,
+            "glass_pane": 24
+        }
     }
-
 }
