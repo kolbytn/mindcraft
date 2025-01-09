@@ -558,6 +558,14 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
 
     const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
     if (bot.modes.isOn('cheat') && !dontCheat) {
+        if (bot.restrict_to_inventory) {
+            let block = bot.inventory.items().find(item => item.name === blockType);
+            if (!block) {
+                log(bot, `Cannot place ${blockType}, you are restricted to your current inventory.`);
+                return false;
+            }
+        }
+
         // invert the facing direction
         let face = placeOn === 'north' ? 'south' : placeOn === 'south' ? 'north' : placeOn === 'east' ? 'west' : 'east';
         if (blockType.includes('torch') && placeOn !== 'bottom') {
@@ -599,7 +607,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     if (item_name == "redstone_wire")
         item_name = "redstone";
     let block = bot.inventory.items().find(item => item.name === item_name);
-    if (!block && bot.game.gameMode === 'creative') {
+    if (!block && bot.game.gameMode === 'creative' && !bot.restrict_to_inventory) {
         await bot.creative.setInventorySlot(36, mc.makeItem(item_name, 1)); // 36 is first hotbar slot
         block = bot.inventory.items().find(item => item.name === item_name);
     }

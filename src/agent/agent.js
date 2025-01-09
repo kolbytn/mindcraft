@@ -3,7 +3,7 @@ import { Coder } from './coder.js';
 import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
@@ -47,7 +47,8 @@ export class Agent {
             await this.prompter.initExamples();
             console.log('Initializing task...');
             this.task = new Task(this, task_path, task_id);
-            this.blocked_actions = this.task.blocked_actions || [];
+            const blocked_actions = this.task.blocked_actions || [];
+            blacklistCommands(blocked_actions);
 
             serverProxy.connect(this);
 
