@@ -35,7 +35,8 @@ export default
     "code_timeout_mins": 10, // minutes code is allowed to run. -1 for no timeout
 
     "max_messages": 15, // max number of messages to keep in context
-    "max_commands": -1, // max number of commands to use in a response. -1 for no limit
+    "num_examples": 2, // number of examples to give to the model
+    "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots

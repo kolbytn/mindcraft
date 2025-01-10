@@ -4,6 +4,7 @@ import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+import settings from '../../settings.js';
 
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
@@ -155,8 +156,8 @@ export class Prompter {
 
     async initExamples() {
         try {
-            this.convo_examples = new Examples(this.embedding_model);
-            this.coding_examples = new Examples(this.embedding_model);
+            this.convo_examples = new Examples(this.embedding_model, settings.num_examples);
+            this.coding_examples = new Examples(this.embedding_model, settings.num_examples);
             
             // Wait for both examples to load before proceeding
             await Promise.all([
@@ -186,7 +187,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent.blocked_actions));
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)

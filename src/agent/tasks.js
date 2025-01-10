@@ -51,6 +51,7 @@ export class Task {
             this.taskStartTime = Date.now();
             this.validator = new TaskValidator(this.data, this.agent);
             this.blocked_actions = this.data.blocked_actions || [];
+            this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
             if (this.data.conversation)
