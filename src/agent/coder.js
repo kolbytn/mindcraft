@@ -15,11 +15,11 @@ export class Coder {
         this.code_template = '';
         this.code_check_template = '';
 
-        readFile('./bots/template.js', 'utf8', (err, data) => {
+        readFile('./bots/execTemplate.js', 'utf8', (err, data) => {
             if (err) throw err;
             this.code_template = data;
         });
-        readFile('./bots/codeCheckTemplate.js', 'utf8', (err, data) => {
+        readFile('./bots/lintTemplate.js', 'utf8', (err, data) => {
             if (err) throw err;
             this.code_check_template = data;
         });
