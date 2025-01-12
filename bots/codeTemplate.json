@@ -1,4 +1,0 @@
-{
-  "execTemplate": "(async (bot) => {\n\n    /* CODE HERE */\n    log(bot, 'Code finished.');\n\n});",
-  "checkTemplate": "import * as skills from '../../../src/agent/library/skills.js';\nimport * as world from '../../../src/agent/library/world.js';\nimport Vec3 from 'vec3';\n\nconst log = skills.log;\n\nexport async function main(bot) {\n    /* CODE HERE */\n    log(bot, 'Code finished.');\n}"
-}

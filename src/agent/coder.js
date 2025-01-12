@@ -15,19 +15,13 @@ export class Coder {
         this.code_template = '';
         this.code_check_template = '';
 
-        readFile('./bots/codeTemplate.json', 'utf8', (err, data) => {
-            if (err) {
-                console.error('Error reading codeTemplate.json:', err);
-                throw err;
-            }
-            try {
-                const templates = JSON.parse(data);
-                this.code_template = templates.execTemplate;
-                this.code_check_template = templates.checkTemplate;
-            } catch (parseErr) {
-                console.error('Error parsing codeTemplate.json:', parseErr);
-                throw parseErr;
-            }
+        readFile('./bots/template.js', 'utf8', (err, data) => {
+            if (err) throw err;
+            this.code_template = data;
+        });
+        readFile('./bots/codeCheckTemplate.js', 'utf8', (err, data) => {
+            if (err) throw err;
+            this.code_check_template = data;
         });
         mkdirSync('.' + this.fp, { recursive: true });
     }
