@@ -13,7 +13,7 @@ export class Coder {
         this.fp = '/bots/'+agent.name+'/action-code/';
         this.generating = false;
         this.code_template = '';
-        this.code_check_template = '';
+        this.code_lint_template = '';
 
         readFile('./bots/execTemplate.js', 'utf8', (err, data) => {
             if (err) throw err;
@@ -21,12 +21,12 @@ export class Coder {
         });
         readFile('./bots/lintTemplate.js', 'utf8', (err, data) => {
             if (err) throw err;
-            this.code_check_template = data;
+            this.code_lint_template = data;
         });
         mkdirSync('.' + this.fp, { recursive: true });
     }
     
-    async  checkCode(code) {
+    async  lintCode(code) {
         let result = '#### CODE ERROR INFO ###\n';
         // Extract everything in the code between the beginning of 'skills./world.' and the '('
         const skillRegex = /(?:skills|world)\.(.*?)\(/g;
@@ -36,7 +36,7 @@ export class Coder {
             skills.push(match[1]);
         }
         const allDocs = await this.agent.prompter.skill_libary.getRelevantSkillDocs();
-        //Check if the function exists
+        //lint if the function exists
         const missingSkills = skills.filter(skill => !allDocs.includes(skill));
         if (missingSkills.length > 0) {
             result += 'These functions do not exist. Please modify the correct function name and try again.\n';
@@ -83,7 +83,7 @@ export class Coder {
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
-        let src_check_copy = this.code_check_template.replace('/* CODE HERE */', src);
+        let src_lint_copy = this.code_lint_template.replace('/* CODE HERE */', src);
         src = this.code_template.replace('/* CODE HERE */', src);
 
         let filename = this.file_counter + '.js';
@@ -112,7 +112,7 @@ export class Coder {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-        return { func:{main: mainFn}, src_check_copy: src_check_copy };
+        return { func:{main: mainFn}, src_lint_copy: src_lint_copy };
     }
 
     sanitizeCode(code) {
@@ -190,8 +190,8 @@ export class Coder {
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
             const result = await this.stageCode(code);
             const executionModuleExports = result.func;
-            let src_check_copy = result.src_check_copy;
-            const analysisResult = await this.checkCode(src_check_copy);
+            let src_lint_copy = result.src_lint_copy;
+            const analysisResult = await this.lintCode(src_lint_copy);
             if (analysisResult) {
                 const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.skill_libary.getRelevantSkillDocs(analysisResult,3);
                 messages.push({ role: 'system', content: message });
