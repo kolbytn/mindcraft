@@ -2,6 +2,8 @@ import * as mc from "../../utils/mcdata.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
+import fs from 'fs';
+import { Camera } from "../../utils/camera.js";
 
 
 export function log(bot, message) {
@@ -1339,4 +1341,79 @@ export async function activateNearestBlock(bot, type) {
     await bot.activateBlock(block);
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
+}
+
+export async function takeScreenshot(bot, x, y, z, filename=null) {
+    /**
+     * Takes a screenshot from the bot's current view or specified position
+     * @param {MinecraftBot} bot, reference to the minecraft bot
+     * @param {int} x x coordinate to look at (optional)
+     * @param {int} y y coordinate to look at (optional)
+     * @param {int} z z coordinate to look at (optional)
+     * @param {string} filename filename to save (without extension). If not specified, saves with timestamp
+     * @returns {Promise<boolean>} whether the screenshot was successful
+     * @example
+     * await skills.takeScreenshot(bot, { name: 'my_screenshot', x: 100, y: 65, z: -200 });
+     **/
+    
+    try {
+        bot.camera = new Camera(bot);
+        await new Promise(resolve => bot.camera.once('ready', resolve));
+
+        await bot.lookAt(new Vec3(x, y, z));
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        if (filename === null) {
+            filename = `screenshot_${timestamp}`;
+        }
+        await bot.camera.takePicture(filename, x, y, z);
+        
+        log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
+        log(bot, `Target coordinates: x:${x}, y:${y}, z:${z}`);
+        return [true, filename];
+    } catch (err) {
+        log(bot, `Failed to take screenshot: ${err.message}`);
+        return [false, null];
+    }
+}
+
+export async function look(agent, x, y, z) {
+    const bot = agent.bot;
+    const history = agent.history;
+
+    const [success, filename] = await takeScreenshot(bot, x, y, z);
+    if (!success) {
+        log(bot, `Failed to take screenshot: ${filename}`);
+        return false;
+    }
+
+    try {
+        const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
+        const base64Image = imageBuffer.toString('base64');
+
+        let messages = history.getHistory();
+        messages.push({
+            role: "user",
+            content: [
+                { type: "text", text: "Briefly describe the screen you are looking at now." },
+                {
+                    type: "image_url",
+                    image_url: {
+                        "url": `data:image/jpeg;base64,${base64Image}`,
+                    }
+                }
+            ]
+        });
+        console.log(messages);
+
+        let res = await agent.prompter.chat_model.sendRequest(messages, `You are a playful Minecraft bot. Briefly describe the screen you are looking at now.`);
+        console.log(res);
+
+        log(bot, res);
+        return true;
+    } catch (error) {
+        log(bot, `Error analyzing image: ${error.message}`);
+        return false;
+    }
 }

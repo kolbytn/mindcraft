@@ -1,6 +1,8 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 import convoManager from '../conversation.js';
+import fs from 'fs';
+import { GPT } from '../../models/gpt.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -406,6 +408,59 @@ export const actionsList = [
             convoManager.endConversation(player_name);
             return `Converstaion with ${player_name} ended.`;
         }
+    },
+    {
+        name: '!takeScreenshot',
+        description: 'Takes and saves a screenshot of the specified coordinates.',
+        params: {
+            'x': {
+                type: 'int',
+                description: 'x coordinate to capture',
+                optional: true
+            },
+            'y': {
+                type: 'int',
+                description: 'y coordinate to capture',
+                optional: true
+            },
+            'z': {
+                type: 'int',
+                description: 'z coordinate to capture',
+                optional: true
+            },
+            'filename': { 
+                type: 'string', 
+                description: 'Filename to save (without extension). If not specified, saves with timestamp.',
+                optional: true
+            }
+        },
+        perform: runAsAction(async (agent, x, y, z, filename) => {
+            await skills.takeScreenshot(agent.bot, x, y, z, filename);
+        })
+    },
+    {
+        name: '!look',
+        description: 'Takes a screenshot of specified coordinates and analyzes its contents.',
+        params: {
+            'x': {
+                type: 'int',
+                description: 'x coordinate to look at',
+                optional: true
+            },
+            'y': {
+                type: 'int',
+                description: 'y coordinate to look at',
+                optional: true
+            },
+            'z': {
+                type: 'int',
+                description: 'z coordinate to look at',
+                optional: true
+            }
+        },
+        perform: runAsAction(async (agent, x, y, z) => {
+            await skills.look(agent, x, y, z);
+        })
     },
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
