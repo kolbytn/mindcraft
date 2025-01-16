@@ -1,9 +1,9 @@
 import * as mc from "../../utils/mcdata.js";
+import { Camera } from "../../utils/camera.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 import fs from 'fs';
-import { Camera } from "../../utils/camera.js";
 
 
 export function log(bot, message) {
@@ -1343,73 +1343,72 @@ export async function activateNearestBlock(bot, type) {
     return true;
 }
 
-export async function takeScreenshot(bot, x, y, z, filename=null) {
+export async function lookAtPlayer(agent, bot, player_name, direction) {
     /**
-     * Takes a screenshot from the bot's current view or specified position
-     * @param {MinecraftBot} bot, reference to the minecraft bot
-     * @param {int} x x coordinate to look at (optional)
-     * @param {int} y y coordinate to look at (optional)
-     * @param {int} z z coordinate to look at (optional)
-     * @param {string} filename filename to save (without extension). If not specified, saves with timestamp
-     * @returns {Promise<boolean>} whether the screenshot was successful
+     * Look at a player or look in the same direction as the player
+     * @param {MinecraftBot} bot reference to the minecraft bot
+     * @param {string} player_name name of the target player
+     * @param {string} direction 'at' to look at player, 'with' to look in same direction
+     * @returns {Promise<boolean>} whether the look action was successful
      * @example
-     * await skills.takeScreenshot(bot, { name: 'my_screenshot', x: 100, y: 65, z: -200 });
+     * await skills.lookAtPlayer(bot, "player1", "at");
+     * await skills.lookAtPlayer(bot, "player1", "with");
      **/
-    
-    try {
-        bot.camera = new Camera(bot);
-        await new Promise(resolve => bot.camera.once('ready', resolve));
 
-        await bot.lookAt(new Vec3(x, y, z));
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        if (filename === null) {
-            filename = `screenshot_${timestamp}`;
-        }
-        await bot.camera.takePicture(filename, x, y, z);
-        
-        log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
-        log(bot, `Target coordinates: x:${x}, y:${y}, z:${z}`);
-        return [true, filename];
-    } catch (err) {
-        log(bot, `Failed to take screenshot: ${err.message}`);
-        return [false, null];
-    }
-}
-
-export async function look(agent, x, y, z) {
-    const bot = agent.bot;
-    const history = agent.history;
-
-    const [success, filename] = await takeScreenshot(bot, x, y, z);
-    if (!success) {
-        log(bot, `Failed to take screenshot: ${filename}`);
+    const player = bot.players[player_name]?.entity;
+    if (!player) {
+        log(bot, `Could not find player ${player_name}`);
         return false;
+    }
+
+    let filename;
+    if (direction === 'with') {
+        // Copy player's view direction
+        await bot.look(player.yaw, player.pitch);
+        const camera = new Camera(bot);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        log(bot, `Looking in the same direction as ${player_name}`);
+
+        filename = await camera.captureDirection(player.yaw, player.pitch);
+        console.log(player.yaw, player.pitch);
+        // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
+
+    } else {
+        // Look at player's position
+        await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
+        const camera = new Camera(bot);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        log(bot, `Looking at player ${player_name}`);
+
+        filename = await camera.captureTargetPoint(player.position.x, player.position.y + player.height, player.position.z);
+        // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
+        // log(bot, `Target coordinates: x:${player.position.x}, y:${player.position.y}, z:${player.position.z}`);
     }
 
     try {
         const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
-        const base64Image = imageBuffer.toString('base64');
+        const messages = agent.history.getHistory();
+        let res = await agent.prompter.promptImageConvo(messages, imageBuffer);
+        log(bot, res);
+        return true;
+    } catch (error) {
+        log(bot, `Error analyzing image: ${error.message}`);
+        return false;
+    }
+}
 
-        let messages = history.getHistory();
-        messages.push({
-            role: "user",
-            content: [
-                { type: "text", text: "Briefly describe the screen you are looking at now." },
-                {
-                    type: "image_url",
-                    image_url: {
-                        "url": `data:image/jpeg;base64,${base64Image}`,
-                    }
-                }
-            ]
-        });
-        console.log(messages);
+export async function lookAtPosition(agent, bot, x, y, z) {
+    await bot.lookAt(new Vec3(x, y + 2, z));
+    const camera = new Camera(bot);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    log(bot, `Looking at coordinate ${x, y, z}`);
 
-        let res = await agent.prompter.chat_model.sendRequest(messages, `You are a playful Minecraft bot. Briefly describe the screen you are looking at now.`);
-        console.log(res);
+    let filename = await camera.captureTargetPoint(x, y + 2, z);
 
+    try {
+        const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
+        const messages = agent.history.getHistory();
+        let res = await agent.prompter.promptImageConvo(messages, imageBuffer);
         log(bot, res);
         return true;
     } catch (error) {

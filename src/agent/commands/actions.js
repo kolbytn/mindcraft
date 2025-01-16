@@ -1,8 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 import convoManager from '../conversation.js';
-import fs from 'fs';
-import { GPT } from '../../models/gpt.js';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -410,69 +408,33 @@ export const actionsList = [
         }
     },
     {
-        name: '!takeScreenshot',
-        description: 'Takes and saves a screenshot of the specified coordinates.',
+        name: '!lookAtPlayer',
+        description: 'Look at a player or look in the same direction as the player.',
         params: {
-            'x': {
-                type: 'int',
-                description: 'x coordinate to capture',
-                optional: true
+            'player_name': {
+                type: 'string',
+                description: 'Name of the target player'
             },
-            'y': {
-                type: 'int',
-                description: 'y coordinate to capture',
-                optional: true
-            },
-            'z': {
-                type: 'int',
-                description: 'z coordinate to capture',
-                optional: true
-            },
-            'filename': { 
-                type: 'string', 
-                description: 'Filename to save (without extension). If not specified, saves with timestamp.',
-                optional: true
+            'direction': {
+                type: 'string',
+                description: 'How to look ("at": look at the player, "with": look in the same direction as the player)',
+                enum: ['at', 'with']
             }
         },
-        perform: runAsAction(async (agent, x, y, z, filename) => {
-            await skills.takeScreenshot(agent.bot, x, y, z, filename);
+        perform: runAsAction(async (agent, player_name, direction) => {
+            await skills.lookAtPlayer(agent, agent.bot, player_name, direction);
         })
     },
     {
-        name: '!look',
-        description: 'Takes a screenshot of specified coordinates and analyzes its contents.',
+        name: '!lookAtPosition',
+        description: 'Look at specified coordinates.',
         params: {
-            'x': {
-                type: 'int',
-                description: 'x coordinate to look at',
-                optional: true
-            },
-            'y': {
-                type: 'int',
-                description: 'y coordinate to look at',
-                optional: true
-            },
-            'z': {
-                type: 'int',
-                description: 'z coordinate to look at',
-                optional: true
-            }
+            'x': { type: 'int', description: 'x coordinate' },
+            'y': { type: 'int', description: 'y coordinate' },
+            'z': { type: 'int', description: 'z coordinate' }
         },
         perform: runAsAction(async (agent, x, y, z) => {
-            await skills.look(agent, x, y, z);
+            await skills.lookAtPosition(agent, agent.bot, x, y, z);
         })
-    },
-    // { // commented for now, causes confusion with goal command
-    //     name: '!npcGoal',
-    //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
-    //     params: {
-    //         'name': { type: 'string', description: 'The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.' },
-    //         'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', domain: [1, Number.MAX_SAFE_INTEGER] }
-    //     },
-    //     perform: async function (agent, name=null, quantity=1) {
-    //         await agent.npc.setGoal(name, quantity);
-    //         agent.bot.emit('idle');  // to trigger the goal
-    //         return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
-    //     }
-    // },
+    }
 ];
