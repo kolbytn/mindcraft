@@ -80,6 +80,12 @@
             {"role": "system", "content": "Code Output:\nLooking in the same direction as d7297\nThere is a castle made of stone."},
             {"role": "assistant", "content": "Wow, that stone castle looks amazing!"}
         ],
+        [
+            {"role": "user", "content": "d7297: look 0 70 12 and describe what is there"},
+            {"role": "assistant", "content": "Sure! !lookAtPosition(0, 70, 12)"},
+            {"role": "system", "content": "Code Output:\nLooking in the same direction as d7297\nThere is a water fountain."},
+            {"role": "assistant", "content": "I see the water fountain! amazing!"}
+        ],
 
         [
             {"role": "user", "content": "greg: Collect 10 wood"},
