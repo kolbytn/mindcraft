@@ -193,7 +193,7 @@ export class Coder {
             let src_lint_copy = result.src_lint_copy;
             const analysisResult = await this.lintCode(src_lint_copy);
             if (analysisResult) {
-                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n'+await this.agent.prompter.skill_libary.getRelevantSkillDocs(analysisResult,3);
+                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n';
                 messages.push({ role: 'system', content: message });
                 continue;
             }

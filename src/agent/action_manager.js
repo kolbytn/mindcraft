@@ -113,12 +113,11 @@ export class ActionManager {
             console.error(err.stack);
             await this.stop();
             err = err.toString();
-            let relevant_skill_docs = await this.agent.prompter.skill_libary.getRelevantSkillDocs(err,5);
 
             let message = this._getBotOutputSummary() +
                 '!!Code threw exception!!\n' +
                 'Error: ' + err + '\n' +
-                'Stack trace:\n' + err.stack+'\n'+relevant_skill_docs;
+                'Stack trace:\n' + err.stack+'\n';
 
             let interrupted = this.agent.bot.interrupt_code;
             this.agent.clearBotLogs();
