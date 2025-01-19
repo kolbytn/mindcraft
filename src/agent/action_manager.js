@@ -112,12 +112,13 @@ export class ActionManager {
             // Log the full stack trace
             console.error(err.stack);
             await this.stop();
+            err = err.toString();
 
-            let message = this._getBotOutputSummary() + 
-                '!!Code threw exception!!\n' + 
+            let message = this._getBotOutputSummary() +
+                '!!Code threw exception!!\n' +
                 'Error: ' + err + '\n' +
-                'Stack trace:\n' + err.stack;
-            
+                'Stack trace:\n' + err.stack+'\n';
+
             let interrupted = this.agent.bot.interrupt_code;
             this.agent.clearBotLogs();
             if (!interrupted && !this.agent.coder.generating) {
@@ -137,7 +138,7 @@ export class ActionManager {
           First outputs:\n${output.substring(0, MAX_OUT / 2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT / 2)}`;
         }
         else {
-            output = 'Code output:\n' + output;
+            output = 'Code output:\n' + output.toString();
         }
         return output;
     }
