@@ -4,9 +4,11 @@ import { getCommandDocs } from './commands/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
 import settings from '../../settings.js';
+
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { Mistral } from '../models/mistral.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
 import { Novita } from '../models/novita.js';
@@ -51,8 +53,10 @@ export class Prompter {
                 chat.api = 'anthropic';
             else if (chat.model.includes('huggingface/'))
                 chat.api = "huggingface";
-            else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
+            else if (chat.model.includes('meta/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
+            else if (chat.model.includes('mistralai/') || chat.model.includes("mistral/"))
+                chat.api = 'mistral';
             else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
                 chat.api = 'groq';
             else if (chat.model.includes('novita/'))
@@ -79,6 +83,8 @@ export class Prompter {
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api === 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api === 'mistral')
+            this.chat_model = new Mistral(chat.model, chat.url);
         else if (chat.api === 'groq') {
             this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
         }
@@ -118,6 +124,8 @@ export class Prompter {
                 this.embedding_model = new Local(embedding.model, embedding.url);
             else if (embedding.api === 'qwen')
                 this.embedding_model = new Qwen(embedding.model, embedding.url);
+            else if (embedding.api === 'mistral')
+                this.embedding_model = new Mistral(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
                 console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
@@ -148,8 +156,8 @@ export class Prompter {
 
     async initExamples() {
         try {
-            this.convo_examples = new Examples(this.embedding_model);
-            this.coding_examples = new Examples(this.embedding_model);
+            this.convo_examples = new Examples(this.embedding_model, settings.num_examples);
+            this.coding_examples = new Examples(this.embedding_model, settings.num_examples);
             
             // Wait for both examples to load before proceeding
             await Promise.all([
@@ -180,7 +188,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent.blocked_actions));
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS')) {
             const code_task_content = messages.slice().reverse().find(msg =>
                 msg.role !== 'system' && msg.content.includes('!newAction(')
@@ -191,6 +199,9 @@ export class Prompter {
                 await this.skill_libary.getRelevantSkillDocs(code_task_content, settings.relevant_docs_count)
             );
         }
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
+        if (prompt.includes('$CODE_DOCS'))
+            prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))
@@ -257,7 +268,7 @@ export class Prompter {
                 continue;
             }
             if (current_msg_time !== this.most_recent_msg_time) {
-                console.warn(this.agent.name + ' recieved new message while generating, discarding old response.');
+                console.warn(this.agent.name + ' received new message while generating, discarding old response.');
                 return '';
             }
             return generation;

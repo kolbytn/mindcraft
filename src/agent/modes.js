@@ -404,6 +404,9 @@ export function initModes(agent) {
     _agent = agent;
     // the mode controller is added to the bot object so it is accessible from anywhere the bot is used
     agent.bot.modes = new ModeController();
+    if (agent.task) {
+        agent.bot.restrict_to_inventory = agent.task.restrict_to_inventory;
+    }
     let modes_json = agent.prompter.getInitModes();
     if (modes_json) {
         agent.bot.modes.loadJson(modes_json);

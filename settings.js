@@ -17,9 +17,11 @@ export default
         // "./profiles/gemini.json",
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
+        // "./profiles/mistral.json",
         // "./profiles/grok.json",
+        // "./profiles/mistral.json",
         // "./profiles/deepseek.json",
-        
+
         // using more than 1 profile requires you to /msg each bot indivually
     ],
     "load_memory": false, // load memory from previous session
@@ -34,7 +36,8 @@ export default
     "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
     "max_messages": 15, // max number of messages to keep in context
-    "max_commands": -1, // max number of commands to use in a response. -1 for no limit
+    "num_examples": 2, // number of examples to give to the model
+    "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
