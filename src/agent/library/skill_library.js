@@ -8,12 +8,14 @@ export class SkillLibrary {
         this.skill_docs_embeddings = {};
     }
     async initSkillLibrary() {
-        await Promise.all([
-            ...getSkillDocs().map(async (doc) => {
+        const skillDocs = getSkillDocs();
+        const embeddingPromises = skillDocs.map((doc) => {
+            return (async () => {
                 let func_name_desc = doc.split('\n').slice(0, 2).join('');
                 this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
-            })
-        ]);
+            })();
+        });
+        await Promise.all(embeddingPromises);
     }
 
     async getRelevantSkillDocs(message, select_num) {
