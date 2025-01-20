@@ -2,7 +2,7 @@ export default
 {
     "minecraft_version": "1.20.4", // supports up to 1.21.1
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
-    "port": 56069,
+    "port": 55916,
     "auth": "offline", // or "microsoft"
 
     // the mindserver manages all agents and hosts the UI
@@ -25,7 +25,7 @@ export default
         // using more than 1 profile requires you to /msg each bot indivually
     ],
     "load_memory": false, // load memory from previous session
-    // "init_message": "Respond with hello world and your name", // sends to all on spawn
+    "init_message": "Respond with hello world and your name", // sends to all on spawn
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
     
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
