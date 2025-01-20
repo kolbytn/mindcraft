@@ -36,24 +36,12 @@ export class Camera extends EventEmitter {
       this.viewer.listen(worldView)
   
       this.viewer.camera.position.set(center.x, center.y, center.z)
+      this.viewer.setFirstPersonCamera(this.bot.entity.position, this.bot.entity.yaw, this.bot.entity.pitch)
   
       await worldView.init(center)
     }
   
-    async captureTargetPoint(x, y, z) {  
-        this.viewer.camera.lookAt(x, y, z);
-        const filename = await this._capture();
-        return filename;
-    }
-  
-    async captureDirection(yaw, pitch) {
-        this.viewer.camera.rotation.y = yaw;
-        this.viewer.camera.rotation.x = pitch;
-        const filename = await this._capture();
-        return filename;
-    }
-
-    async _capture() {
+    async capture() {
         console.info('Waiting for camera to load');
         await new Promise(resolve => setTimeout(resolve, 5000));
         this.renderer.render(this.viewer.scene, this.viewer.camera);

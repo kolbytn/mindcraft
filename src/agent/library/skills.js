@@ -1369,7 +1369,7 @@ export async function lookAtPlayer(agent, bot, player_name, direction) {
         await new Promise(resolve => setTimeout(resolve, 500));
         log(bot, `Looking in the same direction as ${player_name}`);
 
-        filename = await camera.captureDirection(player.yaw, player.pitch);
+        filename = await camera.capture();
         console.log(player.yaw, player.pitch);
         // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
 
@@ -1380,7 +1380,7 @@ export async function lookAtPlayer(agent, bot, player_name, direction) {
         await new Promise(resolve => setTimeout(resolve, 500));
         log(bot, `Looking at player ${player_name}`);
 
-        filename = await camera.captureTargetPoint(player.position.x, player.position.y + player.height, player.position.z);
+        filename = await camera.capture();
         // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
         // log(bot, `Target coordinates: x:${player.position.x}, y:${player.position.y}, z:${player.position.z}`);
     }
@@ -1403,7 +1403,7 @@ export async function lookAtPosition(agent, bot, x, y, z) {
     await new Promise(resolve => setTimeout(resolve, 500));
     log(bot, `Looking at coordinate ${x, y, z}`);
 
-    let filename = await camera.captureTargetPoint(x, y + 2, z);
+    let filename = await camera.capture();
 
     try {
         const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
