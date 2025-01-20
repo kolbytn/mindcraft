@@ -1340,3 +1340,28 @@ export async function activateNearestBlock(bot, type) {
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }
+
+
+export async function digDown(bot, distance = 10) {
+    /**
+     * Digs down a specified distance.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {int} distance, distance to dig down.
+     * @returns {Promise<boolean>} true if successfully dug down.
+     * @example
+     * await skills.digDown(bot, 10);
+     **/
+
+    for (let i = 0; i < distance; i++) {
+        const targetBlock = bot.blockAt(bot.entity.position.offset(0, -1, 0));
+        if (targetBlock && bot.canDigBlock(targetBlock)) {
+            await bot.dig(targetBlock);
+            await bot.waitForTicks(10); // wait for a short period to avoid issues
+            await goToPosition(bot, bot.entity.position.x, bot.entity.position.y - 1, bot.entity.position.z);
+        } else {
+            log('Cannot dig block at position:', bot.entity.position.offset(0, -1, 0));
+            return false;
+        }
+    }
+    return true;
+}
