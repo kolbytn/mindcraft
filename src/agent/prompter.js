@@ -287,29 +287,6 @@ export class Prompter {
         );
     }
 
-    async promptImageConvo(messages, imageBuffer) {
-        await this.checkCooldown();
-        let prompt = this.profile.image_conversing;
-        let imageMessages = [...messages];
-        imageMessages.push({
-            role: "user", 
-            content: [
-                { type: "text", text: "Briefly describe the screen you are looking at now." },
-                {
-                    type: "image_url",
-                    image_url: {
-                        "url": `data:image/jpeg;base64,${imageBuffer.toString('base64')}`,
-                    }
-                }
-            ]
-        });
-
-        return await this.chat_model.sendRequest(
-            imageMessages,
-            prompt
-        );
-    }
-
     async promptCoding(messages) {
         if (this.awaiting_coding) {
             console.warn('Already awaiting coding response, returning no response.');
