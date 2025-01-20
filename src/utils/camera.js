@@ -42,8 +42,6 @@ export class Camera extends EventEmitter {
     }
   
     async capture() {
-        console.info('Waiting for camera to load');
-        await new Promise(resolve => setTimeout(resolve, 5000));
         this.renderer.render(this.viewer.scene, this.viewer.camera);
 
         const imageStream = this.canvas.createJPEGStream({
