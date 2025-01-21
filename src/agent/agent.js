@@ -339,6 +339,11 @@ export class Agent {
     }
 
     async openChat(message) {
+        if (message.startsWith('/')) {
+            // Don't try to translate commands or they won't work.
+            this.bot.chat(message);
+        }
+        
         let to_translate = message;
         let remaining = '';
         let command_name = containsCommand(message);
