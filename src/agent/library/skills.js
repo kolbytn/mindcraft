@@ -1354,12 +1354,23 @@ export async function digDown(bot, distance = 10) {
 
     for (let i = 0; i < distance; i++) {
         const targetBlock = bot.blockAt(bot.entity.position.offset(0, -1, 0));
+        const belowBlock = bot.blockAt(bot.entity.position.offset(0, -2, 0));
+
+        // Check for lava, water, or a fall of more than 5 blocks below the bot
+        if (!targetBlock || targetBlock.name === 'lava' || targetBlock.name === 'water' || 
+            (belowBlock && (belowBlock.name === 'lava' || belowBlock.name === 'water' || belowBlock.position.y < bot.entity.position.y - 5))) {
+            console.log('not safe to dig block at position:', bot.entity.position.offset(0, -1, 0));
+            log('not safe to dig block at position:' + bot.entity.position.offset(0, -1, 0))
+            return false;
+        }
+
         if (targetBlock && bot.canDigBlock(targetBlock)) {
             await bot.dig(targetBlock);
             await bot.waitForTicks(10); // wait for a short period to avoid issues
-            await goToPosition(bot, bot.entity.position.x, bot.entity.position.y - 1, bot.entity.position.z);
+            await bot.entity.position.offset(0, -1, 0);
         } else {
-            log('Cannot dig block at position:', bot.entity.position.offset(0, -1, 0));
+            console.log('Cannot dig block at position:', bot.entity.position.offset(0, -1, 0));
+            log('Cannot dig block at position:' + bot.entity.position.offset(0, -1, 0))
             return false;
         }
     }
