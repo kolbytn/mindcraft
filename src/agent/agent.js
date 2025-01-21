@@ -339,9 +339,12 @@ export class Agent {
     }
 
     async openChat(message) {
-        if (message.startsWith('/')) {
-            // Don't try to translate commands or they won't work.
-            this.bot.chat(message);
+        
+        // Run any commands before translation or they won't work.
+        const commandRegex = /^\/.+?$/gm;
+        const commandArray = [...message.matchAll(commandRegex)];
+        for (const command of commandArray) {
+            this.bot.chat(command[0]);
         }
         
         let to_translate = message;
