@@ -80,6 +80,7 @@
                             ${agent.in_game ? `
                                 <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
                                 <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
+								<input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
                             ` : `
                                 <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
                             `}
@@ -110,6 +111,10 @@
         function shutdown() {
             socket.emit('shutdown');
         }
+		
+		function sendMessage(agentName, message) {
+			socket.emit('send-message', agentName, message)
+		}
     </script>
 </body>
 </html> 
