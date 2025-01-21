@@ -139,6 +139,8 @@ export class Agent {
                 console.error('Error handling message:', error);
             }
         }
+		
+		this.respondFunc = respondFunc
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
