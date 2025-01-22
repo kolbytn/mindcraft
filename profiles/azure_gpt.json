@@ -1,0 +1,14 @@
+{
+    "name": "azureGPT",
+
+    "model": {
+        "api": "azure",
+        "url": "SET YOUR AZURE_OPENAI_ENDPOINT",
+        "model": "SET YOUR AZURE DEPLOYMENT NAME (e.g. gpt-4o)"
+    },
+    "embedding": {
+        "api": "azure",
+        "url": "SET YOUR AZURE_OPENAI_ENDPOINT",
+        "model": "SET YOUR AZURE DEPLOYMENT NAME (e.g. text-embedding-ada-002)"
+    }
+}
