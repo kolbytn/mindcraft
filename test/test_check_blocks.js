@@ -11,6 +11,7 @@ const bot = mineflayer.createBot({
 });
 
 bot.on('spawn', async () => {
+    bot.chat("/setblock ~ ~ ~ stone");
     console.log("Bot spawned. Starting blueprint check...");
     await new Promise((resolve) => setTimeout(resolve, 5000));
     const blockAtLocation = await bot.blockAt(new Vec3(142, -60, -179));
