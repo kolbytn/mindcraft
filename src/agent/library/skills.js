@@ -1359,8 +1359,8 @@ export async function digDown(bot, distance = 10) {
         // Check for lava, water, or a fall of more than 5 blocks below the bot
         if (!targetBlock || targetBlock.name === 'lava' || targetBlock.name === 'water' || 
             (belowBlock && (belowBlock.name === 'lava' || belowBlock.name === 'water' || belowBlock.position.y < bot.entity.position.y - 5))) {
-            console.log('not safe to dig block at position:', bot.entity.position.offset(0, -1, 0));
-            log('not safe to dig block at position:' + bot.entity.position.offset(0, -1, 0))
+            console.log('Dug down i blocks, but reached (lava/water/dangerous fall)');
+            log('Dug down i blocks, but reached (lava/water/dangerous fall)')
             return false;
         }
 
