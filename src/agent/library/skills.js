@@ -1356,21 +1356,37 @@ export async function digDown(bot, distance = 10) {
         const targetBlock = bot.blockAt(bot.entity.position.offset(0, -1, 0));
         const belowBlock = bot.blockAt(bot.entity.position.offset(0, -2, 0));
 
-        // Check for lava, water, or a fall of more than 5 blocks below the bot
+        // Check for lava, water
         if (!targetBlock || targetBlock.name === 'lava' || targetBlock.name === 'water' || 
-            (belowBlock && (belowBlock.name === 'lava' || belowBlock.name === 'water' || belowBlock.position.y < bot.entity.position.y - 5))) {
-            console.log('Dug down i blocks, but reached (lava/water/dangerous fall)');
-            log('Dug down i blocks, but reached (lava/water/dangerous fall)')
+            (belowBlock && (belowBlock.name === 'lava' || belowBlock.name === 'water'))) {
+            console.log(`Dug down ${i} blocks, but reached ${belowBlock ? belowBlock.name : '(lava/water)'}`);
+            log(bot, `Dug down ${i} blocks, but reached ${belowBlock ? belowBlock.name : '(lava/water)'}`)
             return false;
         }
 
-        if (targetBlock && bot.canDigBlock(targetBlock)) {
-            await bot.dig(targetBlock);
+        // Check for a fall of more than 5 blocks below the bot
+        let isSafe = false;
+        for (let j = 1; j <= 5; j++) {
+            const belowBlock = bot.blockAt(bot.entity.position.offset(0, -j-1, 0));
+            if (!belowBlock || belowBlock.name !== 'air') {
+                isSafe = true;
+                break;
+            }
+        }
+
+        if (!targetBlock || !isSafe) {
+            console.log(`Dug down ${i} blocks, but reached fall`);
+            log(bot, `Dug down ${i} blocks, but reached fall`);
+            return false;
+        }
+
+        if (bot.canDigBlock(targetBlock)) {
+            await breakBlockAt(bot, bot.entity.position.x, bot.entity.position.y - 1, bot.entity.position.z);
             await bot.waitForTicks(10); // wait for a short period to avoid issues
             await bot.entity.position.offset(0, -1, 0);
         } else {
             console.log('Cannot dig block at position:', bot.entity.position.offset(0, -1, 0));
-            log('Cannot dig block at position:' + bot.entity.position.offset(0, -1, 0))
+            log(bot, 'Cannot dig block at position:' + bot.entity.position.offset(0, -1, 0))
             return false;
         }
     }
