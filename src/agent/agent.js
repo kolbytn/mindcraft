@@ -447,6 +447,8 @@ export class Agent {
         if (this.task.data) {
             let res = this.task.isDone();
             if (res) {
+                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
+                await this.history.save();
                 console.log('Task finished:', res.message);
                 this.killAll();
             }
