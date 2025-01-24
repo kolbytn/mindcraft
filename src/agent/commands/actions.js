@@ -422,7 +422,7 @@ export const actionsList = [
             }
         },
         perform: runAsAction(async (agent, player_name, direction) => {
-            await skills.lookAtPlayer(agent, agent.bot, player_name, direction);
+            await agent.vision_interpreter.lookAtPlayer(player_name, direction);
         })
     },
     {
@@ -434,7 +434,7 @@ export const actionsList = [
             'z': { type: 'int', description: 'z coordinate' }
         },
         perform: runAsAction(async (agent, x, y, z) => {
-            await skills.lookAtPosition(agent, agent.bot, x, y, z);
+            await agent.vision_interpreter.lookAtPosition(x, y, z);
         })
     }
 ];

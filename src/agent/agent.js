@@ -1,5 +1,6 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
+import { VisionInterpreter } from './vision_interpreter.js';
 import { Prompter } from './prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
@@ -36,6 +37,8 @@ export class Agent {
             this.history = new History(this);
             console.log('Initializing coder...');
             this.coder = new Coder(this);
+            console.log('Initializing vision intepreter...');
+            this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
             console.log('Initializing npc controller...');
             this.npc = new NPCContoller(this);
             console.log('Initializing memory bank...');

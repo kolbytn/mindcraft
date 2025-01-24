@@ -13,9 +13,10 @@ global.Worker = worker_threads.Worker;
 
 
 export class Camera extends EventEmitter {
-    constructor (bot) {
+    constructor (bot, fp) {
       super()
       this.bot = bot
+      this.fp = fp
       this.viewDistance = 4
       this.width = 800
       this.height = 512
@@ -42,6 +43,8 @@ export class Camera extends EventEmitter {
     }
   
     async capture() {
+        // waits some time helps renderer to render the world view
+        await new Promise(resolve => setTimeout(resolve, 1000));
         this.renderer.render(this.viewer.scene, this.viewer.camera);
 
         const imageStream = this.canvas.createJPEGStream({
@@ -55,7 +58,7 @@ export class Camera extends EventEmitter {
 
         const buf = await getBufferFromStream(imageStream);
         await this._ensureScreenshotDirectory();
-        await fs.writeFile(`bots/${this.bot.username}/screenshots/${filename}.jpg`, buf);
+        await fs.writeFile(`${this.fp}/${filename}.jpg`, buf);
         console.log('saved', filename);
         return filename;
     }
@@ -63,10 +66,10 @@ export class Camera extends EventEmitter {
     async _ensureScreenshotDirectory() {
         let stats;
         try {
-            stats = await fs.stat(`bots/${this.bot.username}/screenshots`);
+            stats = await fs.stat(this.fp);
         } catch (e) {
             if (!stats?.isDirectory()) {
-                await fs.mkdir(`bots/${this.bot.username}/screenshots`);
+                await fs.mkdir(this.fp);
             }
         }
     }

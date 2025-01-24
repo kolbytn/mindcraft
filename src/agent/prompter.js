@@ -271,7 +271,7 @@ export class Prompter {
         imageMessages.push({
             role: "user", 
             content: [
-                { type: "text", text: "Briefly describe the screen you are looking at now." },
+                { type: "text", text: prompt },
                 {
                     type: "image_url",
                     image_url: {
@@ -299,7 +299,7 @@ export class Prompter {
         let resp = await this.chat_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
         return resp;
-    }
+git     }
 
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();

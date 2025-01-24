@@ -1343,76 +1343,76 @@ export async function activateNearestBlock(bot, type) {
     return true;
 }
 
-export async function lookAtPlayer(agent, bot, player_name, direction) {
-    /**
-     * Look at a player or look in the same direction as the player
-     * @param {MinecraftBot} bot reference to the minecraft bot
-     * @param {string} player_name name of the target player
-     * @param {string} direction 'at' to look at player, 'with' to look in same direction
-     * @returns {Promise<boolean>} whether the look action was successful
-     * @example
-     * await skills.lookAtPlayer(bot, "player1", "at");
-     * await skills.lookAtPlayer(bot, "player1", "with");
-     **/
+// export async function lookAtPlayer(agent, bot, player_name, direction) {
+//     /**
+//      * Look at a player or look in the same direction as the player
+//      * @param {MinecraftBot} bot reference to the minecraft bot
+//      * @param {string} player_name name of the target player
+//      * @param {string} direction 'at' to look at player, 'with' to look in same direction
+//      * @returns {Promise<boolean>} whether the look action was successful
+//      * @example
+//      * await skills.lookAtPlayer(bot, "player1", "at");
+//      * await skills.lookAtPlayer(bot, "player1", "with");
+//      **/
 
-    const player = bot.players[player_name]?.entity;
-    if (!player) {
-        log(bot, `Could not find player ${player_name}`);
-        return false;
-    }
+//     const player = bot.players[player_name]?.entity;
+//     if (!player) {
+//         log(bot, `Could not find player ${player_name}`);
+//         return false;
+//     }
 
-    let filename;
-    if (direction === 'with') {
-        // Copy player's view direction
-        await bot.look(player.yaw, player.pitch);
-        const camera = new Camera(bot);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        log(bot, `Looking in the same direction as ${player_name}`);
+//     let filename;
+//     if (direction === 'with') {
+//         // Copy player's view direction
+//         await bot.look(player.yaw, player.pitch);
+//         const camera = new Camera(bot);
+//         await new Promise(resolve => setTimeout(resolve, 500));
+//         log(bot, `Looking in the same direction as ${player_name}`);
 
-        filename = await camera.capture();
-        console.log(player.yaw, player.pitch);
-        // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
+//         filename = await camera.capture();
+//         console.log(player.yaw, player.pitch);
+//         // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
 
-    } else {
-        // Look at player's position
-        await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
-        const camera = new Camera(bot);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        log(bot, `Looking at player ${player_name}`);
+//     } else {
+//         // Look at player's position
+//         await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
+//         const camera = new Camera(bot);
+//         await new Promise(resolve => setTimeout(resolve, 500));
+//         log(bot, `Looking at player ${player_name}`);
 
-        filename = await camera.capture();
-        // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
-        // log(bot, `Target coordinates: x:${player.position.x}, y:${player.position.y}, z:${player.position.z}`);
-    }
+//         filename = await camera.capture();
+//         // log(bot, `Screenshot saved: bots/${bot.username}/screenshots/${filename}.jpg`);
+//         // log(bot, `Target coordinates: x:${player.position.x}, y:${player.position.y}, z:${player.position.z}`);
+//     }
 
-    try {
-        const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
-        const messages = agent.history.getHistory();
-        let res = await agent.prompter.promptImageConvo(messages, imageBuffer);
-        log(bot, res);
-        return true;
-    } catch (error) {
-        log(bot, `Error analyzing image: ${error.message}`);
-        return false;
-    }
-}
+//     try {
+//         const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
+//         const messages = agent.history.getHistory();
+//         let res = await agent.prompter.promptImageConvo(messages, imageBuffer);
+//         log(bot, res);
+//         return true;
+//     } catch (error) {
+//         log(bot, `Error analyzing image: ${error.message}`);
+//         return false;
+//     }
+// }
 
-export async function lookAtPosition(agent, bot, x, y, z) {
-    await bot.lookAt(new Vec3(x, y + 2, z));
-    const camera = new Camera(bot);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    log(bot, `Looking at coordinate ${x, y, z}`);
+// export async function lookAtPosition(agent, bot, x, y, z) {
+//     await bot.lookAt(new Vec3(x, y + 2, z));
+//     const camera = new Camera(bot);
+//     await new Promise(resolve => setTimeout(resolve, 500));
+//     log(bot, `Looking at coordinate ${x, y, z}`);
 
-    let filename = await camera.capture();
+//     let filename = await camera.capture();
 
-    try {
-        const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
-        const messages = agent.history.getHistory();
-        let res = await agent.prompter.promptImageConvo(messages, imageBuffer);
-        log(bot, res);
-        return true;
-    } catch (error) {
-        log(bot, `Error analyzing image: ${error.message}`);
-        return false;
-    }
-}
+//     try {
+//         const imageBuffer = fs.readFileSync(`bots/${bot.username}/screenshots/${filename}.jpg`);
+//         const messages = agent.history.getHistory();
+//         let res = await agent.prompter.promptImageConvo(messages, imageBuffer);
+//         log(bot, res);
+//         return true;
+//     } catch (error) {
+//         log(bot, `Error analyzing image: ${error.message}`);
+//         return false;
+//     }
+// }

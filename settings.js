@@ -32,6 +32,7 @@ export default
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
+    "allow_vision": true, // allows vision model to interpret screenshots as inputs
     "code_timeout_mins": 10, // minutes code is allowed to run. -1 for no timeout
 
     "max_messages": 15, // max number of messages to keep in context
