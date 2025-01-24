@@ -37,7 +37,7 @@ export class VisionInterpreter {
             filename = await camera.capture();
         }
 
-        if (!this.allow_vision) {
+        if (!this.allow_vision || !this.agent.prompter.chat_model.sendVisionRequest) {
             log(this.agent.bot, "Vision is disabled. Using text-based environment description instead.");
             log(this.agent.bot, this._nearbyBlocks());
         } else {
@@ -54,7 +54,7 @@ export class VisionInterpreter {
 
         let filename = await camera.capture();
 
-        if (!this.allow_vision) {
+        if (!this.allow_vision || !this.agent.prompter.chat_model.sendVisionRequest) {
             log(this.agent.bot, "Vision is disabled. Using text-based environment description instead.");
             log(this.agent.bot, this._nearbyBlocks());
         } else {
@@ -63,12 +63,14 @@ export class VisionInterpreter {
     }
 
     async analyzeImage(filename) {
+        let prompt = this.agent.prompter.profile.image_conversing;
         let res = null;
+
         try {
             const bot = this.agent.bot;
             const imageBuffer = fs.readFileSync(`${this.fp}/${filename}.jpg`);
             const messages = this.agent.history.getHistory();
-            res = await this.agent.prompter.promptImageConvo(messages, imageBuffer);
+            res = await this.agent.prompter.chat_model.sendVisionRequest(messages, prompt, imageBuffer);
             log(bot, res);
         } catch (error) {
             log(this.agent.bot, `Error analyzing image: ${error.message}`);

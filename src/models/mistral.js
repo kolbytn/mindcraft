@@ -61,6 +61,22 @@ export class Mistral {
         return result;
     }
 
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = [...messages];
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    imageUrl: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages, systemMessage);
+    }
+
     async embed(text) {
         const embedding = await this.#client.embeddings.create({
             model: "mistral-embed",
