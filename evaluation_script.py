@@ -117,9 +117,11 @@ def update_results_file(task_id, success_count, total_count, time_taken, experim
 def launch_server_experiment(task_path, task_id, num_exp, server, num_agents=2, model="gpt-4o"):
     server_path, server_port = server
     edit_server_properties_file(server_path, server_port)
+    mindserver_port = server_port - 55916 + 8080
     
     # rename the agents for logging purposes
     # TODO: fix the file naming procedure
+    # copy the memory.json into a new folder for each run based on the date and time
     
     
     session_name = str(server_port - 55916)
@@ -131,11 +133,14 @@ def launch_server_experiment(task_path, task_id, num_exp, server, num_agents=2, 
         models = [model] * 3
     make_profiles(agent_names, models)
 
-    edit_settings("settings.js", {"port": server_port, 
-                                  "profiles": [f"./{agent}.json" for agent in agent_names]})
+    edit_settings("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
+
+    # set environment variables
+    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export MINECRAFT_PORT={server_port}", "C-m"])
+    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export MINDSERVER_PORT={mindserver_port}", "C-m"])
     
     cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
     for _ in range(num_exp):
