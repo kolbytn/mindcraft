@@ -62,7 +62,7 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 
 // rest is same...
 ```
-> [!WARNING]
+> [!CAUTION]
 > The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
 
 To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
