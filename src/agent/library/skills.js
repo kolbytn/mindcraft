@@ -1275,8 +1275,14 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
     let block = bot.blockAt(new Vec3(x, y, z));
 
     if (bot.modes.isOn('cheat')) {
-        placeBlock(bot, x, y, z, 'farmland');
-        placeBlock(bot, x, y+1, z, seedType);
+        let to_remove = ['_seed', '_seeds'];
+        for (let remove of to_remove) {
+            if (seedType.endsWith(remove)) {
+                seedType = seedType.replace(remove, '');
+            }
+        }
+        placeBlock(bot, 'farmland', x, y, z);
+        placeBlock(bot, seedType, x, y+1, z);
         return true;
     }
 
