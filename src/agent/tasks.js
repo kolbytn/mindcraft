@@ -242,6 +242,105 @@ export class Blueprint {
         };
     }
 
+    /**
+     * Takes in the blueprint, and then converts it into a set of /setblock commands for the bot to follow
+     * @Returns: An object containing the setblock commands as a list of strings, and a position nearby the blueprint but not in it
+     * @param blueprint
+     */
+    autoBuild() {
+        const commands = [];
+        let blueprint = this.data
+
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let minZ = Infinity, maxZ = -Infinity;
+
+        for (const level of blueprint.levels) {
+            console.log(level.level)
+            const baseX = level.coordinates[0];
+            const baseY = level.coordinates[1];
+            const baseZ = level.coordinates[2];
+            const placement = level.placement;
+
+            // Update bounds
+            minX = Math.min(minX, baseX);
+            maxX = Math.max(maxX, baseX + placement[0].length - 1);
+            minY = Math.min(minY, baseY);
+            maxY = Math.max(maxY, baseY);
+            minZ = Math.min(minZ, baseZ);
+            maxZ = Math.max(maxZ, baseZ + placement.length - 1);
+
+            // Loop through the 2D placement array
+            for (let z = 0; z < placement.length; z++) {
+                for (let x = 0; x < placement[z].length; x++) {
+                    const blockType = placement[z][x];
+                    if (blockType) {
+                        const setblockCommand = `/setblock ${baseX + x} ${baseY} ${baseZ + z} ${blockType}`;
+                        commands.push(setblockCommand);
+                    }
+                }
+            }
+        }
+
+        // Calculate a position nearby the blueprint but not in it
+        const nearbyPosition = {
+            x: maxX + 5, // Move 5 blocks to the right
+            y: minY,     // Stay on the lowest level of the blueprint
+            z: minZ      // Stay aligned with the front of the blueprint
+        };
+
+        return { commands, nearbyPosition };
+    }
+
+
+    /**
+     * Takes in a blueprint, and returns a set of commands to clear up the space.
+     *
+     */
+    autoDelete() {
+        const commands = [];
+        let blueprint = this.data
+
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let minZ = Infinity, maxZ = -Infinity;
+
+        for (const level of blueprint.levels) {
+            const baseX = level.coordinates[0];
+            const baseY = level.coordinates[1];
+            const baseZ = level.coordinates[2];
+            const placement = level.placement;
+
+            // Update bounds
+            minX = Math.min(minX, baseX);
+            maxX = Math.max(maxX, baseX + placement[0].length - 1);
+            minY = Math.min(minY, baseY);
+            maxY = Math.max(maxY, baseY);
+            minZ = Math.min(minZ, baseZ);
+            maxZ = Math.max(maxZ, baseZ + placement.length - 1);
+
+            // Loop through the 2D placement array
+            for (let z = 0; z < placement.length; z++) {
+                for (let x = 0; x < placement[z].length; x++) {
+                    const blockType = placement[z][x];
+                    if (blockType) {
+                        const setblockCommand = `/setblock ${baseX + x} ${baseY} ${baseZ + z} air`;
+                        commands.push(setblockCommand);
+                    }
+                }
+            }
+        }
+
+        // Calculate a position nearby the blueprint but not in it
+        const nearbyPosition = {
+            x: maxX + 5, // Move 5 blocks to the right
+            y: minY,     // Stay on the lowest level of the blueprint
+            z: minZ      // Stay aligned with the front of the blueprint
+        };
+
+        return { commands, nearbyPosition };
+    }
+
     
 }
 
@@ -430,4 +529,36 @@ export function giveBlueprint(agent, blueprint) {
     console.log(`Cleared ${name}'s inventory.`);
     bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
     console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
+}
+
+/**
+ * Auto-builds blueprint in minecraft world
+ * @param agent
+ * @param blueprint must be of the blueprint class
+ */
+export function buildBlueprint(agent, blueprint){
+    let bot = agent.bot
+    const result = blueprint.autoBuild();
+    // const result = clearHouse(blueprint)
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
+    }
+}
+
+
+/**
+ * auto-deletes a built blueprint
+ * @param agent
+ * @param blueprint must be of the blueprint class
+ */
+export function deleteBlueprint(agent, blueprint){
+    let bot = agent.bot
+    const result = blueprint.autoDelete()
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
+    }
 }

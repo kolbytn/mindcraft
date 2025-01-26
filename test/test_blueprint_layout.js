@@ -45,7 +45,7 @@ bot.on('spawn', async () => {
     };
 
     // have andy build the blueprint automatically
-    const result = blueprintToCommands(blueprint);
+    const result = autoBuild(blueprint);
     // const result = clearHouse(blueprint)
     const commands = result.commands;
     const nearbyPosition = result.nearbyPosition;
@@ -70,7 +70,7 @@ bot.on('spawn', async () => {
  * @Returns: An object containing the setblock commands as a list of strings, and a position nearby the blueprint but not in it
  * @param blueprint
  */
-function blueprintToCommands(blueprint) {
+function autoBuild(blueprint) {
     const commands = [];
 
     let minX = Infinity, maxX = -Infinity;
@@ -119,7 +119,7 @@ function blueprintToCommands(blueprint) {
  * Takes in a blueprint, and returns a set of commands to clear up the space.
  *
  */
-function clearHouse(blueprint) {
+function autoDelete(blueprint) {
     const commands = [];
 
     let minX = Infinity, maxX = -Infinity;
