@@ -2,15 +2,15 @@ export default
 {
     "minecraft_version": "1.20.4", // supports up to 1.21.1
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
-    "port": 55916,
+    "port": process.env.MINECRAFT_PORT || 55916,
     "auth": "offline", // or "microsoft"
 
     // the mindserver manages all agents and hosts the UI
     "host_mindserver": true, // if true, the mindserver will be hosted on this machine. otherwise, specify a public IP address
     "mindserver_host": "localhost",
-    "mindserver_port": 8080,
+    "mindserver_port": process.env.MINDSERVER_PORT || 8080,
     
-    "profiles": [
+    "profiles": JSON.parse(process.env.PROFILES) || [
         "./andy.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
