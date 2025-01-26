@@ -131,7 +131,7 @@ function generateAbstractRooms(m, n, p, rooms = 5) {
  * @param rooms Number of rooms to generate
  */
 function generateSequentialRooms(m, n, p, rooms) {
-    // build 3d space
+    // Build 3D space
     const matrix = Array.from({ length: p }, () =>
         Array.from({ length: m }, () =>
             Array(n).fill('air')
@@ -153,28 +153,48 @@ function generateSequentialRooms(m, n, p, rooms) {
         }
     }
 
-    const usedSpaces = new Set();
     let placedRooms = 0;
     let lastRoom = null;
 
-    const placementDirections = ['above', 'left', 'right', 'forward', 'backward'];
+    // Direction probabilities (e.g., 'above': 20%, 'left': 20%, etc.)
+    const directionChances = [
+        { direction: 'above', chance: 0.4 },
+        { direction: 'left', chance: 0.15 },
+        { direction: 'right', chance: 0.15 },
+        { direction: 'forward', chance: 0.15 },
+        { direction: 'backward', chance: 0.15 },
+    ];
+
+    // Function to pick a random direction based on percentages
+    function getRandomDirection() {
+        const rand = Math.random();
+        let cumulative = 0;
+
+        for (const { direction, chance } of directionChances) {
+            cumulative += chance;
+            if (rand <= cumulative) return direction;
+        }
+        return directionChances[0].direction; // Fallback to the first direction
+    }
 
     while (placedRooms < rooms) {
-        const newLength = Math.max(4, Math.floor(Math.random() * 6) + 4);
-        const newWidth = Math.max(4, Math.floor(Math.random() * 6) + 4);
-        const newDepth = Math.max(3, Math.floor(Math.random() * 6) + 4);
 
         let roomPlaced = false;
 
         for (let attempt = 0; attempt < 150; attempt++) {
+            const newLength = Math.max(4, Math.floor(Math.random() * 6) + 4);
+            const newWidth = Math.max(4, Math.floor(Math.random() * 6) + 4);
+            const newDepth = Math.max(3, Math.floor(Math.random() * 6) + 4);
             let newX, newY, newZ;
 
             if (placedRooms === 0) {
+                // First room placement
                 newX = Math.floor(Math.random() * (m - newLength - 1)) + 1;
                 newY = Math.floor(Math.random() * (n - newWidth - 1)) + 1;
                 newZ = 1; // Ground floor
             } else {
-                const direction = placementDirections[Math.floor(Math.random() * placementDirections.length)];
+                // Subsequent rooms: Choose a direction
+                const direction = getRandomDirection();
 
                 switch (direction) {
                     case 'above':
@@ -209,38 +229,26 @@ function generateSequentialRooms(m, n, p, rooms) {
                 newY > 0 && newY + newWidth < n &&
                 newZ > 0 && newZ + newDepth < p) {
 
-                // Check space availability
-                const spaceAvailable = !Array.from({ length: newDepth }).some((_, di) =>
-                    Array.from({ length: newLength }).some((_, dj) =>
-                        Array.from({ length: newWidth }).some((_, dk) =>
-                            usedSpaces.has(`${newX + dj},${newY + dk},${newZ + di}`)
-                        )
-                    )
-                );
-
-                if (spaceAvailable) {
-                    // Place room and mark spaces
-                    for (let di = 0; di < newDepth; di++) {
-                        for (let dj = 0; dj < newLength; dj++) {
-                            for (let dk = 0; dk < newWidth; dk++) {
-                                const spaceKey = `${newX + dj},${newY + dk},${newZ + di}`;
-                                usedSpaces.add(spaceKey);
-
-                                // Mark only the outer edges of the room
-                                if (di === 0 || di === newDepth - 1 ||
-                                    dj === 0 || dj === newLength - 1 ||
-                                    dk === 0 || dk === newWidth - 1) {
-                                    matrix[newZ + di][newX + dj][newY + dk] = 'stone';
-                                }
+                // Place room and mark spaces (allow overlapping)
+                for (let di = 0; di < newDepth; di++) {
+                    for (let dj = 0; dj < newLength; dj++) {
+                        for (let dk = 0; dk < newWidth; dk++) {
+                            // Mark only the outer edges of the room
+                            if (di === 0 || di === newDepth - 1 ||
+                                dj === 0 || dj === newLength - 1 ||
+                                dk === 0 || dk === newWidth - 1) {
+                                matrix[newZ + di][newX + dj][newY + dk] = 'stone';
+                            } else {
+                                matrix[newZ + di][newX + dj][newY + dk] = 'air';
                             }
                         }
                     }
-
-                    lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
-                    placedRooms++;
-                    roomPlaced = true;
-                    break;
                 }
+
+                lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                placedRooms++;
+                roomPlaced = true;
+                break;
             }
         }
 
@@ -253,46 +261,6 @@ function generateSequentialRooms(m, n, p, rooms) {
     console.log(`Placed rooms: ${placedRooms}`);
     return matrix;
 }
-
-// Helper function to place a room in the matrix
-function placeRoom(matrix, x, y, z, length, width, depth) {
-    for (let dx = x; dx < x + length; dx++) {
-        for (let dy = y; dy < y + width; dy++) {
-            for (let dz = z; dz < z + depth; dz++) {
-                // Mark borders as stone
-                if (dx === x || dx === x + length - 1 ||
-                    dy === y || dy === y + width - 1 ||
-                    dz === z || dz === z + depth - 1) {
-                    matrix[dz][dx][dy] = 'stone';
-                }
-            }
-        }
-    }
-}
-
-// Check for room overlap (excluding border)
-function roomOverlaps(matrix, x, y, z, length, width, depth) {
-    for (let di = 1; di < depth - 1; di++) {
-        for (let dj = 1; dj < length - 1; dj++) {
-            for (let dk = 1; dk < width - 1; dk++) {
-                // Check internal spaces for overlap
-                if (matrix[z + di][x + dj][y + dk] === 'stone') {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-// Fisher-Yates shuffle to randomize placement directions
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
 
 
 /**
