@@ -111,7 +111,9 @@ export function createMindServer(port = 8080) {
             for (let manager of Object.values(agentManagers)) {
                 manager.emit('shutdown');
             }
-            process.exit(0);
+            setTimeout(() => {
+                process.exit(0);
+            }, 2000);
         });
 
     });

@@ -17,6 +17,14 @@
         },
         "type": "debug"
     },
+    "debug_inventory_restriction": {
+        "goal": "Place 1 oak plank, then place 1 stone brick",
+        "initial_inventory": {
+            "oak_planks": 20
+        },
+        "type": "debug",
+        "restrict_to_inventory": true
+    },
     "construction": {
         "type": "construction",
         "goal": "Build a house",

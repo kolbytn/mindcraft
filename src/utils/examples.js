@@ -33,6 +33,9 @@ export class Examples {
         this.examples = examples;
         if (!this.model) return; // Early return if no embedding model
         
+        if (this.select_num === 0)
+            return;
+
         try {
             // Create array of promises first
             const embeddingPromises = examples.map(example => {
@@ -52,6 +55,9 @@ export class Examples {
     }
 
     async getRelevant(turns) {
+        if (this.select_num === 0)
+            return [];
+
         let turn_text = this.turnsToText(turns);
         if (this.model !== null) {
             let embedding = await this.model.embed(turn_text);

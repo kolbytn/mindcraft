@@ -14,6 +14,18 @@ export function getCommand(name) {
     return commandMap[name];
 }
 
+export function blacklistCommands(commands) {
+    const unblockable = ['!stop', '!stats', '!inventory', '!goal'];
+    for (let command_name of commands) {
+        if (unblockable.includes(command_name)){
+            console.warn(`Command ${command_name} is unblockable`);
+            continue;
+        }
+        delete commandMap[command_name];
+        delete commandList.find(command => command.name === command_name);
+    }
+}
+
 const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
 const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
 
@@ -214,7 +226,7 @@ export async function executeCommand(agent, message) {
     }
 }
 
-export function getCommandDocs(blacklist=null) {
+export function getCommandDocs() {
     const typeTranslations = {
         //This was added to keep the prompt the same as before type checks were implemented.
         //If the language model is giving invalid inputs changing this might help.
@@ -228,9 +240,6 @@ export function getCommandDocs(blacklist=null) {
     Use the commands with the syntax: !commandName or !commandName("arg1", 1.2, ...) if the command takes arguments.\n
     Do not use codeblocks. Use double quotes for strings. Only use one command in each response, trailing commands and comments will be ignored.\n`;
     for (let command of commandList) {
-        if (blacklist && blacklist.includes(command.name)) {
-            continue;
-        }
         docs += command.name + ': ' + command.description + '\n';
         if (command.params) {
             docs += 'Params:\n';
