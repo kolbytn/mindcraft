@@ -15,8 +15,10 @@ export class GroqCloudAPI {
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
     }
 
-    async sendRequest(turns, systemMessage, stop_seq=null) {
-        let messages = [{"role": "system", "content": systemMessage}].concat(turns);
+    async sendRequest(turns, systemMessage=null, stop_seq=null) {
+        let messages = systemMessage 
+            ? [{"role": "system", "content": systemMessage}].concat(turns)
+            : turns;
         let res = null;
         try {
             console.log("Awaiting Groq response...");
@@ -43,6 +45,24 @@ export class GroqCloudAPI {
             res = "My brain just kinda stopped working. Try again.";
         }
         return res;
+    }
+
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = [...messages];
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages);
     }
 
     async embed(text) {
