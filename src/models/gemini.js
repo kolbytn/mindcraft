@@ -63,13 +63,13 @@ export class Gemini {
         let model;
         if (this.url) {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-pro-vision" },
+                { model: this.model_name || "gemini-1.5-flash" },
                 { baseUrl: this.url },
                 { safetySettings: this.safetySettings }
             );
         } else {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-pro-vision" },
+                { model: this.model_name || "gemini-1.5-flash" },
                 { safetySettings: this.safetySettings }
             );
         }
@@ -89,7 +89,6 @@ export class Gemini {
         const response = await result.response;
         const text = response.text();
         console.log('Received.');
-        
         if (!text.includes(stop_seq)) return text;
         const idx = text.indexOf(stop_seq);
         return text.slice(0, idx);
