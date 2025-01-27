@@ -59,6 +59,42 @@ export class Gemini {
         return text.slice(0, idx);
     }
 
+    async sendVisionRequest(turns, systemMessage, imageBuffer) {
+        let model;
+        if (this.url) {
+            model = this.genAI.getGenerativeModel(
+                { model: this.model_name || "gemini-1.5-pro-vision" },
+                { baseUrl: this.url },
+                { safetySettings: this.safetySettings }
+            );
+        } else {
+            model = this.genAI.getGenerativeModel(
+                { model: this.model_name || "gemini-1.5-pro-vision" },
+                { safetySettings: this.safetySettings }
+            );
+        }
+
+        const imagePart = {
+            inlineData: {
+                data: imageBuffer.toString('base64'),
+                mimeType: 'image/jpeg'
+            }
+        };
+
+        const stop_seq = '***';
+        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
+        
+        console.log('Awaiting Google API vision response...');
+        const result = await model.generateContent([prompt, imagePart]);
+        const response = await result.response;
+        const text = response.text();
+        console.log('Received.');
+        
+        if (!text.includes(stop_seq)) return text;
+        const idx = text.indexOf(stop_seq);
+        return text.slice(0, idx);
+    }
+
     async embed(text) {
         let model;
         if (this.url) {
