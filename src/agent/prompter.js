@@ -4,10 +4,12 @@ import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+import settings from '../../settings.js';
 
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
 import { Claude } from '../models/claude.js';
+import { Mistral } from '../models/mistral.js';
 import { ReplicateAPI } from '../models/replicate.js';
 import { Local } from '../models/local.js';
 import { Novita } from '../models/novita.js';
@@ -17,6 +19,7 @@ import { glhf } from '../models/glhf.js';
 import { hyperbolic } from '../models/hyperbolic.js';
 import { Qwen } from "../models/qwen.js";
 import { Grok } from "../models/grok.js";
+import { DeepSeek } from '../models/deepseek.js';
 
 
 export class Prompter {
@@ -59,7 +62,10 @@ export class Prompter {
             else if (chat.model.includes('hyperbolic:')|| chat.model.includes('hb:'))
                 chat.api = "hyperbolic";
             else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
+            else if (chat.model.includes('meta/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
+            else if (chat.model.includes('mistralai/') || chat.model.includes("mistral/"))
+                chat.api = 'mistral';
             else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
                 chat.api = 'groq';
             else if (chat.model.includes('novita/'))
@@ -68,6 +74,8 @@ export class Prompter {
                  chat.api = 'qwen';
             else if (chat.model.includes('grok'))
                 chat.api = 'xai';
+            else if (chat.model.includes('deepseek'))
+                chat.api = 'deepseek';
             else
                 chat.api = 'ollama';
         }
@@ -84,6 +92,8 @@ export class Prompter {
             this.chat_model = new ReplicateAPI(chat.model, chat.url);
         else if (chat.api === 'ollama')
             this.chat_model = new Local(chat.model, chat.url);
+        else if (chat.api === 'mistral')
+            this.chat_model = new Mistral(chat.model, chat.url);
         else if (chat.api === 'groq') {
             this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
         }
@@ -100,6 +110,8 @@ export class Prompter {
             this.chat_model = new Qwen(chat.model, chat.url);
         else if (chat.api === 'xai')
             this.chat_model = new Grok(chat.model, chat.url);
+        else if (chat.api === 'deepseek')
+            this.chat_model = new DeepSeek(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
@@ -126,6 +138,8 @@ export class Prompter {
                 this.embedding_model = new Local(embedding.model, embedding.url);
             else if (embedding.api === 'qwen')
                 this.embedding_model = new Qwen(embedding.model, embedding.url);
+            else if (embedding.api === 'mistral')
+                this.embedding_model = new Mistral(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
                 console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
@@ -156,8 +170,8 @@ export class Prompter {
 
     async initExamples() {
         try {
-            this.convo_examples = new Examples(this.embedding_model);
-            this.coding_examples = new Examples(this.embedding_model);
+            this.convo_examples = new Examples(this.embedding_model, settings.num_examples);
+            this.coding_examples = new Examples(this.embedding_model, settings.num_examples);
             
             // Wait for both examples to load before proceeding
             await Promise.all([
@@ -187,7 +201,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent.blocked_actions));
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)
@@ -261,7 +275,7 @@ export class Prompter {
                 continue;
             }
             if (current_msg_time !== this.most_recent_msg_time) {
-                console.warn(this.agent.name + ' recieved new message while generating, discarding old response.');
+                console.warn(this.agent.name + ' received new message while generating, discarding old response.');
                 return '';
             }
             return generation;

@@ -2,18 +2,14 @@ import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
-export class GPT {
+export class DeepSeek {
     constructor(model_name, url) {
         this.model_name = model_name;
 
         let config = {};
-        if (url)
-            config.baseURL = url;
 
-        if (hasKey('OPENAI_ORG_ID'))
-            config.organization = getKey('OPENAI_ORG_ID');
-
-        config.apiKey = getKey('OPENAI_API_KEY');
+        config.baseURL = url || 'https://api.deepseek.com';
+        config.apiKey = getKey('DEEPSEEK_API_KEY');
 
         this.openai = new OpenAIApi(config);
     }
@@ -21,19 +17,17 @@ export class GPT {
     async sendRequest(turns, systemMessage, stop_seq='***') {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
+        messages = strictFormat(messages);
+
         const pack = {
-            model: this.model_name || "gpt-3.5-turbo",
+            model: this.model_name || "deepseek-chat",
             messages,
             stop: stop_seq,
         };
-        if (this.model_name.includes('o1')) {
-            pack.messages = strictFormat(messages);
-            delete pack.stop;
-        }
 
         let res = null;
         try {
-            console.log('Awaiting openai api response...')
+            console.log('Awaiting deepseek api response...')
             // console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')
@@ -54,14 +48,7 @@ export class GPT {
     }
 
     async embed(text) {
-        if (text.length > 8191)
-            text = text.slice(0, 8191);
-        const embedding = await this.openai.embeddings.create({
-            model: this.model_name || "text-embedding-3-small",
-            input: text,
-            encoding_format: "float",
-        });
-        return embedding.data[0].embedding;
+        throw new Error('Embeddings are not supported by Deepseek.');
     }
 }
 
