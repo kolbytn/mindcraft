@@ -37,10 +37,30 @@ export class Claude {
         return res;
     }
 
+    async sendVisionRequest(turns, systemMessage, imageBuffer) {
+        const imageMessages = [...turns];
+        imageMessages.push({
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: systemMessage
+                },
+                {
+                    type: "image",
+                    source: {
+                        type: "base64",
+                        media_type: "image/jpeg",
+                        data: imageBuffer.toString('base64')
+                    }
+                }
+            ]
+        });
+
+        return this.sendRequest(imageMessages, systemMessage);
+    }
+
     async embed(text) {
         throw new Error('Embeddings are not supported by Claude.');
     }
 }
-
-
-
