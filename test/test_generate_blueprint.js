@@ -132,8 +132,8 @@ function generateAbstractRooms(m, n, p, rooms = 5) {
  */
 function generateSequentialRooms(m, n, p, rooms) {
     // Build 3D space
-    const matrix = Array.from({ length: p }, () =>
-        Array.from({ length: m }, () =>
+    const matrix = Array.from({length: p}, () =>
+        Array.from({length: m}, () =>
             Array(n).fill('air')
         )
     );
@@ -158,11 +158,11 @@ function generateSequentialRooms(m, n, p, rooms) {
 
     // Direction probabilities (e.g., 'above': 40%, 'left': 15%, etc.)
     const directionChances = [
-        { direction: 'above', chance: 0.4 },
-        { direction: 'left', chance: 0.15 },
-        { direction: 'right', chance: 0.15 },
-        { direction: 'forward', chance: 0.15 },
-        { direction: 'backward', chance: 0.15 },
+        {direction: 'above', chance: 0.4},
+        {direction: 'left', chance: 0.15},
+        {direction: 'right', chance: 0.15},
+        {direction: 'forward', chance: 0.15},
+        {direction: 'backward', chance: 0.15},
     ];
 
     // Function to pick a random direction based on percentages
@@ -170,22 +170,30 @@ function generateSequentialRooms(m, n, p, rooms) {
         const rand = Math.random();
         let cumulative = 0;
 
-        for (const { direction, chance } of directionChances) {
+        for (const {direction, chance} of directionChances) {
             cumulative += chance;
             if (rand <= cumulative) return direction;
         }
         return directionChances[0].direction; // Fallback to the first direction
     }
 
-    // Ensures no rooms in rooms
+// Ensures no rooms overlap except at edges
     function isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth) {
         for (let di = 0; di < newDepth; di++) {
             for (let dj = 0; dj < newLength; dj++) {
                 for (let dk = 0; dk < newWidth; dk++) {
-                    // Check if space is already occupied inside the bounds
-                    const x = newX + dj -1;
-                    const y = newY + dk-1;
-                    const z = newZ + di+1;
+                    const x = newX + dj;
+                    const y = newY + dk;
+                    const z = newZ + di;
+
+                    // Skip checking the matrix borders since we want to share them
+                    if (x === 0 || x === m - 1 ||
+                        y === 0 || y === n - 1 ||
+                        z === 0 || z === p - 1) {
+                        continue;
+                    }
+
+                    // For non-border spaces, ensure they're air
                     if (matrix[z][x][y] !== 'air') {
                         return false;
                     }
@@ -193,6 +201,54 @@ function generateSequentialRooms(m, n, p, rooms) {
             }
         }
         return true;
+    }
+
+    function validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p) {
+        // Allow rooms to use the matrix edges (note the <= instead of <)
+        if (
+            newX >= 0 && newX + newLength <= m &&
+            newY >= 0 && newY + newWidth <= n &&
+            newZ >= 0 && newZ + newDepth <= p &&
+            isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth)
+        ) {
+            console.log(`Placing room at (${newX}, ${newY}, ${newZ}) with dimensions (${newLength}x${newWidth}x${newDepth})`);
+            for (let di = 0; di < newDepth; di++) {
+                for (let dj = 0; dj < newLength; dj++) {
+                    for (let dk = 0; dk < newWidth; dk++) {
+                        const x = newX + dj;
+                        const y = newY + dk;
+                        const z = newZ + di;
+
+                        // If this is at a matrix border, don't modify it
+                        // todo: change to be window
+                        if (x === 0 || x === m - 1 ||
+                            y === 0 || y === n - 1 ||
+                            z === 0 || z === p - 1) {
+                            continue;
+                        }
+
+                        // For non-border spaces, build room walls as normal
+                        if (di === 0 || di === newDepth - 1 ||
+                            dj === 0 || dj === newLength - 1 ||
+                            dk === 0 || dk === newWidth - 1) {
+                            matrix[z][x][y] = 'stone';
+                        } else {
+                            matrix[z][x][y] = 'air';
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    function addDoor(matrix, x, y, z) {
+        matrix[z][x][y] = 'door';
+    }
+
+    function addStairs(matrix, x, y, z) {
+        matrix[z][x][y] = 'stair';
     }
 
     // Places rooms until we can't, or we place all
@@ -203,74 +259,104 @@ function generateSequentialRooms(m, n, p, rooms) {
         for (let attempt = 0; attempt < 150; attempt++) {
             const newLength = Math.max(4, Math.floor(Math.random() * 6) + 4);
             const newWidth = Math.max(4, Math.floor(Math.random() * 6) + 4);
-            const newDepth = Math.max(3, Math.floor(Math.random() * 6) + 4);
+            const newDepth = Math.max(3, Math.floor(Math.random() * 3) + 2);
             let newX, newY, newZ;
 
-            // First room has to start on the ground floor
             if (placedRooms === 0) {
                 // First room placement
                 newX = Math.floor(Math.random() * (m - newLength - 1)) + 1;
                 newY = Math.floor(Math.random() * (n - newWidth - 1)) + 1;
-                newZ = 1; // Ground floor
+                newZ = 0; // Ground floor
+
+                if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
+                    lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                    roomPlaced = true;
+                    placedRooms++;
+                    break;
+                }
+
+                // Todo: add doors to room on all sides
+
+                break;
             } else {
-                // Subsequent rooms: Choose a direction
                 const direction = getRandomDirection();
+                let doorPlaced = false;
 
                 switch (direction) {
                     case 'above':
+                        // todo: the ceiling / floor are not the same when they should be
                         newX = lastRoom.x;
                         newY = lastRoom.y;
-                        newZ = lastRoom.z + lastRoom.depth ;
+                        newZ = lastRoom.z + lastRoom.depth;
+                        if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
+                            addStairs(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                                lastRoom.y + Math.floor(lastRoom.width / 2),
+                                lastRoom.z);
+                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            roomPlaced = true;
+                            placedRooms++;
+                            break;
+                        }
                         break;
+
                     case 'left':
                         newX = lastRoom.x - newLength + 1;
                         newY = lastRoom.y;
                         newZ = lastRoom.z;
+                        if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
+                            addDoor(matrix, lastRoom.x, lastRoom.y + Math.floor(lastRoom.width / 2), lastRoom.z);
+                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            roomPlaced = true;
+                            placedRooms++;
+                            break;
+                        }
                         break;
+
                     case 'right':
                         newX = lastRoom.x + lastRoom.length - 1;
                         newY = lastRoom.y;
                         newZ = lastRoom.z;
+                        if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
+                            addDoor(matrix, lastRoom.x + lastRoom.length - 1,
+                                lastRoom.y + Math.floor(lastRoom.width / 2),
+                                lastRoom.z);
+                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            roomPlaced = true;
+                            placedRooms++;
+                            break;
+                        }
                         break;
+
                     case 'forward':
                         newX = lastRoom.x;
                         newY = lastRoom.y + lastRoom.width - 1;
                         newZ = lastRoom.z;
+                        if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
+                            addDoor(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                                lastRoom.y + lastRoom.width - 1,
+                                lastRoom.z);
+                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            roomPlaced = true;
+                            placedRooms++;
+                            break;
+                        }
                         break;
+
                     case 'backward':
                         newX = lastRoom.x;
                         newY = lastRoom.y - newWidth + 1;
                         newZ = lastRoom.z;
+                        if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
+                            addDoor(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                                lastRoom.y,
+                                lastRoom.z);
+                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            roomPlaced = true;
+                            placedRooms++;
+                            break;
+                        }
                         break;
                 }
-            }
-
-            // check if valid config, and build room
-            if (newX > 0 && newX + newLength < m &&
-                newY > 0 && newY + newWidth < n &&
-                newZ > 0 && newZ + newDepth < p &&
-                isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth)) {
-
-                // Place room and mark spaces (allow shared borders)
-                for (let di = 0; di < newDepth; di++) {
-                    for (let dj = 0; dj < newLength; dj++) {
-                        for (let dk = 0; dk < newWidth; dk++) {
-                            // Mark only the outer edges of the room
-                            if (di === 0 || di === newDepth - 1 ||
-                                dj === 0 || dj === newLength - 1 ||
-                                dk === 0 || dk === newWidth - 1) {
-                                matrix[newZ + di][newX + dj][newY + dk] = 'stone';
-                            } else {
-                                matrix[newZ + di][newX + dj][newY + dk] = 'air';
-                            }
-                        }
-                    }
-                }
-
-                lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
-                placedRooms++;
-                roomPlaced = true;
-                break;
             }
         }
 
@@ -279,9 +365,7 @@ function generateSequentialRooms(m, n, p, rooms) {
             break;
         }
     }
-
-    console.log(`Placed rooms: ${placedRooms}`);
-    return matrix;
+    return matrix
 }
 
 
@@ -296,12 +380,21 @@ function printMatrix(matrix) {
         console.log(`Layer ${layerIndex}:`);
         layer.forEach(row => {
             console.log(
-                row.map(cell => cell === 'stone' ? '█' : '.').join(' ')
+                row.map(cell => {
+                    switch (cell) {
+                        case 'stone': return '█';  // Wall
+                        case 'air': return '.';    // Open space
+                        case 'door': return 'D';   // Door
+                        case 'stair': return 'S';  // Stairs
+                        default: return ' ';       // Unknown or unmarked space
+                    }
+                }).join(' ')
             );
         });
         console.log('---');
     });
 }
+
 
 const resultMatrix = generateSequentialRooms(10, 20, 20, 6);
 printMatrix(resultMatrix)
