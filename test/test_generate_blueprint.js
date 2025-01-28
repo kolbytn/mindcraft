@@ -156,7 +156,7 @@ function generateSequentialRooms(m, n, p, rooms) {
     let placedRooms = 0;
     let lastRoom = null;
 
-    // Direction probabilities (e.g., 'above': 20%, 'left': 20%, etc.)
+    // Direction probabilities (e.g., 'above': 40%, 'left': 15%, etc.)
     const directionChances = [
         { direction: 'above', chance: 0.4 },
         { direction: 'left', chance: 0.15 },
@@ -177,8 +177,27 @@ function generateSequentialRooms(m, n, p, rooms) {
         return directionChances[0].direction; // Fallback to the first direction
     }
 
-    while (placedRooms < rooms) {
+    // Ensures no rooms in rooms
+    function isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth) {
+        for (let di = 0; di < newDepth; di++) {
+            for (let dj = 0; dj < newLength; dj++) {
+                for (let dk = 0; dk < newWidth; dk++) {
+                    // Check if space is already occupied inside the bounds
+                    const x = newX + dj -1;
+                    const y = newY + dk-1;
+                    const z = newZ + di+1;
+                    if (matrix[z][x][y] !== 'air') {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
+    // Places rooms until we can't, or we place all
+    // attempts random configurations of rooms in random directions.
+    while (placedRooms < rooms) {
         let roomPlaced = false;
 
         for (let attempt = 0; attempt < 150; attempt++) {
@@ -187,6 +206,7 @@ function generateSequentialRooms(m, n, p, rooms) {
             const newDepth = Math.max(3, Math.floor(Math.random() * 6) + 4);
             let newX, newY, newZ;
 
+            // First room has to start on the ground floor
             if (placedRooms === 0) {
                 // First room placement
                 newX = Math.floor(Math.random() * (m - newLength - 1)) + 1;
@@ -200,36 +220,38 @@ function generateSequentialRooms(m, n, p, rooms) {
                     case 'above':
                         newX = lastRoom.x;
                         newY = lastRoom.y;
-                        newZ = lastRoom.z + lastRoom.depth;
+                        newZ = lastRoom.z + lastRoom.depth ;
                         break;
                     case 'left':
-                        newX = lastRoom.x - newLength;
+                        newX = lastRoom.x - newLength + 1;
                         newY = lastRoom.y;
                         newZ = lastRoom.z;
                         break;
                     case 'right':
-                        newX = lastRoom.x + lastRoom.length;
+                        newX = lastRoom.x + lastRoom.length - 1;
                         newY = lastRoom.y;
                         newZ = lastRoom.z;
                         break;
                     case 'forward':
                         newX = lastRoom.x;
-                        newY = lastRoom.y + lastRoom.width;
+                        newY = lastRoom.y + lastRoom.width - 1;
                         newZ = lastRoom.z;
                         break;
                     case 'backward':
                         newX = lastRoom.x;
-                        newY = lastRoom.y - newWidth;
+                        newY = lastRoom.y - newWidth + 1;
                         newZ = lastRoom.z;
                         break;
                 }
             }
 
+            // check if valid config, and build room
             if (newX > 0 && newX + newLength < m &&
                 newY > 0 && newY + newWidth < n &&
-                newZ > 0 && newZ + newDepth < p) {
+                newZ > 0 && newZ + newDepth < p &&
+                isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth)) {
 
-                // Place room and mark spaces (allow overlapping)
+                // Place room and mark spaces (allow shared borders)
                 for (let di = 0; di < newDepth; di++) {
                     for (let dj = 0; dj < newLength; dj++) {
                         for (let dk = 0; dk < newWidth; dk++) {
@@ -261,6 +283,7 @@ function generateSequentialRooms(m, n, p, rooms) {
     console.log(`Placed rooms: ${placedRooms}`);
     return matrix;
 }
+
 
 
 /**
