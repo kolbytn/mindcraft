@@ -2,7 +2,6 @@
 
 import Groq from 'groq-sdk';
 import { getKey } from '../utils/keys.js';
-import { log } from '../../logger.js';
 
 /**
  * Umbrella class for Mixtral, LLama, Gemma...
@@ -63,18 +62,6 @@ export class GroqCloudAPI {
                 console.log('Received response from Groq.');
             } catch (err) {
                 // Handle context length exceeded by retrying with shorter context
-                if (
-                    err.message.toLowerCase().includes('context length') &&
-                    turns.length > 1
-                ) {
-                    console.log('Context length exceeded, trying again with a shorter context.');
-                    // Remove the earliest user turn and retry
-                    return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
-                } else {
-                    // Log other errors and return fallback message
-                    console.log(err);
-                    res = 'My brain disconnected, try again.';
-                }
             }
 
             // If the model name includes "deepseek-r1", handle <think> tags
