@@ -60,8 +60,7 @@ export class Prompter {
             else if (chat.model.includes('hf:'))
                 chat.api = "glhf";
             else if (chat.model.includes('hyperbolic:')|| chat.model.includes('hb:'))
-                chat.api = "hyperbolic";
-            else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
+                chat.api = "hyperbolic";            
             else if (chat.model.includes('meta/') || chat.model.includes('replicate/'))
                 chat.api = 'replicate';
             else if (chat.model.includes('mistralai/') || chat.model.includes("mistral/"))
