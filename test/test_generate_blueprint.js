@@ -1,28 +1,4 @@
 
-/** Main big funciton: Builds the foundation of the house. breaks down into smaller functions like generating the rooms, generating embellishments, etc...
- *
- * @param position coordinate that specify where the house should be built. come in as [x,y,z]
- * @param windows an int that can be 0,1,2 for increasing frequencies of windows
- * @param doors a boolean that has doors for room or no doors (if ur crazy ig)
- */
-function buildHouse(position, windows, doors){
-    // randomly initalize a space for a 3D matrix (make sure its big enough)
-    const minSize = 30; // Minimum size for width, length, height
-    const randomness = 20; // Maximum randomness to add
-    const width = Math.floor(Math.random() * (randomness + 1)) + minSize;
-    const length = Math.floor(Math.random() * (randomness + 1)) + minSize;
-    const height = Math.floor(Math.random() * (randomness + 1)) + minSize;
-
-
-    // slice up the space ensuring each compartment has at least 4x4x2 space.
-    const resultMatrix = generateAbstractRooms(width, length, height, 3);
-    printMatrix(resultMatrix)
-
-
-    // todo: then, internally do things like windows / stairs / doors/ etc...
-}
-
-
 /**
  *
  * @param m - length (x-axis)
@@ -124,13 +100,14 @@ function generateAbstractRooms(m, n, p, rooms = 5) {
 
 
 /**
- * Systematically builds the houses by placing them next to the already existing rooms. Still uses randomness.
- * @param m Width of the 3D space
- * @param n Height of the 3D space
- * @param p Depth of the 3D space
- * @param rooms Number of rooms to generate
+ * Systematically builds the houses by placing them next to the already existing rooms. Still uses randomness for what gets placed next.
+ * @param m width of the 3D space
+ * @param n height of the 3D space
+ * @param p depth of the 3D space
+ * @param rooms Number of rooms to attempt to generate
  */
-function generateSequentialRooms(m, n, p, rooms) {
+// todo: add room size params, room material params, roof style
+function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
     // Build 3D space
     const matrix = Array.from({length: p}, () =>
         Array.from({length: m}, () =>
@@ -248,13 +225,63 @@ function generateSequentialRooms(m, n, p, rooms) {
         }
         return false;
     }
+
     function addDoor(matrix, x, y, z) {
-        matrix[z][x][y] = 'door';
+        // Place the lower half of the door
+        matrix[z + 1][x][y] = 'dark_oak_door[half=lower, hinge=left]';
+
+        // Place the upper half of the door
+        matrix[z + 2][x][y] = 'dark_oak_door[half=upper, hinge=left]';
     }
 
-    function addStairs(matrix, x, y, z) {
-        matrix[z][x][y] = 'stair';
+
+    function addStairs(matrix, x, y, z, direction) {
+        let dz = 0; // Change in Z direction
+        let dx = 0; // Change in X direction
+        let facing = '';
+
+        // Determine direction and facing
+        switch (direction) {
+            case 'north':
+                dz = -1;
+                facing = 'oak_stairs[facing=north]';
+                break;
+            case 'south':
+                dz = 1;
+                facing = 'oak_stairs[facing=south]';
+                break;
+            case 'east':
+                dx = 1;
+                facing = 'oak_stairs[facing=east]';
+                break;
+            case 'west':
+                dx = -1;
+                facing = 'oak_stairs[facing=west]';
+                break;
+            default:
+                console.error('Invalid stair direction');
+                return;
+        }
+
+        // Bore stair pattern downwards until we hit a floor or the matrix edge
+        let currentZ = z;
+        while (currentZ > 0 && matrix[currentZ - 1][x][y] === 'air') {
+            // Place stone as foundation
+            matrix[currentZ - 1][x][y] = 'stone';
+
+            // Place stair above the stone
+            matrix[currentZ][x][y] = facing;
+
+            // Move down diagonally
+            x += dx;
+            y += dz;
+            currentZ--;
+
+            // Check if we've hit the edge
+            if (x < 0 || x >= matrix[0].length || y < 0 || y >= matrix[0][0].length) break;
+        }
     }
+
 
     // Places rooms until we can't, or we place all
     // attempts random configurations of rooms in random directions.
@@ -278,10 +305,18 @@ function generateSequentialRooms(m, n, p, rooms) {
                     lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                     roomPlaced = true;
                     placedRooms++;
-                    break;
-                }
 
-                // Todo: add doors to room on all sides
+                    // Todo: add doors to room on all sides
+                    // Add doors to all four sides
+                    // Left side
+                    addDoor(matrix, newX, newY + Math.floor(newWidth / 2), newZ);
+                    // Right side
+                    addDoor(matrix, newX + newLength - 1, newY + Math.floor(newWidth / 2), newZ);
+                    // Front side
+                    addDoor(matrix, newX + Math.floor(newLength / 2), newY, newZ);
+                    // Back side
+                    addDoor(matrix, newX + Math.floor(newLength / 2), newY + newWidth - 1, newZ);
+                }
 
                 break;
             }
@@ -290,14 +325,13 @@ function generateSequentialRooms(m, n, p, rooms) {
 
                 switch (direction) {
                     case 'above':
-                        // todo: the ceiling / floor are not the same when they should be
                         newX = lastRoom.x;
                         newY = lastRoom.y;
                         newZ = lastRoom.z + lastRoom.depth - 1;
                         if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
                             addStairs(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
                                 lastRoom.y + Math.floor(lastRoom.width / 2),
-                                lastRoom.z);
+                                lastRoom.z, 'east'); // Adjust direction based on layout
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -375,8 +409,27 @@ function generateSequentialRooms(m, n, p, rooms) {
             break;
         }
     }
-    return matrix
 
+
+
+    // todo: change the outer layer of the matrix to be window (or just air?)
+    // Replace outer stone layer with glass
+    for (let z = 0; z < p; z++) {
+        for (let x = 0; x < m; x++) {
+            for (let y = 0; y < n; y++) {
+                if (
+                    (z === 0 || z === p - 1 || // Top and bottom faces
+                        x === 0 || x === m - 1 || // Front and back faces
+                        y === 0 || y === n - 1) && // Left and right faces
+                    matrix[z][x][y] === 'stone' // Only replace if it's stone
+                ) {
+                    matrix[z][x][y] = 'glass';
+                }
+            }
+        }
+    }
+
+    return matrix
 }
 
 
@@ -386,6 +439,10 @@ function generateSequentialRooms(m, n, p, rooms) {
  */
 
 
+/**
+ * for cutesy output
+ * @param matrix
+ */
 function printMatrix(matrix) {
     matrix.forEach((layer, layerIndex) => {
         console.log(`Layer ${layerIndex}:`);
@@ -395,9 +452,16 @@ function printMatrix(matrix) {
                     switch (cell) {
                         case 'stone': return '█';  // Wall
                         case 'air': return '.';    // Open space
-                        case 'door': return 'D';   // Door
-                        case 'stair': return 'S';  // Stairs
-                        default: return ' ';       // Unknown or unmarked space
+                        case 'dark_oak_door[half=upper, hinge=left]': return 'D';
+                        case 'dark_oak_door[half=lower, hinge=left]': return 'D';
+                        case 'oak_stairs[facing=north]': return 'S';  // Stairs
+                        case 'oak_stairs[facing=east]': return 'S';  // Stairs
+                        case 'oak_stairs[facing=south]': return 'S';  // Stairs
+                        case 'oak_stairs[facing=west]': return 'S';  // Stairs
+                        case 'glass': return 'W'
+
+
+                        default: return '?';       // Unknown or unmarked space
                     }
                 }).join(' ')
             );
@@ -407,7 +471,9 @@ function printMatrix(matrix) {
 }
 
 
-const resultMatrix = generateSequentialRooms(20, 20, 20, 6);
+
+// main:
+const resultMatrix = generateSequentialRooms(20, 10, 20, 6);
 printMatrix(resultMatrix)
 
 
