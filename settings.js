@@ -19,9 +19,10 @@ export default
         // "./profiles/qwen.json",
         // "./profiles/mistral.json",
         // "./profiles/grok.json",
+        // "./profiles/GLHF.json",
+        // "./profiles/hyperbolic.json",
         // "./profiles/mistral.json",
         // "./profiles/deepseek.json",
-
         // using more than 1 profile requires you to /msg each bot indivually
     ],
     "load_memory": false, // load memory from previous session
