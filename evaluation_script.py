@@ -87,14 +87,14 @@ def update_results_file(task_id, success_count, total_count, time_taken, experim
         f.write(f"Average time per experiment: {total_time / total_count:.2f} seconds\n")
         f.write(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-def launch_server_experiment(task_path, task_id, num_exp, server, num_agents=2, model="gpt-4o"):
+def set_environment_variable_tmux_session(session_name, key, value):
+    """Set an environment variable for the current process."""
+    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export {key}={value}", "C-m"])
+
+def launch_server_experiment(task_path, task_id, num_exp, server, experiments_folder, num_agents=2, model="gpt-4o"):
     server_path, server_port = server
     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
     mindserver_port = server_port - 55916 + 8080
-    
-    # rename the agents for logging purposes
-    # TODO: fix the file naming procedure
-    # copy the memory.json into a new folder for each run based on the date and time
     
     
     session_name = str(server_port - 55916)
@@ -115,14 +115,17 @@ def launch_server_experiment(task_path, task_id, num_exp, server, num_agents=2, 
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
 
     # set environment variables
-    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export MINECRAFT_PORT={server_port}", "C-m"])
-    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export MINDSERVER_PORT={mindserver_port}", "C-m"])
-    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export PROFILES={agent_profiles_str}", "C-m"])
+    set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
+    set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
+    set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
 
     cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
+    cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
     for _ in range(num_exp):
-              # Send the command and a newline (C-m) to execute it
         subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+        for agent in agent_names:
+            cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
+            subprocess.run(["tmux", "send-keys", "-t", session_name, cp_cmd, "C-m"])
         # Add a small delay between commands (optional)
         subprocess.run(["tmux", "send-keys", "-t", session_name, "sleep 1", "C-m"])
 
@@ -145,22 +148,6 @@ def create_server_files(source_path, num_copies):
         # edit_server_properties_file(dest_path, 55916 + i)
         servers.append((dest_path, 55916 + i))
     return servers
-    
-# def edit_server_properties_file(dest_path, new_port):
-#     """Edit the server properties file to change the port."""
-#     properties_file = os.path.join(dest_path, "server.properties")
-#     try:
-#         with open(properties_file, 'r') as f:
-#             lines = f.readlines()
-#         with open(properties_file, 'w') as f:
-#             for line in lines:
-#                 if line.startswith("server-port="):
-#                     f.write(f"server-port={new_port}\n")
-#                 else:
-#                     f.write(line)
-#         print(f"Server properties file updated with new port: {new_port}")  
-#     except Exception as e:
-#         print(f"Error editing server properties file: {e}")
 
 def edit_file(file, content_dict):
     try:
@@ -297,9 +284,10 @@ def main():
 
     parser = argparse.ArgumentParser(description='Run Minecraft AI agent experiments')
     parser.add_argument('--task_path', default="example_tasks.json", help='Path to the task file')
-    parser.add_argument('--task_id', default="multiagent_techtree_1_stone_pickaxe", help='ID of the task to run')
-    parser.add_argument('--num_exp', default=5, type=int, help='Number of experiments to run')
+    parser.add_argument('--task_id', default="multiagent_techtree_1_shears", help='ID of the task to run')
+    parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
     parser.add_argument('--num_parallel', default=0, type=int, help='Number of parallel servers to run')
+    parser.add_argument('--exp_name', default="experiments/exp", help='Name of the experiment')
 
     args = parser.parse_args()
 
@@ -313,8 +301,11 @@ def main():
         run_experiment(args.task_path, args.task_id, args.num_exp)
     else: 
         servers = create_server_files("../server_data/", args.num_parallel)
+        date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        experiments_folder = f"{args.exp_name}_{date_time}"
+        os.makedirs(experiments_folder, exist_ok=True)
         for server in servers:
-            launch_server_experiment(args.task_path, args.task_id, args.num_exp, server)
+            launch_server_experiment(args.task_path, args.task_id, args.num_exp, server, experiments_folder)
             time.sleep(5)
     
     # run_experiment(args.task_path, args.task_id, args.num_exp)
