@@ -70,7 +70,7 @@ bot.on('spawn', async () => {
  * @Returns: An object containing the setblock commands as a list of strings, and a position nearby the blueprint but not in it
  * @param blueprint
  */
-function autoBuild(blueprint) {
+export function autoBuild(blueprint) {
     const commands = [];
 
     let minX = Infinity, maxX = -Infinity;
@@ -119,7 +119,7 @@ function autoBuild(blueprint) {
  * Takes in a blueprint, and returns a set of commands to clear up the space.
  *
  */
-function autoDelete(blueprint) {
+export function autoDelete(blueprint) {
     const commands = [];
 
     let minX = Infinity, maxX = -Infinity;

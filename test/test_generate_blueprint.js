@@ -331,7 +331,7 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                         if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
                             addStairs(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
                                 lastRoom.y + Math.floor(lastRoom.width / 2),
-                                lastRoom.z, 'east'); // Adjust direction based on layout
+                                lastRoom.z, 'north'); // Adjust direction based on layout
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -435,8 +435,35 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
 
 
 /**
- * todo: Given a matrix, turn it into a blueprint
+ * Converts a 3D matrix into a Minecraft blueprint format
+ * @param {Array<Array<Array<string>>>} matrix - 3D matrix of block types
+ * @param {number[]} startCoord - Starting coordinates [x, y, z]
+ * @returns {Object} Blueprint object in Minecraft format
  */
+function matrixToBlueprint(matrix, startCoord) {
+    // Validate inputs
+    if (!Array.isArray(matrix) || !Array.isArray(startCoord) || startCoord.length !== 3) {
+        throw new Error('Invalid input format');
+    }
+
+    const [startX, startY, startZ] = startCoord;
+
+    return {
+        levels: matrix.map((level, levelIndex) => ({
+            level: levelIndex,
+            coordinates: [
+                startX,
+                startY + levelIndex,
+                startZ
+            ],
+            placement: level.map(row =>
+                // Ensure each block is a string, default to 'air' if undefined
+                row.map(block => block?.toString() || 'air')
+            )
+        }))
+    };
+}
+
 
 
 /**
@@ -473,7 +500,35 @@ function printMatrix(matrix) {
 
 
 // main:
-const resultMatrix = generateSequentialRooms(20, 10, 20, 6);
+const resultMatrix = generateSequentialRooms(20, 10, 20, 10);
 printMatrix(resultMatrix)
+let blueprint = matrixToBlueprint(resultMatrix,[142, -60, -179])
 
+
+import mineflayer from "mineflayer";
+import {autoBuild} from "./test_blueprint_layout.js";
+
+const bot = mineflayer.createBot({
+    host: 'localhost', // Replace with your server IP or hostname
+    port: 55916,       // Replace with your server port
+    username: 'andy', // Replace with your bot's username
+    // password: 'your_bot_password' // Only if the server has online-mode=true
+});
+
+bot.on('spawn', async () => {
+    // have andy build the blueprint automatically
+    const result = autoBuild(blueprint);
+    // const result = clearHouse(blueprint)
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
+    }
+
+    console.log(commands.slice(-10));
+
+    // Print out the location nearby the blueprint
+    console.log(`tp ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`)
+
+});
 
