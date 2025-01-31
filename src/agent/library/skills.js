@@ -1269,12 +1269,17 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
      * let position = world.getPosition(bot);
      * await skills.till(bot, position.x, position.y - 1, position.x);
      **/
-    console.log(x, y, z)
     x = Math.round(x);
     y = Math.round(y);
     z = Math.round(z);
     let block = bot.blockAt(new Vec3(x, y, z));
-    console.log(x, y, z)
+
+    if (bot.modes.isOn('cheat')) {
+        placeBlock(bot, x, y, z, 'farmland');
+        placeBlock(bot, x, y+1, z, seedType);
+        return true;
+    }
+
     if (block.name !== 'grass_block' && block.name !== 'dirt' && block.name !== 'farmland') {
         log(bot, `Cannot till ${block.name}, must be grass_block or dirt.`);
         return false;
