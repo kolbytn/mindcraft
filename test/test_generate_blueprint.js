@@ -306,7 +306,6 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                     roomPlaced = true;
                     placedRooms++;
 
-                    // Todo: add doors to room on all sides
                     // Add doors to all four sides
                     // Left side
                     addDoor(matrix, newX, newY + Math.floor(newWidth / 2), newZ);
