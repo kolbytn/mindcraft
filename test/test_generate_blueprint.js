@@ -501,7 +501,19 @@ function printMatrix(matrix) {
 // main:
 const resultMatrix = generateSequentialRooms(20, 10, 20, 10);
 printMatrix(resultMatrix)
-let blueprint = matrixToBlueprint(resultMatrix,[142, -60, -179])
+const glass_matrix = resultMatrix.map((layer) => {
+    return layer.map((row) => {
+        return row.map((cell) => {
+            if (cell === 'stone') {
+                return 'purple_stained_glass';
+            }
+            return cell;
+        })
+    })
+});
+console.log(glass_matrix)
+let blueprint = matrixToBlueprint(glass_matrix,[194, -60, -94])
+console.log(blueprint)
 
 
 import mineflayer from "mineflayer";
@@ -525,6 +537,8 @@ bot.on('spawn', async () => {
     }
 
     console.log(commands.slice(-10));
+    bot.chat('I have built the house!');
+    bot.chat('/tp @a ' + nearbyPosition.x + ' ' + nearbyPosition.y + ' ' + nearbyPosition.z);
 
     // Print out the location nearby the blueprint
     console.log(`tp ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`)
