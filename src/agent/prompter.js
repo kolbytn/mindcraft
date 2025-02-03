@@ -18,6 +18,7 @@ import { HuggingFace } from '../models/huggingface.js';
 import { Qwen } from "../models/qwen.js";
 import { Grok } from "../models/grok.js";
 import { DeepSeek } from '../models/deepseek.js';
+import { OpenRouter } from '../models/openrouter.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -67,6 +68,8 @@ export class Prompter {
                 chat.api = 'xai';
             else if (chat.model.includes('deepseek'))
                 chat.api = 'deepseek';
+            else if (chat.model.includes('openrouter/'))
+                chat.api = 'openrouter';
             else
                 chat.api = 'ollama';
         }
@@ -98,6 +101,8 @@ export class Prompter {
             this.chat_model = new Grok(chat.model, chat.url);
         else if (chat.api === 'deepseek')
             this.chat_model = new DeepSeek(chat.model, chat.url);
+        else if (chat.api === 'openrouter')
+            this.chat_model = new OpenRouter(chat.model, chat.url);
         else
             throw new Error('Unknown API:', api);
 
