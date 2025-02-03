@@ -78,7 +78,7 @@ export function autoBuild(blueprint) {
     let minZ = Infinity, maxZ = -Infinity;
 
     for (const level of blueprint.levels) {
-        console.log(level.level)
+        // console.log(level.level)
         const baseX = level.coordinates[0];
         const baseY = level.coordinates[1];
         const baseZ = level.coordinates[2];

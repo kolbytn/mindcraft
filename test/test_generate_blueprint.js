@@ -198,7 +198,6 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                         const z = newZ + di;
 
                         // If this is at a matrix border, don't modify it
-                        // todo: change to be window
                         if (x === 0 || x === m - 1 ||
                             y === 0 || y === n - 1 ||
                             z === 0 || z === p - 1) {
@@ -227,6 +226,8 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
     }
 
     function addDoor(matrix, x, y, z) {
+        matrix[z][x][y] = 'stone';
+
         // Place the lower half of the door
         matrix[z + 1][x][y] = 'dark_oak_door[half=lower, hinge=left]';
 
@@ -282,6 +283,29 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
         }
     }
 
+    function addLadder(matrix, x, y, z) {
+        let currentZ = z+1;
+
+        // turn the floor into air where person would go up
+        matrix[currentZ][x+1][y] = 'air'
+
+        // Build the first 3 ladder segments from floor level downwards
+        for (let i = 0; i < 3; i++) {
+            matrix[currentZ][x][y] = 'ladder[facing=north]';
+            currentZ-=1
+        }
+
+        // Continue building ladder downwards until a floor is hit or we reach the bottom
+        while (currentZ >= 0 && matrix[currentZ][x][y] === 'air') {
+            // Place ladder
+            matrix[currentZ][x][y] = 'ladder[facing=north]';
+
+            // Move down
+            currentZ--;
+        }
+
+    }
+
 
     // Places rooms until we can't, or we place all
     // attempts random configurations of rooms in random directions.
@@ -328,9 +352,12 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                         newY = lastRoom.y;
                         newZ = lastRoom.z + lastRoom.depth - 1;
                         if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
-                            addStairs(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                            // addStairs(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                            //     lastRoom.y + Math.floor(lastRoom.width / 2),
+                            //     lastRoom.z, 'north'); // Adjust direction based on layout
+                            addLadder(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
                                 lastRoom.y + Math.floor(lastRoom.width / 2),
-                                lastRoom.z, 'north'); // Adjust direction based on layout
+                                newZ); // Adding the ladder
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -411,7 +438,6 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
 
 
 
-    // todo: change the outer layer of the matrix to be window (or just air?)
     // Replace outer stone layer with glass
     for (let z = 0; z < p; z++) {
         for (let x = 0; x < m; x++) {
@@ -536,9 +562,9 @@ bot.on('spawn', async () => {
         bot.chat(command);
     }
 
-    console.log(commands.slice(-10));
+    // console.log(commands.slice(-10));
     bot.chat('I have built the house!');
-    bot.chat('/tp @a ' + nearbyPosition.x + ' ' + nearbyPosition.y + ' ' + nearbyPosition.z);
+    bot.chat('/tp @a ' + nearbyPosition.x + ' ' + nearbyPosition.y + ' ' + nearbyPosition.z+1);
 
     // Print out the location nearby the blueprint
     console.log(`tp ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`)
