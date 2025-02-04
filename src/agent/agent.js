@@ -1,9 +1,9 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { Prompter } from './prompter.js';
+import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
@@ -47,7 +47,8 @@ export class Agent {
             await this.prompter.initExamples();
             console.log('Initializing task...');
             this.task = new Task(this, task_path, task_id);
-            this.blocked_actions = this.task.blocked_actions || [];
+            const blocked_actions = this.task.blocked_actions || [];
+            blacklistCommands(blocked_actions);
 
             serverProxy.connect(this);
 
@@ -99,11 +100,9 @@ export class Agent {
             });
         } catch (error) {
             // Ensure we're not losing error details
-            console.error('Agent start failed with error:', {
-                message: error.message || 'No error message',
-                stack: error.stack || 'No stack trace',
-                error: error
-            });
+            console.error('Agent start failed with error')
+            console.error(error)
+
             throw error; // Re-throw with preserved details
         }
     }
@@ -129,7 +128,7 @@ export class Agent {
                 console.log(this.name, 'received message from', username, ':', message);
 
                 if (convoManager.isOtherAgent(username)) {
-                    console.warn('recieved whisper from other bot??')
+                    console.warn('received whisper from other bot??')
                 }
                 else {
                     let translation = await handleEnglishTranslation(message);
@@ -164,7 +163,7 @@ export class Agent {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
                 };
-                convoManager.recieveFromBot(this.last_sender, msg_package);
+                convoManager.receiveFromBot(this.last_sender, msg_package);
             }
         }
         else if (init_message) {

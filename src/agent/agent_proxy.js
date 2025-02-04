@@ -31,7 +31,7 @@ class AgentServerProxy {
         });
 
         this.socket.on('chat-message', (agentName, json) => {
-            convoManager.recieveFromBot(agentName, json);
+            convoManager.receiveFromBot(agentName, json);
         });
 
         this.socket.on('agents-update', (agents) => {

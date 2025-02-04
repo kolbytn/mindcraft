@@ -1,5 +1,6 @@
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
+import { getCommandDocs } from './index.js';
 import convoManager from '../conversation.js';
 
 const pad = (str) => {
@@ -212,6 +213,12 @@ export const queryList = [
             console.log('\n\n\n\n\n\n\n\n\n\n\n');
             console.log(craftingPlan);
             return pad(craftingPlan);
+    },
+    {
+        name: '!help',
+        description: 'Lists all available commands and their descriptions.',
+        perform: async function (agent) {
+            return getCommandDocs();
         }
     },
 ];

@@ -1,21 +1,23 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
-import { getCommandDocs } from './commands/index.js';
-import { getSkillDocs } from './library/index.js';
+import { getCommandDocs } from '../agent/commands/index.js';
+import { getSkillDocs } from '../agent/library/index.js';
 import { stringifyTurns } from '../utils/text.js';
-import { getCommand } from './commands/index.js';
+import { getCommand } from '../agent/commands/index.js';
+import settings from '../../settings.js';
 
-import { Gemini } from '../models/gemini.js';
-import { GPT } from '../models/gpt.js';
-import { Claude } from '../models/claude.js';
-import { ReplicateAPI } from '../models/replicate.js';
-import { Local } from '../models/local.js';
-import { Novita } from '../models/novita.js';
-import { GroqCloudAPI } from '../models/groq.js';
-import { HuggingFace } from '../models/huggingface.js';
-import { Qwen } from "../models/qwen.js";
-import { Grok } from "../models/grok.js";
-import { DeepSeek } from '../models/deepseek.js';
+import { Gemini } from './gemini.js';
+import { GPT } from './gpt.js';
+import { Claude } from './claude.js';
+import { Mistral } from './mistral.js';
+import { ReplicateAPI } from './replicate.js';
+import { Local } from './local.js';
+import { Novita } from './novita.js';
+import { GroqCloudAPI } from './groq.js';
+import { HuggingFace } from './huggingface.js';
+import { Qwen } from "./qwen.js";
+import { Grok } from "./grok.js";
+import { DeepSeek } from './deepseek.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -32,7 +34,6 @@ export class Prompter {
         this.coding_examples = null;
         
         let name = this.profile.name;
-        let chat = this.profile.model;
         this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
         this.last_prompt_time = 0;
         this.awaiting_coding = false;
@@ -41,64 +42,22 @@ export class Prompter {
         let max_tokens = null;
         if (this.profile.max_tokens)
             max_tokens = this.profile.max_tokens;
-        if (typeof chat === 'string' || chat instanceof String) {
-            chat = {model: chat};
-            if (chat.model.includes('gemini'))
-                chat.api = 'google';
-            else if (chat.model.includes('gpt') || chat.model.includes('o1'))
-                chat.api = 'openai';
-            else if (chat.model.includes('claude'))
-                chat.api = 'anthropic';
-            else if (chat.model.includes('huggingface/'))
-                chat.api = "huggingface";
-            else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
-                chat.api = 'replicate';
-            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
-                chat.api = 'groq';
-            else if (chat.model.includes('novita/'))
-                chat.api = 'novita';
-            else if (chat.model.includes('qwen'))
-                chat.api = 'qwen';
-            else if (chat.model.includes('grok'))
-                chat.api = 'xai';
-            else if (chat.model.includes('deepseek'))
-                chat.api = 'deepseek';
-            else
-                chat.api = 'ollama';
-        }
 
-        console.log('Using chat settings:', chat);
+        let chat_model_profile = this._selectAPI(this.profile.model);
+        this.chat_model = this._createModel(chat_model_profile);
 
-        if (chat.api === 'google')
-            this.chat_model = new Gemini(chat.model, chat.url);
-        else if (chat.api === 'openai')
-            this.chat_model = new GPT(chat.model, chat.url);
-        else if (chat.api === 'anthropic')
-            this.chat_model = new Claude(chat.model, chat.url);
-        else if (chat.api === 'replicate')
-            this.chat_model = new ReplicateAPI(chat.model, chat.url);
-        else if (chat.api === 'ollama')
-            this.chat_model = new Local(chat.model, chat.url);
-        else if (chat.api === 'groq') {
-            this.chat_model = new GroqCloudAPI(chat.model.replace('groq/', '').replace('groqcloud/', ''), chat.url, max_tokens ? max_tokens : 8192);
+        if (this.profile.code_model) {
+            let code_model_profile = this._selectAPI(this.profile.code_model);
+            this.code_model = this._createModel(code_model_profile);
         }
-        else if (chat.api === 'huggingface')
-            this.chat_model = new HuggingFace(chat.model, chat.url);
-        else if (chat.api === 'novita')
-            this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url);
-        else if (chat.api === 'qwen')
-            this.chat_model = new Qwen(chat.model, chat.url);
-        else if (chat.api === 'xai')
-            this.chat_model = new Grok(chat.model, chat.url);
-        else if (chat.api === 'deepseek')
-            this.chat_model = new DeepSeek(chat.model, chat.url);
-        else
-            throw new Error('Unknown API:', api);
+        else {
+            this.code_model = this.chat_model;
+        }
 
         let embedding = this.profile.embedding;
         if (embedding === undefined) {
-            if (chat.api !== 'ollama')
-                embedding = {api: chat.api};
+            if (chat_model_profile.api !== 'ollama')
+                embedding = {api: chat_model_profile.api};
             else
                 embedding = {api: 'none'};
         }
@@ -118,6 +77,8 @@ export class Prompter {
                 this.embedding_model = new Local(embedding.model, embedding.url);
             else if (embedding.api === 'qwen')
                 this.embedding_model = new Qwen(embedding.model, embedding.url);
+            else if (embedding.api === 'mistral')
+                this.embedding_model = new Mistral(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
                 console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
@@ -138,6 +99,70 @@ export class Prompter {
         });
     }
 
+    _selectAPI(profile) {
+        if (typeof profile === 'string' || profile instanceof String) {
+            profile = {model: profile};
+        }
+        if (!profile.api) {
+            if (profile.model.includes('gemini'))
+                profile.api = 'google';
+            else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
+                profile.api = 'openai';
+            else if (profile.model.includes('claude'))
+                profile.api = 'anthropic';
+            else if (profile.model.includes('huggingface/'))
+                profile.api = "huggingface";
+            else if (profile.model.includes('replicate/'))
+                profile.api = 'replicate';
+            else if (profile.model.includes('mistralai/') || profile.model.includes("mistral/"))
+                model_profile.api = 'mistral';
+            else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
+                profile.api = 'groq';
+            else if (profile.model.includes('novita/'))
+                profile.api = 'novita';
+            else if (profile.model.includes('qwen'))
+                profile.api = 'qwen';
+            else if (profile.model.includes('grok'))
+                profile.api = 'xai';
+            else if (profile.model.includes('deepseek'))
+                profile.api = 'deepseek';
+            else
+            profile.api = 'ollama';
+        }
+        return profile;
+    }
+
+    _createModel(profile) {
+        let model = null;
+        if (profile.api === 'google')
+            model = new Gemini(profile.model, profile.url, profile.params);
+        else if (profile.api === 'openai')
+            model = new GPT(profile.model, profile.url, profile.params);
+        else if (profile.api === 'anthropic')
+            model = new Claude(profile.model, profile.url, profile.params);
+        else if (profile.api === 'replicate')
+            model = new ReplicateAPI(profile.model, profile.url, profile.params);
+        else if (profile.api === 'ollama')
+            model = new Local(profile.model, profile.url, profile.params);
+        else if (profile.api === 'mistral')
+            model = new Mistral(profile.model, profile.url, profile.params);
+        else if (profile.api === 'groq') 
+            model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
+        else if (profile.api === 'huggingface')
+            model = new HuggingFace(profile.model, profile.url, profile.params);
+        else if (profile.api === 'novita')
+            model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
+        else if (profile.api === 'qwen')
+            model = new Qwen(profile.model, profile.url, profile.params);
+        else if (profile.api === 'xai')
+            model = new Grok(profile.model, profile.url, profile.params);
+        else if (profile.api === 'deepseek')
+            model = new DeepSeek(profile.model, profile.url, profile.params);
+        else
+            throw new Error('Unknown API:', profile.api);
+        return model;
+    }
+
     getName() {
         return this.profile.name;
     }
@@ -148,8 +173,8 @@ export class Prompter {
 
     async initExamples() {
         try {
-            this.convo_examples = new Examples(this.embedding_model);
-            this.coding_examples = new Examples(this.embedding_model);
+            this.convo_examples = new Examples(this.embedding_model, settings.num_examples);
+            this.coding_examples = new Examples(this.embedding_model, settings.num_examples);
             
             // Wait for both examples to load before proceeding
             await Promise.all([
@@ -179,7 +204,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent.blocked_actions));
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)
@@ -248,7 +273,7 @@ export class Prompter {
                 continue;
             }
             if (current_msg_time !== this.most_recent_msg_time) {
-                console.warn(this.agent.name + ' recieved new message while generating, discarding old response.');
+                console.warn(this.agent.name + ' received new message while generating, discarding old response.');
                 return '';
             }
             return generation;
@@ -265,7 +290,7 @@ export class Prompter {
         await this.checkCooldown();
         let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
-        let resp = await this.chat_model.sendRequest(messages, prompt);
+        let resp = await this.code_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
         return resp;
     }
