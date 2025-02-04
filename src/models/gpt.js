@@ -33,7 +33,7 @@ export class GPT {
 
         let res = null;
         try {
-            console.log('Awaiting openai api response...')
+            console.log('Awaiting openai api response from model', this.model_name)
             // console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')
