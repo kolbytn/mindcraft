@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { toSinglePrompt } from '../utils/text.js';
+import { toSinglePrompt, strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Gemini {
@@ -37,7 +37,7 @@ export class Gemini {
         let model;
         const modelConfig = {
             model: this.model_name || "gemini-1.5-flash",
-            ...(this.params || {})
+            // systemInstruction does not work bc google is trash
         };
         
         if (this.url) {
@@ -53,29 +53,27 @@ export class Gemini {
             );
         }
 
-        const stop_seq = '***';
-        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         console.log('Awaiting Google API response...');
+
+        turns.unshift({ role: 'system', content: systemMessage });
+        turns = strictFormat(turns);
+        let contents = [];
+        for (let turn of turns) {
+            contents.push({
+                role: turn.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: turn.content }]
+            });
+        }
+
         const result = await model.generateContent({
-            contents: [
-                {
-                  role: 'user',
-                  parts: [
-                    {
-                      text: "Explain how AI works",
-                    }
-                  ],
-                }
-            ],
-            generateConfig: {
+            contents,
+            generationConfig: {
                 ...(this.params || {})
             }
         });
         const response = await result.response;
         const text = response.text();
         console.log('Received.');
-        if (!text.includes(stop_seq)) return text;
-        const idx = text.indexOf(stop_seq);
 
         return text.slice(0, idx);
     }

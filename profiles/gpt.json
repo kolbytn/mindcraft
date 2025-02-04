@@ -2,10 +2,9 @@
     "name": "gpt",
 
     "model": {
-        "model": "gpt-4o-mini",
+        "model": "gpt-4o",
         "params": {
-            "temperature": 1,
-            "not_real": true
+            "temperature": 0.5
         }
     }
 }
