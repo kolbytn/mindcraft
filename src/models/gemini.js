@@ -3,8 +3,9 @@ import { toSinglePrompt } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Gemini {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.params = params;
         this.url = url;
         this.safetySettings = [
             {
@@ -34,15 +35,20 @@ export class Gemini {
 
     async sendRequest(turns, systemMessage) {
         let model;
+        const modelConfig = {
+            model: this.model_name || "gemini-1.5-flash",
+            ...(this.params || {})
+        };
+        
         if (this.url) {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                modelConfig,
                 { baseUrl: this.url },
                 { safetySettings: this.safetySettings }
             );
         } else {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                modelConfig,
                 { safetySettings: this.safetySettings }
             );
         }
@@ -50,12 +56,27 @@ export class Gemini {
         const stop_seq = '***';
         const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         console.log('Awaiting Google API response...');
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent({
+            contents: [
+                {
+                  role: 'user',
+                  parts: [
+                    {
+                      text: "Explain how AI works",
+                    }
+                  ],
+                }
+            ],
+            generateConfig: {
+                ...(this.params || {})
+            }
+        });
         const response = await result.response;
         const text = response.text();
         console.log('Received.');
         if (!text.includes(stop_seq)) return text;
         const idx = text.indexOf(stop_seq);
+
         return text.slice(0, idx);
     }
 
