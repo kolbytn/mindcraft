@@ -41,7 +41,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | OpenAI | `OPENAI_API_KEY` | `gpt-4o-mini` | [docs](https://platform.openai.com/docs/models) |
 | Google | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
-| Replicate | `REPLICATE_API_KEY` | `meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
+| Replicate | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
 | Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
 | Groq | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
 | Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
@@ -105,40 +105,37 @@ node main.js --profiles ./profiles/andy.json ./profiles/jill.json
 
 ### Model Specifications
 
-LLM backends can be specified as simply as `"model": "gpt-3.5-turbo"`. However, for both the chat model and the embedding model, the bot profile can specify the below attributes:
+LLM models can be specified as simply as `"model": "gpt-4o"`. However, you can specify different models for chat, coding, and embeddings. 
+You can pass a string or an object for these fields. A model object must specify an `api`, and optionally a `model`, `url`, and additional `params`.
 
 ```json
 "model": {
   "api": "openai",
+  "model": "gpt-4o",
   "url": "https://api.openai.com/v1/",
-  "model": "gpt-3.5-turbo"
+  "params": {
+    "max_tokens": 1000,
+    "temperature": 1
+  }
+},
+"code_model": {
+  "api": "openai",
+  "model": "gpt-4",
+  "url": "https://api.openai.com/v1/"
 },
 "embedding": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
   "model": "text-embedding-ada-002"
 }
+
 ```
 
-The model or code_model parameter accepts either a string or object. If a string, it should specify the model to be used. The api and url will be assumed. If an object, the api field must be specified. Each api has a default model and url, so those fields are optional.
+`model` is used for chat, `code_model` is used for newAction coding, and `embedding` is used to embed text for example selection. If `code_model` is not specified, then it will use `model` for coding.
 
-If the embedding field is not specified, then it will use the default embedding method for the chat model's api (Note that anthropic has no embedding model). The embedding parameter can also be a string or object. If a string, it should specify the embedding api and the default model and url will be used. If a valid embedding is not specified and cannot be assumed, then word overlap will be used to retrieve examples instead.
+All apis have default models and urls, so those fields are optional. Note some apis have no embedding model, so they will default to word overlap to retrieve examples. 
 
-Thus, all the below specifications are equivalent to the above example:
-
-```json
-"model": "gpt-3.5-turbo"
-```
-```json
-"model": {
-  "api": "openai"
-}
-```
-```json
-"model": "gpt-3.5-turbo",
-"embedding": "openai"
-"code_model": "gpt-3.5-turbo"
-```
+The `params` field is optional and can be used to specify additional parameters for the model. It accepts any key-value pairs supported by the api. Is not supported for embedding models.
 
 ## Patches
 

@@ -1,23 +1,23 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
-import { getCommandDocs } from './commands/index.js';
-import { getSkillDocs } from './library/index.js';
+import { getCommandDocs } from '../agent/commands/index.js';
+import { getSkillDocs } from '../agent/library/index.js';
 import { stringifyTurns } from '../utils/text.js';
-import { getCommand } from './commands/index.js';
+import { getCommand } from '../agent/commands/index.js';
 import settings from '../../settings.js';
 
-import { Gemini } from '../models/gemini.js';
-import { GPT } from '../models/gpt.js';
-import { Claude } from '../models/claude.js';
-import { Mistral } from '../models/mistral.js';
-import { ReplicateAPI } from '../models/replicate.js';
-import { Local } from '../models/local.js';
-import { Novita } from '../models/novita.js';
-import { GroqCloudAPI } from '../models/groq.js';
-import { HuggingFace } from '../models/huggingface.js';
-import { Qwen } from "../models/qwen.js";
-import { Grok } from "../models/grok.js";
-import { DeepSeek } from '../models/deepseek.js';
+import { Gemini } from './gemini.js';
+import { GPT } from './gpt.js';
+import { Claude } from './claude.js';
+import { Mistral } from './mistral.js';
+import { ReplicateAPI } from './replicate.js';
+import { Local } from './local.js';
+import { Novita } from './novita.js';
+import { GroqCloudAPI } from './groq.js';
+import { HuggingFace } from './huggingface.js';
+import { Qwen } from "./qwen.js";
+import { Grok } from "./grok.js";
+import { DeepSeek } from './deepseek.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -102,6 +102,8 @@ export class Prompter {
     _selectAPI(profile) {
         if (typeof profile === 'string' || profile instanceof String) {
             profile = {model: profile};
+        }
+        if (!profile.api) {
             if (profile.model.includes('gemini'))
                 profile.api = 'google';
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
@@ -110,7 +112,7 @@ export class Prompter {
                 profile.api = 'anthropic';
             else if (profile.model.includes('huggingface/'))
                 profile.api = "huggingface";
-            else if (profile.model.includes('meta/') || profile.model.includes('replicate/'))
+            else if (profile.model.includes('replicate/'))
                 profile.api = 'replicate';
             else if (profile.model.includes('mistralai/') || profile.model.includes("mistral/"))
                 model_profile.api = 'mistral';
@@ -133,32 +135,31 @@ export class Prompter {
     _createModel(profile) {
         let model = null;
         if (profile.api === 'google')
-            model = new Gemini(profile.model, profile.url);
+            model = new Gemini(profile.model, profile.url, profile.params);
         else if (profile.api === 'openai')
-            model = new GPT(profile.model, profile.url);
+            model = new GPT(profile.model, profile.url, profile.params);
         else if (profile.api === 'anthropic')
-            model = new Claude(profile.model, profile.url);
+            model = new Claude(profile.model, profile.url, profile.params);
         else if (profile.api === 'replicate')
-            model = new ReplicateAPI(profile.model, profile.url);
+            model = new ReplicateAPI(profile.model, profile.url, profile.params);
         else if (profile.api === 'ollama')
-            model = new Local(profile.model, profile.url);
+            model = new Local(profile.model, profile.url, profile.params);
         else if (profile.api === 'mistral')
-            model = new Mistral(profile.model, profile.url);
-        else if (profile.api === 'groq') {
-            model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, max_tokens ? max_tokens : 8192);
-        }
+            model = new Mistral(profile.model, profile.url, profile.params);
+        else if (profile.api === 'groq') 
+            model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
         else if (profile.api === 'huggingface')
-            model = new HuggingFace(profile.model, profile.url);
+            model = new HuggingFace(profile.model, profile.url, profile.params);
         else if (profile.api === 'novita')
-            model = new Novita(profile.model.replace('novita/', ''), profile.url);
+            model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
         else if (profile.api === 'qwen')
-            model = new Qwen(profile.model, profile.url);
+            model = new Qwen(profile.model, profile.url, profile.params);
         else if (profile.api === 'xai')
-            model = new Grok(profile.model, profile.url);
+            model = new Grok(profile.model, profile.url, profile.params);
         else if (profile.api === 'deepseek')
-            model = new DeepSeek(profile.model, profile.url);
+            model = new DeepSeek(profile.model, profile.url, profile.params);
         else
-            throw new Error('Unknown API:', api);
+            throw new Error('Unknown API:', profile.api);
         return model;
     }
 

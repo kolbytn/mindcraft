@@ -5,10 +5,13 @@ import { strictFormat } from '../utils/text.js';
 export class Mistral {
     #client;
 
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
+        this.model_name = model_name;
+        this.params = params;
 
         if (typeof url === "string") {
             console.warn("Mistral does not support custom URL's, ignoring!");
+
         }
 
         if (!getKey("MISTRAL_API_KEY")) {
@@ -22,8 +25,6 @@ export class Mistral {
         );
 
         
-        this.model_name = model_name;
-
         // Prevents the following code from running when model not specified
         if (typeof this.model_name === "undefined") return;
 
@@ -49,6 +50,7 @@ export class Mistral {
             const response  = await this.#client.chat.complete({
                 model,
                 messages,
+                ...(this.params || {})
             });
 
             result = response.choices[0].message.content;
