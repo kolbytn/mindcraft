@@ -1,12 +1,11 @@
 # Mindcraft 🧠⛏️
 
-Crafting minds for Minecraft with LLMs and Mineflayer!
+Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 
 [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
 
 
-#### ‼️Warning‼️
-
+> [!WARNING]
 Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. While the code is sandboxed, it is still vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. We strongly recommend running with additional layers of security such as docker containers. Ye be warned.
 
 ## Requirements
@@ -63,7 +62,8 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 
 // rest is same...
 ```
-‼️ The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
+> [!CAUTION]
+> The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
 
 To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
 
