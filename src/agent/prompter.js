@@ -104,7 +104,7 @@ export class Prompter {
             profile = {model: profile};
             if (profile.model.includes('gemini'))
                 profile.api = 'google';
-            else if (profile.model.includes('gpt') || profile.model.includes('o1'))
+            else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
                 profile.api = 'anthropic';
