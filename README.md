@@ -120,7 +120,7 @@ LLM backends can be specified as simply as `"model": "gpt-3.5-turbo"`. However, 
 }
 ```
 
-The model parameter accepts either a string or object. If a string, it should specify the model to be used. The api and url will be assumed. If an object, the api field must be specified. Each api has a default model and url, so those fields are optional.
+The model or code_model parameter accepts either a string or object. If a string, it should specify the model to be used. The api and url will be assumed. If an object, the api field must be specified. Each api has a default model and url, so those fields are optional.
 
 If the embedding field is not specified, then it will use the default embedding method for the chat model's api (Note that anthropic has no embedding model). The embedding parameter can also be a string or object. If a string, it should specify the embedding api and the default model and url will be used. If a valid embedding is not specified and cannot be assumed, then word overlap will be used to retrieve examples instead.
 
@@ -137,6 +137,7 @@ Thus, all the below specifications are equivalent to the above example:
 ```json
 "model": "gpt-3.5-turbo",
 "embedding": "openai"
+"code_model": "gpt-3.5-turbo"
 ```
 
 ## Patches
