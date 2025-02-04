@@ -201,18 +201,18 @@ export const queryList = [
             const curr_inventory = world.getInventoryCounts(bot); 
             const target_item = targetItem;
             let existingCount = curr_inventory[target_item] || 0;
-            var prefixMessage = '';
+            let prefixMessage = '';
             if (existingCount > 0) {
                 curr_inventory[target_item] -= existingCount;
                 prefixMessage = `You already have ${existingCount} ${target_item} in your inventory. If you need to craft more,\n`;
             }
 
             // Generate crafting plan
-            var craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
+            let craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
             craftingPlan = prefixMessage + craftingPlan;
-            console.log('\n\n\n\n\n\n\n\n\n\n\n');
             console.log(craftingPlan);
             return pad(craftingPlan);
+        },
     },
     {
         name: '!help',

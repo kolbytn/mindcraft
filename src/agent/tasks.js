@@ -109,11 +109,11 @@ export class Task {
         await new Promise((resolve) => setTimeout(resolve, 500));
     
         if (this.data.agent_count > 1) {
-            var initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
+            let initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
             console.log("Initial inventory:", initial_inventory);
         } else if (this.data) {
             console.log("Initial inventory:", this.data.initial_inventory);
-            var initial_inventory = this.data.initial_inventory;
+            let initial_inventory = this.data.initial_inventory;
         }
     
         if ("initial_inventory" in this.data) {
