@@ -24,12 +24,20 @@ export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
-        this.default_profile = JSON.parse(readFileSync('./profiles/_default.json', 'utf8'));
+        let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
+        let base_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
 
-        for (let key in this.default_profile) {
+
+        for (let key in default_profile) {
             if (this.profile[key] === undefined)
-                this.profile[key] = this.default_profile[key];
+                this.profile[key] = default_profile[key];
         }
+        // base profile overrides default profile
+        for (let key in base_profile) {
+            if (this.profile[key] === undefined)
+                this.profile[key] = base_profile[key];
+        }
+
 
         this.convo_examples = null;
         this.coding_examples = null;
