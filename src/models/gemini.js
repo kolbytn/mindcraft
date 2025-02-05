@@ -75,7 +75,7 @@ export class Gemini {
         const text = response.text();
         console.log('Received.');
 
-        return text.slice(0, idx);
+        return text;
     }
 
     async embed(text) {

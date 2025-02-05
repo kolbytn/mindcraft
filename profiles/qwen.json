@@ -5,9 +5,13 @@
 
     "model": {
         "api": "qwen",
-        "url": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
+        "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         "model": "qwen-max"
     },
 
-    "embedding": "openai"
+    "embedding": {
+        "api": "qwen",
+        "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+        "model": "text-embedding-v3"
+    }
 }
