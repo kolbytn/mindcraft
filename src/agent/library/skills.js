@@ -1267,7 +1267,7 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
      * @returns {Promise<boolean>} true if the ground was tilled, false otherwise.
      * @example
      * let position = world.getPosition(bot);
-     * await skills.till(bot, position.x, position.y - 1, position.x);
+     * await skills.tillAndSow(bot, position.x, position.y - 1, position.x, "wheat");
      **/
     x = Math.round(x);
     y = Math.round(y);

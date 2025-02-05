@@ -2,6 +2,7 @@ import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from '../agent/commands/index.js';
 import { getSkillDocs } from '../agent/library/index.js';
+import { SkillLibrary } from "../agent/library/skill_library.js";
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
 import settings from '../../settings.js';
@@ -18,7 +19,7 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
-import {SkillLibrary} from "./library/skill_library.js";
+
 export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;

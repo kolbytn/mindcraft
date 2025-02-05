@@ -7,7 +7,7 @@ export class GroqCloudAPI {
     constructor(model_name, url, params) {
         this.model_name = model_name;
         this.url = url;
-        this.params = params;
+        this.params = params || {};
         // ReplicateAPI theft :3
         if (this.url) {
 
