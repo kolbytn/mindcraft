@@ -5,7 +5,7 @@ import { getKey } from '../utils/keys.js';
 export class Claude {
     constructor(model_name, url, params) {
         this.model_name = model_name;
-        this.params = params;
+        this.params = params || {};
 
         let config = {};
         if (url)
