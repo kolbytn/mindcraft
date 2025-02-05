@@ -42,6 +42,14 @@ class AgentServerProxy {
             console.log(`Restarting agent: ${agentName}`);
             this.agent.cleanKill();
         });
+		
+		this.socket.on('send-message', (agentName, message) => {
+			try {
+				this.agent.respondFunc("NO USERNAME", message);
+			} catch (error) {
+				console.error('Error: ', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+			}
+		});
     }
 
     login() {
