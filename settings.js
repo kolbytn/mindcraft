@@ -33,6 +33,7 @@ export default
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
+    "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
     "max_messages": 15, // max number of messages to keep in context
     "num_examples": 2, // number of examples to give to the model

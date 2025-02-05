@@ -18,7 +18,7 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
-
+import {SkillLibrary} from "./library/skill_library.js";
 export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
@@ -89,7 +89,7 @@ export class Prompter {
             console.log('Continuing anyway, using word overlap instead.');
             this.embedding_model = null;
         }
-
+        this.skill_libary = new SkillLibrary(agent, this.embedding_model);
         mkdirSync(`./bots/${name}`, { recursive: true });
         writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {
             if (err) {
@@ -146,7 +146,7 @@ export class Prompter {
             model = new Local(profile.model, profile.url, profile.params);
         else if (profile.api === 'mistral')
             model = new Mistral(profile.model, profile.url, profile.params);
-        else if (profile.api === 'groq') 
+        else if (profile.api === 'groq')
             model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
         else if (profile.api === 'huggingface')
             model = new HuggingFace(profile.model, profile.url, profile.params);
@@ -179,7 +179,8 @@ export class Prompter {
             // Wait for both examples to load before proceeding
             await Promise.all([
                 this.convo_examples.load(this.profile.conversation_examples),
-                this.coding_examples.load(this.profile.coding_examples)
+                this.coding_examples.load(this.profile.coding_examples),
+                this.skill_libary.initSkillLibrary()
             ]);
 
             console.log('Examples initialized.');
@@ -204,6 +205,17 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
+        if (prompt.includes('$CODE_DOCS')) {
+            const code_task_content = messages.slice().reverse().find(msg =>
+                msg.role !== 'system' && msg.content.includes('!newAction(')
+            )?.content?.match(/!newAction\((.*?)\)/)?.[1] || '';
+
+            prompt = prompt.replaceAll(
+                '$CODE_DOCS',
+                await this.skill_libary.getRelevantSkillDocs(code_task_content, settings.relevant_docs_count)
+            );
+        }
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
