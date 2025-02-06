@@ -19,6 +19,7 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
+import { AzureGPT } from './azure.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -72,6 +73,8 @@ export class Prompter {
                 this.embedding_model = new Gemini(embedding.model, embedding.url);
             else if (embedding.api === 'openai')
                 this.embedding_model = new GPT(embedding.model, embedding.url);
+            else if (embedding.api === 'azure')
+                this.embedding_model = new AzureGPT(embedding.model, embedding.url, embedding.api_version);
             else if (embedding.api === 'replicate')
                 this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
             else if (embedding.api === 'ollama')
@@ -139,6 +142,8 @@ export class Prompter {
             model = new Gemini(profile.model, profile.url, profile.params);
         else if (profile.api === 'openai')
             model = new GPT(profile.model, profile.url, profile.params);
+        else if (profile.api === 'azure')
+            model = new AzureGPT(profile.model, profile.url, profile.api_version, profile.params);
         else if (profile.api === 'anthropic')
             model = new Claude(profile.model, profile.url, profile.params);
         else if (profile.api === 'replicate')
