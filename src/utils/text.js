@@ -26,8 +26,10 @@ export function toSinglePrompt(turns, system=null, stop_seq='***', model_nicknam
     return prompt;
 }
 
-// ensures stricter turn order for anthropic/llama models
-// combines repeated messages from the same role, separates repeat assistant messages with filler user messages
+// ensures stricter turn order and roles:
+// - system messages are treated as user messages and prefixed with SYSTEM:
+// - combines repeated messages from users
+// - separates repeat assistant messages with filler user messages
 export function strictFormat(turns) {
     let prev_role = null;
     let messages = [];

@@ -4,9 +4,10 @@ import { getKey } from '../utils/keys.js';
 
 // llama, mistral
 export class ReplicateAPI {
-	constructor(model_name, url) {
+	constructor(model_name, url, params) {
 		this.model_name = model_name;
 		this.url = url;
+		this.params = params;
 
 		if (this.url) {
 			console.warn('Replicate API does not support custom URLs. Ignoring provided URL.');
@@ -22,7 +23,11 @@ export class ReplicateAPI {
 		const prompt = toSinglePrompt(turns, null, stop_seq);
 		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
 
-		const input = { prompt, system_prompt: systemMessage };
+		const input = { 
+			prompt, 
+			system_prompt: systemMessage,
+			...(this.params || {})
+		};
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');

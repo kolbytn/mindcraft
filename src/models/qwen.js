@@ -1,104 +1,79 @@
-// This code uses Dashscope and HTTP to ensure the latest support for the Qwen model.
-// Qwen is also compatible with the OpenAI API format;
-
-import { getKey } from '../utils/keys.js';
+import OpenAIApi from 'openai';
+import { getKey, hasKey } from '../utils/keys.js';
+import { strictFormat } from '../utils/text.js';
 
 export class Qwen {
-    constructor(modelName, url) {
-        this.modelName = modelName;
-        this.url = url || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation';
-        this.apiKey = getKey('QWEN_API_KEY');
+    constructor(model_name, url, params) {
+        this.model_name = model_name;
+        this.params = params;
+        let config = {};
+
+        config.baseURL = url || 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+        config.apiKey = getKey('QWEN_API_KEY');
+
+        this.openai = new OpenAIApi(config);
     }
 
-    async sendRequest(turns, systemMessage, stopSeq = '***', retryCount = 0) {
-        if (retryCount > 5) {
-            console.error('Maximum retry attempts reached.');
-            return 'Error: Too many retry attempts.';
-        }
+    async sendRequest(turns, systemMessage, stop_seq='***') {
+        let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
-        const data = {
-            model: this.modelName || 'qwen-plus',
-            input: { messages: [{ role: 'system', content: systemMessage }, ...turns] },
-            parameters: { result_format: 'message', stop: stopSeq },
+        messages = strictFormat(messages);
+
+        const pack = {
+            model: this.model_name || "qwen-plus",
+            messages,
+            stop: stop_seq,
+            ...(this.params || {})
         };
 
-        // Add default user message if all messages are 'system' role
-        if (turns.every((msg) => msg.role === 'system')) {
-            data.input.messages.push({ role: 'user', content: 'hello' });
-        }
-
-        if (!data.model || !data.input || !data.input.messages || !data.parameters) {
-            console.error('Invalid request data format:', data);
-            throw new Error('Invalid request data format.');
-        }
-
+        let res = null;
         try {
-            const response = await this._makeHttpRequest(this.url, data);
-            const choice = response?.output?.choices?.[0];
-
-            if (choice?.finish_reason === 'length' && turns.length > 0) {
-                return this.sendRequest(turns.slice(1), systemMessage, stopSeq, retryCount + 1);
+            console.log('Awaiting Qwen api response...');
+            // console.log('Messages:', messages);
+            let completion = await this.openai.chat.completions.create(pack);
+            if (completion.choices[0].finish_reason == 'length')
+                throw new Error('Context length exceeded');
+            console.log('Received.');
+            res = completion.choices[0].message.content;
+        }
+        catch (err) {
+            if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
+                console.log('Context length exceeded, trying again with shorter context.');
+                return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+            } else {
+                console.log(err);
+                res = 'My brain disconnected, try again.';
             }
-
-            return choice?.message?.content || 'No content received.';
-        } catch (err) {
-            console.error('Error occurred:', err);
-            return 'An error occurred, please try again.';
         }
+        return res;
     }
 
+    // Why random backoff?
+    // With a 30 requests/second limit on Alibaba Qwen's embedding service,
+    // random backoff helps maximize bandwidth utilization.
     async embed(text) {
-        if (!text || typeof text !== 'string') {
-            console.error('Invalid embedding input: text must be a non-empty string.');
-            return 'Invalid embedding input: text must be a non-empty string.';
+        const maxRetries = 5; // Maximum number of retries
+        for (let retries = 0; retries < maxRetries; retries++) {
+            try {
+                const { data } = await this.openai.embeddings.create({
+                    model: this.model_name || "text-embedding-v3",
+                    input: text,
+                    encoding_format: "float",
+                });
+                return data[0].embedding;
+            } catch (err) {
+                if (err.status === 429) {
+                    // If a rate limit error occurs, calculate the exponential backoff with a random delay (1-5 seconds)
+                    const delay = Math.pow(2, retries) * 1000 + Math.floor(Math.random() * 2000);
+                    // console.log(`Rate limit hit, retrying in ${delay} ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay)); // Wait for the delay before retrying
+                } else {
+                    throw err;
+                }
+            }
         }
-
-        const data = {
-            model: 'text-embedding-v2',
-            input: { texts: [text] },
-            parameters: { text_type: 'query' },
-        };
-
-        if (!data.model || !data.input || !data.input.texts || !data.parameters) {
-            console.error('Invalid embedding request data format:', data);
-            throw new Error('Invalid embedding request data format.');
-        }
-
-        try {
-            const response = await this._makeHttpRequest(this.url, data);
-            const embedding = response?.output?.embeddings?.[0]?.embedding;
-            return embedding || 'No embedding result received.';
-        } catch (err) {
-            console.error('Error occurred:', err);
-            return 'An error occurred, please try again.';
-        }
+        // If maximum retries are reached and the request still fails, throw an error
+        throw new Error('Max retries reached, request failed.');
     }
 
-    async _makeHttpRequest(url, data) {
-        const headers = {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-        };
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Request failed, status code ${response.status}: ${response.statusText}`);
-            console.error('Error response content:', errorText);
-            throw new Error(`Request failed, status code ${response.status}: ${response.statusText}`);
-        }
-
-        const responseText = await response.text();
-        try {
-            return JSON.parse(responseText);
-        } catch (err) {
-            console.error('Failed to parse response JSON:', err);
-            throw new Error('Invalid response JSON format.');
-        }
-    }
 }

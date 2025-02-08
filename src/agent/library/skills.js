@@ -81,7 +81,7 @@ export async function craftRecipe(bot, itemName, num=1) {
         }
     }
     if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft a ${itemName}. It requires: ${Object.entries(mc.getItemCraftingRecipes(itemName)[0]).map(([key, value]) => `${key}: ${value}`).join(', ')}.`);
+        log(bot, `You do not have the resources to craft a ${itemName}. It requires: ${Object.entries(mc.getItemCraftingRecipes(itemName)[0][0]).map(([key, value]) => `${key}: ${value}`).join(', ')}.`);
         if (placedTable) {
             await collectBlock(bot, 'crafting_table', 1);
         }
@@ -1269,14 +1269,25 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
      * @returns {Promise<boolean>} true if the ground was tilled, false otherwise.
      * @example
      * let position = world.getPosition(bot);
-     * await skills.till(bot, position.x, position.y - 1, position.x);
+     * await skills.tillAndSow(bot, position.x, position.y - 1, position.x, "wheat");
      **/
-    console.log(x, y, z)
     x = Math.round(x);
     y = Math.round(y);
     z = Math.round(z);
     let block = bot.blockAt(new Vec3(x, y, z));
-    console.log(x, y, z)
+
+    if (bot.modes.isOn('cheat')) {
+        let to_remove = ['_seed', '_seeds'];
+        for (let remove of to_remove) {
+            if (seedType.endsWith(remove)) {
+                seedType = seedType.replace(remove, '');
+            }
+        }
+        placeBlock(bot, 'farmland', x, y, z);
+        placeBlock(bot, seedType, x, y+1, z);
+        return true;
+    }
+
     if (block.name !== 'grass_block' && block.name !== 'dirt' && block.name !== 'farmland') {
         log(bot, `Cannot till ${block.name}, must be grass_block or dirt.`);
         return false;

@@ -3,8 +3,9 @@ import { strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Claude {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.params = params || {};
 
         let config = {};
         if (url)
@@ -20,13 +21,16 @@ export class Claude {
         let res = null;
         try {
             console.log('Awaiting anthropic api response...')
-            // console.log('Messages:', messages);
+            if (!this.params.max_tokens) {
+                this.params.max_tokens = 4096;
+            }
             const resp = await this.anthropic.messages.create({
                 model: this.model_name || "claude-3-sonnet-20240229",
                 system: systemMessage,
-                max_tokens: 2048,
                 messages: messages,
+                ...(this.params || {})
             });
+
             console.log('Received.')
             res = resp.content[0].text;
         }

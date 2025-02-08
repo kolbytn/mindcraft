@@ -3,8 +3,10 @@ import { getKey } from '../utils/keys.js';
 
 // xAI doesn't supply a SDK for their models, but fully supports OpenAI and Anthropic SDKs
 export class Grok {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.url = url;
+        this.params = params;
 
         let config = {};
         if (url)
@@ -23,7 +25,8 @@ export class Grok {
         const pack = {
             model: this.model_name || "grok-beta",
             messages,
-            stop: [stop_seq]
+            stop: [stop_seq],
+            ...(this.params || {})
         };
 
         let res = null;

@@ -10,6 +10,8 @@ export default
     "mindserver_host": "localhost",
     "mindserver_port": 8080,
     
+    // the base profile is shared by all bots for default prompts/examples/modes
+    "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
     "profiles": [
         "./andy.json",
         // "./profiles/gpt.json",
@@ -23,6 +25,7 @@ export default
         // "./profiles/deepseek.json",
 
         // using more than 1 profile requires you to /msg each bot indivually
+        // individual profiles override values from the base profile
     ],
     "load_memory": false, // load memory from previous session
     "init_message": "Respond with hello world and your name", // sends to all on spawn
@@ -32,8 +35,9 @@ export default
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
-    "allow_vision": true, // allows vision model to interpret screenshots as inputs
-    "code_timeout_mins": 10, // minutes code is allowed to run. -1 for no timeout
+    "allow_vision": false, // allows vision model to interpret screenshots as inputs
+    "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
+    "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
     "max_messages": 15, // max number of messages to keep in context
     "num_examples": 2, // number of examples to give to the model
