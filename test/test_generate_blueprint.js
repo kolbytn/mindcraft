@@ -155,7 +155,6 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
     }
 
     // Ensures no rooms overlap except at edges
-    // Ensures no rooms overlap except at edges
     function isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth) {
         for (let di = 0; di < newDepth; di++) {
             for (let dj = 0; dj < newLength; dj++) {
@@ -235,7 +234,7 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
         matrix[z + 2][x][y] = 'dark_oak_door[half=upper, hinge=left]';
     }
 
-
+    //out of commission
     function addStairs(matrix, x, y, z, direction) {
         let dz = 0; // Change in Z direction
         let dx = 0; // Change in X direction
@@ -283,11 +282,35 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
         }
     }
 
+    function addCarpet(probability, matrix, newX, newY, newZ, newLength, newWidth) {
+        let colors = ["blue", "cyan", "light_blue", "lime"];
+
+        // Iterate through the dimensions of the room
+        for (let dx = 1; dx < newLength-1; dx++) {
+            for (let dy = 1; dy < newWidth-1; dy++) {
+                let x = newX + dx;
+                let y = newY + dy;
+                let z = newZ; // Start at floor level
+
+                // Check if there is floor (not air)
+                if (matrix[z][x][y] === 'stone') {
+                    // Consider a random probability of adding a carpet
+                    if (Math.random() < probability) {
+                        // Choose a random color for the carpet
+                        let randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        // Add carpet one z position above the floor with a random color
+                        matrix[z + 1][x][y] = `${randomColor}_carpet`;
+                    }
+                }
+            }
+        }
+    }
+
     function addLadder(matrix, x, y, z) {
         let currentZ = z+1;
 
         // turn the floor into air where person would go up
-        matrix[currentZ][x+1][y] = 'air'
+        matrix[currentZ][x+1][y] = 'air';
 
         // Build the first 3 ladder segments from floor level downwards
         for (let i = 0; i < 3; i++) {
@@ -313,6 +336,7 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
         let roomPlaced = false;
 
         for (let attempt = 0; attempt < 150; attempt++) {
+            // dimensions of room
             const newLength = Math.max(6, Math.floor(Math.random() * 6) + 4);
             const newWidth = Math.max(6, Math.floor(Math.random() * 6) + 4);
             const newDepth = Math.max(5, Math.floor(Math.random() * 5) + 2);
@@ -339,6 +363,8 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                     addDoor(matrix, newX + Math.floor(newLength / 2), newY, newZ);
                     // Back side
                     addDoor(matrix, newX + Math.floor(newLength / 2), newY + newWidth - 1, newZ);
+
+                    addCarpet(0.7, matrix, newX, newY, newZ, newLength, newWidth)
                 }
 
                 break;
@@ -352,12 +378,15 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                         newY = lastRoom.y;
                         newZ = lastRoom.z + lastRoom.depth - 1;
                         if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
-                            // addStairs(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
-                            //     lastRoom.y + Math.floor(lastRoom.width / 2),
-                            //     lastRoom.z, 'north'); // Adjust direction based on layout
                             addLadder(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
                                 lastRoom.y + Math.floor(lastRoom.width / 2),
                                 newZ); // Adding the ladder
+
+
+
+                            addCarpet(0.7, matrix, newX, newY, newZ, newLength, newWidth)
+
+
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -371,6 +400,12 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                         newZ = lastRoom.z;
                         if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p)) {
                             addDoor(matrix, lastRoom.x, lastRoom.y + Math.floor(lastRoom.width / 2), lastRoom.z);
+
+
+
+                            addCarpet(0.3, matrix, newX, newY, newZ, newLength, newWidth)
+
+
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -386,6 +421,11 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                             addDoor(matrix, lastRoom.x + lastRoom.length - 1,
                                 lastRoom.y + Math.floor(lastRoom.width / 2),
                                 lastRoom.z);
+
+
+                            addCarpet(0.3, matrix, newX, newY, newZ, newLength, newWidth)
+
+
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -401,6 +441,11 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                             addDoor(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
                                 lastRoom.y + lastRoom.width - 1,
                                 lastRoom.z);
+
+
+                            addCarpet(0.3, matrix, newX, newY, newZ, newLength, newWidth)
+
+
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -416,6 +461,11 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
                             addDoor(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
                                 lastRoom.y,
                                 lastRoom.z);
+
+                            addCarpet(0.3, matrix, newX, newY, newZ, newLength, newWidth)
+
+
+
                             lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
                             roomPlaced = true;
                             placedRooms++;
@@ -443,12 +493,12 @@ function generateSequentialRooms(m=20, n=20, p=20, rooms=8) {
         for (let x = 0; x < m; x++) {
             for (let y = 0; y < n; y++) {
                 if (
-                    (z === 0 || z === p - 1 || // Top and bottom faces
+                    (z === p - 1 || // Top and bottom faces
                         x === 0 || x === m - 1 || // Front and back faces
                         y === 0 || y === n - 1) && // Left and right faces
                     matrix[z][x][y] === 'stone' // Only replace if it's stone
                 ) {
-                    matrix[z][x][y] = 'glass';
+                    matrix[z][x][y] = 'air';
                 }
             }
         }
@@ -537,9 +587,9 @@ const glass_matrix = resultMatrix.map((layer) => {
         })
     })
 });
-console.log(glass_matrix)
+// console.log(glass_matrix)
 let blueprint = matrixToBlueprint(glass_matrix,[194, -60, -94])
-console.log(blueprint)
+// console.log(blueprint)
 
 
 import mineflayer from "mineflayer";
@@ -562,12 +612,11 @@ bot.on('spawn', async () => {
         bot.chat(command);
     }
 
-    // console.log(commands.slice(-10));
+    console.log(commands.slice(-10));
     bot.chat('I have built the house!');
-    bot.chat('/tp @a ' + nearbyPosition.x + ' ' + nearbyPosition.y + ' ' + nearbyPosition.z+1);
+    // bot.chat('/tp @a ' + nearbyPosition.x + ' ' + nearbyPosition.y + ' ' + nearbyPosition.z+1);
 
     // Print out the location nearby the blueprint
     console.log(`tp ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`)
-
 });
 
