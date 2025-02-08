@@ -111,7 +111,7 @@ export function autoBuild(blueprint) {
         z: minZ      // Stay aligned with the front of the blueprint
     };
 
-    return { commands, nearbyPosition };
+    return { commands, nearbyPosition};
 }
 
 
