@@ -1,11 +1,14 @@
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
+import { strictFormat } from '../utils/text.js';
 
 // llama, mistral
 export class Novita {
-	constructor(model_name, url) {
+	constructor(model_name, url, params) {
     this.model_name = model_name.replace('novita/', '');
     this.url = url || 'https://api.novita.ai/v3/openai';
+    this.params = params;
+
 
     let config = {
       baseURL: this.url
@@ -17,10 +20,15 @@ export class Novita {
 
 	async sendRequest(turns, systemMessage, stop_seq='***') {
       let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
+
+      
+      messages = strictFormat(messages);
+      
       const pack = {
           model: this.model_name || "meta-llama/llama-3.1-70b-instruct",
           messages,
           stop: [stop_seq],
+          ...(this.params || {})
       };
 
       let res = null;
@@ -40,6 +48,18 @@ export class Novita {
             console.log(err);
               res = 'My brain disconnected, try again.';
           }
+      }
+      if (res.includes('<think>')) {
+        let start = res.indexOf('<think>');
+        let end = res.indexOf('</think>') + 8;
+        if (start != -1) {
+          if (end != -1) {
+            res = res.substring(0, start) + res.substring(end);
+          } else {
+            res = res.substring(0, start+7);
+          }
+        }
+        res = res.trim();
       }
       return res;
   }

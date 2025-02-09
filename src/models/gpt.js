@@ -3,8 +3,9 @@ import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class GPT {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.params = params;
 
         let config = {};
         if (url)
@@ -25,6 +26,7 @@ export class GPT {
             model: this.model_name || "gpt-3.5-turbo",
             messages,
             stop: stop_seq,
+            ...(this.params || {})
         };
         if (this.model_name.includes('o1')) {
             pack.messages = strictFormat(messages);
@@ -32,8 +34,9 @@ export class GPT {
         }
 
         let res = null;
+
         try {
-            console.log('Awaiting openai api response...')
+            console.log('Awaiting openai api response from model', this.model_name)
             // console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')

@@ -1,6 +1,6 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { Prompter } from './prompter.js';
+import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
@@ -100,11 +100,9 @@ export class Agent {
             });
         } catch (error) {
             // Ensure we're not losing error details
-            console.error('Agent start failed with error:', {
-                message: error.message || 'No error message',
-                stack: error.stack || 'No stack trace',
-                error: error
-            });
+            console.error('Agent start failed with error')
+            console.error(error)
+
             throw error; // Re-throw with preserved details
         }
     }
@@ -140,6 +138,8 @@ export class Agent {
                 console.error('Error handling message:', error);
             }
         }
+		
+		this.respondFunc = respondFunc
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)

@@ -8,8 +8,6 @@
     "HUGGINGFACE_API_KEY": "",
     "QWEN_API_KEY": "",
     "XAI_API_KEY": "",
-    "GHLF_API_KEY": "",
-    "HYPERBOLIC_API_KEY": "",
     "MISTRAL_API_KEY": "",
     "DEEPSEEK_API_KEY": ""
 }
