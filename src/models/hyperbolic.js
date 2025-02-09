@@ -1,7 +1,7 @@
 import { getKey } from '../utils/keys.js';
 
-/**
- * 
+
+/*
  * 
  * Yes, this code was written by an Ai. It was written by GPT-o1 and tested :)
  * 
@@ -78,21 +78,14 @@ export class hyperbolic {
                 turns.length > 1
             ) {
                 console.log('Context length exceeded, trying again with a shorter context...');
-                // Remove the first user turn and try again (like the original code).
                 return await this.sendRequest(turns.slice(1), systemMessage, stopSeq);
             } else {
                 console.log(err);
                 completionContent = 'My brain disconnected, try again.';
             }
         }
-
-        // Replace any special tokens from your original code if needed
         return completionContent.replace(/<\|separator\|>/g, '*no response*');
     }
-
-    /**
-     * Embeddings are not supported in your original snippet, so we mirror that error.
-     */
     async embed(text) {
         throw new Error('Embeddings are not supported by Hyperbolic.');
     }

@@ -4,6 +4,7 @@ import { makeCompartment } from './library/lockdown.js';
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import { Vec3 } from 'vec3';
+import {ESLint} from "eslint";
 
 export class Coder {
     constructor(agent) {
@@ -12,15 +13,62 @@ export class Coder {
         this.fp = '/bots/'+agent.name+'/action-code/';
         this.generating = false;
         this.code_template = '';
+        this.code_lint_template = '';
 
-        readFile('./bots/template.js', 'utf8', (err, data) => {
+        readFile('./bots/execTemplate.js', 'utf8', (err, data) => {
             if (err) throw err;
             this.code_template = data;
         });
-
+        readFile('./bots/lintTemplate.js', 'utf8', (err, data) => {
+            if (err) throw err;
+            this.code_lint_template = data;
+        });
         mkdirSync('.' + this.fp, { recursive: true });
     }
+    
+    async  lintCode(code) {
+        let result = '#### CODE ERROR INFO ###\n';
+        // Extract everything in the code between the beginning of 'skills./world.' and the '('
+        const skillRegex = /(?:skills|world)\.(.*?)\(/g;
+        const skills = [];
+        let match;
+        while ((match = skillRegex.exec(code)) !== null) {
+            skills.push(match[1]);
+        }
+        const allDocs = await this.agent.prompter.skill_libary.getRelevantSkillDocs();
+        //lint if the function exists
+        const missingSkills = skills.filter(skill => !allDocs.includes(skill));
+        if (missingSkills.length > 0) {
+            result += 'These functions do not exist. Please modify the correct function name and try again.\n';
+            result += '### FUNCTIONS NOT FOUND ###\n';
+            result += missingSkills.join('\n');
+            console.log(result)
+            return result;
+        }
 
+        const eslint = new ESLint();
+        const results = await eslint.lintText(code);
+        const codeLines = code.split('\n');
+        const exceptions = results.map(r => r.messages).flat();
+
+        if (exceptions.length > 0) {
+            exceptions.forEach((exc, index) => {
+                if (exc.line && exc.column ) {
+                    const errorLine = codeLines[exc.line - 1]?.trim() || 'Unable to retrieve error line content';
+                    result += `#ERROR ${index + 1}\n`;
+                    result += `Message: ${exc.message}\n`;
+                    result += `Location: Line ${exc.line}, Column ${exc.column}\n`;
+                    result += `Related Code Line: ${errorLine}\n`;
+                }
+            });
+            result += 'The code contains exceptions and cannot continue execution.';
+        } else {
+            return null;//no error
+        }
+
+        return result ;
+    }
+    // write custom code to file and import it
     // write custom code to file and prepare for evaluation
     async stageCode(code) {
         code = this.sanitizeCode(code);
@@ -35,6 +83,7 @@ export class Coder {
         for (let line of code.split('\n')) {
             src += `    ${line}\n`;
         }
+        let src_lint_copy = this.code_lint_template.replace('/* CODE HERE */', src);
         src = this.code_template.replace('/* CODE HERE */', src);
 
         let filename = this.file_counter + '.js';
@@ -46,7 +95,7 @@ export class Coder {
         //     });
         // } commented for now, useful to keep files for debugging
         this.file_counter++;
-
+        
         let write_result = await this.writeFilePromise('.' + this.fp + filename, src);
         // This is where we determine the environment the agent's code should be exposed to.
         // It will only have access to these things, (in addition to basic javascript objects like Array, Object, etc.)
@@ -63,8 +112,7 @@ export class Coder {
             console.error('Error writing code execution file: ' + result);
             return null;
         }
-
-        return { main: mainFn };
+        return { func:{main: mainFn}, src_lint_copy: src_lint_copy };
     }
 
     sanitizeCode(code) {
@@ -140,8 +188,15 @@ export class Coder {
                 continue;
             }
             code = res.substring(res.indexOf('```')+3, res.lastIndexOf('```'));
-
-            const executionModuleExports = await this.stageCode(code);
+            const result = await this.stageCode(code);
+            const executionModuleExports = result.func;
+            let src_lint_copy = result.src_lint_copy;
+            const analysisResult = await this.lintCode(src_lint_copy);
+            if (analysisResult) {
+                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n';
+                messages.push({ role: 'system', content: message });
+                continue;
+            }
             if (!executionModuleExports) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
                 return {success: false, message: null, interrupted: false, timedout: false};
@@ -152,10 +207,10 @@ export class Coder {
             }, { timeout: settings.code_timeout_mins });
             if (code_return.interrupted && !code_return.timedout)
                 return { success: false, message: null, interrupted: true, timedout: false };
-            console.log("Code generation result:", code_return.success, code_return.message);
+            console.log("Code generation result:", code_return.success, code_return.message.toString());
 
             if (code_return.success) {
-                const summary = "Summary of newAction\nAgent wrote this code: \n```" + this.sanitizeCode(code) + "```\nCode Output:\n" + code_return.message;
+                const summary = "Summary of newAction\nAgent wrote this code: \n```" + this.sanitizeCode(code) + "```\nCode Output:\n" + code_return.message.toString();
                 return { success: true, message: summary, interrupted: false, timedout: false };
             }
 
@@ -170,5 +225,4 @@ export class Coder {
         }
         return { success: false, message: null, interrupted: false, timedout: true };
     }
-
 }

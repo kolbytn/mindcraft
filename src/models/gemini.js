@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { toSinglePrompt } from '../utils/text.js';
+import { toSinglePrompt, strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Gemini {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.params = params;
         this.url = url;
         this.safetySettings = [
             {
@@ -34,49 +35,66 @@ export class Gemini {
 
     async sendRequest(turns, systemMessage) {
         let model;
+        const modelConfig = {
+            model: this.model_name || "gemini-1.5-flash",
+            // systemInstruction does not work bc google is trash
+        };
+
         if (this.url) {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                modelConfig,
                 { baseUrl: this.url },
                 { safetySettings: this.safetySettings }
             );
         } else {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                modelConfig,
                 { safetySettings: this.safetySettings }
             );
         }
 
-        const stop_seq = '***';
-        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         console.log('Awaiting Google API response...');
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
 
-        // got rid of the original method of const text = response.text to allow gemini thinking models to play minecraft :)
-        let text;
-        if (this.model_name && this.model_name.includes("thinking")) {
-            if (response.candidates && response.candidates.length > 0 && response.candidates[0].content && response.candidates[0].content.parts && response.candidates[0].content.parts.length > 1) {
-
-                text = response.candidates[0].content.parts[1].text;
-
-            } else {
-
-                console.warn("Unexpected response structure for thinking model:", response);
-                text = response.text(); 
-            }
-        } else {
-
-            text = response.text();
-
+        // Prepend system message and format turns cause why not
+        turns.unshift({ role: 'system', content: systemMessage });
+        turns = strictFormat(turns);
+        let contents = [];
+        for (let turn of turns) {
+            contents.push({
+                role: turn.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: turn.content }]
+            });
         }
 
+        const result = await model.generateContent({
+            contents,
+            generationConfig: {
+                ...(this.params || {})
+            }
+        });
+        const response = await result.response;
+        let text;
 
+        // Handle "thinking" models since they smart 
+        if (this.model_name && this.model_name.includes("thinking")) {
+            if (
+                response.candidates &&
+                response.candidates.length > 0 &&
+                response.candidates[0].content &&
+                response.candidates[0].content.parts &&
+                response.candidates[0].content.parts.length > 1
+            ) {
+                text = response.candidates[0].content.parts[1].text;
+            } else {
+                console.warn("Unexpected response structure for thinking model:", response);
+                text = response.text();
+            }
+        } else {
+            text = response.text();
+        }
 
         console.log('Received.');
-        if (!text.includes(stop_seq)) return text;
-        const idx = text.indexOf(stop_seq);
-        return text.slice(0, idx);
+        return text;
     }
 
     async embed(text) {
