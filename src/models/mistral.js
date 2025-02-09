@@ -56,9 +56,12 @@ export class Mistral {
 
             result = response.choices[0].message.content;
         } catch (err) {
-            console.log(err)
-
-            result = "My brain disconnected, try again.";
+            if (err.message.includes("A request containing images has been given to a model which does not have the 'vision' capability.")) {
+                result = "Vision is only supported by certain models.";
+            } else {
+                result = "My brain disconnected, try again.";
+            }
+            console.log(err);
         }
 
         return result;

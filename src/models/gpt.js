@@ -48,6 +48,9 @@ export class GPT {
             if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
                 return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+            } else if (err.message.includes('image_url')) {
+                console.log(err);
+                res = 'Vision is only supported by certain models.';
             } else {
                 console.log(err);
                 res = 'My brain disconnected, try again.';

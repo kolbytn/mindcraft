@@ -102,15 +102,25 @@ export class Gemini {
 
         const stop_seq = '***';
         const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
-        
-        console.log('Awaiting Google API vision response...');
-        const result = await model.generateContent([prompt, imagePart]);
-        const response = await result.response;
-        const text = response.text();
-        console.log('Received.');
-        if (!text.includes(stop_seq)) return text;
-        const idx = text.indexOf(stop_seq);
-        return text.slice(0, idx);
+        let res = null;
+        try {
+            console.log('Awaiting Google API vision response...');
+            const result = await model.generateContent([prompt, imagePart]);
+            const response = await result.response;
+            const text = response.text();
+            console.log('Received.');
+            if (!text.includes(stop_seq)) return text;
+            const idx = text.indexOf(stop_seq);
+            res = text.slice(0, idx);
+        } catch (err) {
+            console.log(err);
+            if (err.message.includes("Image input modality is not enabled for models/")) {
+                res = "Vision is only supported by certain models.";
+            } else {
+                res = "An unexpected error occurred, please try again.";
+            }
+        }
+        return res;
     }
 
     async embed(text) {

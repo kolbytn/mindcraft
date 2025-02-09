@@ -71,7 +71,14 @@ export class VisionInterpreter {
             const imageBuffer = fs.readFileSync(`${this.fp}/${filename}.jpg`);
             const messages = this.agent.history.getHistory();
             res = await this.agent.prompter.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
-            log(bot, res);
+            
+            if (res == 'Vision is only supported by certain models.') {
+                log(bot, "Vision may not be supported on this model. Using text-based environment description instead.");
+                log(bot, this._nearbyBlocks());
+            } else {
+                log(bot, res);
+            }
+
         } catch (error) {
             log(this.agent.bot, `Error analyzing image: ${error.message}`);
         }
