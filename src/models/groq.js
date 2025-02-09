@@ -16,14 +16,13 @@ export class GroqCloudAPI {
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
     }
 
-    async sendRequest(turns, systemMessage, stop_seq=null) {
-        let messages = [{"role": "system", "content": systemMessage}].concat(turns);
+    async sendRequest(turns, systemMessage=null, stop_seq=null) {
+        let messages = systemMessage 
+            ? [{"role": "system", "content": systemMessage}].concat(turns)
+            : turns;
         let res = null;
         try {
             console.log("Awaiting Groq response...");
-            if (!this.params.max_tokens) {
-                this.params.max_tokens = 16384;
-            }
             let completion = await this.groq.chat.completions.create({
                 "messages": messages,
                 "model": this.model_name || "mixtral-8x7b-32768",
@@ -41,10 +40,33 @@ export class GroqCloudAPI {
 
         }
         catch(err) {
+            if (err.message.includes("content must be a string")) {
+                res = "Vision is only supported by certain models.";
+            } else {
+                console.log(this.model_name);
+                res = "My brain disconnected, try again.";
+            }
             console.log(err);
-            res = "My brain just kinda stopped working. Try again.";
         }
         return res;
+    }
+
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = messages.filter(message => message.role !== 'system');
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages);
     }
 
     async embed(text) {

@@ -47,6 +47,7 @@ export class Mistral {
             ];
             messages.push(...strictFormat(turns));
 
+            console.log('Awaiting mistral api response...')
             const response  = await this.#client.chat.complete({
                 model,
                 messages,
@@ -55,12 +56,31 @@ export class Mistral {
 
             result = response.choices[0].message.content;
         } catch (err) {
-            console.log(err)
-
-            result = "My brain disconnected, try again.";
+            if (err.message.includes("A request containing images has been given to a model which does not have the 'vision' capability.")) {
+                result = "Vision is only supported by certain models.";
+            } else {
+                result = "My brain disconnected, try again.";
+            }
+            console.log(err);
         }
 
         return result;
+    }
+
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = [...messages];
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    imageUrl: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages, systemMessage);
     }
 
     async embed(text) {

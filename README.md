@@ -123,6 +123,11 @@ You can pass a string or an object for these fields. A model object must specify
   "model": "gpt-4",
   "url": "https://api.openai.com/v1/"
 },
+"vision_model": {
+  "api": "openai",
+  "model": "gpt-4o",
+  "url": "https://api.openai.com/v1/"
+},
 "embedding": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
@@ -131,7 +136,7 @@ You can pass a string or an object for these fields. A model object must specify
 
 ```
 
-`model` is used for chat, `code_model` is used for newAction coding, and `embedding` is used to embed text for example selection. If `code_model` is not specified, then it will use `model` for coding.
+`model` is used for chat, `code_model` is used for newAction coding, `vision_model` is used for image interpretation, and `embedding` is used to embed text for example selection. If `code_model` or `vision_model` is not specified, `model` will be used by default.
 
 All apis have default models and urls, so those fields are optional. Note some apis have no embedding model, so they will default to word overlap to retrieve examples. 
 
