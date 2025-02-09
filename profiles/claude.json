@@ -1,7 +1,0 @@
-{
-    "name": "claude",
-
-    "model": "claude-3-5-sonnet-latest",
-    
-    "embedding": "openai"
-}
