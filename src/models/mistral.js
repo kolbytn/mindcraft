@@ -47,6 +47,7 @@ export class Mistral {
             ];
             messages.push(...strictFormat(turns));
 
+            console.log('Awaiting mistral api response...')
             const response  = await this.#client.chat.complete({
                 model,
                 messages,

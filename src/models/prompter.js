@@ -65,6 +65,14 @@ export class Prompter {
             this.code_model = this.chat_model;
         }
 
+        if (this.profile.vision_model) {
+            let vision_model_profile = this._selectAPI(this.profile.vision_model);
+            this.vision_model = this._createModel(vision_model_profile);
+        }
+        else {
+            this.vision_model = this.chat_model;
+        }
+
         let embedding = this.profile.embedding;
         if (embedding === undefined) {
             if (chat_model_profile.api !== 'ollama')
