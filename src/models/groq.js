@@ -3,6 +3,7 @@ import { getKey } from '../utils/keys.js';
 
 // Umbrella class for Mixtral, LLama, Gemma...
 export class GroqCloudAPI {
+
   constructor(model_name, url, params) {
     this.model_name = model_name;
     this.url = url;
@@ -10,6 +11,7 @@ export class GroqCloudAPI {
     // Groq Cloud does not support custom URLs; warn if provided
     if (this.url) {
       console.warn("Groq Cloud has no implementation for custom URLs. Ignoring provided URL.");
+
     }
     this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
   }
@@ -36,6 +38,7 @@ export class GroqCloudAPI {
           stop: stop_seq,
           ...(this.params || {})
         });
+
 
         let temp_res = "";
         // Aggregate streamed chunks into a full response

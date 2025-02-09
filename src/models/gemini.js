@@ -39,7 +39,7 @@ export class Gemini {
             model: this.model_name || "gemini-1.5-flash",
             // systemInstruction does not work bc google is trash
         };
-
+      
         if (this.url) {
             model = this.genAI.getGenerativeModel(
                 modelConfig,
@@ -55,7 +55,6 @@ export class Gemini {
 
         console.log('Awaiting Google API response...');
 
-        // Prepend system message and format turns cause why not
         turns.unshift({ role: 'system', content: systemMessage });
         turns = strictFormat(turns);
         let contents = [];
@@ -94,6 +93,7 @@ export class Gemini {
         }
 
         console.log('Received.');
+
         return text;
     }
 

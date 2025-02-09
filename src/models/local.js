@@ -43,6 +43,7 @@ export class Local {
                     console.log(err);
                     res = 'My brain disconnected, try again.';
                 }
+
             }
 
             // If the model name includes "deepseek-r1" or "Andy-3.5-reasoning", then handle the <think> block.
