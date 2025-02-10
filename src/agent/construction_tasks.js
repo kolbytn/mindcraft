@@ -1,4 +1,4 @@
-import { Vec3 } from 'vec3';
+import {Vec3} from 'vec3';
 
 export class ConstructionTaskValidator {
     constructor(data, agent) {
@@ -301,20 +301,28 @@ export class Blueprint {
  * @param n height of the 3D space
  * @param p depth of the 3D space
  * @param rooms Number of rooms to attempt to generate
+ * @param minRoomWidth
+ * @param minRoomLength
+ * @param minRoomDepth
+ * @param roomVariance How much the room size will vary
  * @param wrapping material of wrapping (air, glass, etc...) -> default is air
  * @param carpetStyle 0,1,2 increasingly more complex
  * @param windowStyle 0,1,2 increasingly more complex
  * @param complexity 0,1,2,3,4 for increasingly complex materials for room generation
- * @returns a blueprint matrix
+ * @returns a blueprint object
  */
 export function proceduralGeneration(m = 20,
-                              n = 20,
-                              p = 20,
-                              rooms = 8,
-                              wrapping = "air",
-                              carpetStyle = 1,
-                              windowStyle = 1,
-                              complexity = 4) {
+                                     n = 20,
+                                     p = 20,
+                                     rooms = 8,
+                                     minRoomWidth = 5,
+                                     minRoomLength = 5,
+                                     minRoomDepth = 6,
+                                     roomVariance = 5,
+                                     wrapping = "air",
+                                     carpetStyle = 1,
+                                     windowStyle = 1,
+                                     complexity = 4) {
     // Build 3D space
     const matrix = Array.from({length: p}, () =>
         Array.from({length: m}, () =>
@@ -469,12 +477,14 @@ export function proceduralGeneration(m = 20,
 
 
     // Takes in a room and randomly converts some faces to be windows
-    // todo if time: the centering of windows is still kinda buggy
     function addWindowsAsSquares(matrix, x, y, z, newLength, newWidth, newDepth, material) {
         // Matrix dimensions
         const matrixDepth = matrix.length;
         const matrixLength = matrix[0].length;
         const matrixWidth = matrix[0][0].length;
+        const windowX = Math.ceil(minRoomWidth/2)
+        const windowY = Math.ceil(minRoomLength/2)
+        const windowZ = Math.ceil(minRoomDepth/2)
 
         // Helper function to check if coordinates are within bounds
         function isInBounds(z, x, y) {
@@ -485,11 +495,11 @@ export function proceduralGeneration(m = 20,
 
         // Front and back faces (z is constant)
         if (Math.random() < 0.8) {
-            let centerX = x + Math.floor(newLength / 2);
-            let centerY = y + Math.floor(newWidth / 2);
+            let centerX = x + Math.floor(newLength / 2 - windowX/2);
+            let centerY = y + Math.floor(newWidth / 2 - windowY/2);
 
-            for (let dx = -1; dx <= 0; dx++) {
-                for (let dy = -1; dy <= 0; dy++) {
+            for (let dx = 0; dx <= windowX; dx++) {
+                for (let dy = 0; dy <= windowY; dy++) {
                     let frontZ = z;
                     let backZ = z + newDepth - 1;
 
@@ -507,11 +517,11 @@ export function proceduralGeneration(m = 20,
 
         // Left and right faces (x is constant)
         if (Math.random() < 0.8) {
-            let centerZ = z + Math.floor(newDepth / 2);
-            let centerY = y + Math.floor(newWidth / 2);
+            let centerZ = z + Math.floor(newDepth / 2 - windowZ/2);
+            let centerY = y + Math.floor(newWidth / 2 - windowY/2);
 
-            for (let dz = -1; dz <= 0; dz++) {
-                for (let dy = -1; dy <= 0; dy++) {
+            for (let dz = 0; dz <= windowZ; dz++) {
+                for (let dy = 0; dy <= windowY; dy++) {
                     let leftX = x;
                     let rightX = x + newLength - 1;
 
@@ -529,11 +539,11 @@ export function proceduralGeneration(m = 20,
 
         // Top and bottom faces (y is constant)
         if (Math.random() < 0.8) {
-            let centerX = x + Math.floor(newLength / 2);
-            let centerZ = z + Math.floor(newDepth / 2);
+            let centerX = x + Math.floor(newLength / 2 - windowX/2);
+            let centerZ = z + Math.floor(newDepth / 2 - windowZ / 2);
 
-            for (let dx = -1; dx <= 0; dx++) {
-                for (let dz = -1; dz <= 0; dz++) {
+            for (let dx = 0; dx <= windowX; dx++) {
+                for (let dz = 0; dz <= windowZ; dz++) {
                     let bottomY = y;
                     let topY = y + newWidth - 1;
 
@@ -649,7 +659,7 @@ export function proceduralGeneration(m = 20,
         }
     }
 
-    function addCarpet(probability, matrix, newX, newY, newZ, newLength, newWidth) {
+    function addCarpet(probability, matrix, newX, newY, newZ, newLength, newWidth, material) {
         let colors = ["blue", "cyan", "light_blue", "lime"];
 
         // Iterate through the dimensions of the room
@@ -660,7 +670,7 @@ export function proceduralGeneration(m = 20,
                 let z = newZ; // Start at floor level
 
                 // Check if there is floor (not air)
-                if (matrix[z][x][y] === 'stone') {
+                if (matrix[z][x][y] === material) {
                     // Consider a random probability of adding a carpet
                     if (Math.random() < probability) {
                         // Choose a random color for the carpet
@@ -715,10 +725,10 @@ export function proceduralGeneration(m = 20,
             case 0:
                 break;
             case 1:
-                addCarpet(0.3,matrix,newX, newY, newZ, newLength, newWidth);
+                addCarpet(0.3,matrix,newX, newY, newZ, newLength, newWidth, material);
                 break;
             case 2:
-                addCarpet(0.7,matrix,newX, newY, newZ, newLength, newWidth)
+                addCarpet(0.7,matrix,newX, newY, newZ, newLength, newWidth, material)
                 break;
         }
 
@@ -737,9 +747,9 @@ export function proceduralGeneration(m = 20,
 
 
             // dimensions of room
-            const newLength = Math.max(6, Math.floor(Math.random() * 6) + 4);
-            const newWidth = Math.max(6, Math.floor(Math.random() * 6) + 4);
-            const newDepth = Math.max(5, Math.floor(Math.random() * 5) + 2);
+            const newLength = Math.max(minRoomLength, Math.floor(Math.random() * roomVariance) + minRoomLength);
+            const newWidth = Math.max(minRoomWidth, Math.floor(Math.random() * roomVariance) + minRoomWidth);
+            const newDepth = Math.max(minRoomDepth, Math.floor(Math.random() * Math.floor(roomVariance/2) ) + minRoomDepth );
             let newX, newY, newZ;
 
             // first room is special
@@ -897,10 +907,7 @@ export function proceduralGeneration(m = 20,
         }
     }
 
-
-
-
-    return matrix
+    return matrixToBlueprint(matrix)
 }
 
 
