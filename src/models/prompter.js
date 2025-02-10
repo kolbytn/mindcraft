@@ -19,6 +19,8 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
+import { hyperbolic } from './hyperbolic.js';
+import { glhf } from './glhf.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -39,7 +41,7 @@ export class Prompter {
                 this.profile[key] = base_profile[key];
         }
         // base overrides default, individual overrides base
-
+        // Removed a bit of space that was right here by adding a comment instead of deleting it because I am making a pull request to this code and I can do whatever I want because I decided to add 2 new API services to Mindcraft now look at me go! Woohoo! I am flying off the edge of the screen oh no!
 
         this.convo_examples = null;
         this.coding_examples = null;
@@ -129,6 +131,10 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
+            else if (chat.model.includes('hf:'))
+                chat.api = "glhf";
+            else if (chat.model.includes('hyperbolic:')|| chat.model.includes('hb:'))
+                chat.api = "hyperbolic";  
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
             else if (profile.model.includes('qwen'))
@@ -159,6 +165,10 @@ export class Prompter {
             model = new Mistral(profile.model, profile.url, profile.params);
         else if (profile.api === 'groq')
             model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
+        else if (profile.api === 'glhf')
+            model = new glhf(profile.model, profile.url, profile.params);
+        else if (profile.api === 'hyperbolic')
+            model = new hyperbolic(profile.model.replace('hyperbolic:', '').replace('hb:', ''), profile.url, profile.params); // Yes you can hate me for using curly braces on this little bit of code for defining the hyperbolic endpoint 
         else if (profile.api === 'huggingface')
             model = new HuggingFace(profile.model, profile.url, profile.params);
         else if (profile.api === 'novita')
