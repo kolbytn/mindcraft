@@ -150,6 +150,21 @@ function proceduralGeneration(m = 20,
         }
     }
 
+    // Replace outer layer with wrap
+    for (let z = 0; z < p; z++) {
+        for (let x = 0; x < m; x++) {
+            for (let y = 0; y < n; y++) {
+                if (
+                    (z === p - 1 || // Top face
+                        x === 0 || x === m - 1 || // Front and back faces
+                        y === 0 || y === n - 1) // Left and right faces
+                ) {
+                    matrix[z][x][y] = wrapping;
+                }
+            }
+        }
+    }
+
     let placedRooms = 0;
     let lastRoom = null;
 
@@ -217,11 +232,14 @@ function proceduralGeneration(m = 20,
                         const z = newZ + di;
 
                         // If this is at a matrix border, don't modify it
-                        if (x === 0 || x === m - 1 ||
-                            y === 0 || y === n - 1 ||
-                            z === 0 || z === p - 1) {
+                        if (z === 0){
                             continue;
                         }
+                        // if (x === 0 || x === m - 1 ||
+                        //     y === 0 || y === n - 1 ||
+                        //     z === 0 || z === p - 1) {
+                        //     continue;
+                        // }
 
                         // For non-border spaces, check if this is a floor that should be shared
                         //was: === 'stone'
@@ -272,7 +290,7 @@ function proceduralGeneration(m = 20,
         }
 
         // Front and back faces (z is constant)
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.8) {
             let centerX = x + Math.floor(newLength / 2);
             let centerY = y + Math.floor(newWidth / 2);
 
@@ -294,7 +312,7 @@ function proceduralGeneration(m = 20,
         }
 
         // Left and right faces (x is constant)
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.8) {
             let centerZ = z + Math.floor(newDepth / 2);
             let centerY = y + Math.floor(newWidth / 2);
 
@@ -316,7 +334,7 @@ function proceduralGeneration(m = 20,
         }
 
         // Top and bottom faces (y is constant)
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.8) {
             let centerX = x + Math.floor(newLength / 2);
             let centerZ = z + Math.floor(newDepth / 2);
 
@@ -345,7 +363,7 @@ function proceduralGeneration(m = 20,
         const maxZ = matrix.length;
 
         // Each face has a 30% chance of becoming a window
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.8) {
             for (let dx = 0; dx < newLength; dx++) {
                 for (let dy = 0; dy < newWidth; dy++) {
                     let frontZ = z;
@@ -366,7 +384,7 @@ function proceduralGeneration(m = 20,
             }
         }
 
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.8) {
             for (let dz = 0; dz < newDepth; dz++) {
                 for (let dy = 0; dy < newWidth; dy++) {
                     let leftX = x;
@@ -686,20 +704,7 @@ function proceduralGeneration(m = 20,
     }
 
 
-    // Replace outer layer with wrap
-    for (let z = 0; z < p; z++) {
-        for (let x = 0; x < m; x++) {
-            for (let y = 0; y < n; y++) {
-                if (
-                    (z === p - 1 || // Top and bottom faces
-                        x === 0 || x === m - 1 || // Front and back faces
-                        y === 0 || y === n - 1) // Left and right faces
-                ) {
-                    matrix[z][x][y] = wrapping;
-                }
-            }
-        }
-    }
+
 
     return matrix
 }
