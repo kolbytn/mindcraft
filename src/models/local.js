@@ -47,7 +47,7 @@ export class Local {
             }
 
             // If the model name includes "deepseek-r1" or "Andy-3.5-reasoning", then handle the <think> block.
-            if (this.model_name && this.model_name.includes("deepseek-r1") || this.model_name.includes("andy-3.5-reasoning")) {
+            if (this.model_name && this.model_name.includes("deepseek-r1") || this.model_name.includes("andy-3.5:reasoning")) { // Fixed right here for deepsee-r1 and andy-3.5:reasoning
                 const hasOpenTag = res.includes("<think>");
                 const hasCloseTag = res.includes("</think>");
 
