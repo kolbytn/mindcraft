@@ -32,12 +32,6 @@ def read_settings(file_path):
     agent_names = [profile.split('/')[-1].split('.')[0] for profile in profiles]
     return agent_names
 
-# Example usage
-if __name__ == "__main__":
-    config = read_settings("settings.js")
-    print(config)
-    
-
 def check_task_completion(agents):
     """Check memory.json files of all agents to determine task success/failure."""
     for agent in agents:
@@ -61,14 +55,11 @@ def check_task_completion(agents):
             
     return False  # Default to failure if no conclusive result found
 
-def update_results_file(task_id, success_count, total_count, time_taken, experiment_results):
+def update_results_file(task_id, success_count, total_count, time_taken, experiment_results, results_filename):
     """Update the results file with current success ratio and time taken."""
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"results_{task_id}_{timestamp}.txt"
-    
     success_ratio = success_count / total_count
     
-    with open(filename, 'w') as f:
+    with open(results_filename, 'w') as f:  # 'w' mode overwrites the file each time
         f.write(f"Task ID: {task_id}\n")
         f.write(f"Experiments completed: {total_count}\n")
         f.write(f"Successful experiments: {success_count}\n")
@@ -94,6 +85,11 @@ def run_experiment(task_path, task_id, num_exp):
     # Read agent profiles from settings.js
     agents = read_settings(file_path="settings.js")
     print(f"Detected agents: {agents}")
+    
+    # Generate timestamp at the start of experiments
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    results_filename = f"results_{task_id}_{timestamp}.txt"
+    print(f"Results will be saved to: {results_filename}")
     
     success_count = 0
     experiment_results = []
@@ -128,8 +124,8 @@ def run_experiment(task_path, task_id, num_exp):
             'time_taken': time_taken
         })
         
-        # Update results file after each experiment
-        update_results_file(task_id, success_count, exp_num + 1, time_taken, experiment_results)
+        # Update results file after each experiment using the constant filename
+        update_results_file(task_id, success_count, exp_num + 1, time_taken, experiment_results, results_filename)
         
         # Small delay between experiments
         time.sleep(1)
