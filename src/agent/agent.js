@@ -358,7 +358,9 @@ export class Agent {
             }
         }
         else {
-            say(message);
+	    if (settings.speak) {
+            	say(message);
+	    }
             this.bot.chat(message);
         }
     }
