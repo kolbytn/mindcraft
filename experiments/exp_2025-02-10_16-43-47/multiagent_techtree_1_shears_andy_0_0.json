@@ -1,0 +1,51 @@
+{
+  "memory": "",
+  "turns": [
+    {
+      "role": "system",
+      "content": "Respond with hello world and your name"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello world! I'm andy_0."
+    },
+    {
+      "role": "system",
+      "content": "You are self-prompting with the goal: 'Collaborate with other agents to build a shear.'. Your next response MUST contain a command !withThisSyntax. Respond:"
+    },
+    {
+      "role": "assistant",
+      "content": "!startConversation(\"jill_0\", \"Hey Jill, do you want to collaborate and build some shears together? We just need one more iron ingot.\")"
+    },
+    {
+      "role": "system",
+      "content": "You are already in conversation with jill_0. Don't use this command to talk to them."
+    },
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)"
+    },
+    {
+      "role": "assistant",
+      "content": "Hey Jill, do you want to collaborate and build some shears together? We just need one more iron ingot."
+    },
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)Sure thing! Here's an iron ingot for you. !givePlayer(\"andy_0\", \"iron_ingot\", 1)"
+    },
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)Got it, andy_0! Let's craft those shears. "
+    },
+    {
+      "role": "assistant",
+      "content": "Awesome! !craftRecipe(\"shears\", 1)"
+    },
+    {
+      "role": "system",
+      "content": "Code output:\nSuccessfully crafted shears, you now have 1 shears.\n"
+    }
+  ],
+  "self_prompt": null,
+  "last_sender": "jill_0"
+}

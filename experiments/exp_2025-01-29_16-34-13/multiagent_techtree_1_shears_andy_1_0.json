@@ -1,0 +1,47 @@
+{
+  "memory": "I am andy_1, a Minecraft bot. I greeted with \"Hello world\" and initiated collaboration with jill_1 to build a shear, asking for help gathering materials.",
+  "turns": [
+    {
+      "role": "user",
+      "content": "jill_1: (FROM OTHER BOT)Sure thing, Andy! I'll see what materials I can collect for the shear. !collectBlocks(\"iron_ore\", 2)Oops, I can't mine iron ore yet. Let's smelt the iron ingot I have instead. !smeltItem(\"iron_ingot\", 1)Alright, I already have enough iron ingots. Let's craft the shear instead! !craftRecipe(\"shear\", 1)Looks like I made a mistake! Shears don't need crafting, I can make them directly. !craftableSeems like I need more iron ingots to craft shears. Want to find iron together?"
+    },
+    {
+      "role": "assistant",
+      "content": "Sure, let's find some iron together! !searchForBlock(\"iron_ore\", 100)"
+    },
+    {
+      "role": "system",
+      "content": "Code output:\nFound iron_ore at (-3, 68, 61).\nYou have reached at -3, 68, 61.\n"
+    },
+    {
+      "role": "assistant",
+      "content": "Found some iron ore here, Jill! Let's get mining!"
+    },
+    {
+      "role": "user",
+      "content": "jill_1: (FROM OTHER BOT)Alright! I'll join in and search too. !searchForBlock(\"iron_ore\", 100)"
+    },
+    {
+      "role": "assistant",
+      "content": "Let's gather all the iron we can find! !collectBlocks(\"iron_ore\", 1)"
+    },
+    {
+      "role": "system",
+      "content": "Code output:\nDon't have right tools to harvest iron_ore.\n"
+    },
+    {
+      "role": "user",
+      "content": "jill_1: (FROM OTHER BOT)I'm at the iron ore spot, ready to help mine it! Let's get to it!"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm short on tools, could you mine it for us, Jill? Thanks! 😅"
+    },
+    {
+      "role": "user",
+      "content": "jill_1: (FROM OTHER BOT)Of course! I'll mine the iron for us. 😄 !collectBlocks(\"iron_ore\", 1)Looks like I need a pickaxe to mine the iron. Do you have any tools? If not, we might need to craft one first!"
+    }
+  ],
+  "self_prompt": null,
+  "last_sender": "jill_1"
+}

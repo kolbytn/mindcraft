@@ -91,12 +91,55 @@ def set_environment_variable_tmux_session(session_name, key, value):
     """Set an environment variable for the current process."""
     subprocess.run(["tmux", "send-keys", "-t", session_name, f"export {key}={value}", "C-m"])
 
-def launch_server_experiment(task_path, task_id, num_exp, server, experiments_folder, num_agents=2, model="gpt-4o"):
+def launch_parallel_experiments(task_path, 
+                                num_exp, 
+                                server, 
+                                experiments_folder, 
+                                num_agents=2, 
+                                model="gpt-4o", 
+                                num_parallel=1):
+    with open(task_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    json_data = json.loads(content)
+
+    task_ids = json_data.keys()
+
+    # split the task_ids into num_parallel groups
+    task_ids = list(task_ids)
+    task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
+
+    servers = create_server_files("../server_data/", num_parallel)
+    date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    experiments_folder = f"{experiments_folder}_{date_time}"
+    os.makedirs(experiments_folder, exist_ok=True)
+    for i, server in enumerate(servers):
+        launch_server_experiment(task_path, task_ids_split[i], num_exp, server, experiments_folder)
+        time.sleep(5)
+
+    clean_up_server_files(num_parallel)
+
+def launch_server_experiment(task_path, 
+                             task_ids, 
+                             num_exp, 
+                             server, 
+                             experiments_folder, 
+                             num_agents=2, 
+                             model="gpt-4o"):
+    """
+    Launch a Minecraft server and run experiments on it.
+    @param task_path: Path to the task file
+    @param task_ids: IDs of the tasks to run
+    @param num_exp: Number of experiments to run
+    @param server: Tuple containing server path and port
+    @param experiments_folder: Folder to store experiment results
+    @param num_agents: Number of agents to run
+    @param model: Model to use for the agents
+    """
     server_path, server_port = server
     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
     mindserver_port = server_port - 55916 + 8080
     
-    
+    # set up server and agents 
     session_name = str(server_port - 55916)
     if num_agents == 2:
         agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
@@ -119,15 +162,16 @@ def launch_server_experiment(task_path, task_id, num_exp, server, experiments_fo
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
 
-    cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
-    cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
-    for _ in range(num_exp):
-        subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-        for agent in agent_names:
-            cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
-            subprocess.run(["tmux", "send-keys", "-t", session_name, cp_cmd, "C-m"])
-        # Add a small delay between commands (optional)
-        subprocess.run(["tmux", "send-keys", "-t", session_name, "sleep 1", "C-m"])
+    for task_id in task_ids:
+        cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
+        cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
+        for _ in range(num_exp):
+            subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+            for agent in agent_names:
+                cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
+                subprocess.run(["tmux", "send-keys", "-t", session_name, cp_cmd, "C-m"])
+            # Add a small delay between commands (optional)
+            subprocess.run(["tmux", "send-keys", "-t", session_name, "sleep 1", "C-m"])
 
     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
@@ -195,6 +239,12 @@ def launch_world(server_path="../server_data/", agent_names=["andy", "jill"], se
     for agent in agent_names:
         subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
     time.sleep(5)
+
+def kill_world(session_name="server"):
+    """Kill the Minecraft world."""
+    subprocess.run(["tmux", "send-keys", "-t", session_name, "stop", "C-m"])
+    time.sleep(5)
+    subprocess.run(["tmux", "kill-session", "-t", session_name])
 
 def detach_process(command):
     """
@@ -283,10 +333,10 @@ def main():
     # edit_server_properties_file("../server_data/", 55917)
 
     parser = argparse.ArgumentParser(description='Run Minecraft AI agent experiments')
-    parser.add_argument('--task_path', default="example_tasks.json", help='Path to the task file')
-    parser.add_argument('--task_id', default="multiagent_techtree_1_shears", help='ID of the task to run')
+    parser.add_argument('--task_path', default="multiagent_crafting_tasks.json", help='Path to the task file')
+    parser.add_argument('--task_id', default=None, help='ID of the task to run')
     parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
-    parser.add_argument('--num_parallel', default=0, type=int, help='Number of parallel servers to run')
+    parser.add_argument('--num_parallel', default=1, type=int, help='Number of parallel servers to run')
     parser.add_argument('--exp_name', default="experiments/exp", help='Name of the experiment')
 
     args = parser.parse_args()
@@ -296,17 +346,16 @@ def main():
         subprocess.run(['tmux', 'kill-server'], check=True)
     except: 
         print("No tmux session to kill")
-    if args.num_parallel == 0:
-        launch_world()
-        run_experiment(args.task_path, args.task_id, args.num_exp)
-    else: 
-        servers = create_server_files("../server_data/", args.num_parallel)
-        date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        experiments_folder = f"{args.exp_name}_{date_time}"
-        os.makedirs(experiments_folder, exist_ok=True)
-        for server in servers:
-            launch_server_experiment(args.task_path, args.task_id, args.num_exp, server, experiments_folder)
-            time.sleep(5)
+    if args.task_id is None:
+        launch_parallel_experiments(args.task_path, args.num_exp, args.num_parallel, args.exp_name)
+    
+    # servers = create_server_files("../server_data/", args.num_parallel)
+    # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    # experiments_folder = f"{args.exp_name}_{date_time}"
+    # os.makedirs(experiments_folder, exist_ok=True)
+    # for server in servers:
+    #     launch_server_experiment(args.task_path, [args.task_id], args.num_exp, server, experiments_folder)
+    #     time.sleep(5)
     
     # run_experiment(args.task_path, args.task_id, args.num_exp)
 

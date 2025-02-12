@@ -1,0 +1,47 @@
+{
+  "memory": "Collaborated with andy_1 to collect materials for building a shear by gathering iron ore.",
+  "turns": [
+    {
+      "role": "system",
+      "content": "\nCRAFTABLE_ITEMS\n- iron_nugget\n"
+    },
+    {
+      "role": "assistant",
+      "content": "Seems like I need more iron ingots to craft shears. Want to find iron together?"
+    },
+    {
+      "role": "user",
+      "content": "andy_1: (FROM OTHER BOT)Sure, let's find some iron together! !searchForBlock(\"iron_ore\", 100)"
+    },
+    {
+      "role": "user",
+      "content": "andy_1: (FROM OTHER BOT)Found some iron ore here, Jill! Let's get mining!"
+    },
+    {
+      "role": "assistant",
+      "content": "Alright! I'll join in and search too. !searchForBlock(\"iron_ore\", 100)"
+    },
+    {
+      "role": "system",
+      "content": "Code output:\nFound iron_ore at (-3, 68, 61).\nYou have reached at -3, 68, 61.\n"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm at the iron ore spot, ready to help mine it! Let's get to it!"
+    },
+    {
+      "role": "user",
+      "content": "andy_1: (FROM OTHER BOT)Let's gather all the iron we can find! !collectBlocks(\"iron_ore\", 1)I'm short on tools, could you mine it for us, Jill? Thanks! 😅"
+    },
+    {
+      "role": "assistant",
+      "content": "Of course! I'll mine the iron for us. 😄 !collectBlocks(\"iron_ore\", 1)"
+    },
+    {
+      "role": "system",
+      "content": "Code output:\nDon't have right tools to harvest iron_ore.\n"
+    }
+  ],
+  "self_prompt": null,
+  "last_sender": "andy_1"
+}

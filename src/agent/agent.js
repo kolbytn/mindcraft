@@ -92,7 +92,7 @@ export class Agent {
                     this.startEvents();
 
                     this.task.initBotTask();
-
+                    
                 } catch (error) {
                     console.error('Error in spawn event:', error);
                     process.exit(0);

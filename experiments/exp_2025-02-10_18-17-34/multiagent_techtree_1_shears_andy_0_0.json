@@ -1,0 +1,47 @@
+{
+  "memory": "",
+  "turns": [
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)I've got 1 iron ingot. We need one more to craft the shear."
+    },
+    {
+      "role": "assistant",
+      "content": "I have 1 iron ingot too. Let's craft it. !craftRecipe(\"iron_shears\", 1)"
+    },
+    {
+      "role": "system",
+      "content": "Invalid item type: iron_shears."
+    },
+    {
+      "role": "assistant",
+      "content": "Oops, let's try that again. !craftRecipe(\"shears\", 1)"
+    },
+    {
+      "role": "system",
+      "content": "Code output:\nYou do not have the resources to craft a shears. It requires: iron_ingot: 2.\n"
+    },
+    {
+      "role": "assistant",
+      "content": "Looks like we need one more iron ingot. Let's find another one or mine some iron ore. "
+    },
+    {
+      "role": "system",
+      "content": "Recent behaviors log: \n\n"
+    },
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)Let's search for some iron ore nearby!\n\n!searchForBlock(\"iron_ore\", 20)"
+    },
+    {
+      "role": "assistant",
+      "content": "!searchForBlock(\"iron_ore\", 20)"
+    },
+    {
+      "role": "system",
+      "content": "Error: Param 'search_range' must be an element of [32, 512)."
+    }
+  ],
+  "self_prompt": null,
+  "last_sender": "jill_0"
+}

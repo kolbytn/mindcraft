@@ -10,7 +10,7 @@ export default
     "mindserver_host": "localhost",
     "mindserver_port": process.env.MINDSERVER_PORT || 8080,
     
-    "profiles": JSON.parse(process.env.PROFILES) || [
+    "profiles": ((process.env.PROFILES) && JSON.parse(process.env.PROFILES)) || [
         "./andy.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",

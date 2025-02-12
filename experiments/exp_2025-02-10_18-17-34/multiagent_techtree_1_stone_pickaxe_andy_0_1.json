@@ -1,0 +1,35 @@
+{
+  "memory": "",
+  "turns": [
+    {
+      "role": "system",
+      "content": "Respond with hello world and your name"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello world! I'm andy_0."
+    },
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)Sure! I can gather wood for the sticks. 🪓 !collectBlocks(\"oak_log\", 1)I got the wood! Now I'll craft some planks and sticks. !craftRecipe(\"oak_planks\", 1)Planks ready! Now for the sticks. !craftRecipe(\"stick\", 2)Got the sticks! What do you want to do next, andy_0?"
+    },
+    {
+      "role": "assistant",
+      "content": "Nice work, jill_0! Let's look around and see what else we can gather. !nearbyBlocks"
+    },
+    {
+      "role": "system",
+      "content": "\nNEARBY_BLOCKS\n- grass_block\n- dirt\n- stone\n- diorite\n- oak_leaves\n- oak_log\n- coal_ore\n- copper_ore\n- lapis_ore\n- short_grass\n- andesite\n- granite\n- gravel\n- birch_leaves\n- crafting_table\n- birch_log\n- Block Below: dirt\n- Block at Legs: grass_block\n- Block at Head: air\n- First Solid Block Above Head: none\n"
+    },
+    {
+      "role": "assistant",
+      "content": "There's coal ore nearby. Let's mine some coal next. !collectBlocks(\"coal_ore\", 3)"
+    },
+    {
+      "role": "user",
+      "content": "jill_0: (FROM OTHER BOT)Alright, I'll follow your lead! Let's get that coal. !collectBlocks(\"coal_ore\", 3)Oops, seems like we need a stone pickaxe first. Have you gathered any stone yet, andy_0?"
+    }
+  ],
+  "self_prompt": null,
+  "last_sender": "jill_0"
+}

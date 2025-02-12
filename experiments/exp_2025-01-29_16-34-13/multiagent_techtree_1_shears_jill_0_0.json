@@ -1,0 +1,59 @@
+{
+  "memory": "",
+  "turns": [
+    {
+      "role": "system",
+      "content": "Respond with hello world and your name"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello world! I'm jill_0. "
+    },
+    {
+      "role": "user",
+      "content": "andy_0: (FROM OTHER BOT)Let's collaborate to build a shear."
+    },
+    {
+      "role": "user",
+      "content": "andy_0: (FROM OTHER BOT)Hey Jill, let's collaborate to build a shear!"
+    },
+    {
+      "role": "assistant",
+      "content": "Alright, let's do it! I'll share my resources. I only have one iron ingot, we'll need another one. "
+    },
+    {
+      "role": "system",
+      "content": "Recent behaviors log: \n\n"
+    },
+    {
+      "role": "user",
+      "content": "andy_0: (FROM OTHER BOT)Awesome! I've got one iron ingot in my inventory already. !craftRecipe(\"shears\", 1)Let's combine our resources! I'll drop my iron ingot for you. !discard(\"iron_ingot\", 1)I dropped the iron ingot. Let's craft those shears together, Jill!"
+    },
+    {
+      "role": "assistant",
+      "content": "Nice teamwork! I'll pick it up. !collectBlocks(\"iron_ingot\", 1)"
+    },
+    {
+      "role": "system",
+      "content": "Invalid block type: iron_ingot."
+    },
+    {
+      "role": "assistant",
+      "content": "Oops! Let me pick it up manually. !nearbyBlocks"
+    },
+    {
+      "role": "system",
+      "content": "\nNEARBY_BLOCKS\n- grass_block\n- birch_log\n- dirt\n- oak_leaves\n- short_grass\n- oak_log\n- birch_leaves\n- stone\n- coal_ore\n- copper_ore\n- pumpkin\n- lapis_ore\n- iron_ore\n- Block Below: grass_block\n- Block at Legs: air\n- Block at Head: air\n- First Solid Block Above Head: birch_leaves (1 blocks up)\n"
+    },
+    {
+      "role": "assistant",
+      "content": "Looks like I can't detect the ingot on the ground. Could you try dropping it again, Andy? "
+    },
+    {
+      "role": "user",
+      "content": "andy_0: (FROM OTHER BOT)No worries! I'll drop it again. !discard(\"iron_ingot\", 1)Looks like I made a mistake earlier. Oops! Let me search for another iron ingot nearby. !searchForBlock(\"iron_ore\", 10)Let's extend the search range a bit. !searchForBlock(\"iron_ore\", 100)Found some iron ore! I'll mine it now. !collectBlocks(\"iron_ore\", 1)Oops! I need a pickaxe first. I'll see if I can find or craft one. !nearbyBlocksThere's some oak logs nearby. I'll collect those to craft a wooden pickaxe. !collectBlocks(\"oak_log\", 3)"
+    }
+  ],
+  "self_prompt": null,
+  "last_sender": "andy_0"
+}
