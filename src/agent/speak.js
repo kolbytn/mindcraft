@@ -20,9 +20,8 @@ export function say(textToSpeak) {
       return;
     }
     if (stderr) {
-      console.error(`Stderr: ${stderr}`);
+      console.error(`Error: ${stderr}`);
       return;
     }
-    console.log(`Stdout: ${stdout}`);
   });
 }
