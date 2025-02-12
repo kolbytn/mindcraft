@@ -52,7 +52,6 @@ export class GroqCloudAPI {
       }
 
       // If the model name includes "deepseek-r1", handle the <think> tags
-      if (this.model_name && this.model_name.toLowerCase().includes("deepseek-r1")) {
         const hasOpenTag = res.includes("<think>");
         const hasCloseTag = res.includes("</think>");
 
@@ -68,7 +67,6 @@ export class GroqCloudAPI {
         }
         // Remove the complete <think> block (and any content inside) from the response
         res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-      }
 
       finalRes = res;
       break; // Exit the loop once a valid response is obtained
@@ -76,7 +74,7 @@ export class GroqCloudAPI {
 
     if (finalRes == null) {
       console.warn("Could not obtain a valid <think> block or normal response after max attempts.");
-      finalRes = "Response incomplete, please try again.";
+      finalRes = "I thought too hard, sorry, try again.";
     }
     finalRes = finalRes.replace(/<\|separator\|>/g, '*no response*');
 
