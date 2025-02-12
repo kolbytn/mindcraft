@@ -47,7 +47,6 @@ export class Local {
             }
 
             // If the model name includes "deepseek-r1" or "Andy-3.5-reasoning", then handle the <think> block.
-            if (this.model_name && this.model_name.includes("deepseek-r1") || this.model_name.includes("andy-3.5:reasoning")) { // Fixed right here for deepsee-r1 and andy-3.5:reasoning
                 const hasOpenTag = res.includes("<think>");
                 const hasCloseTag = res.includes("</think>");
 
@@ -61,7 +60,6 @@ export class Local {
                 if (hasOpenTag && hasCloseTag) {
                     res = res.replace(/<think>[\s\S]*?<\/think>/g, '');
                 }
-            }
 
             finalRes = res;
             break; // Exit the loop if we got a valid response.
@@ -69,7 +67,7 @@ export class Local {
 
         if (finalRes == null) {
             console.warn("Could not get a valid <think> block or normal response after max attempts.");
-            finalRes = 'Response incomplete, please try again.';
+            finalRes = 'I thought too hard, sorry, try again.';
         }
         return finalRes;
     }
