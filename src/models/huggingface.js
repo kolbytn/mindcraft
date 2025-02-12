@@ -51,7 +51,6 @@ export class HuggingFace {
       }
 
       // If the model is DeepSeek-R1, check for mismatched <think> blocks.
-      if (this.model_name && this.model_name.toLowerCase().includes("deepseek-r1")) {
         const hasOpenTag = res.includes("<think>");
         const hasCloseTag = res.includes("</think>");
 
@@ -65,7 +64,6 @@ export class HuggingFace {
         if (hasOpenTag && hasCloseTag) {
           res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         }
-      }
 
       finalRes = res;
       break; // Exit loop if we got a valid response.
@@ -74,7 +72,7 @@ export class HuggingFace {
     // If no valid response was obtained after max attempts, assign a fallback.
     if (finalRes == null) {
       console.warn("Could not get a valid <think> block or normal response after max attempts.");
-      finalRes = 'Response incomplete, please try again.';
+      finalRes = 'I thought too hard, sorry, try again.';
     }
     console.log('Received.');
     console.log(finalRes);
