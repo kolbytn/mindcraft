@@ -34,12 +34,9 @@ function processQueue() {
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error: ${error.message}`);
-      console.error(`Stack: ${error.stack}`);
+      console.error(`${error.stack}`);
     } else if (stderr) {
-      console.error(`Stderr: ${stderr}`);
-    } else {
-      console.log(`Stdout: ${stdout}`);
-    }
+      console.error(`Error: ${stderr}`);
     processQueue(); // Continue with the next message in the queue
   });
 }
