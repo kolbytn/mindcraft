@@ -1,6 +1,23 @@
 import { exec } from 'child_process';
 
+let speakingQueue = [];
+let isSpeaking = false;
+
 export function say(textToSpeak) {
+  speakingQueue.push(textToSpeak);
+  if (!isSpeaking) {
+    processQueue();
+  }
+}
+
+function processQueue() {
+  if (speakingQueue.length === 0) {
+    isSpeaking = false;
+    return;
+  }
+
+  isSpeaking = true;
+  const textToSpeak = speakingQueue.shift();
   const isWin = process.platform === "win32";
   const isMac = process.platform === "darwin";
 
@@ -17,11 +34,12 @@ export function say(textToSpeak) {
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error: ${error.message}`);
-      return;
+      console.error(`Stack: ${error.stack}`);
+    } else if (stderr) {
+      console.error(`Stderr: ${stderr}`);
+    } else {
+      console.log(`Stdout: ${stdout}`);
     }
-    if (stderr) {
-      console.error(`Error: ${stderr}`);
-      return;
-    }
+    processQueue(); // Continue with the next message in the queue
   });
 }
