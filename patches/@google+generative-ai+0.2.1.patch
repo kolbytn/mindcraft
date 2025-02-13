@@ -1,12 +1,12 @@
 diff --git a/dist/index.mjs b/dist/index.mjs
---- a/dist/index.mjs
-+++ b/dist/index.mjs
+--- a/node_modules/@google/generative-ai/dist/index.mjs
++++ b/node_modules/@google/generative-ai/dist/index.mjs 
 @@
 -const API_VERSION = "v1";
 +const API_VERSION = "v1beta";
 diff --git a/dist/index.js b/dist/index.js
---- a/dist/index.js
-+++ b/dist/index.js
+--- a/node_modules/@google/generative-ai/dist/index.js
++++ b/node_modules/@google/generative-ai/dist/index.js
 @@
 -const API_VERSION = "v1";
 +const API_VERSION = "v1beta";
