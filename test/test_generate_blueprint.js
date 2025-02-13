@@ -127,7 +127,7 @@ function proceduralGeneration(m = 20,
                                  roomVariance = 5,
                                  wrapping = "air",
                                  carpetStyle = 1,
-                                 windowStyle = 1,
+                                 windowStyle = 2,
                                  complexity = 4) {
     // Build 3D space
     const matrix = Array.from({length: p}, () =>
@@ -786,10 +786,14 @@ function printMatrix(matrix) {
 
 
 // main:
+<<<<<<< HEAD
+const resultMatrix = proceduralGeneration(20, 10, 20, 10, "air", 2, 2, 4);
+=======
 const resultMatrix = proceduralGeneration(30, 30, 30, 30, 6, 6, 6, 6,"air", 1, 1, 4);
+>>>>>>> b7bdbf7759e671168601803d34109b0ce8010deb
 printMatrix(resultMatrix)
 
-let blueprint = matrixToBlueprint(resultMatrix,[194, -60, -94])
+let blueprint = matrixToBlueprint(resultMatrix,[122, -60, -178])
 
 import mineflayer from "mineflayer";
 import {autoBuild} from "./test_blueprint_layout.js";
