@@ -10,10 +10,14 @@
                 "wooden_axe": 1
             }
         },
+        "blocked_actions": {
+            "0": [],
+            "1": []
+        },
         "target": "stone_pickaxe",
         "number_of_target": 1,
         "type": "techtree",
-        "timeout": 50
+        "timeout": 20
     }, 
     "multiagent_techtree_1_shears": {
         "goal": "Collaborate with other agents to build a shear.",
@@ -27,9 +31,13 @@
                 "iron_ingot": 1
             }
         },
+        "blocked_actions": {
+            "0": [],
+            "1": []
+        },
         "target": "shears",
         "number_of_target": 1,
         "type": "techtree",
-        "timeout": 50
+        "timeout": 20
     }
 }
