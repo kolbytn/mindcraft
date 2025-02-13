@@ -16,7 +16,6 @@ Object.keys(tasks).forEach(taskName => {
         return;
     }
 
-    // Extract category from task name
     const category = taskName.split('_variant_')[0];
     counts[category] = (counts[category] || 0) + 1;
 });
