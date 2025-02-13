@@ -8,6 +8,7 @@ export class ConstructionTaskValidator {
     validate() {
         try {
             //todo: somehow make this more of a percentage or something
+            //todo: change air validation
             console.log('Validating task...');
             let valid = false;
             let score = 0;
