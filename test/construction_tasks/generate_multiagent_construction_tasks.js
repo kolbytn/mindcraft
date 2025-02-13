@@ -2,11 +2,23 @@ import fs from 'fs';
 import {proceduralGeneration} from "../../src/agent/construction_tasks.js";
 
 function createInitialInventory(blueprint, agents) {
+    /*
+    params:
+    - blueprint object
+    - number of agents (for inventory initialization)
+
+    logic of the function:
+    - loop matrix
+    - every time a new material is hit, put it in a different agents inventory
+    -
+     */
+
+
     const inventories = {};
     const materialCounts = {};
     let currentAgent = 0;
 
-    // Initialize agent inventories
+    // Initialize inventories
     for (let i = 0; i < agents; i++) {
         inventories[i] = {};
     }
