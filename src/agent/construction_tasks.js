@@ -334,7 +334,7 @@ export function proceduralGeneration(m = 20,
     // set materials
     let roomMaterials = ["stone", "terracotta", "quartz_block", "copper_block", "purpur_block"]
 
-    if (complexity < roomMaterials.length){
+    if (complexity < roomMaterials.length) {
         roomMaterials = roomMaterials.slice(0, complexity + 1);
     }
 
@@ -435,7 +435,7 @@ export function proceduralGeneration(m = 20,
                         const z = newZ + di;
 
                         // If this is at a matrix border, don't modify it
-                        if (z === 0){
+                        if (z === 0) {
                             continue;
                         }
                         // if (x === 0 || x === m - 1 ||
@@ -446,7 +446,7 @@ export function proceduralGeneration(m = 20,
 
                         // For non-border spaces, check if this is a floor that should be shared
                         //was: === 'stone'
-                        if (di === 0 && matrix[z-1][x][y] !== 'air') {
+                        if (di === 0 && matrix[z - 1][x][y] !== 'air') {
                             // Skip creating floor if there's a ceiling below
                             matrix[z][x][y] = 'air';
                         } else if (di === 0 || di === newDepth - 1 ||
@@ -483,9 +483,9 @@ export function proceduralGeneration(m = 20,
         const matrixDepth = matrix.length;
         const matrixLength = matrix[0].length;
         const matrixWidth = matrix[0][0].length;
-        const windowX = Math.ceil(minRoomWidth/2)
-        const windowY = Math.ceil(minRoomLength/2)
-        const windowZ = Math.ceil(minRoomDepth/2)
+        const windowX = Math.ceil(minRoomWidth / 2)
+        const windowY = Math.ceil(minRoomLength / 2)
+        const windowZ = Math.ceil(minRoomDepth / 2)
 
         // Helper function to check if coordinates are within bounds
         function isInBounds(z, x, y) {
@@ -496,8 +496,8 @@ export function proceduralGeneration(m = 20,
 
         // Front and back faces (z is constant)
         if (Math.random() < 0.8) {
-            let centerX = x + Math.floor(newLength / 2 - windowX/2);
-            let centerY = y + Math.floor(newWidth / 2 - windowY/2);
+            let centerX = x + Math.floor(newLength / 2 - windowX / 2);
+            let centerY = y + Math.floor(newWidth / 2 - windowY / 2);
 
             for (let dx = 0; dx <= windowX; dx++) {
                 for (let dy = 0; dy <= windowY; dy++) {
@@ -518,8 +518,8 @@ export function proceduralGeneration(m = 20,
 
         // Left and right faces (x is constant)
         if (Math.random() < 0.8) {
-            let centerZ = z + Math.floor(newDepth / 2 - windowZ/2);
-            let centerY = y + Math.floor(newWidth / 2 - windowY/2);
+            let centerZ = z + Math.floor(newDepth / 2 - windowZ / 2);
+            let centerY = y + Math.floor(newWidth / 2 - windowY / 2);
 
             for (let dz = 0; dz <= windowZ; dz++) {
                 for (let dy = 0; dy <= windowY; dy++) {
@@ -540,7 +540,7 @@ export function proceduralGeneration(m = 20,
 
         // Top and bottom faces (y is constant)
         if (Math.random() < 0.8) {
-            let centerX = x + Math.floor(newLength / 2 - windowX/2);
+            let centerX = x + Math.floor(newLength / 2 - windowX / 2);
             let centerZ = z + Math.floor(newDepth / 2 - windowZ / 2);
 
             for (let dx = 0; dx <= windowX; dx++) {
@@ -664,8 +664,8 @@ export function proceduralGeneration(m = 20,
         let colors = ["blue", "cyan", "light_blue", "lime"];
 
         // Iterate through the dimensions of the room
-        for (let dx = 1; dx < newLength-1; dx++) {
-            for (let dy = 1; dy < newWidth-1; dy++) {
+        for (let dx = 1; dx < newLength - 1; dx++) {
+            for (let dy = 1; dy < newWidth - 1; dy++) {
                 let x = newX + dx;
                 let y = newY + dy;
                 let z = newZ; // Start at floor level
@@ -685,15 +685,15 @@ export function proceduralGeneration(m = 20,
     }
 
     function addLadder(matrix, x, y, z) {
-        let currentZ = z+1;
+        let currentZ = z + 1;
 
         // turn the floor into air where person would go up
-        matrix[currentZ][x+1][y] = 'air';
+        matrix[currentZ][x + 1][y] = 'air';
 
         // Build the first 3 ladder segments from floor level downwards
         for (let i = 0; i < 3; i++) {
             matrix[currentZ][x][y] = 'ladder[facing=north]';
-            currentZ-=1
+            currentZ -= 1
         }
 
         // Continue building ladder downwards until a floor is hit or we reach the bottom
@@ -708,7 +708,7 @@ export function proceduralGeneration(m = 20,
     }
 
 
-    function embellishments(carpet, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material){
+    function embellishments(carpet, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material) {
 
 
         switch (windowStyle) {
@@ -726,10 +726,10 @@ export function proceduralGeneration(m = 20,
             case 0:
                 break;
             case 1:
-                addCarpet(0.3,matrix,newX, newY, newZ, newLength, newWidth, material);
+                addCarpet(0.3, matrix, newX, newY, newZ, newLength, newWidth, material);
                 break;
             case 2:
-                addCarpet(0.7,matrix,newX, newY, newZ, newLength, newWidth, material)
+                addCarpet(0.7, matrix, newX, newY, newZ, newLength, newWidth, material)
                 break;
         }
 
@@ -750,7 +750,7 @@ export function proceduralGeneration(m = 20,
             // dimensions of room
             const newLength = Math.max(minRoomLength, Math.floor(Math.random() * roomVariance) + minRoomLength);
             const newWidth = Math.max(minRoomWidth, Math.floor(Math.random() * roomVariance) + minRoomWidth);
-            const newDepth = Math.max(minRoomDepth, Math.floor(Math.random() * Math.floor(roomVariance/2) ) + minRoomDepth );
+            const newDepth = Math.max(minRoomDepth, Math.floor(Math.random() * Math.floor(roomVariance / 2)) + minRoomDepth);
             let newX, newY, newZ;
 
             // first room is special
@@ -761,7 +761,7 @@ export function proceduralGeneration(m = 20,
                 newZ = 0; // Ground floor
 
                 if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p, material)) {
-                    lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                    lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
                     roomPlaced = true;
                     placedRooms++;
 
@@ -779,8 +779,7 @@ export function proceduralGeneration(m = 20,
                 }
 
                 break;
-            }
-            else {
+            } else {
                 const direction = getRandomDirection();
 
                 switch (direction) {
@@ -797,8 +796,7 @@ export function proceduralGeneration(m = 20,
                                 newZ); // Adding the ladder
 
 
-
-                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -818,9 +816,7 @@ export function proceduralGeneration(m = 20,
                             addDoor(matrix, lastRoom.x, lastRoom.y + Math.floor(lastRoom.width / 2), lastRoom.z, material);
 
 
-
-
-                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -841,9 +837,7 @@ export function proceduralGeneration(m = 20,
                                 lastRoom.z, material);
 
 
-
-
-                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -864,9 +858,7 @@ export function proceduralGeneration(m = 20,
                                 lastRoom.z, material);
 
 
-
-
-                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -887,8 +879,7 @@ export function proceduralGeneration(m = 20,
                                 lastRoom.z, material);
 
 
-
-                            lastRoom = { x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth };
+                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -908,7 +899,7 @@ export function proceduralGeneration(m = 20,
         }
     }
 
-    return matrixToBlueprint(matrix)
+    return matrixToBlueprint(matrix, [148,-60,-170])
 }
 
 
@@ -922,6 +913,7 @@ export function proceduralGeneration(m = 20,
 function matrixToBlueprint(matrix, startCoord) {
     // Validate inputs
     if (!Array.isArray(matrix) || !Array.isArray(startCoord) || startCoord.length !== 3) {
+        console.log(matrix)
         throw new Error('Invalid input format');
     }
 
