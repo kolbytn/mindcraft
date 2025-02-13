@@ -57,5 +57,19 @@
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
+    },
+    "smelt_ingot": {
+        "goal": "Smelt 1 iron ingot and 1 copper ingot",
+        "agent_count": 1,
+        "initial_inventory": {
+            "furnace": 1,
+            "raw_iron": 1,
+            "raw_copper": 1,
+            "coal": 2
+        },
+        "target": "copper_ingot",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
     }
 }
