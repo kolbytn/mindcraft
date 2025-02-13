@@ -94,10 +94,11 @@ def set_environment_variable_tmux_session(session_name, key, value):
 def launch_parallel_experiments(task_path, 
                                 num_exp, 
                                 server, 
-                                experiments_folder, 
+                                exp_name, 
                                 num_agents=2, 
                                 model="gpt-4o", 
                                 num_parallel=1):
+    
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
     json_data = json.loads(content)
@@ -110,13 +111,15 @@ def launch_parallel_experiments(task_path,
 
     servers = create_server_files("../server_data/", num_parallel)
     date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    experiments_folder = f"{experiments_folder}_{date_time}"
+    experiments_folder = f"experiments/{exp_name}_{date_time}"
+
+    # start wandb
+    subprocess.run(["wandb", "init", "--project", "mindcraft", "--entity", exp_name])
     os.makedirs(experiments_folder, exist_ok=True)
     for i, server in enumerate(servers):
         launch_server_experiment(task_path, task_ids_split[i], num_exp, server, experiments_folder)
         time.sleep(5)
 
-    clean_up_server_files(num_parallel)
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -170,6 +173,9 @@ def launch_server_experiment(task_path,
             for agent in agent_names:
                 cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
                 subprocess.run(["tmux", "send-keys", "-t", session_name, cp_cmd, "C-m"])
+
+                wandb_cmd = f"wandb artifact put {experiments_folder}/{task_id}_{agent}_{_}.json --name {task_id}_{agent}_{_} --type dataset"
+                subprocess.run(["tmux", "send-keys", "-t", session_name, wandb_cmd, "C-m"])
             # Add a small delay between commands (optional)
             subprocess.run(["tmux", "send-keys", "-t", session_name, "sleep 1", "C-m"])
 
@@ -337,7 +343,7 @@ def main():
     parser.add_argument('--task_id', default=None, help='ID of the task to run')
     parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
     parser.add_argument('--num_parallel', default=1, type=int, help='Number of parallel servers to run')
-    parser.add_argument('--exp_name', default="experiments/exp", help='Name of the experiment')
+    parser.add_argument('--exp_name', default="exp", help='Name of the experiment')
 
     args = parser.parse_args()
 

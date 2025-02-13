@@ -49,7 +49,7 @@ export class Task {
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
             this.validator = new TaskValidator(this.data, this.agent);
-            this.blocked_actions = this.data.blocked_actions[JSON.stringify(this.agent.count_id)] || [];
+            this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
             this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
