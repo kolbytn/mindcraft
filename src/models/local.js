@@ -51,11 +51,17 @@ export class Local {
                 const hasCloseTag = res.includes("</think>");
 
                 // If there's a partial mismatch, retry to get a complete response.
-                if ((hasOpenTag && !hasCloseTag) || (!hasOpenTag && hasCloseTag)) {
+                if ((hasOpenTag && !hasCloseTag)) {
                     console.warn("Partial <think> block detected. Re-generating...");
                     continue; 
                 }
-
+            
+                // If </think> is present but <think> is not, prepend <think>
+                if (hasCloseTag && !hasOpenTag) {
+                    res = '<think>' + res;
+                }
+                // Changed this so if the model reasons, using <think> and </think> but doesn't start the message with <think>, <think> ges prepended to the message so no error occur.
+            
                 // If both tags appear, remove them (and everything inside).
                 if (hasOpenTag && hasCloseTag) {
                     res = res.replace(/<think>[\s\S]*?<\/think>/g, '');
