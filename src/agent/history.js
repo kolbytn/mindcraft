@@ -42,7 +42,7 @@ export class History {
         console.log("Memory updated to: ", this.memory);
     }
 
-    appendFullHistory(to_store) {
+    async appendFullHistory(to_store) {
         if (this.full_history_fp === undefined) {
             const string_timestamp = new Date().toLocaleString().replace(/[/:]/g, '-').replace(/ /g, '').replace(/,/g, '_');
             this.full_history_fp = `./bots/${this.name}/histories/${string_timestamp}.json`;
@@ -75,7 +75,7 @@ export class History {
                 chunk.push(this.turns.shift()); // remove until turns starts with system/user message
 
             await this.summarizeMemories(chunk);
-            this.appendFullHistory(chunk);
+            await this.appendFullHistory(chunk);
         }
     }
 
