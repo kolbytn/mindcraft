@@ -131,10 +131,10 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
-            else if (chat.model.includes('hf:'))
-                chat.api = "glhf";
-            else if (chat.model.includes('hyperbolic:')|| chat.model.includes('hb:'))
-                chat.api = "hyperbolic";  
+            else if (profile.model.includes('hf:'))
+                profile.api = "glhf";
+            else if (profile.model.includes('hyperbolic:')|| chat.model.includes('hb:'))
+                profile.api = "hyperbolic";  
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
             else if (profile.model.includes('qwen'))
