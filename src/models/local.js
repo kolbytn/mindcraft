@@ -80,7 +80,7 @@ export class Local {
 
     async embed(text) {
         let model = this.model_name || 'nomic-embed-text';
-        let body = { model: model, prompt: text };
+        let body = { model: model, input: text };
         let res = await this.send(this.embedding_endpoint, body);
         return res['embedding'];
     }
