@@ -114,7 +114,6 @@ def launch_parallel_experiments(task_path,
     experiments_folder = f"experiments/{exp_name}_{date_time}"
 
     # start wandb
-    subprocess.run(["wandb", "init", "--project", "mindcraft", "--entity", exp_name])
     os.makedirs(experiments_folder, exist_ok=True)
     for i, server in enumerate(servers):
         launch_server_experiment(task_path, task_ids_split[i], num_exp, server, experiments_folder)
@@ -344,8 +343,14 @@ def main():
     parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
     parser.add_argument('--num_parallel', default=1, type=int, help='Number of parallel servers to run')
     parser.add_argument('--exp_name', default="exp", help='Name of the experiment')
+    parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
+    parser.add_argument('--wandb-project', default="minecraft_experiements", help='wandb project name')
 
     args = parser.parse_args()
+
+    if args.wandb:
+        import wandb
+        wandb.init(project=args.wandb_project, name=args.exp_name)
 
     # kill all tmux session before starting
     try: 
