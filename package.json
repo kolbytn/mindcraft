@@ -17,7 +17,7 @@
         "openai": "^4.4.0",
         "patch-package": "^8.0.0",
         "prismarine-item": "^1.15.0",
-        "prismarine-viewer": "^1.28.0",
+        "prismarine-viewer": "^1.32.0",
         "replicate": "^0.29.4",
         "ses": "^1.9.1",
         "vec3": "^0.1.10",
