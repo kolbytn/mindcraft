@@ -49,6 +49,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `qwen` | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 | `xai` | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
 | `deepseek` | `XAI_API_KEY` | `grok-beta` | [docs](https://docs.x.ai/docs) |
+| `openrouter` | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3 && ollama pull nomic-embed-text`
