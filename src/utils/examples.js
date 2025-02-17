@@ -38,7 +38,7 @@ export class Examples {
             // Wait for all embeddings to complete
             await Promise.all(embeddingPromises);
         } catch (err) {
-            console.warn('Error with embedding model, using word overlap instead:', err);
+            console.warn('Error with embedding model, using word-overlap instead.');
             this.model = null;
         }
     }

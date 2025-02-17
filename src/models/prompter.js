@@ -21,6 +21,7 @@ import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
 import { hyperbolic } from './hyperbolic.js';
 import { glhf } from './glhf.js';
+import { OpenRouter } from './openrouter.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -94,8 +95,6 @@ export class Prompter {
                 this.embedding_model = new Mistral(embedding.model, embedding.url);
             else if (embedding.api === 'huggingface')
                 this.embedding_model = new HuggingFace(embedding.model, embedding.url);
-            else if (embedding.api === 'groq')
-                this.embedding_model = new GroqCloudAPI(embedding.model, embedding.url);
             else if (embedding.api === 'novita')
                 this.embedding_model = new Novita(embedding.model, embedding.url);
             else {
@@ -126,6 +125,8 @@ export class Prompter {
         if (!profile.api) {
             if (profile.model.includes('gemini'))
                 profile.api = 'google';
+            else if (profile.model.includes('openrouter/'))
+                profile.api = 'openrouter'; // must do before others bc shares model names
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
@@ -150,8 +151,10 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else
-            profile.api = 'ollama';
+            else if (profile.model.includes('llama3'))
+                profile.api = 'ollama';
+            else 
+                throw new Error('Unknown model:', profile.model);
         }
         return profile;
     }
@@ -165,7 +168,7 @@ export class Prompter {
         else if (profile.api === 'anthropic')
             model = new Claude(profile.model, profile.url, profile.params);
         else if (profile.api === 'replicate')
-            model = new ReplicateAPI(profile.model, profile.url, profile.params);
+            model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
         else if (profile.api === 'ollama')
             model = new Local(profile.model, profile.url, profile.params);
         else if (profile.api === 'mistral')
@@ -186,6 +189,8 @@ export class Prompter {
             model = new Grok(profile.model, profile.url, profile.params);
         else if (profile.api === 'deepseek')
             model = new DeepSeek(profile.model, profile.url, profile.params);
+        else if (profile.api === 'openrouter')
+            model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
@@ -209,12 +214,18 @@ export class Prompter {
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples),
                 this.skill_libary.initSkillLibrary()
-            ]);
+            ]).catch(error => {
+                // Preserve error details
+                console.error('Failed to initialize examples. Error details:', error);
+                console.error('Stack trace:', error.stack);
+                throw error;
+            });
 
             console.log('Examples initialized.');
         } catch (error) {
             console.error('Failed to initialize examples:', error);
-            throw error;
+            console.error('Stack trace:', error.stack);
+            throw error; // Re-throw with preserved details
         }
     }
 
