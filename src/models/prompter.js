@@ -204,12 +204,18 @@ export class Prompter {
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples),
                 this.skill_libary.initSkillLibrary()
-            ]);
+            ]).catch(error => {
+                // Preserve error details
+                console.error('Failed to initialize examples. Error details:', error);
+                console.error('Stack trace:', error.stack);
+                throw error;
+            });
 
             console.log('Examples initialized.');
         } catch (error) {
             console.error('Failed to initialize examples:', error);
-            throw error;
+            console.error('Stack trace:', error.stack);
+            throw error; // Re-throw with preserved details
         }
     }
 
