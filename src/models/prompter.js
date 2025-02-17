@@ -92,14 +92,21 @@ export class Prompter {
                 this.embedding_model = new Qwen(embedding.model, embedding.url);
             else if (embedding.api === 'mistral')
                 this.embedding_model = new Mistral(embedding.model, embedding.url);
+            else if (embedding.api === 'huggingface')
+                this.embedding_model = new HuggingFace(embedding.model, embedding.url);
+            else if (embedding.api === 'groq')
+                this.embedding_model = new GroqCloudAPI(embedding.model, embedding.url);
+            else if (embedding.api === 'novita')
+                this.embedding_model = new Novita(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
-                console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
+                let embedding_name = embedding ? embedding.api : '[NOT SPECIFIED]'
+                console.warn('Unsupported embedding: ' + embedding_name + '. Using word-overlap instead, expect reduced performance. Recommend using a supported embedding model. See Readme.');
             }
         }
         catch (err) {
-            console.log('Warning: Failed to initialize embedding model:', err.message);
-            console.log('Continuing anyway, using word overlap instead.');
+            console.warn('Warning: Failed to initialize embedding model:', err.message);
+            console.log('Continuing anyway, using word-overlap instead.');
             this.embedding_model = null;
         }
         this.skill_libary = new SkillLibrary(agent, this.embedding_model);

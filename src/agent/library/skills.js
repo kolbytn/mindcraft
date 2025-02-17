@@ -111,6 +111,18 @@ export async function craftRecipe(bot, itemName, num=1) {
     return true;
 }
 
+export async function wait(seconds) {
+    /**
+     * Waits for the given number of seconds.
+     * @param {number} seconds, the number of seconds to wait.
+     * @returns {Promise<boolean>} true if the wait was successful, false otherwise.
+     * @example
+     * await skills.wait(10);
+     **/
+    // setTimeout is disabled to prevent unawaited code, so this is a safe alternative
+    await new Promise(resolve => setTimeout(resolve, seconds * 1000));
+    return true;
+}
 
 export async function smeltItem(bot, itemName, num=1) {
     /**
