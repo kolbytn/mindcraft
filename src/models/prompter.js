@@ -93,8 +93,6 @@ export class Prompter {
                 this.embedding_model = new Mistral(embedding.model, embedding.url);
             else if (embedding.api === 'huggingface')
                 this.embedding_model = new HuggingFace(embedding.model, embedding.url);
-            else if (embedding.api === 'groq')
-                this.embedding_model = new GroqCloudAPI(embedding.model, embedding.url);
             else if (embedding.api === 'novita')
                 this.embedding_model = new Novita(embedding.model, embedding.url);
             else {
