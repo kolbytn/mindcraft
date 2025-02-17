@@ -132,7 +132,7 @@ All apis have default models and urls, so those fields are optional. The `params
 
 Embedding models are used to embed and efficiently select relevant examples for conversation and coding.
 
-Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `groq`, `novita`
+Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novita`
 
 If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
 
