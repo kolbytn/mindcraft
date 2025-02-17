@@ -145,8 +145,10 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else
-            profile.api = 'ollama';
+            else if (profile.model.includes('llama3'))
+                profile.api = 'ollama';
+            else 
+                throw new Error('Unknown model:', profile.model);
         }
         return profile;
     }
