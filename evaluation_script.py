@@ -112,11 +112,12 @@ def launch_parallel_experiments(task_path,
     servers = create_server_files("../server_data/", num_parallel)
     date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     experiments_folder = f"experiments/{exp_name}_{date_time}"
+    exp_name = f"{exp_name}_{date_time}"
 
     # start wandb
     os.makedirs(experiments_folder, exist_ok=True)
     for i, server in enumerate(servers):
-        launch_server_experiment(task_path, task_ids_split[i], num_exp, server, experiments_folder)
+        launch_server_experiment(task_path, task_ids_split[i], num_exp, server, experiments_folder, exp_name)
         time.sleep(5)
 
 
@@ -124,7 +125,8 @@ def launch_server_experiment(task_path,
                              task_ids, 
                              num_exp, 
                              server, 
-                             experiments_folder, 
+                             experiments_folder,
+                             exp_name="exp", 
                              num_agents=2, 
                              model="gpt-4o"):
     """
@@ -134,6 +136,7 @@ def launch_server_experiment(task_path,
     @param num_exp: Number of experiments to run
     @param server: Tuple containing server path and port
     @param experiments_folder: Folder to store experiment results
+    @param exp_name: Name of the experiment for wandb dataset
     @param num_agents: Number of agents to run
     @param model: Model to use for the agents
     """
@@ -164,19 +167,39 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
 
+    script_content = ""
     for task_id in task_ids:
         cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
         for _ in range(num_exp):
-            subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+            script_content += f"{cmd}\n"
+            script_content += "sleep 2\n"
             for agent in agent_names:
                 cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
-                subprocess.run(["tmux", "send-keys", "-t", session_name, cp_cmd, "C-m"])
+                script_content += f"{cp_cmd}\n"
+                script_content += "sleep 1\n"
+                script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to wandb'\n"
+                wandb_cmd = f"wandb artifact put {experiments_folder}/{task_id}_{agent}_{_}.json --name {exp_name}_{task_id}_{agent}_{_} --type dataset"
+                script_content += f"echo '{wandb_cmd}'\n"
+                script_content += f"{wandb_cmd}\n"
+                script_content += "sleep 1\n"
+            script_content += "sleep 1\n"
 
-                wandb_cmd = f"wandb artifact put {experiments_folder}/{task_id}_{agent}_{_}.json --name {task_id}_{agent}_{_} --type dataset"
-                subprocess.run(["tmux", "send-keys", "-t", session_name, wandb_cmd, "C-m"])
-            # Add a small delay between commands (optional)
-            subprocess.run(["tmux", "send-keys", "-t", session_name, "sleep 1", "C-m"])
+    # Create a temporary shell script file
+    script_file = f"./tmp/experiment_script_{session_name}.sh"
+
+    script_dir = os.path.dirname(script_file)
+    os.makedirs(script_dir, exist_ok=True)
+
+    # Call the function before writing the script file
+    with open(script_file, 'w') as f:
+        f.write(script_content)
+
+    script_file_run = "bash " + script_file
+
+    # Execute the shell script using subprocess
+    subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
+
 
     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
@@ -357,6 +380,9 @@ def main():
         subprocess.run(['tmux', 'kill-server'], check=True)
     except: 
         print("No tmux session to kill")
+    
+    # delete all server files
+    clean_up_server_files(args.num_parallel)
     if args.task_id is None:
         launch_parallel_experiments(args.task_path, args.num_exp, args.num_parallel, args.exp_name)
     
