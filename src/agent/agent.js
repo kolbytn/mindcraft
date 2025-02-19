@@ -103,7 +103,8 @@ export class Agent {
         } catch (error) {
             // Ensure we're not losing error details
             console.error('Agent start failed with error')
-            console.error(error)
+            console.error(error.message);
+            console.error(error.stack);
 
             throw error; // Re-throw with preserved details
         }
