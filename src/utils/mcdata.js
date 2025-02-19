@@ -190,7 +190,10 @@ export function getItemCraftingRecipes(itemName) {
                 recipe[ingredientName] = 0;
             recipe[ingredientName]++;
         }
-        recipes.push(recipe);
+        recipes.push([
+            recipe,
+            {craftedCount : r.result.count}
+        ]);
     }
 
     return recipes;
@@ -327,4 +330,156 @@ export function calculateLimitingResource(availableItems, requiredItems, discret
     }
     if(discrete) num = Math.floor(num);
     return {num, limitingResource}
+}
+
+let loopingItems = new Set();
+
+export function initializeLoopingItems() {
+
+    loopingItems = new Set(['coal',
+        'wheat',
+        'diamond',
+        'emerald',
+        'raw_iron',
+        'raw_gold',
+        'redstone',
+        'blue_wool',
+        'packed_mud',
+        'raw_copper',
+        'iron_ingot',
+        'dried_kelp',
+        'gold_ingot',
+        'slime_ball',
+        'black_wool',
+        'quartz_slab',
+        'copper_ingot',
+        'lapis_lazuli',
+        'honey_bottle',
+        'rib_armor_trim_smithing_template',
+        'eye_armor_trim_smithing_template',
+        'vex_armor_trim_smithing_template',
+        'dune_armor_trim_smithing_template',
+        'host_armor_trim_smithing_template',
+        'tide_armor_trim_smithing_template',
+        'wild_armor_trim_smithing_template',
+        'ward_armor_trim_smithing_template',
+        'coast_armor_trim_smithing_template',
+        'spire_armor_trim_smithing_template',
+        'snout_armor_trim_smithing_template',
+        'shaper_armor_trim_smithing_template',
+        'netherite_upgrade_smithing_template',
+        'raiser_armor_trim_smithing_template',
+        'sentry_armor_trim_smithing_template',
+        'silence_armor_trim_smithing_template',
+        'wayfinder_armor_trim_smithing_template']);
+}
+
+
+/**
+ * Gets a detailed plan for crafting an item considering current inventory
+ */
+export function getDetailedCraftingPlan(targetItem, count = 1, current_inventory = {}) {
+    initializeLoopingItems();
+    if (!targetItem || count <= 0 || !getItemId(targetItem)) {
+        return "Invalid input. Please provide a valid item name and positive count.";
+    }
+
+    if (isBaseItem(targetItem)) {
+        const available = current_inventory[targetItem] || 0;
+        if (available >= count) return "You have all required items already in your inventory!";
+        return `${targetItem} is a base item, you need to find ${count - available} more in the world`;
+    }
+
+    const inventory = { ...current_inventory };
+    const leftovers = {};
+    const plan = craftItem(targetItem, count, inventory, leftovers);
+    return formatPlan(plan);
+}
+
+function isBaseItem(item) {
+    return loopingItems.has(item) || getItemCraftingRecipes(item) === null;
+}
+
+function craftItem(item, count, inventory, leftovers, crafted = { required: {}, steps: [], leftovers: {} }) {
+    // Check available inventory and leftovers first
+    const availableInv = inventory[item] || 0;
+    const availableLeft = leftovers[item] || 0;
+    const totalAvailable = availableInv + availableLeft;
+
+    if (totalAvailable >= count) {
+        // Use leftovers first, then inventory
+        const useFromLeft = Math.min(availableLeft, count);
+        leftovers[item] = availableLeft - useFromLeft;
+        
+        const remainingNeeded = count - useFromLeft;
+        if (remainingNeeded > 0) {
+            inventory[item] = availableInv - remainingNeeded;
+        }
+        return crafted;
+    }
+
+    // Use whatever is available
+    const stillNeeded = count - totalAvailable;
+    if (availableLeft > 0) leftovers[item] = 0;
+    if (availableInv > 0) inventory[item] = 0;
+
+    if (isBaseItem(item)) {
+        crafted.required[item] = (crafted.required[item] || 0) + stillNeeded;
+        return crafted;
+    }
+
+    const recipe = getItemCraftingRecipes(item)?.[0];
+    if (!recipe) {
+        crafted.required[item] = stillNeeded;
+        return crafted;
+    }
+
+    const [ingredients, result] = recipe;
+    const craftedPerRecipe = result.craftedCount;
+    const batchCount = Math.ceil(stillNeeded / craftedPerRecipe);
+    const totalProduced = batchCount * craftedPerRecipe;
+
+    // Add excess to leftovers
+    if (totalProduced > stillNeeded) {
+        leftovers[item] = (leftovers[item] || 0) + (totalProduced - stillNeeded);
+    }
+
+    // Process each ingredient
+    for (const [ingredientName, ingredientCount] of Object.entries(ingredients)) {
+        const totalIngredientNeeded = ingredientCount * batchCount;
+        craftItem(ingredientName, totalIngredientNeeded, inventory, leftovers, crafted);
+    }
+
+    // Add crafting step
+    const stepIngredients = Object.entries(ingredients)
+        .map(([name, amount]) => `${amount * batchCount} ${name}`)
+        .join(' + ');
+    crafted.steps.push(`Craft ${stepIngredients} -> ${totalProduced} ${item}`);
+
+    return crafted;
+}
+
+function formatPlan({ required, steps, leftovers }) {
+    const lines = [];
+
+    if (Object.keys(required).length > 0) {
+        lines.push('You are missing the following items:');
+        Object.entries(required).forEach(([item, count]) => 
+            lines.push(`- ${count} ${item}`));
+        lines.push('\nOnce you have these items, here\'s your crafting plan:');
+    } else {
+        lines.push('You have all items required to craft this item!');
+        lines.push('Here\'s your crafting plan:');
+    }
+
+    lines.push('');
+    lines.push(...steps);
+
+    if (Object.keys(leftovers).length > 0) {
+        lines.push('\nYou will have leftover:');
+        Object.entries(leftovers).forEach(([item, count]) => 
+            lines.push(`- ${count} ${item}`));
+    }
+
+    return lines.join('\n');
 }

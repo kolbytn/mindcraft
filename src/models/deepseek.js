@@ -3,8 +3,9 @@ import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class DeepSeek {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.params = params;
 
         let config = {};
 
@@ -23,6 +24,7 @@ export class DeepSeek {
             model: this.model_name || "deepseek-chat",
             messages,
             stop: stop_seq,
+            ...(this.params || {})
         };
 
         let res = null;

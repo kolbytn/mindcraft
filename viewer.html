@@ -26,9 +26,9 @@
     </div>
     <script>
       function updateLayout() {
-        var width = window.innerWidth;
-        var height = window.innerHeight;
-        var iframes = document.querySelectorAll('.iframe-wrapper');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let iframes = document.querySelectorAll('.iframe-wrapper');
         if (width > height) {
           iframes.forEach(function(iframe) {
             iframe.style.width = '50%';
@@ -43,10 +43,10 @@
       }
       window.addEventListener('resize', updateLayout);
       window.addEventListener('load', updateLayout);
-      var iframes = document.querySelectorAll('.iframe-wrapper');
+      let iframes = document.querySelectorAll('.iframe-wrapper');
       iframes.forEach(function(iframe) {
-        var port = iframe.getAttribute('data-port');
-        var loaded = false;
+        let port = iframe.getAttribute('data-port');
+        let loaded = false;
         function checkServer() {
           fetch('http://localhost:' + port, { method: 'HEAD' })
             .then(function(response) {

@@ -59,14 +59,11 @@ def check_task_completion(agents):
             
     return False  # Default to failure if no conclusive result found
 
-def update_results_file(task_id, success_count, total_count, time_taken, experiment_results):
+def update_results_file(task_id, success_count, total_count, time_taken, experiment_results, results_filename):
     """Update the results file with current success ratio and time taken."""
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"results_{task_id}_{timestamp}.txt"
-    
     success_ratio = success_count / total_count
     
-    with open(filename, 'w') as f:
+    with open(results_filename, 'w') as f:  # 'w' mode overwrites the file each time
         f.write(f"Task ID: {task_id}\n")
         f.write(f"Experiments completed: {total_count}\n")
         f.write(f"Successful experiments: {success_count}\n")
@@ -86,6 +83,7 @@ def update_results_file(task_id, success_count, total_count, time_taken, experim
         f.write(f"Total time taken: {total_time:.2f} seconds\n")
         f.write(f"Average time per experiment: {total_time / total_count:.2f} seconds\n")
         f.write(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
 
 def set_environment_variable_tmux_session(session_name, key, value):
     """Set an environment variable for the current process."""
@@ -309,12 +307,11 @@ def detach_process(command):
         return None
 
 
-def run_experiment(task_path, task_id, num_exp):
-    """Run the specified number of experiments and track results."""
-    # Read agent profiles from settings.js
-    agents = read_settings(file_path="settings.js")
-    print(f"Detected agents: {agents}")
-    
+    # Generate timestamp at the start of experiments
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    results_filename = f"results_{task_id}_{timestamp}.txt"
+    print(f"Results will be saved to: {results_filename}")
+   
     success_count = 0
     experiment_results = []
     
@@ -340,6 +337,7 @@ def run_experiment(task_path, task_id, num_exp):
             print(f"Experiment {exp_num + 1} failed")
         
         end_time = time.time() 
+
         time_taken = end_time - start_time
         
         # Store individual experiment result
@@ -350,6 +348,7 @@ def run_experiment(task_path, task_id, num_exp):
         
         # Update results file after each experiment
         update_results_file(task_id, success_count, exp_num + 1, time_taken, experiment_results)
+
         
         # Small delay between experiments
         time.sleep(1)

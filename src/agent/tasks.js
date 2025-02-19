@@ -100,7 +100,7 @@ export class Task {
             return;
         let bot = this.agent.bot;
         let name = this.agent.name;
-    
+
         bot.chat(`/clear ${name}`);
         console.log(`Cleared ${name}'s inventory.`);
 
@@ -110,13 +110,13 @@ export class Task {
         }
         //wait for a bit so inventory is cleared
         await new Promise((resolve) => setTimeout(resolve, 500));
-    
+        let initial_inventory = null;
         if (this.data.agent_count > 1) {
-            var initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
+            initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
             console.log("Initial inventory:", initial_inventory);
         } else if (this.data) {
             console.log("Initial inventory:", this.data.initial_inventory);
-            var initial_inventory = this.data.initial_inventory;
+            initial_inventory = this.data.initial_inventory;
         }
     
         if ("initial_inventory" in this.data) {

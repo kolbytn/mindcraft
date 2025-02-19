@@ -116,6 +116,18 @@ export function createMindServer(port = 8080) {
             }, 2000);
         });
 
+		socket.on('send-message', (agentName, message) => {
+			if (!inGameAgents[agentName]) {
+				console.warn(`Agent ${agentName} not logged in, cannot send message via MindServer.`);
+				return
+			}
+			try {
+				console.log(`Sending message to agent ${agentName}: ${message}`);
+				inGameAgents[agentName].emit('send-message', agentName, message)
+			} catch (error) {
+				console.error('Error: ', error);
+			}
+		});
     });
 
     server.listen(port, 'localhost', () => {

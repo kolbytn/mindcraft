@@ -1,0 +1,14 @@
+{
+    "modes": {
+        "self_preservation": false,
+        "unstuck": false,
+        "cowardice": false,
+        "self_defense": false,
+        "hunting": false,
+        "item_collecting": false,
+        "torch_placing": false,
+        "elbow_room": false,
+        "idle_staring": true,
+        "cheat": true
+    }
+}
