@@ -93,7 +93,6 @@ def set_environment_variable_tmux_session(session_name, key, value):
 
 def launch_parallel_experiments(task_path, 
                                 num_exp, 
-                                server, 
                                 exp_name, 
                                 num_agents=2, 
                                 model="gpt-4o", 
@@ -212,11 +211,14 @@ def make_profiles(agent_names, models):
 
 def create_server_files(source_path, num_copies):
     """Create multiple copies of server files for parallel experiments."""
+    print("Creating server files...")
+    print(num_copies)
     servers = []
     for i in range(num_copies):
         dest_path = f"../server_data_{i}/"
         copy_server_files(source_path, dest_path)
-        edit_file(dest_path, {"server-port": 55916 + i})
+        print(dest_path)
+        edit_file(dest_path + "server.properties", {"server-port": 55916 + i})
         # edit_server_properties_file(dest_path, 55916 + i)
         servers.append((dest_path, 55916 + i))
     return servers
@@ -367,7 +369,7 @@ def main():
     parser.add_argument('--num_parallel', default=1, type=int, help='Number of parallel servers to run')
     parser.add_argument('--exp_name', default="exp", help='Name of the experiment')
     parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
-    parser.add_argument('--wandb-project', default="minecraft_experiements", help='wandb project name')
+    parser.add_argument('--wandb-project', default="minecraft_experiments", help='wandb project name')
 
     args = parser.parse_args()
 
@@ -384,7 +386,7 @@ def main():
     # delete all server files
     clean_up_server_files(args.num_parallel)
     if args.task_id is None:
-        launch_parallel_experiments(args.task_path, args.num_exp, args.num_parallel, args.exp_name)
+        launch_parallel_experiments(args.task_path, num_exp=args.num_exp, exp_name=args.exp_name, num_parallel=args.num_parallel)
     
     # servers = create_server_files("../server_data/", args.num_parallel)
     # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

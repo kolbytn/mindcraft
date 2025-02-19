@@ -1,0 +1,14 @@
+{ 
+    "cooked_mutton": ["Step 1: Kill a sheep and pick up 1 mutton that is dropped.", "Step 2: Go to furnace and use it to cook the mutton"], 
+    "cooked_beef": ["Step 1: Kill a cow and pick up 1 beef that is dropped.", "Step 2: Go to furnace and use it to cook the beef"],
+    "cooked_porkchop": ["Step 1: Kill a pig and pick up 1 porkchop that is dropped.", "Step 2: Go to furnace and use it to cook the porkchop"],
+    "cooked_chicken": ["Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.", "Step 2: Go to furnace and use it to cook the raw chicken"],
+    "cooked_rabbit": ["Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.", "Step 2: Go to furnace and use it to cook the raw rabbit"],
+    "beetroot_soup": ["Step 1: Collect 6 beetroot from the farm", "Step 2: Go to the chest and grab oak_planks", "Step 3: Go to the crafting table and make a bowl using the oak_planks", "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup"],
+    "baked_potato": ["Step 1: Go to the farm and collect 1 potato", "Step 2: Go to the furnace and bake the potato"],
+    "bread": ["Step 1: Go to the farm and collect 16 wheat", "Step 2: Go to the crafting table and use it to craft bread"],
+    "cake": ["Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg", "Step 2: go to the chest and grab a milk bucket", "Step 3: Craft the sugarcane into sugar", "Step 4: Go to the crafting table and combine the ingredients to make a cake"],
+    "cookie": ["Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean", "Step 2: Go to the crafting table and use it to craft a cookie"],
+    "mushroom_stew": ["Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom", "Step 2: Go to the chest and grab oak_planks", "Step 3: Go to the crafting table and make a bowl using the oak_planks", "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew"],
+    "rabbit_stew": ["Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom", "Step 2: Go to the furnace and bake the potato", "Step 2: Go to the chest and grab oak_planks", "Step 3: Go to the crafting table and make a bowl using the oak_planks", "Step 4: Kill a rabbit and pick up 1 raw rabbit that is dropped", "Step 5: Go to the furnace and cook the rabbit", "Step 6: Go to the crafting table and combine cooked rabbit, baked potato, carrot, and mushroom to make rabbit stew"],
+}
