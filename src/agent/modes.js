@@ -277,7 +277,7 @@ const modes_list = [
 ];
 
 async function execute(mode, agent, func, timeout=-1) {
-    if (agent.self_prompter.on)
+    if (agent.self_prompter.isActive())
         agent.self_prompter.stopLoop();
     let interrupted_action = agent.actions.currentActionLabel;
     mode.active = true;
@@ -290,7 +290,7 @@ async function execute(mode, agent, func, timeout=-1) {
     let should_reprompt = 
         interrupted_action && // it interrupted a previous action
         !agent.actions.resume_func && // there is no resume function
-        !agent.self_prompter.on && // self prompting is not on
+        !agent.self_prompter.isActive() && // self prompting is not on
         !code_return.interrupted; // this mode action was not interrupted by something else
 
     if (should_reprompt) {
@@ -311,9 +311,9 @@ for (let mode of modes_list) {
 class ModeController {
     /*
     SECURITY WARNING:
-    ModesController must be isolated. Do not store references to external objects like `agent`.
+    ModesController must be reference isolated. Do not store references to external objects like `agent`.
     This object is accessible by LLM generated code, so any stored references are also accessible.
-    This can be used to expose sensitive information by malicious human prompters.
+    This can be used to expose sensitive information by malicious prompters.
     */
     constructor() {
         this.behavior_log = '';

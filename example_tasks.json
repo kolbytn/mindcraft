@@ -44,6 +44,7 @@
     },
     "multiagent_techtree_1_stone_pickaxe": {
         "conversation": "Let's collaborate to build a stone pickaxe",
+        "goal": "Build a stone pickaxe",
         "agent_count": 2,
         "initial_inventory": {
             "0": {
