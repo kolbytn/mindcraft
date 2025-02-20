@@ -8,7 +8,6 @@ export class ConstructionTaskValidator {
     validate() {
         try {
             //todo: somehow make this more of a percentage or something
-            //todo: change air validation
             console.log('Validating task...');
             let valid = false;
             let score = 0;
@@ -71,12 +70,14 @@ export class Blueprint {
     }
     explain() {
         var explanation = "";
+
+        // todo: we need to limit this to be a certain amount of levels to not overload memory...
         for (let item of this.data.levels) {
             var coordinates = item.coordinates;
             explanation += `Level ${item.level}: `;
             explanation += `Start at coordinates X: ${coordinates[0]}, Y: ${coordinates[1]}, Z: ${coordinates[2]}`;
-            let placement_string = this._getPlacementString(item.placement);
-            explanation += `\n${placement_string}\n`;
+            // let placement_string = this._getPlacementString(item.placement);
+            // explanation += `\n${placement_string}\n`;
         }
         return explanation;
     }
@@ -165,22 +166,29 @@ export class Blueprint {
                 const x = startCoords[0] + xOffset;
                 const y = startCoords[1];
                 const z = startCoords[2] + zOffset;
-    
+
                 try {
                     const blockAtLocation = bot.blockAt(new Vec3(x, y, z));
-                    if (!blockAtLocation || blockAtLocation.name !== blockName) {
+                    const actualBlockName = blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : "air";
+
+                    // Skip if both expected and actual block are "air"
+                    if (blockName === "air" && actualBlockName === "air") {
+                        continue;
+                    }
+
+                    if (actualBlockName !== blockName) {
                         mismatches.push({
                             level: levelData.level,
                             coordinates: [x, y, z],
                             expected: blockName,
-                            actual: blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : 'air' // Assuming air if no block
+                            actual: actualBlockName
                         });
                     } else {
                         matches.push({
                             level: levelData.level,
                             coordinates: [x, y, z],
                             expected: blockName,
-                            actual: blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : 'air' // Assuming air if no block
+                            actual: actualBlockName
                         });
                     }
                 } catch (err) {
@@ -292,7 +300,7 @@ export class Blueprint {
         };
 
         return { commands, nearbyPosition };
-    } 
+    }
 }
 
 

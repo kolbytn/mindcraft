@@ -55,6 +55,7 @@ function generateConstructionTasks() {
     const roomCounts = [4, 6, 8];
     const windowStyles = [0, 1, 2];
     const carpetStyles = [0, 1, 2];
+    const timeout = 600 // 10 min base?
 
     for (let m = 0; m < materialLevels; m++) {
         for (let r = 0; r < roomCounts.length; r++) {
@@ -86,8 +87,10 @@ function generateConstructionTasks() {
                             goal: "Make a house with the blueprint",
                             conversation: "Let's share materials and make a house with the blueprint",
                             agent_count: 2,
-                            blueprint: blueprint,
-                            initial_inventory: createInitialInventory(blueprint, 2)
+                            initial_inventory: createInitialInventory(blueprint, 2),
+                            timeout: timeout+(300*r), // 5 minute per additional level of complexity
+                            blueprint: blueprint, //todo: make a pointer?
+
                         };
                     }
                 }
