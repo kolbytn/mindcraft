@@ -4,14 +4,6 @@ import { getKey } from '../utils/keys.js';
 // THIS API IS NOT TO BE CONFUSED WITH GROK!
 // Go to grok.js for that. :)
 
-
-
-// NOTICE: I've moved to an actual custom coding style. Sorry if this seems quite a bit more spaced out than the rest of the classes, as this style places HEAVY emphasis on spacing and
-// readability.
-// I'm just maintaining my old legacy code.
-// Cheers, Kalinite/Copper/FateUnix29/... 
-
-
 // Umbrella class for everything under the sun... That GroqCloud provides, that is.
 export class GroqCloudAPI {
 
