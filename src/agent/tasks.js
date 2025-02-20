@@ -4,6 +4,7 @@ import { getPosition } from './library/world.js'
 import settings from '../../settings.js';
 import { Vec3 } from 'vec3';
 import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
+import {autoBuild, autoDelete} from "../../test/test_blueprint_layout.js";
 
 //todo: modify validator code to return an object with valid and score -> do more testing hahah
 //todo: figure out how to log these things to the same place as bots/histories
@@ -185,6 +186,7 @@ export class Task {
         then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
         This was done by MaxRobinson in one of the youtube videos.
         */
+
     
         if (this.data.type !== 'construction') {
             const pos = getPosition(bot);
@@ -211,6 +213,23 @@ export class Task {
         if (this.conversation && this.agent.count_id === 0) {
             let other_name = available_agents.filter(n => n !== name)[0];
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
+        }
+
+
+        if (this.data.type === 'construction'){
+            //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
+            if (this.blueprint){
+                const result = this.blueprint.autoDelete();
+                // const result = clearHouse(blueprint)
+                const commands = result.commands;
+                const nearbyPosition = result.nearbyPosition;
+                for (const command of commands) {
+                    bot.chat(command);
+                }
+            }
+            else{
+                console.log('no construction blueprint?')
+            }
         }
     }    
 }
