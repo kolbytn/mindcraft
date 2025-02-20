@@ -51,6 +51,7 @@ function calculateSpaceNeeded(rooms) {
 
 function generateConstructionTasks() {
     const tasks = {};
+    const variants = 1
     const materialLevels = 5;
     const roomCounts = [4, 6, 8];
     const windowStyles = [0, 1, 2];
@@ -61,7 +62,7 @@ function generateConstructionTasks() {
         for (let r = 0; r < roomCounts.length; r++) {
             for (let w = 0; w < windowStyles.length; w++) {
                 for (let c = 0; c < carpetStyles.length; c++) {
-                    for (let variant = 0; variant < 5; variant++) {
+                    for (let variant = 0; variant < variants; variant++) {
                         const rooms = roomCounts[r];
                         const spaceSize = calculateSpaceNeeded(rooms);
 
