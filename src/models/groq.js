@@ -59,8 +59,6 @@ export class GroqCloudAPI {
                 "messages": messages,
                 "model": this.model_name || "llama-3.3-70b-versatile",
                 "stream": false,
-                "tools": null,
-                "tool_choice": "auto",
                 "stop": stop_seq,
                 ...(this.params || {})
             });
