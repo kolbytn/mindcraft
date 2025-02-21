@@ -306,57 +306,6 @@ def detach_process(command):
         print(f"An error occurred: {e}")
         return None
 
-
-    # Generate timestamp at the start of experiments
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    results_filename = f"results_{task_id}_{timestamp}.txt"
-    print(f"Results will be saved to: {results_filename}")
-   
-    success_count = 0
-    experiment_results = []
-    
-    for exp_num in range(num_exp):
-        print(f"\nRunning experiment {exp_num + 1}/{num_exp}")
-        
-        start_time = time.time()
-        
-        # Run the node command
-        cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
-        try:
-            subprocess.run(cmd, shell=True, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error running experiment: {e}")
-            continue
-            
-        # Check if task was successful
-        success = check_task_completion(agents)
-        if success:
-            success_count += 1
-            print(f"Experiment {exp_num + 1} successful")
-        else:
-            print(f"Experiment {exp_num + 1} failed")
-        
-        end_time = time.time() 
-
-        time_taken = end_time - start_time
-        
-        # Store individual experiment result
-        experiment_results.append({
-            'success': success,
-            'time_taken': time_taken
-        })
-        
-        # Update results file after each experiment
-        update_results_file(task_id, success_count, exp_num + 1, time_taken, experiment_results)
-
-        
-        # Small delay between experiments
-        time.sleep(1)
-    
-    final_ratio = success_count / num_exp
-    print(f"\nExperiments completed. Final success ratio: {final_ratio:.2f}")
-    return experiment_results
-
 def main():
     # edit_settings("settings.js", {"profiles": ["./andy.json", "./jill.json"], "port": 55917})
     # edit_server_properties_file("../server_data/", 55917)
