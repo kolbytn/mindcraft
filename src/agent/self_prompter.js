@@ -127,11 +127,13 @@ export class SelfPrompter {
 
     async pause() {
         this.interrupt = true;
+        await this.agent.actions.stop();
+        this.stopLoop();
         this.state = PAUSED;
     }
 
     shouldInterrupt(is_self_prompt) { // to be called from handleMessage
-        return is_self_prompt && this.state === ACTIVE && this.interrupt;
+        return is_self_prompt && (this.state === ACTIVE || this.state === PAUSED) && this.interrupt;
     }
 
     handleUserPromptedCmd(is_self_prompt, is_action) {
