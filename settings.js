@@ -44,4 +44,9 @@ export default
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
+
+    // New section for advanced features that will be added like Vision or Model speech, for now though, just TTS :)
+    "tts_transcription": false, // change this to "true" or "false" depending on iff you want TTS in Mindcraft, TTS needs a GroqCloud API key, can be found here: https://console.groq.com/keys
+    "tts_username": "SYSTEM", // Change this to the username the model will respond to.
+    "tts_agent_name": "" // Change the name here to whatever your agent is named, if left empty, will send message to all agents.
 }
