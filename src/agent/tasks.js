@@ -36,7 +36,6 @@ export class TaskValidator {
     }
 }
 
-
 export class Task {
     constructor(agent, task_path, task_id) {
         this.agent = agent;
@@ -50,7 +49,7 @@ export class Task {
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
             this.validator = new TaskValidator(this.data, this.agent);
-            this.blocked_actions = this.data.blocked_actions || [];
+            this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
             this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
@@ -82,7 +81,7 @@ export class Task {
         if (this.validator && this.validator.validate())
             return {"message": 'Task successful', "code": 2};
         // TODO check for other terminal conditions
-        // if (this.task.goal && !this.self_prompter.on)
+        // if (this.task.goal && !this.self_prompter.isActive())
         //     return {"message": 'Agent ended goal', "code": 3};
         // if (this.task.conversation && !inConversation())
         //     return {"message": 'Agent ended conversation', "code": 3};
@@ -101,19 +100,23 @@ export class Task {
             return;
         let bot = this.agent.bot;
         let name = this.agent.name;
-    
+
         bot.chat(`/clear ${name}`);
         console.log(`Cleared ${name}'s inventory.`);
-        
+
+        //kill all drops
+        if (this.agent.count_id === 0) {
+            bot.chat(`/kill @e[type=item]`);
+        }
         //wait for a bit so inventory is cleared
         await new Promise((resolve) => setTimeout(resolve, 500));
-    
+        let initial_inventory = null;
         if (this.data.agent_count > 1) {
-            let initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
+            initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
             console.log("Initial inventory:", initial_inventory);
         } else if (this.data) {
             console.log("Initial inventory:", this.data.initial_inventory);
-            let initial_inventory = this.data.initial_inventory;
+            initial_inventory = this.data.initial_inventory;
         }
     
         if ("initial_inventory" in this.data) {

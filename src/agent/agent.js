@@ -93,6 +93,10 @@ export class Agent {
 
                     this.task.initBotTask();
 
+                    if (!load_mem) {
+                        this.task.initBotTask();
+                    }
+
                 } catch (error) {
                     console.error('Error in spawn event:', error);
                     process.exit(0);
@@ -101,7 +105,8 @@ export class Agent {
         } catch (error) {
             // Ensure we're not losing error details
             console.error('Agent start failed with error')
-            console.error(error)
+            console.error(error.message);
+            console.error(error.stack);
 
             throw error; // Re-throw with preserved details
         }
@@ -153,10 +158,10 @@ export class Agent {
         };
 
         if (save_data?.self_prompt) {
-            let prompt = save_data.self_prompt;
-            // add initial message to history
-            this.history.add('system', prompt);
-            await this.self_prompter.start(prompt);
+            if (init_message) {
+                this.history.add('system', init_message);
+            }
+            await this.self_prompter.handleLoad(save_data.self_prompt, save_data.self_prompting_state);
         }
         if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
@@ -190,7 +195,7 @@ export class Agent {
 
     shutUp() {
         this.shut_up = true;
-        if (this.self_prompter.on) {
+        if (this.self_prompter.isActive()) {
             this.self_prompter.stop(false);
         }
         convoManager.endAllConversations();
@@ -256,7 +261,7 @@ export class Agent {
         await this.history.add(source, message);
         this.history.save();
 
-        if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
+        if (!self_prompt && this.self_prompter.isActive()) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
             if (checkInterrupt()) break;
@@ -447,6 +452,8 @@ export class Agent {
         if (this.task.data) {
             let res = this.task.isDone();
             if (res) {
+                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
+                await this.history.save();
                 console.log('Task finished:', res.message);
                 this.killAll();
             }
