@@ -1,0 +1,15 @@
+{
+    "name": "azure",
+    "model": {
+        "api": "azure",
+        "url": "",
+        "model": "gpt-4o",
+        "api_version": "2024-08-01-preview"
+    },
+    "embedding": {
+        "api": "azure",
+        "url": "",
+        "model": "text-embedding-ada-002",
+        "api_version": "2024-08-01-preview"
+    }
+}
