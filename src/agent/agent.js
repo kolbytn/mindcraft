@@ -91,6 +91,8 @@ export class Agent {
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
 
+                    this.task.initBotTask();
+
                     if (!load_mem) {
                         this.task.initBotTask();
                     }
