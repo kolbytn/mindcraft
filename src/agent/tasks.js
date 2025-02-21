@@ -82,7 +82,7 @@ export class Task {
         if (this.validator && this.validator.validate())
             return {"message": 'Task successful', "code": 2};
         // TODO check for other terminal conditions
-        // if (this.task.goal && !this.self_prompter.on)
+        // if (this.task.goal && !this.self_prompter.isActive())
         //     return {"message": 'Agent ended goal', "code": 3};
         // if (this.task.conversation && !inConversation())
         //     return {"message": 'Agent ended conversation', "code": 3};
