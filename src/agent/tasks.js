@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
-import { CraftTaskInitiator } from './task_types/crafting_tasks.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
 
 /**
@@ -189,10 +188,8 @@ export class Task {
 
         if (this.data === null)
             return;
-
-        if (this.task_type === 'techtree') {
-            this.initiator = new CraftTaskInitiator(this.data, this.agent);
-        } else if (this.task_type === 'cooking') {
+        
+        if (this.task_type === 'cooking') {
             this.initiator = new CookingTaskInitiator(this.data, this.agent);
         } else {
             this.initiator = null;
