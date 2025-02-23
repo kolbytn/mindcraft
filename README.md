@@ -2,11 +2,11 @@
 
 Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 
-[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
+[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Video Tutorial](https://www.youtube.com/watch?v=gRotoL8P8D8) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
 
 
-> [!WARNING]
-Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. While the code is sandboxed, it is still vulnerable to injection attacks on public servers. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. We strongly recommend running with additional layers of security such as docker containers. Ye be warned.
+> [!Caution]
+Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. The code is sandboxed, but still vulnerable to injection attacks. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. Ye be warned.
 
 ## Requirements
 
@@ -30,30 +30,31 @@ Do not connect this bot to public servers with coding enabled. This project allo
 
 If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues.
 
-## Customization
+## Model Customization
 
 You can configure project details in `settings.js`. [See file.](settings.js)
 
-You can configure the agent's name, model, and prompts in their profile like `andy.json`.
+You can configure the agent's name, model, and prompts in their profile like `andy.json` with the `model` field. For comprehensive details, see [Model Specifications](#model-specifications).
 
 | API | Config Variable | Example Model name | Docs |
 |------|------|------|------|
-| OpenAI | `OPENAI_API_KEY` | `gpt-4o-mini` | [docs](https://platform.openai.com/docs/models) |
-| Google | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
-| Anthropic | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
-| Replicate | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
-| Ollama (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
-| Groq | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
-| Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
-| Novita AI | `NOVITA_API_KEY` | `gryphe/mythomax-l2-13b` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
-| Qwen | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
-| Mistral | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
-| xAI | `XAI_API_KEY` | `grok-beta` | [docs](https://docs.x.ai/docs) |
+| `openai` | `OPENAI_API_KEY` | `gpt-4o-mini` | [docs](https://platform.openai.com/docs/models) |
+| `google` | `GEMINI_API_KEY` | `gemini-pro` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
+| `replicate` | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
+| `ollama` (local) | n/a | `llama3` | [docs](https://ollama.com/library) |
+| `groq` | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
+| `huggingface` | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
+| `novita` | `NOVITA_API_KEY` | `gryphe/mythomax-l2-13b` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
+| `qwen` | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
+| `xai` | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
+| `deepseek` | `XAI_API_KEY` | `grok-beta` | [docs](https://docs.x.ai/docs) |
+| `openrouter` | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3 && ollama pull nomic-embed-text`
 
-## Online Servers
+### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
 ```javascript
 "host": "111.222.333.444",
@@ -62,7 +63,7 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 
 // rest is same...
 ```
-> [!CAUTION]
+> [!Important]
 > The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
 
 To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
@@ -87,25 +88,17 @@ When running in docker, if you want the bot to join your local minecraft server,
 
 To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
 
-## Bot Profiles
+# Bot Profiles
 
 Bot profiles are json files (such as `andy.json`) that define:
 
-1. Bot backend LLMs to use for chat and embeddings.
+1. Bot backend LLMs to use for talking, coding, and embedding.
 2. Prompts used to influence the bot's behavior.
 3. Examples help the bot perform tasks.
 
-### Specifying Profiles via Command Line
+## Model Specifications
 
-By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument:
-
-```bash
-node main.js --profiles ./profiles/andy.json ./profiles/jill.json
-```
-
-### Model Specifications
-
-LLM models can be specified as simply as `"model": "gpt-4o"`. However, you can specify different models for chat, coding, and embeddings. 
+LLM models can be specified simply as `"model": "gpt-4o"`. However, you can use different models for chat, coding, and embeddings. 
 You can pass a string or an object for these fields. A model object must specify an `api`, and optionally a `model`, `url`, and additional `params`.
 
 ```json
@@ -131,11 +124,21 @@ You can pass a string or an object for these fields. A model object must specify
 
 ```
 
-`model` is used for chat, `code_model` is used for newAction coding, and `embedding` is used to embed text for example selection. If `code_model` is not specified, then it will use `model` for coding.
+`model` is used for chat, `code_model` is used for newAction coding, and `embedding` is used to embed text for example selection. If `code_model` or `embedding` are not specified, they will use `model` by default. Not all APIs have an embedding model.
 
-All apis have default models and urls, so those fields are optional. Note some apis have no embedding model, so they will default to word overlap to retrieve examples. 
+All apis have default models and urls, so those fields are optional. The `params` field is optional and can be used to specify additional parameters for the model. It accepts any key-value pairs supported by the api. Is not supported for embedding models.
 
-The `params` field is optional and can be used to specify additional parameters for the model. It accepts any key-value pairs supported by the api. Is not supported for embedding models.
+## Embedding Models
+
+Embedding models are used to embed and efficiently select relevant examples for conversation and coding.
+
+Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novita`
+
+If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
+
+## Specifying Profiles via Command Line
+
+By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument: `node main.js --profiles ./profiles/andy.json ./profiles/jill.json`
 
 ## Patches
 

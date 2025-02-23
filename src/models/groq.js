@@ -48,6 +48,6 @@ export class GroqCloudAPI {
     }
 
     async embed(text) {
-      console.log("There is no support for embeddings in Groq support. However, the following text was provided: " + text);
+        throw new Error('Embeddings are not supported by Groq.');
     }
 }

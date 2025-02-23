@@ -133,8 +133,12 @@ export class Task {
             } else {
                 this.validator = null;
             }
-            
-            this.blocked_actions = this.data.blocked_actions || [];
+
+            if (this.data.blocked_actions) {
+                this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
+            } else {
+                this.blocked_actions = [];
+            }
             this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');

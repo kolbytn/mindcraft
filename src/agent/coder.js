@@ -35,9 +35,9 @@ export class Coder {
         while ((match = skillRegex.exec(code)) !== null) {
             skills.push(match[1]);
         }
-        const allDocs = await this.agent.prompter.skill_libary.getRelevantSkillDocs();
-        //lint if the function exists
-        const missingSkills = skills.filter(skill => !allDocs.includes(skill));
+        const allDocs = await this.agent.prompter.skill_libary.getAllSkillDocs();
+        // check function exists
+        const missingSkills = skills.filter(skill => !!allDocs[skill]);
         if (missingSkills.length > 0) {
             result += 'These functions do not exist. Please modify the correct function name and try again.\n';
             result += '### FUNCTIONS NOT FOUND ###\n';
@@ -163,7 +163,6 @@ export class Coder {
         for (let i=0; i<5; i++) {
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
-            console.log(messages)
             let res = await this.agent.prompter.promptCoding(JSON.parse(JSON.stringify(messages)));
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;

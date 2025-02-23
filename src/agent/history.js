@@ -84,7 +84,8 @@ export class History {
             const data = {
                 memory: this.memory,
                 turns: this.turns,
-                self_prompt: this.agent.self_prompter.on ? this.agent.self_prompter.prompt : null,
+                self_prompting_state: this.agent.self_prompter.state,
+                self_prompt: this.agent.self_prompter.isStopped() ? null : this.agent.self_prompter.prompt,
                 last_sender: this.agent.last_sender
             };
             writeFileSync(this.memory_fp, JSON.stringify(data, null, 2));
