@@ -150,6 +150,25 @@ export class Task {
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
     }
 
+    getAgentGoal() {
+        if (!this.data || !this.data.goal) {
+            return null;
+        }
+
+        // If goal is a string, all agents share the same goal
+        if (typeof this.data.goal === 'string') {
+            return this.data.goal;
+        }
+
+        // If goal is an object, get the goal for this agent's count_id
+        if (typeof this.data.goal === 'object' && this.data.goal !== null) {
+            const agentId = this.agent.count_id.toString();
+            return this.data.goal[agentId] || null;
+        }
+
+        return null;
+    }
+
     loadTask(task_path, task_id) {
         try {
             const tasksFile = readFileSync(task_path, 'utf8');
@@ -242,8 +261,10 @@ export class Task {
             }
         }
 
-        if (this.data.goal) {
-            await executeCommand(this.agent, `!goal("${this.data.goal}")`);
+        const agentGoal = this.getAgentGoal();
+        if (agentGoal) {
+            console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
+            await executeCommand(this.agent, `!goal("${agentGoal}")`);
         }
     
         if (this.data.conversation && this.agent.count_id === 0) {
