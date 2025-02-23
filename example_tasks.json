@@ -54,6 +54,7 @@
             }
         },
         "target": "stone_pickaxe",
+        "goal": "Build a stone pickaxe",
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
@@ -71,5 +72,38 @@
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
-    }
+    },
+    "multiagent_cooking_1": {
+        "conversation": "Let's collaborate to make dinner, I am going to search for 'potatoes' and make 1 'baked_potato', you on the other hand, search for cow and cook 1 beef. We have a furnace (fuel already present) nearby to help us cook, search for it over long distances to find it. Note : We only need one of each item, lets not waste time by collecting unnecessary resources.",
+        "agent_count": 2,
+        "target": {
+            "baked_potato":1,
+            "cooked_beef":1
+        },
+        "type": "cooking",
+        "timeout": 300,
+        "goal": "Make 1 baked potato, use a furnace nearby to cook which has fuel in it, let the other agent cook 1 beef"
+    },
+    "multiagent_cooking_2": {
+        "conversation": "Let's collaborate to make bread and cooked_mutton. We can split up to gather ingredients and use the nearby furnace that's already fueled.",
+        "agent_count": 2,
+        "target": {
+          "bread": 1,
+          "cooked_mutton": 1
+        },
+        "type": "cooking",
+        "timeout": 300,
+        "recipes": {
+          "bread": [
+            "Step 1: Go to the farm and collect 3 wheat.",
+            "Step 2: Go to the crafting table and use the wheat to craft bread."
+          ],
+          "cooked_mutton": [
+            "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+            "Step 2: Go to furnace and use it to cook the mutton."
+          ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": "Collaborate to make 1 bread, 1 cooked_mutton"
+      }
 }
