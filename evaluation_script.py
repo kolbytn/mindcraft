@@ -189,7 +189,7 @@ def launch_server_experiment(task_path,
                 script_content += "sleep 1\n"
                 if s3:
                     script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to s3'\n"
-                    s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{agent}_{_}.json"
+                    s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{_}/{agent}.json"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
