@@ -1,7 +1,10 @@
+const STOPPED = 0
+const ACTIVE = 1
+const PAUSED = 2
 export class SelfPrompter {
     constructor(agent) {
         this.agent = agent;
-        this.on = false;
+        this.state = STOPPED;
         this.loop_active = false;
         this.interrupt = false;
         this.prompt = '';
@@ -16,16 +19,38 @@ export class SelfPrompter {
                 return 'No prompt specified. Ignoring request.';
             prompt = this.prompt;
         }
-        if (this.on) {
-            this.prompt = prompt;
-        }
-        this.on = true;
+        this.state = ACTIVE;
         this.prompt = prompt;
         this.startLoop();
     }
 
-    setPrompt(prompt) {
+    isActive() {
+        return this.state === ACTIVE;
+    }
+
+    isStopped() {
+        return this.state === STOPPED;
+    }
+
+    isPaused() {
+        return this.state === PAUSED;
+    }
+
+    async handleLoad(prompt, state) {
+        if (state == undefined)
+            state = STOPPED;
+        this.state = state;
         this.prompt = prompt;
+        if (state !== STOPPED && !prompt)
+            throw new Error('No prompt loaded when self-prompting is active');
+        if (state === ACTIVE) {
+            await this.start(prompt);
+        }
+    }
+
+    setPromptPaused(prompt) {
+        this.prompt = prompt;
+        this.state = PAUSED;
     }
 
     async startLoop() {
@@ -47,7 +72,7 @@ export class SelfPrompter {
                     let out = `Agent did not use command in the last ${MAX_NO_COMMAND} auto-prompts. Stopping auto-prompting.`;
                     this.agent.openChat(out);
                     console.warn(out);
-                    this.on = false;
+                    this.state = STOPPED;
                     break;
                 }
             }
@@ -63,7 +88,7 @@ export class SelfPrompter {
 
     update(delta) {
         // automatically restarts loop
-        if (this.on && !this.loop_active && !this.interrupt) {
+        if (this.state === ACTIVE && !this.loop_active && !this.interrupt) {
             if (this.agent.isIdle())
                 this.idle_time += delta;
             else
@@ -96,12 +121,19 @@ export class SelfPrompter {
         this.interrupt = true;
         if (stop_action)
             await this.agent.actions.stop();
-        await this.stopLoop();
-        this.on = false;
+        this.stopLoop();
+        this.state = STOPPED;
+    }
+
+    async pause() {
+        this.interrupt = true;
+        await this.agent.actions.stop();
+        this.stopLoop();
+        this.state = PAUSED;
     }
 
     shouldInterrupt(is_self_prompt) { // to be called from handleMessage
-        return is_self_prompt && this.on && this.interrupt;
+        return is_self_prompt && (this.state === ACTIVE || this.state === PAUSED) && this.interrupt;
     }
 
     handleUserPromptedCmd(is_self_prompt, is_action) {
