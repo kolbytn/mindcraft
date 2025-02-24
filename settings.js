@@ -12,8 +12,8 @@ const settings = {
     // the base profile is shared by all bots for default prompts/examples/modes
     "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
     "profiles": [
-        "./andy.json",
-        "./jill.json"
+        //"./andy.json",
+        //"./jill.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
@@ -21,7 +21,7 @@ const settings = {
         // "./profiles/qwen.json",
         // "./profiles/grok.json",
         // "./profiles/mistral.json",
-        // "./profiles/deepseek.json",
+         "./profiles/deepseek.json",
 
         // using more than 1 profile requires you to /msg each bot indivually
         // individual profiles override values from the base profile
