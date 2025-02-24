@@ -36,6 +36,21 @@ def read_settings(file_path):
     agent_names = [profile.split('/')[-1].split('.')[0] for profile in profiles]
     return agent_names 
 
+def update_keys_json():
+    """Update the keys.json file with the specified key-value pair."""
+    with open("keys.example.json", 'r', encoding='utf-8') as file:
+        content = file.read()
+    data = json.loads(content)
+
+    # Update keys with environment variables
+    for key in data.keys():
+        env_value = os.getenv(key)  # Fetch from environment variables
+        if env_value:  # If the variable exists, update it
+            data[key] = env_value
+
+    with open("keys.json", 'w', encoding='utf-8') as file:
+        json.dump(data, file, indent=4)
+
 def check_task_completion(agents):
     """Check memory.json files of all agents to determine task success/failure."""
     for agent in agents:
@@ -330,6 +345,7 @@ def main():
     parser.add_argument('--exp_name', default="exp", help='Name of the experiment')
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
+    parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
     # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
     # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
 
@@ -347,6 +363,8 @@ def main():
     
     # delete all server files
     clean_up_server_files(args.num_parallel)
+    if args.add_keys:
+        update_keys_json()
     if args.task_id is None:
         launch_parallel_experiments(args.task_path, 
                                     num_exp=args.num_exp, 
