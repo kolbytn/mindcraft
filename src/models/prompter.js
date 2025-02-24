@@ -145,10 +145,8 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else if (profile.model.includes('llama3'))
-                profile.api = 'ollama';
-            else 
-                throw new Error('Unknown model:', profile.model);
+            else
+                profile.api = 'ollama'; // Fixed here to make it so if the model does not meet this criteria, it is an Ollama model, instead of blocking all models but llama3, which was an odd choice.
         }
         return profile;
     }
