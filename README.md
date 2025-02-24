@@ -88,6 +88,21 @@ When running in docker, if you want the bot to join your local minecraft server,
 
 To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
 
+## TTS in Mindcraft
+
+TTS is an acronym for "Text To Speech", allowing you to talk into a microphone and the model responding.
+
+TTS can be enabled in `settings.js` under the section that looks like this:
+```javascript
+    "tts_transcription": true, // Change this to "true" to enable TTS
+    "tts_username": "SYSTEM",
+    "tts_agent_name": ""
+```
+
+The Text to Speech engine will begin listening on the **system default input device**, ensure you have your preferred device set as the default.
+
+When using TTS, you **need** a [GroqCloud API key](https://console.groq.com/keys) as Groq is used for Audio transcription
+
 # Bot Profiles
 
 Bot profiles are json files (such as `andy.json`) that define:

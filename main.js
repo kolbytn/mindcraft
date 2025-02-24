@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import { createMindServer } from './src/server/mind_server.js';
 import { mainProxy } from './src/process/main_proxy.js';
 import { readFileSync } from 'fs';
+import { initTTS } from './src/process/tts_process.js';
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
@@ -38,16 +39,25 @@ async function main() {
     const args = parseArguments();
     const profiles = getProfiles(args);
     console.log(profiles);
+
     const { load_memory, init_message } = settings;
 
-    for (let i=0; i<profiles.length; i++) {
+    // Start each agent in turn
+    for (let i = 0; i < profiles.length; i++) {
         const agent_process = new AgentProcess();
         const profile = readFileSync(profiles[i], 'utf8');
         const agent_json = JSON.parse(profile);
+
         mainProxy.registerAgent(agent_json.name, agent_process);
+
         agent_process.start(profiles[i], load_memory, init_message, i, args.task_path, args.task_id);
+
+        // A small delay so we don't start them all at once
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
+
+    // NEW: Finally, kick off TTS (will only run if tts_transcription is true in settings)
+    initTTS();
 }
 
 try {
