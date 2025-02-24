@@ -127,6 +127,8 @@ export class Prompter {
                 profile.api = 'google';
             else if (profile.model.includes('openrouter/'))
                 profile.api = 'openrouter'; // must do before others bc shares model names
+            else if (profile.model.includes('andy-'))
+                profile.api = 'ollama'; // We have to check here since the installation for Andy-3.6 makes the username include "hf:" which is the same as glhf.chat, which will not work.
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
@@ -151,10 +153,8 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else if (profile.model.includes('llama3'))
-                profile.api = 'ollama';
-            else 
-                throw new Error('Unknown model:', profile.model);
+            else
+                profile.api = 'ollama'; // Fixed this line, it had a bug where only llama3 models could be used in Mindcraft via Ollama, which was is not optimal. 
         }
         return profile;
     }
