@@ -141,7 +141,6 @@ def launch_parallel_experiments(task_path,
                                  bucket_name=bucket_name)
         time.sleep(5)
 
-
 def launch_server_experiment(task_path, 
                              task_ids, 
                              num_exp, 
@@ -229,10 +228,18 @@ def launch_server_experiment(task_path,
 
 def make_profiles(agent_names, models):
     assert len(agent_names) == len(models)
+
+    with open("profiles/collab_profile.json", 'r') as f:
+        content = f.read()
+    
+    profile = json.loads(content)
+
     for index in range(len(agent_names)):
-        content = {"name": agent_names[index], "model": models[index], "modes": {"hunting": False}}
+        profile["name"] = agent_names[index]
+        profile["model"] = models[index]
+
         with open(f"{agent_names[index]}.json", 'w') as f:
-            json.dump(content, f)
+            json.dump(profile, f, indent=4)
 
 def create_server_files(source_path, num_copies):
     """Create multiple copies of server files for parallel experiments."""
