@@ -1,0 +1,10 @@
+{
+    "name": "sglang",
+
+    "model": {
+        "api": "sglang",
+        "url": "http://localhost:30001/v1/",
+        "model": "meta-llama/Llama-3.3-70B-Instruct"
+    }
+
+}

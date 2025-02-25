@@ -1,0 +1,10 @@
+{
+    "name": "sglang",
+
+    "model": {
+        "api": "sglang",
+        "url": "http://localhost:30001/v1/",
+        "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
+    }
+
+}

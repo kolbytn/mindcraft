@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, writeFileSync} from 'fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from '../agent/commands/index.js';
 import { getSkillDocs } from '../agent/library/index.js';
@@ -7,20 +7,17 @@ import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
 import settings from '../../settings.js';
 
-import { Gemini } from './gemini.js';
-import { GPT } from './gpt.js';
-import { Claude } from './claude.js';
-import { Mistral } from './mistral.js';
-import { ReplicateAPI } from './replicate.js';
-import { Local } from './local.js';
-import { Novita } from './novita.js';
-import { GroqCloudAPI } from './groq.js';
-import { HuggingFace } from './huggingface.js';
-import { Qwen } from "./qwen.js";
-import { Grok } from "./grok.js";
-import { DeepSeek } from './deepseek.js';
-import { OpenRouter } from './openrouter.js';
-
+import { Gemini } from '../models/gemini.js';
+import { GPT } from '../models/gpt.js';
+import { Claude } from '../models/claude.js';
+import { ReplicateAPI } from '../models/replicate.js';
+import { Local } from '../models/local.js';
+import { Novita } from '../models/novita.js';
+import { GroqCloudAPI } from '../models/groq.js';
+import { HuggingFace } from '../models/huggingface.js';
+import { Qwen } from "../models/qwen.js";
+import { Grok } from "../models/grok.js";
+import { SGLang } from "../models/sglang.js";
 export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
@@ -44,7 +41,7 @@ export class Prompter {
 
         this.convo_examples = null;
         this.coding_examples = null;
-        
+
         let name = this.profile.name;
         this.cooldown = this.profile.cooldown ? this.profile.cooldown : 0;
         this.last_prompt_time = 0;
@@ -54,6 +51,34 @@ export class Prompter {
         let max_tokens = null;
         if (this.profile.max_tokens)
             max_tokens = this.profile.max_tokens;
+<<<<<<< Updated upstream:src/models/prompter.js
+=======
+        if (typeof chat === 'string' || chat instanceof String) {
+            chat = { model: chat };
+            if (chat.model.includes('gemini'))
+                chat.api = 'google';
+            else if (chat.model.includes('gpt') || chat.model.includes('o1'))
+                chat.api = 'openai';
+            else if (chat.model.includes('claude'))
+                chat.api = 'anthropic';
+            else if (chat.model.includes('huggingface/'))
+                chat.api = "huggingface";
+            else if (chat.model.includes('meta/') || chat.model.includes('mistralai/') || chat.model.includes('replicate/'))
+                chat.api = 'replicate';
+            else if (chat.model.includes("groq/") || chat.model.includes("groqcloud/"))
+                chat.api = 'groq';
+            else if (chat.model.includes('novita/'))
+                chat.api = 'novita';
+            else if (chat.model.includes('qwen'))
+                chat.api = 'qwen';
+            else if (chat.model.includes('grok'))
+                chat.api = 'xai';
+            else if (chat.model.includes('sglang'))
+                chat.api = 'sglang';
+            else
+                chat.api = 'ollama';
+        }
+>>>>>>> Stashed changes:src/agent/prompter.js
 
         let chat_model_profile = this._selectAPI(this.profile.model);
         this.chat_model = this._createModel(chat_model_profile);
@@ -65,24 +90,44 @@ export class Prompter {
         else {
             this.code_model = this.chat_model;
         }
+<<<<<<< Updated upstream:src/models/prompter.js
 
         let embedding = this.profile.embedding;
         if (embedding === undefined) {
             if (chat_model_profile.api !== 'ollama')
-                embedding = {api: chat_model_profile.api};
+                embedding = { api: chat_model_profile.api };
+=======
+        else if (chat.api === 'huggingface')
+            this.chat_model = new HuggingFace(chat.model, chat.url);
+        else if (chat.api === 'novita')
+            this.chat_model = new Novita(chat.model.replace('novita/', ''), chat.url);
+        else if (chat.api === 'qwen')
+            this.chat_model = new Qwen(chat.model, chat.url);
+        else if (chat.api === 'xai')
+            this.chat_model = new Grok(chat.model, chat.url);
+        else if (chat.api === 'sglang')
+            this.chat_model = new SGLang(chat.model, chat.url);
+        else
+            throw new Error('Unknown API:', api);
+
+        let embedding = this.profile.embedding;
+        if (embedding === undefined) {
+            if (chat.api !== 'ollama')
+                embedding = { api: chat.api };
+>>>>>>> Stashed changes:src/agent/prompter.js
             else
-                embedding = {api: 'none'};
+                embedding = { api: 'none' };
         }
         else if (typeof embedding === 'string' || embedding instanceof String)
-            embedding = {api: embedding};
+            embedding = { api: embedding };
 
         console.log('Using embedding settings:', embedding);
 
         try {
             if (embedding.api === 'google')
                 this.embedding_model = new Gemini(embedding.model, embedding.url);
-            else if (embedding.api === 'openai')
-                this.embedding_model = new GPT(embedding.model, embedding.url);
+            // else if (embedding.api === 'openai' || embedding.api === 'sglang')
+            //     this.embedding_model = new GPT(embedding.model, embedding.url);
             else if (embedding.api === 'replicate')
                 this.embedding_model = new ReplicateAPI(embedding.model, embedding.url);
             else if (embedding.api === 'ollama')
@@ -118,14 +163,14 @@ export class Prompter {
 
     _selectAPI(profile) {
         if (typeof profile === 'string' || profile instanceof String) {
-            profile = {model: profile};
+            profile = { model: profile };
         }
         if (!profile.api) {
             if (profile.model.includes('gemini'))
                 profile.api = 'google';
             else if (profile.model.includes('openrouter/'))
                 profile.api = 'openrouter'; // must do before others bc shares model names
-            else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
+            else if (profile.model.includes('gpt') || profile.model.includes('o1') || profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
                 profile.api = 'anthropic';
@@ -147,7 +192,7 @@ export class Prompter {
                 profile.api = 'deepseek';
             else if (profile.model.includes('llama3'))
                 profile.api = 'ollama';
-            else 
+            else
                 throw new Error('Unknown model:', profile.model);
         }
         return profile;
@@ -196,9 +241,15 @@ export class Prompter {
 
     async initExamples() {
         try {
+<<<<<<< Updated upstream:src/models/prompter.js
             this.convo_examples = new Examples(this.embedding_model, settings.num_examples);
             this.coding_examples = new Examples(this.embedding_model, settings.num_examples);
-            
+
+=======
+            this.convo_examples = new Examples(this.embedding_model);
+            this.coding_examples = new Examples(this.embedding_model);
+
+>>>>>>> Stashed changes:src/agent/prompter.js
             // Wait for both examples to load before proceeding
             await Promise.all([
                 this.convo_examples.load(this.profile.conversation_examples),
@@ -219,9 +270,22 @@ export class Prompter {
         }
     }
 
-    async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
+    async replaceStrings(prompt, messages, examples = null, to_summarize = [], last_goals = null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
 
+<<<<<<< Updated upstream:src/models/prompter.js
+=======
+        if (prompt.includes('$TASK_GOAL')) {
+            prompt = prompt.replaceAll('$TASK_GOAL', process.env.MINECRAFT_TASK_GOAL || 'No task specified');
+        }
+
+        if (prompt.includes('$OTHER_AGENTS')) {
+            const allAgentNames = process.env.ALL_AGENT_NAMES.split(',');
+            const otherAgents = allAgentNames.filter(curr_agent_name => curr_agent_name !== this.agent.name);
+            prompt = prompt.replace('$OTHER_AGENTS', otherAgents.join(', '));
+        }
+
+>>>>>>> Stashed changes:src/agent/prompter.js
         if (prompt.includes('$STATS')) {
             let stats = await getCommand('!stats').perform(this.agent);
             prompt = prompt.replaceAll('$STATS', stats);
@@ -245,7 +309,7 @@ export class Prompter {
                 await this.skill_libary.getRelevantSkillDocs(code_task_content, settings.relevant_docs_count)
             );
         }
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
+        prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS'))
             prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)
@@ -348,7 +412,7 @@ export class Prompter {
         await this.checkCooldown();
         let prompt = this.profile.bot_responder;
         let messages = this.agent.history.getHistory();
-        messages.push({role: 'user', content: new_message});
+        messages.push({ role: 'user', content: new_message });
         prompt = await this.replaceStrings(prompt, null, null, messages);
         let res = await this.chat_model.sendRequest([], prompt);
         return res.trim().toLowerCase() === 'respond';
@@ -361,7 +425,7 @@ export class Prompter {
         let user_message = 'Use the below info to determine what goal to target next\n\n';
         user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
         user_message = await this.replaceStrings(user_message, messages, null, null, last_goals);
-        let user_messages = [{role: 'user', content: user_message}];
+        let user_messages = [{ role: 'user', content: user_message }];
 
         let res = await this.chat_model.sendRequest(user_messages, system_message);
 

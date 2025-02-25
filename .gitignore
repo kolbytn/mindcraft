@@ -16,3 +16,10 @@ services/viaproxy/viaproxy.yml
 tmp/
 wandb/
 experiments/
+
+# avoid version conflicts
+package.json
+settings.js
+
+# debug
+sandbox/

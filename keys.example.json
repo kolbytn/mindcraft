@@ -1,6 +1,7 @@
 {
     "OPENAI_API_KEY": "",
     "OPENAI_ORG_ID": "",
+    "SGLANG_API_KEY": "",
     "GEMINI_API_KEY": "",
     "ANTHROPIC_API_KEY": "",
     "REPLICATE_API_KEY": "",
