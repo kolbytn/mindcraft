@@ -171,7 +171,7 @@ export class Blueprint {
                     const blockAtLocation = bot.blockAt(new Vec3(x, y, z));
                     const actualBlockName = blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : "air";
 
-                    // Skip if both expected and actual block are "air"
+                    // Skip if both expected and actual block are air
                     if (blockName === "air" && actualBlockName === "air") {
                         continue;
                     }
