@@ -28,8 +28,14 @@ function createInitialInventory(blueprint, agents) {
         for (const row of level.placement) {
             for (const block of row) {
                 if (block !== 'air') {
-                    // Check if material contains 'door' in the name, convert to oak_door
-                    const materialKey = block.includes('door') ? 'oak_door' : block;
+                    // Check if material contains 'door' or 'ladder' and convert appropriately
+                    let materialKey = block;
+                    if (block.includes('door')) {
+                        materialKey = 'oak_door';
+                    } else if (block.includes('ladder')) {
+                        materialKey = 'ladder';
+                    }
+
                     materialCounts[materialKey] = (materialCounts[materialKey] || 0) + 1;
                 }
             }
