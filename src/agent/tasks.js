@@ -155,15 +155,21 @@ export class Task {
             return null;
         }
 
+        let add_string = '';
+
+        if (this.task_type === 'cooking') {
+            add_string = '\nIn the end, all the food should be given to Andy.';
+        }
+
         // If goal is a string, all agents share the same goal
         if (typeof this.data.goal === 'string') {
-            return this.data.goal;
+            return this.data.goal + add_string;
         }
 
         // If goal is an object, get the goal for this agent's count_id
         if (typeof this.data.goal === 'object' && this.data.goal !== null) {
             const agentId = this.agent.count_id.toString();
-            return this.data.goal[agentId] || null;
+            return (this.data.goal[agentId] || '') + add_string;
         }
 
         return null;
@@ -262,6 +268,7 @@ export class Task {
         }
 
         const agentGoal = this.getAgentGoal();
+        console.log(`Agent goal for agent Id ${this.agent.count_id}: ${agentGoal}`);
         if (agentGoal) {
             console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
             await executeCommand(this.agent, `!goal("${agentGoal}")`);
