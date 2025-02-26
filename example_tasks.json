@@ -131,6 +131,9 @@
           ]
         },
         "blocked_access_to_recipe": [],
-        "goal": "Collaborate to make 1 bread, 1 cooked_mutton"
+        "goal" : {
+          "0": "Collaborate with randy to make 1 bread and 1 cooked mutton, you can divide the tasks among yourselves.\nThere is a furnace nearby that is already fueled, there is also a smoker and crafting table nearby, use them to your advantage. Crops of all different types are available in the farm where you are standing, you can use them to your advantage as well. The farm also includes animals like cows, pigs, sheep, and chickens that you can use to your advantage.\nSince the farm is huge, make sure to search for the resources over long distances to find them.",
+          "1": "Collaborate with andy to make 1 bread and 1 cooked mutton, you can divide the tasks among yourselves.\nThere is a furnace nearby that is already fueled, there is also a smoker and crafting table nearby, use them to your advantage. Crops of all different types are available in the farm where you are standing, you can use them to your advantage as well. The farm also includes animals like cows, pigs, sheep, and chickens that you can use to your advantage.\nSince the farm is huge, make sure to search for the resources over long distances to find them."
+        }
       }
 }
