@@ -44,6 +44,7 @@
     },
     "multiagent_techtree_1_stone_pickaxe": {
         "conversation": "Let's collaborate to build a stone pickaxe",
+        "goal": "Build a stone pickaxe",
         "agent_count": 2,
         "initial_inventory": {
             "0": {
@@ -57,6 +58,23 @@
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
+    }, 
+    "multiagent_techtree_1_shears": {
+        "goal": "Collaborate with other agents to build a shear.",
+        "conversation": "Let's collaborate to build a shear.",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "target": "shears",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 60
     },
     "smelt_ingot": {
         "goal": "Smelt 1 iron ingot and 1 copper ingot",
@@ -66,6 +84,25 @@
             "raw_iron": 1,
             "raw_copper": 1,
             "coal": 2
+        },
+        "target": "copper_ingot",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
+    },
+    "multiagent_smelt_ingot": {
+        "conversation": "Let's collaborate to smelt ingots",
+        "goal": "Smelt 1 iron ingot and 1 copper ingot, use star emojis in every response",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "furnace": 1,
+                "coal": 2
+            },
+            "1": {
+                "raw_iron": 1,
+                "raw_copper": 1
+            }
         },
         "target": "copper_ingot",
         "number_of_target": 1,
