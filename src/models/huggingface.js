@@ -55,7 +55,7 @@ export class HuggingFace {
         const hasCloseTag = res.includes("</think>");
 
         // If there's a partial mismatch, warn and retry the entire request.
-        if ((hasOpenTag && !hasCloseTag) || (!hasOpenTag && hasCloseTag)) {
+        if ((hasOpenTag && !hasCloseTag)) {
           console.warn("Partial <think> block detected. Re-generating...");
           continue;
         }
