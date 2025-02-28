@@ -204,7 +204,7 @@ class ItemWrapper {
     }
 
     createChildren() {
-        let recipes = mc.getItemCraftingRecipes(this.name);
+        let recipes = mc.getItemCraftingRecipes(this.name).map(([recipe, craftedCount]) => recipe);
         if (recipes) {
             for (let recipe of recipes) {
                 let includes_blacklisted = false;

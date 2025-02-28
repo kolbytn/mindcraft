@@ -1,0 +1,45 @@
+{
+    "multiagent_techtree_1_shears": {
+        "goal": "Collaborate with other agents to build a shear.",
+        "conversation": "Let's collaborate to build a shear.",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1, 
+                "crafting_table": 1
+            }
+        },
+        "blocked_actions": {
+            "0": ["!collectBlocks"],
+            "1": ["!collectBlocks"]
+        },
+        "target": "shears",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 120
+    }, 
+    "multiagent_techtree_1_wooden_pickaxe": {
+        "goal": "Collaborate with other agents to build a wooden pickaxe.",
+        "conversation": "Let's collaborate to build a wooden pickaxe.",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "oak_planks": 10
+            },
+            "1": {
+                "stick": 10
+            }
+        },
+        "blocked_actions": {
+            "0": ["!collectBlocks"],
+            "1": ["!collectBlocks"]
+        },
+        "target": "wooden_pickaxe",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 120
+    }
+}

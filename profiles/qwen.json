@@ -1,15 +1,17 @@
 {
     "name": "qwen",
 
+    "cooldown": 5000,
+
     "model": {
         "api": "qwen",
-        "url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
+        "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         "model": "qwen-max"
     },
 
     "embedding": {
         "api": "qwen",
-        "url": "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding",
-        "model": "text-embedding-v2"
+        "url": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+        "model": "text-embedding-v3"
     }
 }

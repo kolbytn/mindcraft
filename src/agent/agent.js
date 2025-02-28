@@ -1,9 +1,9 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { Prompter } from './prompter.js';
+import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
@@ -47,7 +47,8 @@ export class Agent {
             await this.prompter.initExamples();
             console.log('Initializing task...');
             this.task = new Task(this, task_path, task_id);
-            this.blocked_actions = this.task.blocked_actions || [];
+            const blocked_actions = this.task.blocked_actions || [];
+            blacklistCommands(blocked_actions);
 
             serverProxy.connect(this);
 
@@ -90,7 +91,11 @@ export class Agent {
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
 
-                    this.task.initBotTask();
+                    // this.task.initBotTask();
+
+                    if (!load_mem) {
+                        this.task.initBotTask();
+                    }
 
                 } catch (error) {
                     console.error('Error in spawn event:', error);
@@ -99,11 +104,10 @@ export class Agent {
             });
         } catch (error) {
             // Ensure we're not losing error details
-            console.error('Agent start failed with error:', {
-                message: error.message || 'No error message',
-                stack: error.stack || 'No stack trace',
-                error: error
-            });
+            console.error('Agent start failed with error')
+            console.error(error.message);
+            console.error(error.stack);
+
             throw error; // Re-throw with preserved details
         }
     }
@@ -129,7 +133,7 @@ export class Agent {
                 console.log(this.name, 'received message from', username, ':', message);
 
                 if (convoManager.isOtherAgent(username)) {
-                    console.warn('recieved whisper from other bot??')
+                    console.warn('received whisper from other bot??')
                 }
                 else {
                     let translation = await handleEnglishTranslation(message);
@@ -139,6 +143,8 @@ export class Agent {
                 console.error('Error handling message:', error);
             }
         }
+		
+		this.respondFunc = respondFunc
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
@@ -152,10 +158,10 @@ export class Agent {
         };
 
         if (save_data?.self_prompt) {
-            let prompt = save_data.self_prompt;
-            // add initial message to history
-            this.history.add('system', prompt);
-            await this.self_prompter.start(prompt);
+            if (init_message) {
+                this.history.add('system', init_message);
+            }
+            await this.self_prompter.handleLoad(save_data.self_prompt, save_data.self_prompting_state);
         }
         if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
@@ -164,7 +170,7 @@ export class Agent {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
                 };
-                convoManager.recieveFromBot(this.last_sender, msg_package);
+                convoManager.receiveFromBot(this.last_sender, msg_package);
             }
         }
         else if (init_message) {
@@ -189,7 +195,7 @@ export class Agent {
 
     shutUp() {
         this.shut_up = true;
-        if (this.self_prompter.on) {
+        if (this.self_prompter.isActive()) {
             this.self_prompter.stop(false);
         }
         convoManager.endAllConversations();
@@ -255,7 +261,7 @@ export class Agent {
         await this.history.add(source, message);
         this.history.save();
 
-        if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
+        if (!self_prompt && this.self_prompter.isActive()) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
             if (checkInterrupt()) break;
@@ -318,6 +324,7 @@ export class Agent {
     }
 
     async routeResponse(to_player, message) {
+        if (this.shut_up) return;
         let self_prompt = to_player === 'system' || to_player === this.name;
         if (self_prompt && this.last_sender) {
             // this is for when the agent is prompted by system while still in conversation
@@ -437,22 +444,20 @@ export class Agent {
         }, INTERVAL);
 
         this.bot.emit('idle');
-
-        // Check for task completion
-        if (this.task.data) {
-            setInterval(() => {
-                let res = this.task.isDone();
-                if (res) {
-                    // TODO kill other bots
-                    this.cleanKill(res.message, res.code);
-                }
-            }, 1000);
-        }
     }
 
     async update(delta) {
         await this.bot.modes.update();
         this.self_prompter.update(delta);
+        if (this.task.data) {
+            let res = this.task.isDone();
+            if (res) {
+                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
+                await this.history.save();
+                console.log('Task finished:', res.message);
+                this.killAll();
+            }
+        }
     }
 
     isIdle() {
@@ -464,5 +469,9 @@ export class Agent {
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
+    }
+
+    killAll() {
+        serverProxy.shutdown();
     }
 }

@@ -4,6 +4,9 @@
         "@anthropic-ai/sdk": "^0.17.1",
         "@google/generative-ai": "^0.2.1",
         "@huggingface/inference": "^2.8.1",
+        "@mistralai/mistralai": "^1.1.0",
+        "canvas": "^3.1.0",
+        "express": "^4.18.2",
         "google-translate-api-x": "^10.7.1",
         "groq-sdk": "^0.5.0",
         "minecraft-data": "^3.78.0",
@@ -16,17 +19,21 @@
         "openai": "^4.4.0",
         "patch-package": "^8.0.0",
         "prismarine-item": "^1.15.0",
-        "prismarine-viewer": "^1.28.0",
+        "prismarine-viewer": "^1.32.0",
         "replicate": "^0.29.4",
         "ses": "^1.9.1",
-        "vec3": "^0.1.10",
-        "yargs": "^17.7.2",
         "socket.io": "^4.7.2",
         "socket.io-client": "^4.7.2",
-        "express": "^4.18.2"
+        "vec3": "^0.1.10",
+        "yargs": "^17.7.2"
     },
     "scripts": {
         "postinstall": "patch-package",
         "start": "node main.js"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.13.0",
+        "eslint": "^9.13.0",
+        "globals": "^15.11.0"
     }
 }

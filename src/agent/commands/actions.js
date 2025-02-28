@@ -34,8 +34,10 @@ export const actionsList = [
         },
         perform: async function (agent, prompt) {
             // just ignore prompt - it is now in context in chat history
-            if (!settings.allow_insecure_coding)
+            if (!settings.allow_insecure_coding) { 
+                agent.openChat('newAction is disabled. Enable with allow_insecure_coding=true in settings.js');
                 return 'newAction not allowed! Code writing is disabled in settings. Notify the user.';
+             }
             return await agent.coder.generateCode(agent.history);
         }
     },
@@ -48,7 +50,7 @@ export const actionsList = [
             agent.actions.cancelResume();
             agent.bot.emit('idle');
             let msg = 'Agent stopped.';
-            if (agent.self_prompter.on)
+            if (agent.self_prompter.isActive())
                 msg += ' Self-prompting still active.';
             return msg;
         }
@@ -267,13 +269,12 @@ export const actionsList = [
             'num': { type: 'int', description: 'The number of times to smelt the item.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, item_name, num) => {
-            let response = await skills.smeltItem(agent.bot, item_name, num);
-            if (response.indexOf('Successfully') !== -1) {
-            // there is a bug where the bot's inventory is not updated after smelting
-            // only updates after a restart
-            agent.cleanKill(response + ' Safely restarting to update inventory.');
+            let success = await skills.smeltItem(agent.bot, item_name, num);
+            if (success) {
+                setTimeout(() => {
+                    agent.cleanKill('Safely restarting to update inventory.');
+                }, 500);
             }
-            return response;
         })
     },
     {
@@ -362,8 +363,7 @@ export const actionsList = [
         },
         perform: async function (agent, prompt) {
             if (convoManager.inConversation()) {
-                agent.self_prompter.setPrompt(prompt);
-                convoManager.scheduleSelfPrompter();
+                agent.self_prompter.setPromptPaused(prompt);
             }
             else {
                 agent.self_prompter.start(prompt);
@@ -375,7 +375,6 @@ export const actionsList = [
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
             agent.self_prompter.stop();
-            convoManager.cancelSelfPrompter();
             return 'Self-prompting stopped.';
         }
     },
@@ -387,12 +386,12 @@ export const actionsList = [
             'message': { type: 'string', description: 'The message to send.' },
         },
         perform: async function (agent, player_name, message) {
-            if (convoManager.inConversation() && !convoManager.inConversation(player_name))
-                return 'You are already in conversation with other bot.';
             if (!convoManager.isOtherAgent(player_name))
                 return player_name + ' is not a bot, cannot start conversation.';
-            if (convoManager.inConversation(player_name))
-                agent.history.add('system', 'You are already in conversation with ' + player_name + ' Don\'t use this command to talk to them.');
+            if (convoManager.inConversation() && !convoManager.inConversation(player_name)) 
+                convoManager.forceEndCurrentConversation();
+            else if (convoManager.inConversation(player_name))
+                agent.history.add('system', 'You are already in conversation with ' + player_name + '. Don\'t use this command to talk to them.');
             convoManager.startConversation(player_name, message);
         }
     },
@@ -408,18 +407,6 @@ export const actionsList = [
             convoManager.endConversation(player_name);
             return `Converstaion with ${player_name} ended.`;
         }
-    }, 
-    {
-        name: '!checkLevelComplete',
-        description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
-        params: {
-            'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }
-        },
-        perform: runAsAction(async (agent, levelNum) => {
-            const result = await checkLevelBlueprint(agent, levelNum);
-            console.log(result);
-            return result;
-        })
     }, 
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',

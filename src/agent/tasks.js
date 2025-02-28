@@ -62,13 +62,20 @@ export class Task {
             }
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
+
             if (this.task_type === 'construction') {
                 this.validator = new ConstructionTaskValidator(this.data, this.agent);
             } else if (this.task_type === 'techtree') {
                 this.validator = new CraftTaskValidator(this.data, this.agent);
             }
             this.blocked_actions = this.data.blocked_actions || [];
-            if (this.goal)
+            if (this.data.blocked_actions) {
+                this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
+            } else {
+                this.blocked_actions = [];
+            }
+            this.restrict_to_inventory = !!this.data.restrict_to_inventory;
+            if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
             if (this.conversation)
                 this.blocked_actions.push('!endConversation');
@@ -99,11 +106,6 @@ export class Task {
     isDone() {
         if (this.validator && this.validator.validate())
             return {"message": 'Task successful', "code": 2};
-        // TODO check for other terminal conditions
-        // if (this.task.goal && !this.self_prompter.on)
-        //     return {"message": 'Agent ended goal', "code": 3};
-        // if (this.task.conversation && !inConversation())
-        //     return {"message": 'Agent ended conversation', "code": 3};
         if (this.taskTimeout) {
             const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
             if (elapsedTime >= this.taskTimeout) {
@@ -121,19 +123,23 @@ export class Task {
             return;
         let bot = this.agent.bot;
         let name = this.agent.name;
-    
+
         bot.chat(`/clear ${name}`);
         console.log(`Cleared ${name}'s inventory.`);
-        
+
+        //kill all drops
+        if (this.agent.count_id === 0) {
+            bot.chat(`/kill @e[type=item]`);
+        }
         //wait for a bit so inventory is cleared
         await new Promise((resolve) => setTimeout(resolve, 500));
-    
+        let initial_inventory = null;
         if (this.data.agent_count > 1) {
-            var initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
+            initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
             console.log("Initial inventory:", initial_inventory);
         } else if (this.data) {
             console.log("Initial inventory:", this.data.initial_inventory);
-            var initial_inventory = this.data.initial_inventory;
+            initial_inventory = this.data.initial_inventory;
         }
     
         if ("initial_inventory" in this.data) {
@@ -201,7 +207,7 @@ export class Task {
             await new Promise((resolve) => setTimeout(resolve, 10000));
             if (available_agents.length < this.data.agent_count) {
                 console.log(`Missing ${this.data.agent_count - available_agents.length} bot(s).`);
-                this.agent.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+                this.agent.killAll();
             }
         }
 

@@ -34,34 +34,22 @@ def read_settings(file_path):
     ## profiles is a list of strings like "./andy.json" and "./bob.json"
 
     agent_names = [profile.split('/')[-1].split('.')[0] for profile in profiles]
-    return agent_names
+    return agent_names 
 
-def edit_settings(file_path, dict_to_change):
-    """Edit the settings.js file to include the specified agent profiles."""
-    with open(file_path, 'r', encoding='utf-8') as file:
+def update_keys_json():
+    """Update the keys.json file with the specified key-value pair."""
+    with open("keys.example.json", 'r', encoding='utf-8') as file:
         content = file.read()
-    
-    # Remove `export default` and trailing commas
-    content = re.sub(r'export\s+default', '', content)
-    content = re.sub(r',\s*(?=[}\]])', '', content)
+    data = json.loads(content)
 
-    # Remove JavaScript comments
-    content = re.sub(r'//.*', '', content)
+    # Update keys with environment variables
+    for key in data.keys():
+        env_value = os.getenv(key)  # Fetch from environment variables
+        if env_value:  # If the variable exists, update it
+            data[key] = env_value
 
-    # Remove trailing commas (e.g., before } or ])
-    content = re.sub(r',\s*(?=[}\]])', '', content)
-
-    # Strip leading and trailing whitespace
-    content = content.strip()
-
-    json_data = json.loads(content)
-
-    for key, value in dict_to_change.items():
-        json_data[key] = value
-
-    # Write the updated content back to the file
-    with open(file_path, 'w', encoding='utf-8') as file:
-        file.write(f"export default\n{json.dumps(json_data, indent=2)}") 
+    with open("keys.json", 'w', encoding='utf-8') as file:
+        json.dump(data, file, indent=4)
 
 def check_task_completion(agents):
     """Check memory.json files of all agents to determine task success/failure."""
@@ -86,14 +74,11 @@ def check_task_completion(agents):
             
     return False  # Default to failure if no conclusive result found
 
-def update_results_file(task_id, success_count, total_count, time_taken, experiment_results):
+def update_results_file(task_id, success_count, total_count, time_taken, experiment_results, results_filename):
     """Update the results file with current success ratio and time taken."""
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"results_{task_id}_{timestamp}.txt"
-    
     success_ratio = success_count / total_count
     
-    with open(filename, 'w') as f:
+    with open(results_filename, 'w') as f:  # 'w' mode overwrites the file each time
         f.write(f"Task ID: {task_id}\n")
         f.write(f"Experiments completed: {total_count}\n")
         f.write(f"Successful experiments: {success_count}\n")
@@ -114,16 +99,74 @@ def update_results_file(task_id, success_count, total_count, time_taken, experim
         f.write(f"Average time per experiment: {total_time / total_count:.2f} seconds\n")
         f.write(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-def launch_server_experiment(task_path, task_id, num_exp, server, num_agents=2, model="gpt-4o"):
+
+def set_environment_variable_tmux_session(session_name, key, value):
+    """Set an environment variable for the current process."""
+    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export {key}={value}", "C-m"])
+
+def launch_parallel_experiments(task_path, 
+                                num_exp, 
+                                exp_name, 
+                                num_agents=2, 
+                                model="gpt-4o", 
+                                num_parallel=1,
+                                s3=False, 
+                                bucket_name="mindcraft-experiments"):
+    
+    with open(task_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+    json_data = json.loads(content)
+
+    task_ids = json_data.keys()
+
+    # split the task_ids into num_parallel groups
+    task_ids = list(task_ids)
+    task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
+
+    servers = create_server_files("../server_data/", num_parallel)
+    date_time = datetime.now().strftime("%m-%d_%H-%M")
+    experiments_folder = f"experiments/{exp_name}_{date_time}"
+    exp_name = f"{exp_name}_{date_time}"
+
+    # start wandb
+    os.makedirs(experiments_folder, exist_ok=True)
+    for i, server in enumerate(servers):
+        launch_server_experiment(task_path, 
+                                 task_ids_split[i], 
+                                 num_exp, 
+                                 server, 
+                                 experiments_folder, 
+                                 exp_name, 
+                                 s3=s3, 
+                                 bucket_name=bucket_name)
+        time.sleep(5)
+
+def launch_server_experiment(task_path, 
+                             task_ids, 
+                             num_exp, 
+                             server, 
+                             experiments_folder,
+                             exp_name="exp", 
+                             num_agents=2, 
+                             model="gpt-4o", 
+                             s3=False, 
+                             bucket_name="mindcraft-experiments"):
+    """
+    Launch a Minecraft server and run experiments on it.
+    @param task_path: Path to the task file
+    @param task_ids: IDs of the tasks to run
+    @param num_exp: Number of experiments to run
+    @param server: Tuple containing server path and port
+    @param experiments_folder: Folder to store experiment results
+    @param exp_name: Name of the experiment for wandb dataset
+    @param num_agents: Number of agents to run
+    @param model: Model to use for the agents
+    """
     server_path, server_port = server
-    edit_server_properties_file(server_path, server_port)
+    edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
     mindserver_port = server_port - 55916 + 8080
     
-    # rename the agents for logging purposes
-    # TODO: fix the file naming procedure
-    # copy the memory.json into a new folder for each run based on the date and time
-    
-    
+    # set up server and agents 
     session_name = str(server_port - 55916)
     if num_agents == 2:
         agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
@@ -133,56 +176,99 @@ def launch_server_experiment(task_path, task_id, num_exp, server, num_agents=2, 
         models = [model] * 3
     make_profiles(agent_names, models)
 
-    edit_settings("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
+    # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
+    agent_profiles = [f"./{agent}.json" for agent in agent_names]
+    agent_profiles_str = f"\'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]\'"
+    print(agent_profiles_str)
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
 
     # set environment variables
-    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export MINECRAFT_PORT={server_port}", "C-m"])
-    subprocess.run(["tmux", "send-keys", "-t", session_name, f"export MINDSERVER_PORT={mindserver_port}", "C-m"])
-    
-    cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
-    for _ in range(num_exp):
-              # Send the command and a newline (C-m) to execute it
-        subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-        # Add a small delay between commands (optional)
-        subprocess.run(["tmux", "send-keys", "-t", session_name, "sleep 1", "C-m"])
+    set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
+    set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
+    set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
 
-    subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
+    script_content = ""
+    for task_id in task_ids:
+        cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
+        cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
+        for _ in range(num_exp):
+            script_content += f"{cmd}\n"
+            script_content += "sleep 2\n"
+            for agent in agent_names:
+                cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
+                script_content += f"echo '{cp_cmd}'\n"
+                script_content += f"{cp_cmd}\n"
+                script_content += "sleep 1\n"
+                if s3:
+                    script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to s3'\n"
+                    s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{_}/{agent}.json"
+                    script_content += f"echo '{s3_cmd}'\n"
+                    script_content += f"{s3_cmd}\n"
+                    script_content += "sleep 1\n"
+
+    # Create a temporary shell script file
+    script_file = f"./tmp/experiment_script_{session_name}.sh"
+
+    script_dir = os.path.dirname(script_file)
+    os.makedirs(script_dir, exist_ok=True)
+
+    # Call the function before writing the script file
+    with open(script_file, 'w') as f:
+        f.write(script_content)
+
+    script_file_run = "bash " + script_file
+
+    # Execute the shell script using subprocess
+    subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
+
+
+    # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
 def make_profiles(agent_names, models):
     assert len(agent_names) == len(models)
+
+    with open("profiles/collab_profile.json", 'r') as f:
+        content = f.read()
+    
+    profile = json.loads(content)
+
     for index in range(len(agent_names)):
-        content = {"name": agent_names[index], "model": models[index], "modes": {"hunting": False}}
+        profile["name"] = agent_names[index]
+        profile["model"] = models[index]
+
         with open(f"{agent_names[index]}.json", 'w') as f:
-            json.dump(content, f)
+            json.dump(profile, f, indent=4)
 
 def create_server_files(source_path, num_copies):
     """Create multiple copies of server files for parallel experiments."""
+    print("Creating server files...")
+    print(num_copies)
     servers = []
     for i in range(num_copies):
         dest_path = f"../server_data_{i}/"
         copy_server_files(source_path, dest_path)
-        edit_server_properties_file(dest_path, 55916 + i)
+        print(dest_path)
+        edit_file(dest_path + "server.properties", {"server-port": 55916 + i})
+        # edit_server_properties_file(dest_path, 55916 + i)
         servers.append((dest_path, 55916 + i))
     return servers
-    
-def edit_server_properties_file(dest_path, new_port):
-    """Edit the server properties file to change the port."""
-    properties_file = os.path.join(dest_path, "server.properties")
+
+def edit_file(file, content_dict):
     try:
-        with open(properties_file, 'r') as f:
+        with open(file, 'r') as f:
             lines = f.readlines()
-        with open(properties_file, 'w') as f:
+        with open(file, 'w') as f:
             for line in lines:
-                if line.startswith("server-port="):
-                    f.write(f"server-port={new_port}\n")
-                else:
-                    f.write(line)
-        print(f"Server properties file updated with new port: {new_port}")  
+                for key, value in content_dict.items():
+                    if line.startswith(key):
+                        f.write(f"{key}={value}\n")
+                    else:
+                        f.write(line)
+        print(f"{file} updated with {content_dict}")  
     except Exception as e:
-        print(f"Error editing server properties file: {e}")
+        print(f"Error editing file {file}: {e}")
 
 def clean_up_server_files(num_copies):
     """Delete server files from multiple locations."""
@@ -216,6 +302,12 @@ def launch_world(server_path="../server_data/", agent_names=["andy", "jill"], se
         subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
     time.sleep(5)
 
+def kill_world(session_name="server"):
+    """Kill the Minecraft world."""
+    subprocess.run(["tmux", "send-keys", "-t", session_name, "stop", "C-m"])
+    time.sleep(5)
+    subprocess.run(["tmux", "kill-session", "-t", session_name])
+
 def detach_process(command):
     """
     Launches a subprocess and detaches from it, allowing it to run independently.
@@ -248,81 +340,53 @@ def detach_process(command):
         print(f"An error occurred: {e}")
         return None
 
-
-def run_experiment(task_path, task_id, num_exp):
-    """Run the specified number of experiments and track results."""
-    # Read agent profiles from settings.js
-    agents = read_settings(file_path="settings.js")
-    print(f"Detected agents: {agents}")
-    
-    success_count = 0
-    experiment_results = []
-    
-    for exp_num in range(num_exp):
-        print(f"\nRunning experiment {exp_num + 1}/{num_exp}")
-        
-        start_time = time.time()
-        
-        # Run the node command
-        cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
-        try:
-            subprocess.run(cmd, shell=True, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error running experiment: {e}")
-            continue
-            
-        # Check if task was successful
-        success = check_task_completion(agents)
-        if success:
-            success_count += 1
-            print(f"Experiment {exp_num + 1} successful")
-        else:
-            print(f"Experiment {exp_num + 1} failed")
-        
-        end_time = time.time() 
-        time_taken = end_time - start_time
-        
-        # Store individual experiment result
-        experiment_results.append({
-            'success': success,
-            'time_taken': time_taken
-        })
-        
-        # Update results file after each experiment
-        update_results_file(task_id, success_count, exp_num + 1, time_taken, experiment_results)
-        
-        # Small delay between experiments
-        time.sleep(1)
-    
-    final_ratio = success_count / num_exp
-    print(f"\nExperiments completed. Final success ratio: {final_ratio:.2f}")
-    return experiment_results
-
 def main():
     # edit_settings("settings.js", {"profiles": ["./andy.json", "./jill.json"], "port": 55917})
     # edit_server_properties_file("../server_data/", 55917)
 
     parser = argparse.ArgumentParser(description='Run Minecraft AI agent experiments')
-    parser.add_argument('--task_path', default="example_tasks.json", help='Path to the task file')
-    parser.add_argument('--task_id', default="multiagent_techtree_1_stone_pickaxe", help='ID of the task to run')
-    parser.add_argument('--num_exp', default=5, type=int, help='Number of experiments to run')
-    parser.add_argument('--num_parallel', default=0, type=int, help='Number of parallel servers to run')
+    parser.add_argument('--task_path', default="multiagent_crafting_tasks.json", help='Path to the task file')
+    parser.add_argument('--task_id', default=None, help='ID of the task to run')
+    parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
+    parser.add_argument('--num_parallel', default=1, type=int, help='Number of parallel servers to run')
+    parser.add_argument('--exp_name', default="exp", help='Name of the experiment')
+    parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
+    parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
+    parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
+    # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
+    # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
 
     args = parser.parse_args()
+
+    # if args.wandb:
+    #     import wandb
+    #     wandb.init(project=args.wandb_project, name=args.exp_name)
 
     # kill all tmux session before starting
     try: 
         subprocess.run(['tmux', 'kill-server'], check=True)
     except: 
         print("No tmux session to kill")
-    if args.num_parallel == 0:
-        launch_world()
-        run_experiment(args.task_path, args.task_id, args.num_exp)
-    else: 
-        servers = create_server_files("../server_data/", args.num_parallel)
-        for server in servers:
-            launch_server_experiment(args.task_path, args.task_id, args.num_exp, server)
-            time.sleep(5)
+    
+    # delete all server files
+    clean_up_server_files(args.num_parallel)
+    if args.add_keys:
+        update_keys_json()
+    if args.task_id is None:
+        launch_parallel_experiments(args.task_path, 
+                                    num_exp=args.num_exp, 
+                                    exp_name=args.exp_name, 
+                                    num_parallel=args.num_parallel, 
+                                    s3=args.s3, 
+                                    bucket_name=args.bucket_name)
+    
+    # servers = create_server_files("../server_data/", args.num_parallel)
+    # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    # experiments_folder = f"{args.exp_name}_{date_time}"
+    # os.makedirs(experiments_folder, exist_ok=True)
+    # for server in servers:
+    #     launch_server_experiment(args.task_path, [args.task_id], args.num_exp, server, experiments_folder)
+    #     time.sleep(5)
     
     # run_experiment(args.task_path, args.task_id, args.num_exp)
 

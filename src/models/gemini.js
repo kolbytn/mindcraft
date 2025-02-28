@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { toSinglePrompt } from '../utils/text.js';
+import { toSinglePrompt, strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 
 export class Gemini {
-    constructor(model_name, url) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
+        this.params = params;
         this.url = url;
         this.safetySettings = [
             {
@@ -34,29 +35,47 @@ export class Gemini {
 
     async sendRequest(turns, systemMessage) {
         let model;
+        const modelConfig = {
+            model: this.model_name || "gemini-1.5-flash",
+            // systemInstruction does not work bc google is trash
+        };
+        
         if (this.url) {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                modelConfig,
                 { baseUrl: this.url },
                 { safetySettings: this.safetySettings }
             );
         } else {
             model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
+                modelConfig,
                 { safetySettings: this.safetySettings }
             );
         }
 
-        const stop_seq = '***';
-        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         console.log('Awaiting Google API response...');
-        const result = await model.generateContent(prompt);
+
+        turns.unshift({ role: 'system', content: systemMessage });
+        turns = strictFormat(turns);
+        let contents = [];
+        for (let turn of turns) {
+            contents.push({
+                role: turn.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: turn.content }]
+            });
+        }
+
+        const result = await model.generateContent({
+            contents,
+            generationConfig: {
+                ...(this.params || {})
+            }
+        });
         const response = await result.response;
         const text = response.text();
         console.log('Received.');
-        if (!text.includes(stop_seq)) return text;
-        const idx = text.indexOf(stop_seq);
-        return text.slice(0, idx);
+
+        return text;
     }
 
     async embed(text) {

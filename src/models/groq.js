@@ -4,12 +4,13 @@ import { getKey } from '../utils/keys.js';
 
 // Umbrella class for Mixtral, LLama, Gemma...
 export class GroqCloudAPI {
-    constructor(model_name, url, max_tokens=16384) {
+    constructor(model_name, url, params) {
         this.model_name = model_name;
         this.url = url;
-        this.max_tokens = max_tokens;
+        this.params = params || {};
         // ReplicateAPI theft :3
         if (this.url) {
+
             console.warn("Groq Cloud has no implementation for custom URLs. Ignoring provided URL.");
         }
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
@@ -20,14 +21,15 @@ export class GroqCloudAPI {
         let res = null;
         try {
             console.log("Awaiting Groq response...");
+            if (!this.params.max_tokens) {
+                this.params.max_tokens = 16384;
+            }
             let completion = await this.groq.chat.completions.create({
                 "messages": messages,
                 "model": this.model_name || "mixtral-8x7b-32768",
-                "temperature": 0.2,
-                "max_tokens": this.max_tokens, // maximum token limit, differs from model to model
-                "top_p": 1,
                 "stream": true,
-                "stop": stop_seq // "***"
+                "stop": stop_seq,
+                ...(this.params || {})
             });
 
             let temp_res = "";
@@ -46,6 +48,6 @@ export class GroqCloudAPI {
     }
 
     async embed(text) {
-      console.log("There is no support for embeddings in Groq support. However, the following text was provided: " + text);
+        throw new Error('Embeddings are not supported by Groq.');
     }
 }

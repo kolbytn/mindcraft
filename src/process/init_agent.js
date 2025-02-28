@@ -57,11 +57,9 @@ const argv = yargs(args)
         const agent = new Agent();
         await agent.start(argv.profile, argv.load_memory, argv.init_message, argv.count_id, argv.task_path, argv.task_id);
     } catch (error) {
-        console.error('Failed to start agent process:', {
-            message: error.message || 'No error message',
-            stack: error.stack || 'No stack trace',
-            error: error
-        });
+        console.error('Failed to start agent process:');
+        console.error(error.message);
+        console.error(error.stack);
         process.exit(1);
     }
 })();

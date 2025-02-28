@@ -7,8 +7,6 @@ let agent;
 let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
 let agents_in_game = [];
 
-let self_prompter_paused = false;
-
 class Conversation {
     constructor(name) {
         this.name = name;
@@ -97,7 +95,7 @@ class ConversationManager {
                         this._clearMonitorTimeouts();
                         return;
                     }
-                    if (!self_prompter_paused) {
+                    if (!agent.self_prompter.isPaused()) {
                         this.endConversation(convo_partner);
                         agent.handleMessage('system', `${convo_partner} disconnected, conversation has ended.`);
                     }
@@ -125,16 +123,15 @@ class ConversationManager {
         const convo = this._getConvo(send_to);
         convo.reset();
         
-        if (agent.self_prompter.on) {
-            await agent.self_prompter.stop();
-            self_prompter_paused = true;
+        if (agent.self_prompter.isActive()) {
+            await agent.self_prompter.pause();
         }
         if (convo.active)
             return;
         convo.active = true;
         this.activeConversation = convo;
         this._startMonitor();
-        this.sendToBot(send_to, message, true);
+        this.sendToBot(send_to, message, true, false);
     }
 
     startConversationFromOtherBot(name) {
@@ -144,14 +141,14 @@ class ConversationManager {
         this._startMonitor();
     }
 
-    sendToBot(send_to, message, start=false) {
+    sendToBot(send_to, message, start=false, open_chat=true) {
         if (!this.isOtherAgent(send_to)) {
-            agent.bot.whisper(send_to, message);
+            console.warn(`${agent.name} tried to send bot message to non-bot ${send_to}`);
             return;
         }
         const convo = this._getConvo(send_to);
         
-        if (settings.chat_bot_messages && !start)
+        if (settings.chat_bot_messages && open_chat)
             agent.openChat(`(To ${send_to}) ${message}`);
         
         if (convo.ignore_until_start)
@@ -169,32 +166,33 @@ class ConversationManager {
         sendBotChatToServer(send_to, json);
     }
 
-    async recieveFromBot(sender, recieved) {
+    async receiveFromBot(sender, received) {
         const convo = this._getConvo(sender);
 
+        if (convo.ignore_until_start && !received.start)
+            return;
+
         // check if any convo is active besides the sender
-        if (Object.values(this.convos).some(c => c.active && c.name !== sender)) {
-            this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`);
+        if (this.inConversation() && !this.inConversation(sender)) {
+            this.sendToBot(sender, `I'm talking to someone else, try again later. !endConversation("${sender}")`, false, false);
+            this.endConversation(sender);
             return;
         }
-    
-        if (recieved.start) {
+
+        if (received.start) {
             convo.reset();
             this.startConversationFromOtherBot(sender);
         }
-        if (convo.ignore_until_start)
-            return;
-        
+
         this._clearMonitorTimeouts();
-        convo.queue(recieved);
+        convo.queue(received);
         
         // responding to conversation takes priority over self prompting
-        if (agent.self_prompter.on){
-            await agent.self_prompter.stopLoop();
-            self_prompter_paused = true;
+        if (agent.self_prompter.isActive()){
+            await agent.self_prompter.pause();
         }
     
-        _scheduleProcessInMessage(sender, recieved, convo);
+        _scheduleProcessInMessage(sender, received, convo);
     }
 
     responseScheduledFor(sender) {
@@ -230,29 +228,31 @@ class ConversationManager {
     endConversation(sender) {
         if (this.convos[sender]) {
             this.convos[sender].end();
-            this._stopMonitor();
-            this.activeConversation = null;
-            if (self_prompter_paused && !this.inConversation()) {
-                _resumeSelfPrompter();
+            if (this.activeConversation.name === sender) {
+                this._stopMonitor();
+                this.activeConversation = null;
+                if (agent.self_prompter.isPaused() && !this.inConversation()) {
+                    _resumeSelfPrompter();
+                }
             }
         }
     }
     
     endAllConversations() {
         for (const sender in this.convos) {
-            this.convos[sender].end();
+            this.endConversation(sender);
         }
-        if (self_prompter_paused) {
+        if (agent.self_prompter.isPaused()) {
             _resumeSelfPrompter();
         }
     }
-    
-    scheduleSelfPrompter() {
-        self_prompter_paused = true;
-    }
-    
-    cancelSelfPrompter() {
-        self_prompter_paused = false;
+
+    forceEndCurrentConversation() {
+        if (this.activeConversation) {
+            let sender = this.activeConversation.name;
+            this.sendToBot(sender, '!endConversation("' + sender + '")', false, false);
+            this.endConversation(sender);
+        }
     }
 }
 
@@ -266,15 +266,15 @@ The logic is as follows:
 - If only the other bot is busy, respond with a long delay to allow it to finish short actions (ex check inventory)
 - If I'm busy but other bot isn't, let LLM decide whether to respond
 - If both bots are busy, don't respond until someone is done, excluding a few actions that allow fast responses
-- New messages recieved during the delay will reset the delay following this logic, and be queued to respond in bulk
+- New messages received during the delay will reset the delay following this logic, and be queued to respond in bulk
 */
 const talkOverActions = ['stay', 'followPlayer', 'mode:']; // all mode actions
 const fastDelay = 200;
 const longDelay = 5000;
-async function _scheduleProcessInMessage(sender, recieved, convo) {
+async function _scheduleProcessInMessage(sender, received, convo) {
     if (convo.inMessageTimer)
         clearTimeout(convo.inMessageTimer);
-    let otherAgentBusy = containsCommand(recieved.message);
+    let otherAgentBusy = containsCommand(received.message);
 
     const scheduleResponse = (delay) => convo.inMessageTimer = setTimeout(() => _processInMessageQueue(sender), delay);
 
@@ -295,7 +295,7 @@ async function _scheduleProcessInMessage(sender, recieved, convo) {
             scheduleResponse(fastDelay);
         }
         else {
-            let shouldRespond = await agent.prompter.promptShouldRespondToBot(recieved.message);
+            let shouldRespond = await agent.prompter.promptShouldRespondToBot(received.message);
             console.log(`${agent.name} decided to ${shouldRespond?'respond':'not respond'} to ${sender}`);
             if (shouldRespond)
                 scheduleResponse(fastDelay);
@@ -323,19 +323,19 @@ function _compileInMessages(convo) {
     return pack;
 }
 
-function _handleFullInMessage(sender, recieved) {
-    console.log(`${agent.name} responding to "${recieved.message}" from ${sender}`);
+function _handleFullInMessage(sender, received) {
+    console.log(`${agent.name} responding to "${received.message}" from ${sender}`);
     
     const convo = convoManager._getConvo(sender);
     convo.active = true;
 
-    let message = _tagMessage(recieved.message);
-    if (recieved.end) {
+    let message = _tagMessage(received.message);
+    if (received.end) {
         convoManager.endConversation(sender);
-        sender = 'system'; // bot will respond to system instead of the other bot
         message = `Conversation with ${sender} ended with message: "${message}"`;
+        sender = 'system'; // bot will respond to system instead of the other bot
     }
-    else if (recieved.start)
+    else if (received.start)
         agent.shut_up = false;
     convo.inMessageTimer = null;
     agent.handleMessage(sender, message);
@@ -348,6 +348,7 @@ function _tagMessage(message) {
 
 async function _resumeSelfPrompter() {
     await new Promise(resolve => setTimeout(resolve, 5000));
-    self_prompter_paused = false;
-    agent.self_prompter.start();
+    if (agent.self_prompter.isPaused() && !convoManager.inConversation()) {
+        agent.self_prompter.start();
+    }
 }

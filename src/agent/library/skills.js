@@ -79,7 +79,7 @@ export async function craftRecipe(bot, itemName, num=1) {
         }
     }
     if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft a ${itemName}. It requires: ${Object.entries(mc.getItemCraftingRecipes(itemName)[0]).map(([key, value]) => `${key}: ${value}`).join(', ')}.`);
+        log(bot, `You do not have the resources to craft a ${itemName}. It requires: ${Object.entries(mc.getItemCraftingRecipes(itemName)[0][0]).map(([key, value]) => `${key}: ${value}`).join(', ')}.`);
         if (placedTable) {
             await collectBlock(bot, 'crafting_table', 1);
         }
@@ -111,6 +111,18 @@ export async function craftRecipe(bot, itemName, num=1) {
     return true;
 }
 
+export async function wait(seconds) {
+    /**
+     * Waits for the given number of seconds.
+     * @param {number} seconds, the number of seconds to wait.
+     * @returns {Promise<boolean>} true if the wait was successful, false otherwise.
+     * @example
+     * await skills.wait(10);
+     **/
+    // setTimeout is disabled to prevent unawaited code, so this is a safe alternative
+    await new Promise(resolve => setTimeout(resolve, seconds * 1000));
+    return true;
+}
 
 export async function smeltItem(bot, itemName, num=1) {
     /**
@@ -558,6 +570,14 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
 
     const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
     if (bot.modes.isOn('cheat') && !dontCheat) {
+        if (bot.restrict_to_inventory) {
+            let block = bot.inventory.items().find(item => item.name === blockType);
+            if (!block) {
+                log(bot, `Cannot place ${blockType}, you are restricted to your current inventory.`);
+                return false;
+            }
+        }
+
         // invert the facing direction
         let face = placeOn === 'north' ? 'south' : placeOn === 'south' ? 'north' : placeOn === 'east' ? 'west' : 'east';
         if (blockType.includes('torch') && placeOn !== 'bottom') {
@@ -599,7 +619,7 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     if (item_name == "redstone_wire")
         item_name = "redstone";
     let block = bot.inventory.items().find(item => item.name === item_name);
-    if (!block && bot.game.gameMode === 'creative') {
+    if (!block && bot.game.gameMode === 'creative' && !bot.restrict_to_inventory) {
         await bot.creative.setInventorySlot(36, mc.makeItem(item_name, 1)); // 36 is first hotbar slot
         block = bot.inventory.items().find(item => item.name === item_name);
     }
@@ -897,18 +917,32 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
     }
     // if we are too close, make some distance
     if (bot.entity.position.distanceTo(player.position) < 2) {
-        let goal = new pf.goals.GoalNear(player.position.x, player.position.y, player.position.z, 2);
-        let inverted_goal = new pf.goals.GoalInvert(goal);
-        bot.pathfinder.setMovements(new pf.Movements(bot));
-        await bot.pathfinder.goto(inverted_goal);
+        let too_close = true;
+        let start_moving_away = Date.now();
+        await moveAwayFromEntity(bot, player, 2);
+        while (too_close && !bot.interrupt_code) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            too_close = bot.entity.position.distanceTo(player.position) < 5;
+            if (too_close) {
+                await moveAwayFromEntity(bot, player, 5);
+            }
+            if (Date.now() - start_moving_away > 3000) {
+                break;
+            }
+        }
+        if (too_close) {
+            log(bot, `Failed to give ${itemType} to ${username}, too close.`);
+            return false;
+        }
     }
+
     await bot.lookAt(player.position);
     if (await discard(bot, itemType, num)) {
         let given = false;
         bot.once('playerCollect', (collector, collected) => {
             console.log(collected.name);
             if (collector.username === username) {
-                log(bot, `${username} recieved ${itemType}.`);
+                log(bot, `${username} received ${itemType}.`);
                 given = true;
             }
         });
@@ -1106,6 +1140,21 @@ export async function moveAway(bot, distance) {
     return true;
 }
 
+export async function moveAwayFromEntity(bot, entity, distance=16) {
+    /**
+     * Move away from the given entity.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {Entity} entity, the entity to move away from.
+     * @param {number} distance, the distance to move away.
+     * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
+     **/
+    let goal = new pf.goals.GoalFollow(entity, distance);
+    let inverted_goal = new pf.goals.GoalInvert(goal);
+    bot.pathfinder.setMovements(new pf.Movements(bot));
+    await bot.pathfinder.goto(inverted_goal);
+    return true;
+}
+
 export async function avoidEnemies(bot, distance=16) {
     /**
      * Move a given distance away from all nearby enemy mobs.
@@ -1247,14 +1296,25 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
      * @returns {Promise<boolean>} true if the ground was tilled, false otherwise.
      * @example
      * let position = world.getPosition(bot);
-     * await skills.till(bot, position.x, position.y - 1, position.x);
+     * await skills.tillAndSow(bot, position.x, position.y - 1, position.x, "wheat");
      **/
-    console.log(x, y, z)
     x = Math.round(x);
     y = Math.round(y);
     z = Math.round(z);
     let block = bot.blockAt(new Vec3(x, y, z));
-    console.log(x, y, z)
+
+    if (bot.modes.isOn('cheat')) {
+        let to_remove = ['_seed', '_seeds'];
+        for (let remove of to_remove) {
+            if (seedType.endsWith(remove)) {
+                seedType = seedType.replace(remove, '');
+            }
+        }
+        placeBlock(bot, 'farmland', x, y, z);
+        placeBlock(bot, seedType, x, y+1, z);
+        return true;
+    }
+
     if (block.name !== 'grass_block' && block.name !== 'dirt' && block.name !== 'farmland') {
         log(bot, `Cannot till ${block.name}, must be grass_block or dirt.`);
         return false;

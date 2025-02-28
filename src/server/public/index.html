@@ -80,12 +80,15 @@
                             ${agent.in_game ? `
                                 <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
                                 <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
+								<input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
                             ` : `
                                 <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
                             `}
                         </div>
                     </div>
-                `).join('') :
+                `).join('') + 
+                `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
+                <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
                 '<div class="agent">No agents connected</div>';
         });
 
@@ -100,6 +103,18 @@
         function stopAgent(agentName) {
             socket.emit('stop-agent', agentName);
         }
+
+        function killAllAgents() {
+            socket.emit('stop-all-agents');
+        }
+
+        function shutdown() {
+            socket.emit('shutdown');
+        }
+		
+		function sendMessage(agentName, message) {
+			socket.emit('send-message', agentName, message)
+		}
     </script>
 </body>
 </html> 

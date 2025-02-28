@@ -31,7 +31,7 @@ class AgentServerProxy {
         });
 
         this.socket.on('chat-message', (agentName, json) => {
-            convoManager.recieveFromBot(agentName, json);
+            convoManager.receiveFromBot(agentName, json);
         });
 
         this.socket.on('agents-update', (agents) => {
@@ -42,10 +42,22 @@ class AgentServerProxy {
             console.log(`Restarting agent: ${agentName}`);
             this.agent.cleanKill();
         });
+		
+		this.socket.on('send-message', (agentName, message) => {
+			try {
+				this.agent.respondFunc("NO USERNAME", message);
+			} catch (error) {
+				console.error('Error: ', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+			}
+		});
     }
 
     login() {
         this.socket.emit('login-agent', this.agent.name);
+    }
+
+    shutdown() {
+        this.socket.emit('shutdown');
     }
 
     getSocket() {
