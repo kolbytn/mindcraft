@@ -102,7 +102,7 @@ export class Task {
 
         bot.chat(`/clear ${name}`);
         console.log(`Cleared ${name}'s inventory.`);
-        
+
         //kill all drops
         if (this.agent.count_id === 0) {
             bot.chat(`/kill @e[type=item]`);

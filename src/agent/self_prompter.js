@@ -124,6 +124,7 @@ export class SelfPrompter {
         this.stopLoop();
         this.state = STOPPED;
     }
+
     async pause() {
         this.interrupt = true;
         await this.agent.actions.stop();

@@ -92,7 +92,6 @@ export class Agent {
                     this.startEvents();
 
 		    // this.task.initBotTask();
-		    
                     if (!load_mem) {
                         this.task.initBotTask();
                     }
