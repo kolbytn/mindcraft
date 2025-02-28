@@ -7,8 +7,6 @@ let agent;
 let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
 let agents_in_game = [];
 
-let self_prompter_paused = false;
-
 class Conversation {
     constructor(name) {
         this.name = name;
@@ -97,7 +95,7 @@ class ConversationManager {
                         this._clearMonitorTimeouts();
                         return;
                     }
-                    if (!self_prompter_paused) {
+                    if (!agent.self_prompter.isPaused()) {
                         this.endConversation(convo_partner);
                         agent.handleMessage('system', `${convo_partner} disconnected, conversation has ended.`);
                     }
@@ -125,9 +123,8 @@ class ConversationManager {
         const convo = this._getConvo(send_to);
         convo.reset();
         
-        if (agent.self_prompter.on) {
-            await agent.self_prompter.stop();
-            self_prompter_paused = true;
+        if (agent.self_prompter.isActive()) {
+            await agent.self_prompter.pause();
         }
         if (convo.active)
             return;
@@ -191,9 +188,8 @@ class ConversationManager {
         convo.queue(received);
         
         // responding to conversation takes priority over self prompting
-        if (agent.self_prompter.on){
-            await agent.self_prompter.stopLoop();
-            self_prompter_paused = true;
+        if (agent.self_prompter.isActive()){
+            await agent.self_prompter.pause();
         }
     
         _scheduleProcessInMessage(sender, received, convo);
@@ -235,7 +231,7 @@ class ConversationManager {
             if (this.activeConversation.name === sender) {
                 this._stopMonitor();
                 this.activeConversation = null;
-                if (self_prompter_paused && !this.inConversation()) {
+                if (agent.self_prompter.isPaused() && !this.inConversation()) {
                     _resumeSelfPrompter();
                 }
             }
@@ -246,7 +242,7 @@ class ConversationManager {
         for (const sender in this.convos) {
             this.endConversation(sender);
         }
-        if (self_prompter_paused) {
+        if (agent.self_prompter.isPaused()) {
             _resumeSelfPrompter();
         }
     }
@@ -257,14 +253,6 @@ class ConversationManager {
             this.sendToBot(sender, '!endConversation("' + sender + '")', false, false);
             this.endConversation(sender);
         }
-    }
-
-    scheduleSelfPrompter() {
-        self_prompter_paused = true;
-    }
-    
-    cancelSelfPrompter() {
-        self_prompter_paused = false;
     }
 }
 
@@ -360,8 +348,7 @@ function _tagMessage(message) {
 
 async function _resumeSelfPrompter() {
     await new Promise(resolve => setTimeout(resolve, 5000));
-    if (self_prompter_paused && !convoManager.inConversation()) {
-        self_prompter_paused = false;
+    if (agent.self_prompter.isPaused() && !convoManager.inConversation()) {
         agent.self_prompter.start();
     }
 }
