@@ -48,6 +48,10 @@ function createInitialInventory(blueprint, agents) {
         currentAgent = (currentAgent + 1) % agents;
     }
 
+
+    // Todo: add tools to all agents (diamond pickaxe)
+    
+
     return inventories;
 }
 
