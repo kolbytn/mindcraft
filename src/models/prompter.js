@@ -143,7 +143,7 @@ export class Prompter {
                 profile.api = 'groq';
             else if (profile.model.includes('hf:'))
                 profile.api = "glhf";
-            else if (profile.model.includes('hyperbolic:')|| chat.model.includes('hb:'))
+            else if (profile.model.includes('hyperbolic:')|| profile.model.includes('hb:'))
                 profile.api = "hyperbolic";  
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
@@ -178,7 +178,7 @@ export class Prompter {
         else if (profile.api === 'glhf')
             model = new glhf(profile.model, profile.url, profile.params);
         else if (profile.api === 'hyperbolic')
-            model = new hyperbolic(profile.model.replace('hyperbolic:', '').replace('hb:', ''), profile.url, profile.params); // Yes you can hate me for using curly braces on this little bit of code for defining the hyperbolic endpoint 
+            model = new hyperbolic(profile.model.replace('hyperbolic:', '').replace('hb:', ''), profile.url, profile.params);
         else if (profile.api === 'huggingface')
             model = new HuggingFace(profile.model, profile.url, profile.params);
         else if (profile.api === 'novita')
