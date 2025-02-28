@@ -1,13 +1,7 @@
+// hyperbolic-no-logger.js
 import { getKey } from '../utils/keys.js';
 
-
-/*
- * 
- * Yes, this code was written by an Ai. It was written by GPT-o1 and tested :)
- * 
- */
-
-export class hyperbolic {
+export class Hyperbolic {
     constructor(modelName, apiUrl) {
         this.modelName = modelName || "deepseek-ai/DeepSeek-V3";
         this.apiUrl = apiUrl || "https://api.hyperbolic.xyz/v1/chat/completions";
@@ -24,14 +18,14 @@ export class hyperbolic {
      *
      * @param {Array} turns - An array of message objects, e.g. [{role: 'user', content: 'Hi'}].
      * @param {string} systemMessage - The system prompt or instruction.
-     * @param {string} stopSeq - A string that represents a stopping sequence, default '***'.
-     * @returns {Promise<string>} - The content of the model's reply.
+     * @param {string} stopSeq - A stopping sequence, default '***'.
+     * @returns {Promise<string>} - The model's reply.
      */
     async sendRequest(turns, systemMessage, stopSeq = '***') {
         // Prepare the messages with a system prompt at the beginning
         const messages = [{ role: 'system', content: systemMessage }, ...turns];
 
-        // Build the request payload (mirroring your original structure)
+        // Build the request payload
         const payload = {
             model: this.modelName,
             messages: messages,
@@ -41,51 +35,79 @@ export class hyperbolic {
             stream: false
         };
 
-        let completionContent = null;
+        const maxAttempts = 5;
+        let attempt = 0;
+        let finalRes = null;
 
-        try {
-            console.log('Awaiting Hyperbolic API response...');
+        while (attempt < maxAttempts) {
+            attempt++;
+            console.log(`Awaiting Hyperbolic API response... (attempt: ${attempt})`);
             console.log('Messages:', messages);
 
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
-                body: JSON.stringify(payload)
-            });
+            let completionContent = null;
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            try {
+                const response = await fetch(this.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.apiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data?.choices?.[0]?.finish_reason === 'length') {
+                    throw new Error('Context length exceeded');
+                }
+
+                completionContent = data?.choices?.[0]?.message?.content || '';
+                console.log('Received response from Hyperbolic.');
+            } catch (err) {
+                if (
+                    (err.message === 'Context length exceeded' || err.code === 'context_length_exceeded') &&
+                    turns.length > 1
+                ) {
+                    console.log('Context length exceeded, trying again with a shorter context...');
+                    return await this.sendRequest(turns.slice(1), systemMessage, stopSeq);
+                } else {
+                    console.error(err);
+                    completionContent = 'My brain disconnected, try again.';
+                }
             }
 
-            const data = await response.json();
-            if (
-                data?.choices?.[0]?.finish_reason &&
-                data.choices[0].finish_reason === 'length'
-            ) {
-                throw new Error('Context length exceeded');
+            // Check for <think> blocks
+            const hasOpenTag = completionContent.includes("<think>");
+            const hasCloseTag = completionContent.includes("</think>");
+
+            if ((hasOpenTag && !hasCloseTag)) {
+                console.warn("Partial <think> block detected. Re-generating...");
+                continue; // Retry the request
             }
 
-            completionContent = data?.choices?.[0]?.message?.content || '';
-            console.log('Received response from Hyperbolic.');
-
-        } catch (err) {
-            if (
-                (err.message === 'Context length exceeded' ||
-                 err.code === 'context_length_exceeded') &&
-                turns.length > 1
-            ) {
-                console.log('Context length exceeded, trying again with a shorter context...');
-                return await this.sendRequest(turns.slice(1), systemMessage, stopSeq);
-            } else {
-                console.log(err);
-                completionContent = 'My brain disconnected, try again.';
+            if (hasCloseTag && !hasOpenTag) {
+                completionContent = '<think>' + completionContent;
             }
+
+            if (hasOpenTag && hasCloseTag) {
+                completionContent = completionContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            }
+
+            finalRes = completionContent.replace(/<\|separator\|>/g, '*no response*');
+            break; // Valid response obtained—exit loop
         }
-        return completionContent.replace(/<\|separator\|>/g, '*no response*');
+
+        if (finalRes == null) {
+            console.warn("Could not get a valid <think> block or normal response after max attempts.");
+            finalRes = 'I thought too hard, sorry, try again.';
+        }
+        return finalRes;
     }
+
     async embed(text) {
         throw new Error('Embeddings are not supported by Hyperbolic.');
     }
