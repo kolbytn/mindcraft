@@ -48,7 +48,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | Novita AI | `NOVITA_API_KEY` | `gryphe/mythomax-l2-13b` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
 | Qwen | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 | Mistral | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
-| xAI | `XAI_API_KEY` | `grok-beta` | [docs](https://docs.x.ai/docs) |
+| xAI | `XAI_API_KEY` | `grok-2` | [docs](https://docs.x.ai/docs) |
 | Deepseek | `DEEPSEEK_API_KEY` | `deepseek-reasoner` | [docs](https://api-docs.deepseek.com/) |
 | Openrouter | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
 | glhf.chat | `GHLF_API_KEY` | `hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
