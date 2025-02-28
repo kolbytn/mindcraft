@@ -46,7 +46,7 @@ export class ActionManager {
             assert(actionLabel != null, 'actionLabel is required for new resume');
             this.resume_name = actionLabel;
         }
-        if (this.resume_func != null && (this.agent.isIdle() || new_resume) && (!this.agent.self_prompter.on || new_resume)) {
+        if (this.resume_func != null && (this.agent.isIdle() || new_resume) && (!this.agent.self_prompter.isActive() || new_resume)) {
             this.currentActionLabel = this.resume_name;
             let res = await this._executeAction(this.resume_name, this.resume_func, timeout);
             this.currentActionLabel = '';
