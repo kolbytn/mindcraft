@@ -118,6 +118,7 @@ export class Task {
         this.taskStartTime = Date.now();
         this.validator = null;
         this.blocked_actions = [];
+        this.task_id = task_id;
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
             this.taskTimeout = this.data.timeout || 300;
