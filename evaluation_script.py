@@ -111,7 +111,8 @@ def launch_parallel_experiments(task_path,
                                 model="gpt-4o", 
                                 num_parallel=1,
                                 s3=False, 
-                                bucket_name="mindcraft-experiments"):
+                                bucket_name="mindcraft-experiments", 
+                                template_profile="profiles/collab_profile.json"):
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -138,7 +139,8 @@ def launch_parallel_experiments(task_path,
                                  experiments_folder, 
                                  exp_name, 
                                  s3=s3, 
-                                 bucket_name=bucket_name)
+                                 bucket_name=bucket_name, 
+                                 template_profile="profiles/collab_profile.json")
         time.sleep(5)
 
 def launch_server_experiment(task_path, 
@@ -150,7 +152,8 @@ def launch_server_experiment(task_path,
                              num_agents=2, 
                              model="gpt-4o", 
                              s3=False, 
-                             bucket_name="mindcraft-experiments"):
+                             bucket_name="mindcraft-experiments", 
+                             template_profile="profiles/collab_profile.json"):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -174,7 +177,7 @@ def launch_server_experiment(task_path,
     else:
         agent_names = [f"andy_{session_name}", f"jill_{session_name}", f"bob_{session_name}"]
         models = [model] * 3
-    make_profiles(agent_names, models)
+    make_profiles(agent_names, models, template_profile=template_profile)
 
     # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
@@ -226,10 +229,10 @@ def launch_server_experiment(task_path,
 
     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
-def make_profiles(agent_names, models):
+def make_profiles(agent_names, models, template_profile="profiles/collab_profile.json"):
     assert len(agent_names) == len(models)
 
-    with open("profiles/collab_profile.json", 'r') as f:
+    with open(template_profile, 'r') as f:
         content = f.read()
     
     profile = json.loads(content)
@@ -353,6 +356,7 @@ def main():
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
+    parser.add_argument('--template_profile', default="andy.json", help='Model to use for the agents')
     # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
     # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
 
@@ -378,7 +382,8 @@ def main():
                                     exp_name=args.exp_name, 
                                     num_parallel=args.num_parallel, 
                                     s3=args.s3, 
-                                    bucket_name=args.bucket_name)
+                                    bucket_name=args.bucket_name, 
+                                    template_profile=args.template_profile)
     
     # servers = create_server_files("../server_data/", args.num_parallel)
     # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
