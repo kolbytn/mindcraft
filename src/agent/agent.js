@@ -51,7 +51,7 @@ export class Agent {
             await this.prompter.initExamples();
             console.log('Initializing task...');
             this.task = new Task(this, task_path, task_id);
-            this.task.loadTask(task_path, task_id)
+            this.task.loadTask(task_path, task_id) // My addition to get the load to work propely
             this.blocked_actions = this.task.blocked_actions || [];
 
             serverProxy.connect(this);
