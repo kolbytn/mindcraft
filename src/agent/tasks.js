@@ -198,9 +198,17 @@ export class Task {
     isDone() {
         if (this.validator && this.validator())
             return {"message": 'Task successful', "code": 2};
+
+        let other_names = this.available_agents.filter(n => n !== this.name);
+        const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
+
+        if (elapsedTime >= 40 && other_names.length == 0) {
+            
+            console.log('No other agents found. Task unsuccessful.');
+            return {"message": 'No other agents found', "code": 3};
+        }
         
         if (this.taskTimeout) {
-            const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
             if (elapsedTime >= this.taskTimeout) {
                 console.log('Task timeout reached. Task unsuccessful.');
                 return {"message": 'Task timeout reached', "code": 4};

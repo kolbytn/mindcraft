@@ -202,6 +202,7 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) {
+        await this.checkTaskDone();
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -449,15 +450,16 @@ export class Agent {
     async update(delta) {
         await this.bot.modes.update();
         this.self_prompter.update(delta);
-        if (this.task.data) {
-            let res = this.task.isDone();
-            if (res) {
-                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
-                await this.history.save();
-                console.log('Task finished:', res.message);
-                this.killAll();
-            }
-        }
+        await this.checkTaskDone();
+        // if (this.task.data) {
+        //     let res = this.task.isDone();
+        //     if (res) {
+        //         await this.history.add('system', `${res.message} ended with code : ${res.code}`);
+        //         await this.history.save();
+        //         console.log('Task finished:', res.message);
+        //         this.killAll();
+        //     }
+        // }
     }
 
     isIdle() {
@@ -469,6 +471,18 @@ export class Agent {
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
+    }
+
+    async checkTaskDone() {
+        if (this.task.data) {
+            let res = this.task.isDone();
+            if (res) {
+                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
+                await this.history.save();
+                console.log('Task finished:', res.message);
+                this.killAll();
+            }
+        }
     }
 
     killAll() {
