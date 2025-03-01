@@ -210,6 +210,7 @@ def launch_server_experiment(task_path,
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
+        script_content += f"sleep 10\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
