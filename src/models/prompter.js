@@ -125,7 +125,9 @@ export class Prompter {
             if (profile.model.includes('openrouter/'))
                 profile.api = 'openrouter'; // must do first because shares names with other models
             else if (profile.model.includes('together/'))
-                profile.api = 'together'
+                profile.api = 'together'; // also must do early because shares names with other models
+            else if (profile.model.includes('ollama/'))
+                profile.api = 'ollama'; // also must do early because shares names with other models
             else if (profile.model.includes('gemini'))
                 profile.api = 'google';
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
@@ -148,8 +150,6 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else if (profile.model.includes('ollama/'))
-                profile.api = 'ollama';
             else 
                 profile.api = 'ollama';
         }
