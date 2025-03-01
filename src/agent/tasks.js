@@ -87,7 +87,7 @@ export class Task {
         try {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
-            const task = tasks[task_id];
+            let task = tasks[task_id];
             console.log('Loaded task:', task);
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);

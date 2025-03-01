@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createMindServer } from './src/server/mind_server.js';
 import { mainProxy } from './src/process/main_proxy.js';
-import { readFileSync } from 'fs';
+import {readFileSync} from "fs";
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
