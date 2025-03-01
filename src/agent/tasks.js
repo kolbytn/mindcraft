@@ -198,8 +198,7 @@ export class Task {
         let other_names = this.available_agents.filter(n => n !== this.name);
         const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
 
-        if (elapsedTime >= 40 && other_names.length == 0) {
-            
+        if (elapsedTime >= 30 && this.available_agents.length !== this.data.agent_count) {
             console.log('No other agents found. Task unsuccessful.');
             return {"message": 'No other agents found', "code": 3};
         }
@@ -272,16 +271,26 @@ export class Task {
             }
         }
 
+        if (this.data.conversation && this.agent.count_id === 0) {
+            let other_name = this.available_agents.filter(n => n !== this.name)[0];
+            let waitCount = 0;
+            while (other_name === undefined && waitCount < 20) {
+                other_name = this.available_agents.filter(n => n !== this.name)[0];
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                waitCount++;
+            }
+            if (other_name === undefined) {
+                console.log('No other agents found. Task unsuccessful.');
+                this.agent.killAll();
+            }
+            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
+        }
+
         const agentGoal = this.getAgentGoal();
         console.log(`Agent goal for agent Id ${this.agent.count_id}: ${agentGoal}`);
         if (agentGoal) {
             console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
             await executeCommand(this.agent, `!goal("${agentGoal}")`);
-        }
-    
-        if (this.data.conversation && this.agent.count_id === 0) {
-            let other_name = this.available_agents.filter(n => n !== this.name)[0];
-            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
     }
     
