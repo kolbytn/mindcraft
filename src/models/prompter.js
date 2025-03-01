@@ -20,6 +20,7 @@ import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
 import { OpenRouter } from './openrouter.js';
+import { Together } from './together.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -121,10 +122,12 @@ export class Prompter {
             profile = {model: profile};
         }
         if (!profile.api) {
-            if (profile.model.includes('gemini'))
+            if (profile.model.includes('openrouter/'))
+                profile.api = 'openrouter'; // must do first because shares names with other models
+            else if (profile.model.includes('together/'))
+                profile.api = 'together'
+            else if (profile.model.includes('gemini'))
                 profile.api = 'google';
-            else if (profile.model.includes('openrouter/'))
-                profile.api = 'openrouter'; // must do before others bc shares model names
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
@@ -145,10 +148,10 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else if (profile.model.includes('llama3'))
+            else if (profile.model.includes('ollama/'))
                 profile.api = 'ollama';
             else 
-                throw new Error('Unknown model:', profile.model);
+                profile.api = 'ollama';
         }
         return profile;
     }
@@ -164,7 +167,7 @@ export class Prompter {
         else if (profile.api === 'replicate')
             model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
         else if (profile.api === 'ollama')
-            model = new Local(profile.model, profile.url, profile.params);
+            model = new Local(profile.model.replace('ollama/', ''), profile.url, profile.params);
         else if (profile.api === 'mistral')
             model = new Mistral(profile.model, profile.url, profile.params);
         else if (profile.api === 'groq')
@@ -181,6 +184,8 @@ export class Prompter {
             model = new DeepSeek(profile.model, profile.url, profile.params);
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
+        else if (profile.api === 'together')
+            model = new Together(profile.model.replace('together/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
