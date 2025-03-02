@@ -27,6 +27,6 @@ Object.entries(counts).forEach(([category, count]) => {
 
 console.log(`\nTotal tasks: ${Object.keys(tasks).length}`);
 console.log(`Total categories: ${Object.keys(counts).length}`);
-const expectedTotal = 5 * 3 * 3* 3
-    * 5; // materialLevels * roomCounts * windowStyles * carpetStyles * variants
-console.log(`Expected total tasks: ${expectedTotal}`);
+// const expectedTotal = 5 * 3 * 3* 3
+//     * 5; // materialLevels * roomCounts * windowStyles * carpetStyles * variants
+// console.log(`Expected total tasks: ${expectedTotal}`);
