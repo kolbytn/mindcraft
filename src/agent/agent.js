@@ -13,7 +13,6 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-// import { loadTask } from '../agent/tasks.js';
 // import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
 import {getPosition} from './library/world.js'
 import { Task } from './tasks.js';
@@ -51,7 +50,6 @@ export class Agent {
             await this.prompter.initExamples();
             console.log('Initializing task...');
             this.task = new Task(this, task_path, task_id);
-            this.task.loadTask(task_path, task_id) // My addition to get the load to work propely
             this.blocked_actions = this.task.blocked_actions || [];
 
             serverProxy.connect(this);
@@ -67,18 +65,18 @@ export class Agent {
             }
 
 
-            // TODO: TASK LOADING ERRORS ARE HAPPENING HERE
-            if (task) {
-                // this.task = loadTask(task)
-                // this.task = this.task.loadTask(task_path, task_id);
+            if (this.task) {
+                this.task.loadTask(task_path, task_id);
                 this.taskTimeout = this.task.timeout || 300;
                 this.taskStartTime = Date.now();
                 if (this.task.type === 'harvest' || this.task.type === 'techtree') {
+                    // todo: this validator doesn't exist?
                     // this.validator = new TechTreeHarvestValidator(this.task, this.bot);
                 }
                 // this.validator = new TechTreeHarvestValidator(this.task, this.bot);
 
             } else {
+                console.log('called without task')
                 this.task = null;
                 this.taskTimeout = null;
                 this.validator = null;
@@ -136,7 +134,7 @@ export class Agent {
                     if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
                         var initial_inventory = this.task.initial_inventory[this.name];
                         console.log("Initial inventory:", initial_inventory);
-                    } else if (task) {
+                    } else if (this.task) {
                         console.log("Initial inventory:", this.task.initial_inventory);
                         var initial_inventory = this.task.initial_inventory;
                     }
@@ -163,7 +161,7 @@ export class Agent {
                     // Finding if there is a human player on the server
                     for (const playerName in this.bot.players) {
                         const player = this.bot.players[playerName];
-                        if (!isOtherAgent(player.username)) {
+                        if (!convoManager.isOtherAgent(player.username)) {
                             console.log('Found human player:', player.username);
                             human_player_name = player.username
                             break;
@@ -220,6 +218,11 @@ export class Agent {
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
 
+
+                    console.log("HERE IS THE LOGGED TASK")
+
+                    console.log(this.task)
+
                     this.task.initBotTask();
 
 
@@ -228,7 +231,7 @@ export class Agent {
 
                 } catch (error) {
                     console.error('Error in spawn event:', error);
-                    process.exit(0);
+                    throw error; //rethrow here instead
                 }
             });
         } catch (error) {
@@ -238,7 +241,7 @@ export class Agent {
                 stack: error.stack || 'No stack trace',
                 error: error
             });
-            throw error; // Re-throw with preserved details
+            process.exit(0);
         }
     }
 

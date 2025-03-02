@@ -109,9 +109,9 @@ export class Task {
         return false;
     }
 
-    
 
-    async initBotTask() {
+
+    initBotTask = async () => {
         if (this.data === null)
             return;
         let bot = this.agent.bot;
