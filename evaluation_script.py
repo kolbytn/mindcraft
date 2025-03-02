@@ -140,7 +140,8 @@ def launch_parallel_experiments(task_path,
                                  exp_name, 
                                  s3=s3, 
                                  bucket_name=bucket_name, 
-                                 template_profile="profiles/collab_profile.json")
+                                 template_profile="profiles/collab_profile.json", 
+                                 model=model)
         time.sleep(5)
 
 def launch_server_experiment(task_path, 
@@ -172,10 +173,10 @@ def launch_server_experiment(task_path,
     # set up server and agents 
     session_name = str(server_port - 55916)
     if num_agents == 2:
-        agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
+        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}"]
         models = [model] * 2
     else:
-        agent_names = [f"andy_{session_name}", f"jill_{session_name}", f"bob_{session_name}"]
+        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}", f"Bob_{session_name}"]
         models = [model] * 3
     make_profiles(agent_names, models, template_profile=template_profile)
 
@@ -191,6 +192,18 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
+
+    # you need to add the bots to the world first before you can add them as op
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_multi_agent_timeout"
+
+    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+
+    time.sleep(15)
+
+    # add the bots as op
+    for agent in agent_names:
+        subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent}", "C-m"])
+        time.sleep(1)
 
     script_content = ""
     for task_id in task_ids:
@@ -302,8 +315,9 @@ def launch_world(server_path="../server_data/", agent_names=["andy", "jill"], se
     cmd = f"cd {server_path} && java -jar server.jar"
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-    for agent in agent_names:
-        subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
+    # for agent in agent_names:
+    #     print(f"\n\n/op {agent}\n\n")
+    #     subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
     time.sleep(5)
 
 def kill_world(session_name="server"):
@@ -358,6 +372,7 @@ def main():
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
     parser.add_argument('--template_profile', default="andy.json", help='Model to use for the agents')
+    parser.add_argument('--model', default="gpt-4o", help='Model to use for the agents')
     # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
     # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
 
@@ -384,7 +399,8 @@ def main():
                                     num_parallel=args.num_parallel, 
                                     s3=args.s3, 
                                     bucket_name=args.bucket_name, 
-                                    template_profile=args.template_profile)
+                                    template_profile=args.template_profile, 
+                                    model=args.model)
     
     # servers = create_server_files("../server_data/", args.num_parallel)
     # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
