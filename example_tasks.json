@@ -17,6 +17,20 @@
         },
         "type": "debug"
     },
+    "debug_multi_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug",
+        "timeout": 5
+    },
     "debug_different_goal": {
         "goal": {
             "0": "Reply to all messages with star emojis when prompted",
