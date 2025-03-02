@@ -198,7 +198,7 @@ def launch_server_experiment(task_path,
 
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
 
-    time.sleep(15)
+    time.sleep(20)
 
     # add the bots as op
     for agent in agent_names:
