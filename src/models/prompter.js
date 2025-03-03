@@ -22,12 +22,6 @@ import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 import { VLLM } from './vllm.js';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export class Prompter {
     constructor(agent, fp) {
@@ -208,7 +202,7 @@ export class Prompter {
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
-            model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
+            model = new VLLM(profile.model, profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
