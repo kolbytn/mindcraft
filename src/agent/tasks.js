@@ -3,9 +3,7 @@ import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
-import { Vec3 } from 'vec3';
 import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
-import {autoBuild, autoDelete} from "../../test/test_blueprint_layout.js";
 
 /**
  * Validates the presence of required items in an agent's inventory
@@ -124,7 +122,7 @@ export class Task {
         this.blocked_actions = [];
         this.task_id = task_id;
         if (task_path && task_id) {
-            this.data = this.loadTask(task_path, task_id); //todo: does this even return anything?
+            this.data = this.loadTask(task_path, task_id);
             this.task_type = this.data.type;
             if (this.task_type === 'construction' && this.data.blueprint) {
                 this.blueprint = new Blueprint(this.data.blueprint);
@@ -183,7 +181,7 @@ export class Task {
         }
 
         // If goal is an object, get the goal for this agent's count_id
-        if (typeof this.data.goal === 'object' && this.data.goal !== null) {
+        if (typeof this.data.goal === 'object') {
             const agentId = this.agent.count_id.toString();
             return (this.data.goal[agentId] || '') + add_string;
         }
@@ -212,7 +210,7 @@ export class Task {
     }
 
     isDone() {
-        if (this.validator && this.validator())
+        if (this.validator && this.validator.validate()) //todo: error here
             return {"message": 'Task successful', "code": 2};
 
         let other_names = this.available_agents.filter(n => n !== this.name);
@@ -257,7 +255,7 @@ export class Task {
 
         if (this.data.initial_inventory) {
             console.log("Setting inventory...");
-            let initialInventory = {};
+            let initialInventory;
 
             // Handle multi-agent inventory assignment
             if (this.data.agent_count > 1) {
@@ -364,8 +362,8 @@ export class Task {
         if (this.data.agent_count && this.data.agent_count > 1) {
             // TODO wait for other bots to join
             await new Promise((resolve) => setTimeout(resolve, 10000));
-            if (available_agents.length < this.data.agent_count) {
-                console.log(`Missing ${this.data.agent_count - available_agents.length} bot(s).`);
+            if (this.available_agents.length < this.data.agent_count) {
+                console.log(`Missing ${this.data.agent_count - this.available_agents.length} bot(s).`);
                 this.agent.killAll();
             }
         }
@@ -376,7 +374,7 @@ export class Task {
         }
 
         if (this.conversation && this.agent.count_id === 0) {
-            let other_name = available_agents.filter(n => n !== name)[0];
+            let other_name = this.available_agents.filter(n => n !== this.name)[0];
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
         }
 
@@ -396,48 +394,5 @@ export class Task {
                 console.log('no construction blueprint?')
             }
         }
-    }
-}
-
-export function giveBlueprint(agent, blueprint) {
-    let bot = agent.bot;
-    let name = agent.name;
-    let blueprint_name = blueprint.name;
-    let blueprint_count = blueprint.count;
-    bot.chat(`/clear ${name}`);
-    console.log(`Cleared ${name}'s inventory.`);
-    bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
-    console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
-}
-
-/**
- * Auto-builds blueprint in minecraft world
- * @param agent
- * @param blueprint must be of the blueprint class
- */
-export function buildBlueprint(agent, blueprint){
-    let bot = agent.bot
-    const result = blueprint.autoBuild();
-    // const result = clearHouse(blueprint)
-    const commands = result.commands;
-    const nearbyPosition = result.nearbyPosition;
-    for (const command of commands) {
-        bot.chat(command);
-    }
-}
-
-
-/**
- * auto-deletes a built blueprint
- * @param agent
- * @param blueprint must be of the blueprint class
- */
-export function deleteBlueprint(agent, blueprint){
-    let bot = agent.bot
-    const result = blueprint.autoDelete()
-    const commands = result.commands;
-    const nearbyPosition = result.nearbyPosition;
-    for (const command of commands) {
-        bot.chat(command);
     }
 }
