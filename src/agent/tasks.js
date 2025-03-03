@@ -3,6 +3,9 @@ import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
+import { Vec3 } from 'vec3';
+import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
+import {autoBuild, autoDelete} from "../../test/test_blueprint_layout.js";
 
 /**
  * Validates the presence of required items in an agent's inventory
@@ -13,8 +16,8 @@ import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
 function checkItemPresence(data, agent) {
     // Helper function to check if target is a dictionary with quantities
     function isTargetDictionaryWithQuantities(target) {
-        return typeof target === 'object' && 
-               !Array.isArray(target) && 
+        return typeof target === 'object' &&
+               !Array.isArray(target) &&
                target !== null &&
                Object.values(target).every(value => typeof value === 'number');
     }
@@ -61,10 +64,10 @@ function checkItemPresence(data, agent) {
     try {
         // First normalize targets to always have a consistent format
         const targets = normalizeTargets(data.target);
-        
+
         // Determine the required quantities
-        const requiredQuantities = isTargetDictionaryWithQuantities(data.target) 
-            ? data.target 
+        const requiredQuantities = isTargetDictionaryWithQuantities(data.target)
+            ? data.target
             : normalizeQuantities(targets, data.number_of_target);
 
         // Count items in inventory
@@ -83,7 +86,7 @@ function checkItemPresence(data, agent) {
         for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
             const itemName = item.toLowerCase();
             const currentCount = inventoryCount[itemName] || 0;
-            
+
             if (currentCount < requiredCount) {
                 allTargetsMet = false;
                 missingItems.push({
@@ -117,16 +120,27 @@ export class Task {
         this.taskTimeout = 300;
         this.taskStartTime = Date.now();
         this.validator = null;
+        this.reset_function = null;
         this.blocked_actions = [];
         this.task_id = task_id;
         if (task_path && task_id) {
-            this.data = this.loadTask(task_path, task_id);
+            this.data = this.loadTask(task_path, task_id); //todo: does this even return anything?
+            this.task_type = this.data.type;
+            if (this.task_type === 'construction' && this.data.blueprint) {
+                this.blueprint = new Blueprint(this.data.blueprint);
+                this.goal = this.data.goal + ' \n' + this.blueprint.explain() + " \n" + "make sure to place the lower levels of the blueprint first";
+                this.conversation = this.data.conversation + ' \n' + this.blueprint.explain();
+            } else {
+                this.goal = this.data.goal;
+                this.conversation = this.data.conversation;
+            }
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
-            this.task_type = this.data.type;
-            
             // Set validator based on task_type
-            if (this.task_type === 'cooking' || this.task_type === 'techtree') {
+
+            if (this.task_type === 'construction') {
+                this.validator = new ConstructionTaskValidator(this.data, this.agent);
+            } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
                 this.validator = () => {
                     const result = checkItemPresence(this.data, this.agent);
                     return result.success;
@@ -143,10 +157,11 @@ export class Task {
             this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
-            if (this.data.conversation)
+            if (this.conversation)
                 this.blocked_actions.push('!endConversation');
+            console.log('Task loaded:', this.data);
         }
-        
+
         this.name = this.agent.name;
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
     }
@@ -180,7 +195,8 @@ export class Task {
         try {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
-            const task = tasks[task_id];
+            let task = tasks[task_id];
+            console.log('Loaded task:', task);
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
@@ -206,7 +222,7 @@ export class Task {
             console.log('No other agents found. Task unsuccessful.');
             return {"message": 'No other agents found', "code": 3};
         }
-        
+
         if (this.taskTimeout) {
             if (elapsedTime >= this.taskTimeout) {
                 console.log('Task timeout reached. Task unsuccessful.');
@@ -216,7 +232,9 @@ export class Task {
         return false;
     }
 
-    async initBotTask() {
+
+
+    initBotTask = async () => {
         await this.agent.bot.chat(`/clear ${this.name}`);
         console.log(`Cleared ${this.name}'s inventory.`);
 
@@ -225,7 +243,7 @@ export class Task {
 
         if (this.data === null)
             return;
-        
+
         if (this.task_type === 'cooking') {
             this.initiator = new CookingTaskInitiator(this.data, this.agent);
         } else {
@@ -240,7 +258,7 @@ export class Task {
         if (this.data.initial_inventory) {
             console.log("Setting inventory...");
             let initialInventory = {};
-            
+
             // Handle multi-agent inventory assignment
             if (this.data.agent_count > 1) {
                 initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
@@ -306,7 +324,7 @@ export class Task {
 
         let human_player_name = null;
         let bot = this.agent.bot;
-        
+
         // Finding if there is a human player on the server
         for (const playerName in bot.players) {
             const player = bot.players[playerName];
@@ -321,8 +339,19 @@ export class Task {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
-        
+
         await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // now all bots are teleport on top of each other (which kinda looks ugly)
+        // Thus, we need to teleport them to random distances to make it look better
+
+        /*
+        Note : We don't want randomness for construction task as the reference point matters a lot.
+        Another reason for no randomness for construction task is because, often times the user would fly in the air,
+        then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
+        This was done by MaxRobinson in one of the youtube videos.
+        */
+
 
         if (this.data.type !== 'construction') {
             const pos = getPosition(bot);
@@ -331,5 +360,84 @@ export class Task {
             bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
             await new Promise((resolve) => setTimeout(resolve, 200));
         }
+
+        if (this.data.agent_count && this.data.agent_count > 1) {
+            // TODO wait for other bots to join
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            if (available_agents.length < this.data.agent_count) {
+                console.log(`Missing ${this.data.agent_count - available_agents.length} bot(s).`);
+                this.agent.killAll();
+            }
+        }
+
+        if (this.goal) {
+            console.log('Setting goal:', this.goal);
+            await executeCommand(this.agent, `!goal("${this.goal}")`);
+        }
+
+        if (this.conversation && this.agent.count_id === 0) {
+            let other_name = available_agents.filter(n => n !== name)[0];
+            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
+        }
+
+
+        if (this.data.type === 'construction'){
+            //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
+            if (this.blueprint){
+                const result = this.blueprint.autoDelete();
+                // const result = clearHouse(blueprint)
+                const commands = result.commands;
+                const nearbyPosition = result.nearbyPosition;
+                for (const command of commands) {
+                    bot.chat(command);
+                }
+            }
+            else{
+                console.log('no construction blueprint?')
+            }
+        }
+    }
+}
+
+export function giveBlueprint(agent, blueprint) {
+    let bot = agent.bot;
+    let name = agent.name;
+    let blueprint_name = blueprint.name;
+    let blueprint_count = blueprint.count;
+    bot.chat(`/clear ${name}`);
+    console.log(`Cleared ${name}'s inventory.`);
+    bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
+    console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
+}
+
+/**
+ * Auto-builds blueprint in minecraft world
+ * @param agent
+ * @param blueprint must be of the blueprint class
+ */
+export function buildBlueprint(agent, blueprint){
+    let bot = agent.bot
+    const result = blueprint.autoBuild();
+    // const result = clearHouse(blueprint)
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
+    }
+}
+
+
+/**
+ * auto-deletes a built blueprint
+ * @param agent
+ * @param blueprint must be of the blueprint class
+ */
+export function deleteBlueprint(agent, blueprint){
+    let bot = agent.bot
+    const result = blueprint.autoDelete()
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
     }
 }
