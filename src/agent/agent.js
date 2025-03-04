@@ -130,7 +130,6 @@ export class Agent {
                     //wait for a bit so inventory is cleared
                     await new Promise((resolve) => setTimeout(resolve, 500));
 
-                    console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
                     if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
                         var initial_inventory = this.task.initial_inventory[this.name];
                         console.log("Initial inventory:", initial_inventory);
@@ -218,11 +217,6 @@ export class Agent {
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
 
-
-                    console.log("HERE IS THE LOGGED TASK")
-
-                    console.log(this.task)
-
                     this.task.initBotTask();
 
 
@@ -301,7 +295,7 @@ export class Agent {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
                 };
-                convoManager.recieveFromBot(this.last_sender, msg_package);
+                convoManager.receiveFromBot(this.last_sender, msg_package);
             }
         }
         else if (init_message) {
@@ -346,9 +340,6 @@ export class Agent {
 
     async handleMessage(source, message, max_responses=null) {
         await this.checkTaskDone();
-        // if (this.task && this.validator && this.validator.validate()) {
-        //     this.killBots();
-        // }
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -646,22 +637,8 @@ export class Agent {
 
     async update(delta) {
         await this.bot.modes.update();
-        await this.self_prompter.update(delta);
-
-        try {
-            if (this.task && this.taskTimeout) {
-                const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
-                if (elapsedTime >= this.taskTimeout) {
-                  console.log('Task timeout reached. Task unsuccessful.');
-                  await this.cleanKill('Task unsuccessful: Timeout reached', 3);
-                }
-            }
-            } catch (e) {
-                console.error("Caught an error while checking timeout reached",e);
-            }
         this.self_prompter.update(delta);
         await this.checkTaskDone();
-
         // if (this.task.data) {
         //     let res = this.task.isDone();
         //     if (res) {

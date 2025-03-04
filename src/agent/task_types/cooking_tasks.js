@@ -326,6 +326,12 @@ export class CookingTaskInitiator {
                     ['minecraft:honey_bottle', 1],     // Non-stackable
                     ['minecraft:glow_berries', 64],
                     ['minecraft:bowl', 64],
+                    ['minecraft:golden_carrot', 64],
+                    ['minecraft:golden_apple', 64],
+                    ['minecraft:enchanted_golden_apple', 64],
+                    ['minecraft:cooked_mutton', 64],
+                    ['minecraft:cooked_salmon', 64],
+                    ['minecraft:cooked_cod', 64]
                     ['minecraft:gold_ingot', 64],
                     ['minecraft:oak_planks', 64],
                 ];
