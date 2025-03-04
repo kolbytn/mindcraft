@@ -1,41 +1,41 @@
 {
-  "multiagent_cooking_71497": {
-    "conversation": "Let's work together to make glow_berries.",
+  "multiagent_cooking_1_cooked_porkchop": {
+    "conversation": "Let's work together to make cooked_porkchop.",
     "agent_count": 2,
     "target": {
-      "glow_berries": 1
+      "cooked_porkchop": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 glow_berries",
+    "goal": "Collaborate to make 1 cooked_porkchop",
     "difficulty": "easy"
   },
-  "multiagent_cooking_9398": {
-    "conversation": "Let's work together to make glow_berries.",
+  "multiagent_cooking_1_cooked_chicken": {
+    "conversation": "Let's work together to make cooked_chicken.",
     "agent_count": 2,
     "target": {
-      "glow_berries": 1
+      "cooked_chicken": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 glow_berries",
+    "goal": "Collaborate to make 1 cooked_chicken",
     "difficulty": "easy"
   },
-  "multiagent_cooking_51339": {
+  "multiagent_cooking_1_cooked_rabbit_blocked_access_andy": {
     "conversation": "Let's work together to make cooked_rabbit.",
     "agent_count": 2,
     "target": {
@@ -49,437 +49,124 @@
         "Step 2: Go to furnace and use it to cook the raw rabbit."
       ]
     },
-    "blocked_access_to_recipe": [],
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
     "goal": "Collaborate to make 1 cooked_rabbit",
     "difficulty": "easy"
   },
-  "multiagent_cooking_24537": {
-    "conversation": "Let's work together to make glow_berries.",
+  "multiagent_cooking_1_golden_carrot": {
+    "conversation": "Let's work together to make golden_carrot.",
     "agent_count": 2,
     "target": {
-      "glow_berries": 1
+      "golden_carrot": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 glow_berries",
+    "goal": "Collaborate to make 1 golden_carrot",
     "difficulty": "easy"
   },
-  "multiagent_cooking_19230": {
-    "conversation": "Let's work together to make golden_apple.",
+  "multiagent_cooking_1_golden_carrot_blocked_access_randy": {
+    "conversation": "Let's work together to make golden_carrot.",
     "agent_count": 2,
     "target": {
-      "golden_apple": 1
+      "golden_carrot": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_apple": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
-        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 golden_apple",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_71793": {
-    "conversation": "Let's work together to make cooked_beef.",
-    "agent_count": 2,
-    "target": {
-      "cooked_beef": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_beef": [
-        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
-        "Step 2: Go to furnace and use it to cook the beef."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_beef",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_88002": {
-    "conversation": "Let's work together to make glow_berries.",
-    "agent_count": 2,
-    "target": {
-      "glow_berries": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 glow_berries",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_78677": {
-    "conversation": "Let's work together to make mushroom_stew.",
-    "agent_count": 2,
-    "target": {
-      "mushroom_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "mushroom_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 mushroom_stew",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_81353": {
-    "conversation": "Let's work together to make golden_apple.",
-    "agent_count": 2,
-    "target": {
-      "golden_apple": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_apple": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
-        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 golden_apple",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_28593": {
-    "conversation": "Let's work together to make suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 suspicious_stew",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_63599": {
-    "conversation": "Let's collaborate to make dried_kelp and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "dried_kelp": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "dried_kelp": [
-        "Step 1: Go to the ocean and collect 1 kelp.",
-        "Step 2: Go to the furnace and cook the kelp to make dried kelp."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 dried_kelp, 1 suspicious_stew",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_29344": {
-    "conversation": "Let's work together to make dried_kelp.",
-    "agent_count": 2,
-    "target": {
-      "dried_kelp": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "dried_kelp": [
-        "Step 1: Go to the ocean and collect 1 kelp.",
-        "Step 2: Go to the furnace and cook the kelp to make dried kelp."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 dried_kelp",
-    "difficulty": "medium"
+    "goal": "Collaborate to make 1 golden_carrot",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_32048": {
-    "conversation": "Let's collaborate to make glow_berries and cooked_rabbit.",
+  "multiagent_cooking_1_cooked_chicken_blocked_access_randy": {
+    "conversation": "Let's work together to make cooked_chicken.",
     "agent_count": 2,
     "target": {
-      "glow_berries": 1,
+      "cooked_chicken": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_chicken",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_cooked_rabbit": {
+    "conversation": "Let's collaborate to make cooked_chicken and cooked_rabbit.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
       "cooked_rabbit": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
       ],
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
         "Step 2: Go to furnace and use it to cook the raw rabbit."
       ]
     },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 glow_berries, 1 cooked_rabbit",
-    "difficulty": "medium"
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_chicken, 1 cooked_rabbit",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_19912": {
-    "conversation": "Let's work together to make dried_kelp.",
+  "multiagent_cooking_1_cooked_chicken_1_cooked_mutton": {
+    "conversation": "Let's collaborate to make cooked_chicken and cooked_mutton.",
     "agent_count": 2,
     "target": {
-      "dried_kelp": 1
+      "cooked_chicken": 1,
+      "cooked_mutton": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "dried_kelp": [
-        "Step 1: Go to the ocean and collect 1 kelp.",
-        "Step 2: Go to the furnace and cook the kelp to make dried kelp."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 dried_kelp",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_84169": {
-    "conversation": "Let's work together to make dried_kelp.",
-    "agent_count": 2,
-    "target": {
-      "dried_kelp": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "dried_kelp": [
-        "Step 1: Go to the ocean and collect 1 kelp.",
-        "Step 2: Go to the furnace and cook the kelp to make dried kelp."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 dried_kelp",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_99688": {
-    "conversation": "Let's collaborate to make cooked_beef and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "cooked_beef": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_beef": [
-        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
-        "Step 2: Go to furnace and use it to cook the beef."
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
       ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
       ]
     },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_beef, 1 suspicious_stew",
-    "difficulty": "medium"
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_chicken, 1 cooked_mutton",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_19954": {
-    "conversation": "Let's work together to make glow_berries.",
-    "agent_count": 2,
-    "target": {
-      "glow_berries": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 glow_berries",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_84122": {
-    "conversation": "Let's work together to make dried_kelp.",
-    "agent_count": 2,
-    "target": {
-      "dried_kelp": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "dried_kelp": [
-        "Step 1: Go to the ocean and collect 1 kelp.",
-        "Step 2: Go to the furnace and cook the kelp to make dried kelp."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 dried_kelp",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_77221": {
-    "conversation": "Let's work together to make dried_kelp.",
-    "agent_count": 2,
-    "target": {
-      "dried_kelp": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "dried_kelp": [
-        "Step 1: Go to the ocean and collect 1 kelp.",
-        "Step 2: Go to the furnace and cook the kelp to make dried kelp."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 dried_kelp",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_3184": {
-    "conversation": "Let's work together to make golden_apple.",
-    "agent_count": 2,
-    "target": {
-      "golden_apple": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_apple": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
-        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 golden_apple",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_9932": {
-    "conversation": "Let's collaborate to make glow_berries and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "glow_berries": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "glow_berries": [
-        "Step 1: Find a cave vine with glow berries.",
-        "Step 2: Pick the glow berries from the cave vine."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 glow_berries, 1 suspicious_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_68601": {
-    "conversation": "Let's collaborate to make suspicious_stew and cooked_beef.",
-    "agent_count": 2,
-    "target": {
-      "suspicious_stew": 1,
-      "cooked_beef": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ],
-      "cooked_beef": [
-        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
-        "Step 2: Go to furnace and use it to cook the beef."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 suspicious_stew, 1 cooked_beef",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_87581": {
-    "conversation": "Let's collaborate to make cooked_rabbit and mushroom_stew.",
+  "multiagent_cooking_1_cooked_porkchop_1_cooked_rabbit": {
+    "conversation": "Let's collaborate to make cooked_rabbit and cooked_porkchop.",
     "agent_count": 2,
     "target": {
       "cooked_rabbit": 1,
-      "mushroom_stew": 1
+      "cooked_porkchop": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -488,35 +175,48 @@
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
         "Step 2: Go to furnace and use it to cook the raw rabbit."
       ],
-      "mushroom_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_rabbit, 1 cooked_porkchop",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cooked_mutton_blocked_access_randy": {
+    "conversation": "Let's work together to make cooked_mutton.",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "randy"
     ],
-    "goal": "Collaborate to make 1 cooked_rabbit, 1 mushroom_stew",
-    "difficulty": "hard"
+    "goal": "Collaborate to make 1 cooked_mutton",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_41682": {
-    "conversation": "Let's collaborate to make mushroom_stew and suspicious_stew.",
+  "multiagent_cooking_1_cooked_porkchop_1_suspicious_stew_blocked_access_randy": {
+    "conversation": "Let's collaborate to make cooked_porkchop and suspicious_stew.",
     "agent_count": 2,
     "target": {
-      "mushroom_stew": 1,
+      "cooked_porkchop": 1,
       "suspicious_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "mushroom_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
       ],
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
@@ -526,41 +226,290 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 mushroom_stew, 1 suspicious_stew",
-    "difficulty": "hard"
+    "goal": "Collaborate to make 1 cooked_porkchop, 1 suspicious_stew",
+    "difficulty": "medium"
   },
-  "multiagent_cooking_73741": {
-    "conversation": "Let's collaborate to make suspicious_stew and cooked_beef.",
+  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_blocked_access_andy": {
+    "conversation": "Let's collaborate to make golden_carrot and cooked_mutton.",
     "agent_count": 2,
     "target": {
-      "suspicious_stew": 1,
-      "cooked_beef": 1
+      "golden_carrot": 1,
+      "cooked_mutton": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ],
-      "cooked_beef": [
-        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
-        "Step 2: Go to furnace and use it to cook the beef."
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
+    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_mutton",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_rabbit_1_golden_carrot": {
+    "conversation": "Let's collaborate to make golden_carrot and cooked_rabbit.",
+    "agent_count": 2,
+    "target": {
+      "golden_carrot": 1,
+      "cooked_rabbit": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_rabbit",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_rabbit_1_golden_carrot_blocked_access_randy": {
+    "conversation": "Let's collaborate to make cooked_rabbit and golden_carrot.",
+    "agent_count": 2,
+    "target": {
+      "cooked_rabbit": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_rabbit, 1 golden_carrot",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_golden_carrot_blocked_access_andy_randy": {
+    "conversation": "Let's work together to make golden_carrot.",
+    "agent_count": 2,
+    "target": {
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ]
     },
     "blocked_access_to_recipe": [
       "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 suspicious_stew, 1 cooked_beef",
+    "goal": "Collaborate to make 1 golden_carrot",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_golden_carrot": {
+    "conversation": "Let's collaborate to make cooked_chicken and golden_carrot.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_chicken, 1 golden_carrot",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_blocked_access_randy": {
+    "conversation": "Let's collaborate to make cooked_mutton and golden_carrot.",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_mutton, 1 golden_carrot",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_porkchop_blocked_access_andy_randy": {
+    "conversation": "Let's work together to make cooked_porkchop.",
+    "agent_count": 2,
+    "target": {
+      "cooked_porkchop": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_porkchop",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_suspicious_stew_blocked_access_andy": {
+    "conversation": "Let's collaborate to make cooked_chicken and suspicious_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
+      "suspicious_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ],
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
+    "goal": "Collaborate to make 1 cooked_chicken, 1 suspicious_stew",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_suspicious_stew_blocked_access_randy": {
+    "conversation": "Let's collaborate to make cooked_chicken and suspicious_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
+      "suspicious_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ],
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_chicken, 1 suspicious_stew",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_mutton_1_suspicious_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cooked_mutton and suspicious_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1,
+      "suspicious_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ],
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_mutton, 1 suspicious_stew",
     "difficulty": "hard"
   },
-  "multiagent_cooking_98803": {
+  "multiagent_cooking_1_cooked_chicken_1_golden_carrot_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make golden_carrot and cooked_chicken.",
+    "agent_count": 2,
+    "target": {
+      "golden_carrot": 1,
+      "cooked_chicken": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_chicken",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_rabbit_1_suspicious_stew_blocked_access_andy_randy": {
     "conversation": "Let's collaborate to make suspicious_stew and cooked_rabbit.",
     "agent_count": 2,
     "target": {
@@ -582,55 +531,163 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
     "goal": "Collaborate to make 1 suspicious_stew, 1 cooked_rabbit",
     "difficulty": "hard"
   },
-  "multiagent_cooking_96585": {
-    "conversation": "Let's collaborate to make golden_apple and suspicious_stew.",
+  "multiagent_cooking_1_cooked_porkchop_1_golden_carrot_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make golden_carrot and cooked_porkchop.",
     "agent_count": 2,
     "target": {
-      "golden_apple": 1,
-      "suspicious_stew": 1
+      "golden_carrot": 1,
+      "cooked_porkchop": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_apple": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
-        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_porkchop",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_golden_carrot_1_suspicious_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make suspicious_stew and golden_carrot.",
+    "agent_count": 2,
+    "target": {
+      "suspicious_stew": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
         "Step 2: Go to the chest and grab oak_planks.",
         "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
         "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
-    "goal": "Collaborate to make 1 golden_apple, 1 suspicious_stew",
+    "goal": "Collaborate to make 1 suspicious_stew, 1 golden_carrot",
     "difficulty": "hard"
   },
-  "multiagent_cooking_74620": {
-    "conversation": "Let's collaborate to make mushroom_stew and suspicious_stew.",
+  "multiagent_cooking_1_cooked_rabbit_1_golden_carrot_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make golden_carrot and cooked_rabbit.",
     "agent_count": 2,
     "target": {
-      "mushroom_stew": 1,
+      "golden_carrot": 1,
+      "cooked_rabbit": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_rabbit",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_suspicious_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make suspicious_stew and cooked_chicken.",
+    "agent_count": 2,
+    "target": {
+      "suspicious_stew": 1,
+      "cooked_chicken": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 suspicious_stew, 1 cooked_chicken",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cooked_mutton and golden_carrot.",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_mutton, 1 golden_carrot",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_porkchop_1_suspicious_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cooked_porkchop and suspicious_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_porkchop": 1,
       "suspicious_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "mushroom_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
       ],
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
@@ -643,63 +700,7 @@
       "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 mushroom_stew, 1 suspicious_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_62244": {
-    "conversation": "Let's collaborate to make golden_apple and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "golden_apple": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_apple": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
-        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 golden_apple, 1 suspicious_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_83399": {
-    "conversation": "Let's collaborate to make golden_apple and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "golden_apple": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_apple": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
-        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 golden_apple, 1 suspicious_stew",
+    "goal": "Collaborate to make 1 cooked_porkchop, 1 suspicious_stew",
     "difficulty": "hard"
   }
 }
