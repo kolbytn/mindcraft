@@ -1,6 +1,5 @@
 {
     "name": "jill",
-
     "model": "gpt-4o-mini",
 
     "conversation_examples": [

@@ -121,107 +121,9 @@ export class Agent {
                     
                     console.log(`${this.name} spawned.`);
                     this.clearBotLogs();
-
-                    if (this.task) {
-                        this.bot.chat(`/clear ${this.name}`);
-                        console.log(`Cleared ${this.name}'s inventory.`);
-                    }
-
-                    //wait for a bit so inventory is cleared
-                    await new Promise((resolve) => setTimeout(resolve, 500));
-
-                    console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
-                    if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
-                        var initial_inventory = this.task.initial_inventory[this.name];
-                        console.log("Initial inventory:", initial_inventory);
-                    } else if (this.task) {
-                        console.log("Initial inventory:", this.task.initial_inventory);
-                        var initial_inventory = this.task.initial_inventory;
-                    }
-
-                    if (this.task && "initial_inventory" in this.task) {
-                        console.log("Setting inventory...");
-                        console.log("Inventory to set:", initial_inventory);
-                        for (let key of Object.keys(initial_inventory)) {
-                            console.log('Giving item:', key);
-                            this.bot.chat(`/give ${this.name} ${key} ${initial_inventory[key]}`);
-                        };
-                        //wait for a bit so inventory is set
-                        await new Promise((resolve) => setTimeout(resolve, 500));
-                        console.log("Done giving inventory items.");
-                    }
-                    // Function to generate random numbers
-
-                    function getRandomOffset(range) {
-                        return Math.floor(Math.random() * (range * 2 + 1)) - range;
-                    }
-
-                    let human_player_name = null;
-
-                    // Finding if there is a human player on the server
-                    for (const playerName in this.bot.players) {
-                        const player = this.bot.players[playerName];
-                        if (!convoManager.isOtherAgent(player.username)) {
-                            console.log('Found human player:', player.username);
-                            human_player_name = player.username
-                            break;
-                        }
-                        }
-
-                    // If there are multiple human players, teleport to the first one
-
-                    // teleport near a human player if found by default
-
-                    if (this.task && "agent_number" in this.task) {
-                        var agent_names = this.task.agent_names;
-                        if (human_player_name) {
-                            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
-                            this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
-
-                        }
-                        else {
-                            this.bot.chat(`/tp ${this.name} ${agent_names[0]}`) // teleport on top of the first agent
-                        }
-
-                        await new Promise((resolve) => setTimeout(resolve, 200));
-                    }
-
-                    else if (this.task) {
-                        if (human_player_name) {
-                            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
-                            this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
-
-                        }
-                        await new Promise((resolve) => setTimeout(resolve, 200));
-                    }
-
-                    // now all bots are teleport on top of each other (which kinda looks ugly)
-                    // Thus, we need to teleport them to random distances to make it look better
-
-                    /*
-                    Note : We don't want randomness for construction task as the reference point matters a lot.
-                    Another reason for no randomness for construction task is because, often times the user would fly in the air,
-                    then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
-                    This was done by MaxRobinson in one of the youtube videos.
-                    */
-
-                    if (this.task && this.task.type !== 'construction') {
-                        const pos = getPosition(this.bot);
-                        const xOffset = getRandomOffset(5);
-                        const zOffset = getRandomOffset(5);
-                        this.bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
-                        await new Promise((resolve) => setTimeout(resolve, 200));
-                    }
-
-
-
+                    
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
-
-
-                    console.log("HERE IS THE LOGGED TASK")
-
-                    console.log(this.task)
 
                     this.task.initBotTask();
 
@@ -301,7 +203,7 @@ export class Agent {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
                 };
-                convoManager.recieveFromBot(this.last_sender, msg_package);
+                convoManager.receiveFromBot(this.last_sender, msg_package);
             }
         }
         else if (init_message) {
@@ -346,9 +248,6 @@ export class Agent {
 
     async handleMessage(source, message, max_responses=null) {
         await this.checkTaskDone();
-        // if (this.task && this.validator && this.validator.validate()) {
-        //     this.killBots();
-        // }
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -646,31 +545,8 @@ export class Agent {
 
     async update(delta) {
         await this.bot.modes.update();
-        await this.self_prompter.update(delta);
-
-        try {
-            if (this.task && this.taskTimeout) {
-                const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
-                if (elapsedTime >= this.taskTimeout) {
-                  console.log('Task timeout reached. Task unsuccessful.');
-                  await this.cleanKill('Task unsuccessful: Timeout reached', 3);
-                }
-            }
-            } catch (e) {
-                console.error("Caught an error while checking timeout reached",e);
-            }
         this.self_prompter.update(delta);
         await this.checkTaskDone();
-
-        // if (this.task.data) {
-        //     let res = this.task.isDone();
-        //     if (res) {
-        //         await this.history.add('system', `${res.message} ended with code : ${res.code}`);
-        //         await this.history.save();
-        //         console.log('Task finished:', res.message);
-        //         this.killAll();
-        //     }
-        // }
     }
 
     isIdle() {

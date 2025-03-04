@@ -2,8 +2,18 @@ import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
+import { Vec3 } from 'vec3';
+import { ConstructionTaskValidator, Blueprint } from './task_types/construction_tasks.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
-import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
+
+//todo: modify validator code to return an object with valid and score -> do more testing hahah
+//todo: figure out how to log these things to the same place as bots/histories
+// export class CraftTaskValidator {
+//     constructor(data, agent) {
+//         this.target = data.target;
+//         this.number_of_target = data.number_of_target;
+//         this.agent = agent;
+
 
 /**
  * Validates the presence of required items in an agent's inventory
@@ -14,8 +24,9 @@ import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
 function checkItemPresence(data, agent) {
     // Helper function to check if target is a dictionary with quantities
     function isTargetDictionaryWithQuantities(target) {
-        return typeof target === 'object' &&
-               !Array.isArray(target) &&
+        return typeof target === 'object' && 
+               !Array.isArray(target) && 
+
                target !== null &&
                Object.values(target).every(value => typeof value === 'number');
     }
@@ -62,10 +73,10 @@ function checkItemPresence(data, agent) {
     try {
         // First normalize targets to always have a consistent format
         const targets = normalizeTargets(data.target);
-
+        
         // Determine the required quantities
-        const requiredQuantities = isTargetDictionaryWithQuantities(data.target)
-            ? data.target
+        const requiredQuantities = isTargetDictionaryWithQuantities(data.target) 
+            ? data.target 
             : normalizeQuantities(targets, data.number_of_target);
 
         // Count items in inventory
@@ -84,7 +95,6 @@ function checkItemPresence(data, agent) {
         for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
             const itemName = item.toLowerCase();
             const currentCount = inventoryCount[itemName] || 0;
-
             if (currentCount < requiredCount) {
                 allTargetsMet = false;
                 missingItems.push({
@@ -107,6 +117,20 @@ function checkItemPresence(data, agent) {
             success: false,
             missingItems: [],
             error: error.message
+        };
+    }
+}
+
+class CookingCraftingTaskValidator {
+    constructor(data, agent) {
+        this.data = data;
+        this.agent = agent;
+    } 
+    validate() {
+        const result = checkItemPresence(this.data, this.agent);
+        return {
+            "valid": result.success, 
+            "score": result.success ? 1 : 0,
         };
     }
 }
@@ -139,10 +163,8 @@ export class Task {
             if (this.task_type === 'construction') {
                 this.validator = new ConstructionTaskValidator(this.data, this.agent);
             } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
-                this.validator = () => {
-                    const result = checkItemPresence(this.data, this.agent);
-                    return result.success;
-                };
+                this.validator = new CookingCraftingTaskValidator(this.data, this.agent);
+
             } else {
                 this.validator = null;
             }
@@ -157,7 +179,6 @@ export class Task {
                 this.blocked_actions.push('!endGoal');
             if (this.conversation)
                 this.blocked_actions.push('!endConversation');
-            console.log('Task loaded:', this.data);
         }
 
         this.name = this.agent.name;
@@ -181,7 +202,7 @@ export class Task {
         }
 
         // If goal is an object, get the goal for this agent's count_id
-        if (typeof this.data.goal === 'object') {
+        if (typeof this.data.goal === 'object' && this.data.goal !== null) {
             const agentId = this.agent.count_id.toString();
             return (this.data.goal[agentId] || '') + add_string;
         }
@@ -194,7 +215,6 @@ export class Task {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
             let task = tasks[task_id];
-            console.log('Loaded task:', task);
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
@@ -210,29 +230,35 @@ export class Task {
     }
 
     isDone() {
-        if (this.validator && this.validator.validate()) //todo: error here
-            return {"message": 'Task successful', "code": 2};
-
+        let res = null;
+        if (this.validator)
+            res = this.validator.validate();
+        if (res && res.valid) {
+            return {"message": 'Task successful', "score": res.score};
+        }
         let other_names = this.available_agents.filter(n => n !== this.name);
         const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
 
         if (elapsedTime >= 30 && this.available_agents.length !== this.data.agent_count) {
             console.log('No other agents found. Task unsuccessful.');
-            return {"message": 'No other agents found', "code": 3};
+            return {"message": 'No other agents found', "score": 0};
         }
-
+        
         if (this.taskTimeout) {
             if (elapsedTime >= this.taskTimeout) {
                 console.log('Task timeout reached. Task unsuccessful.');
-                return {"message": 'Task timeout reached', "code": 4};
+                if (res) {
+                    return {"message": 'Task timeout reached', "score": res.score};
+                } else {
+                    return {"message": 'Task timeout reached', "score": 0};
+                }
+                
             }
         }
         return false;
     }
 
-
-
-    initBotTask = async () => {
+    async initBotTask() {
         await this.agent.bot.chat(`/clear ${this.name}`);
         console.log(`Cleared ${this.name}'s inventory.`);
 
@@ -241,22 +267,22 @@ export class Task {
 
         if (this.data === null)
             return;
-
+        
         if (this.task_type === 'cooking') {
             this.initiator = new CookingTaskInitiator(this.data, this.agent);
         } else {
             this.initiator = null;
         }
-
         await this.teleportBots();
 
         //wait for a bit so bots are teleported
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         if (this.data.initial_inventory) {
+            console.log("\n\n\n\n\n")
             console.log("Setting inventory...");
-            let initialInventory;
-
+            let initialInventory = {};
+            
             // Handle multi-agent inventory assignment
             if (this.data.agent_count > 1) {
                 initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
@@ -264,7 +290,9 @@ export class Task {
             } else {
                 initialInventory = this.data.initial_inventory;
                 console.log("Initial inventory:", initialInventory);
+                console.log("\n\n\n\n");
             }
+            console.log(this.data.initial_inventory);
 
             // Assign inventory items
             for (let key of Object.keys(initialInventory)) {
@@ -337,7 +365,6 @@ export class Task {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
-
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         // now all bots are teleport on top of each other (which kinda looks ugly)
@@ -367,17 +394,6 @@ export class Task {
                 this.agent.killAll();
             }
         }
-
-        if (this.goal) {
-            console.log('Setting goal:', this.goal);
-            await executeCommand(this.agent, `!goal("${this.goal}")`);
-        }
-
-        if (this.conversation && this.agent.count_id === 0) {
-            let other_name = this.available_agents.filter(n => n !== this.name)[0];
-            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
-        }
-
 
         if (this.data.type === 'construction'){
             //Ensures construction is cleaned out first. -> relies on cheats which are turned off?

@@ -1,6 +1,6 @@
 {
-    "name": "andy_0",
-    "model": "gpt-4o",
+    "name": "Andy_0",
+    "model": "gpt-4o-mini",
     "modes": {
         "hunting": false
     },
@@ -9,7 +9,7 @@
     "conversation_examples": [
         [
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "Hey! let's collaborate to build a stone pickaxe!"
             },
             {
@@ -17,7 +17,7 @@
                 "content": "Cool, let me check what is in my inventory !inventory\nI have 10 oak logs. What do you have?"
             },
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "Let me check !inventory \nI have 10 stones."
             },
             {
@@ -25,13 +25,13 @@
                 "content": "Let me give you the stones and you can craft the pickaxe. !givePlayer(\"stone\", 10, \"playername\")"
             },
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "Thanks for the stones! Now I can craft the pickaxe. !craftItem(\"stone_pickaxe\", 1)"
             }
         ],
         [
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "Hey! let's collaborate to build shears!"
             },
             {
@@ -39,7 +39,7 @@
                 "content": "Cool, let me check what is in my inventory !inventory\nI have 1 iron ingot. What do you have?"
             },
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "Let me check !inventory \nI have 1 iron ingot. "
             },
             {
@@ -47,7 +47,7 @@
                 "content": "Nice let's check what we need to craft shears. !getCraftingPlan(\"shears\", 1)"
             },
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "We need 2 iron ingots to craft the shears. Could you share your iron ingot with me?"
             },
             {
@@ -55,8 +55,56 @@
                 "content": "Yes, here is my iron ingot !givePlayer(\"iron_ingot\", 1, \"playername\")"
             },
             {
-                "role": "assistant",
+                "role": "user",
                 "content": "Thanks for the iron ingot! Now I can craft the shears. !craftItem(\"shears\", 1)"
+            }
+        ],
+        [
+            {
+                "role": "user",
+                "content": "Hey! Let's collaborate to build a brush"
+            },
+            {
+                "role": "assistant",
+                "content": "Cool, let's check what we need for that !getCraftingPlan(\"brush\", 1)"
+            },
+            {
+                "role": "system",
+                "content": "CRAFTING_PLAN\n- 2 sticks\n- 2 feathers\n- 1 iron ingot"
+            },
+            {
+                "role": "assistant",
+                "content": "We need 2 sticks, 2 feathers, and 1 iron ingot to craft the brush. Do you have any of these items?"
+            },
+            {
+                "role": "user",
+                "content": "Let me check !inventory \nI have 2 sticks and 2 feathers."
+            },
+            {
+                "role": "assistant",
+                "content": "Great! I have 1 iron ingot. Let me give you my iron ingot and you can craft the brush. !givePlayer(\"iron_ingot\", 1, \"playername\")"
+            },
+            {
+                "role": "user",
+                "content": "Thanks for the iron ingot! Now I can craft the brush. !craftItem(\"brush\", 1)"
+            }
+        ],
+        [
+            {
+                "role": "user",
+                "content": "Hey! Let's collaborate to build a brush"
+            },
+            {
+                "role": "assistant",
+                "content": "Cool, let's check what we need for that !getCraftingPlan(\"brush\", 1)"
+            },
+            {
+                "role": "system",
+                "content": "no such tool"
+            },
+            {
+                "role": "assistant",
+                "content": "I'm sorry, I don't have the crafting plan for a brush. Let me check my inventory to see if I have the items needed. !inventory Do you have access to the crafting plan?"
             }
         ],
         [
@@ -111,24 +159,6 @@
         ],
         [
             {
-                "role": "system",
-                "content": "trade something with zorro_34"
-            },
-            {
-                "role": "assistant",
-                "content": "!startConversation(\"zorro_34\", \"Hey let's trade. What do you have?\")"
-            },
-            {
-                "role": "user",
-                "content": "zorro_34: (FROM OTHER BOT)Let's see... !inventory\nI have a wooden pickaxe, cobblestone, and cooked chicken"
-            },
-            {
-                "role": "assistant",
-                "content": "Okay, could I trade you a cobblestone for a cooked chicken?"
-            }
-        ],
-        [
-            {
                 "role": "user",
                 "content": "rupert: (FROM OTHER BOT)Let's collaborate to build a house!"
             },
@@ -139,26 +169,6 @@
             {
                 "role": "user",
                 "content": "rupert: (FROM OTHER BOT)Alright, I'll build the walls! !newAction('Build a 10x10 wall of a house at the same location')"
-            }
-        ],
-        [
-            {
-                "role": "user",
-                "content": "gort: (FROM OTHER BOT)Let's do it, onward!"
-            },
-            {
-                "role": "assistant",
-                "content": "Alright, I'll start by getting some cobblestone. !collectBlocks('stone', 10)"
-            }
-        ],
-        [
-            {
-                "role": "user",
-                "content": "derg: (FROM OTHER BOT)Thanks, see you later!"
-            },
-            {
-                "role": "assistant",
-                "content": "See you later. !endConversation(\"derg\")"
             }
         ],
         [
