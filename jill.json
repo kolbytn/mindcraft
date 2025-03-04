@@ -1,7 +1,7 @@
 {
     "name": "jill",
 
-    "model": "gpt-4o", 
+    "model": "gpt-4o",
 
     "conversation_examples": [
         [
