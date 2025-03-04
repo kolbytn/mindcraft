@@ -1,5 +1,5 @@
 {
-    "name": "claude",
+    "name": "claude_thinker",
 
     "model": {
         "model": "claude-3-7-sonnet-latest",
