@@ -1,42 +1,138 @@
 import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
-import { getPosition } from './library/world.js'
+import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
 import { Vec3 } from 'vec3';
 import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
 import {autoBuild, autoDelete} from "../../test/test_blueprint_layout.js";
+import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
 
 //todo: modify validator code to return an object with valid and score -> do more testing hahah
 //todo: figure out how to log these things to the same place as bots/histories
-export class CraftTaskValidator {
-    constructor(data, agent) {
-        this.target = data.target;
-        this.number_of_target = data.number_of_target;
-        this.agent = agent;
+// export class CraftTaskValidator {
+//     constructor(data, agent) {
+//         this.target = data.target;
+//         this.number_of_target = data.number_of_target;
+//         this.agent = agent;
+
+
+/**
+ * Validates the presence of required items in an agent's inventory
+ * @param {Object} data - Task data containing target and quantity information
+ * @param {Object} agent - Agent object with bot inventory
+ * @returns {Object} Validation result with success status and missing items
+ */
+function checkItemPresence(data, agent) {
+    // Helper function to check if target is a dictionary with quantities
+    function isTargetDictionaryWithQuantities(target) {
+        return typeof target === 'object' && 
+               !Array.isArray(target) && 
+               target !== null &&
+               Object.values(target).every(value => typeof value === 'number');
     }
 
-    validate() {
-        try{
-            let valid = false;
-            let total_targets = 0;
-            this.agent.bot.inventory.slots.forEach((slot) => {
-                if (slot && slot.name.toLowerCase() === this.target) {
-                    total_targets += slot.count;
-                }
-                if (slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target) {
-                    valid = true;
-                    console.log('Task is complete');
-                }
-            });
-            if (total_targets >= this.number_of_target) {
-                valid = true;
-                console.log('Task is complete');
-            }
-            return valid;
-        } catch (error) {
-            console.error('Error validating task:', error);
-            return false;
+    // Convert any target format into a standardized dictionary
+    function normalizeTargets(target) {
+        if (typeof target === 'string') {
+            // Single target case
+            return { [target]: 1 };
+        } else if (Array.isArray(target)) {
+            // Array case - convert to dictionary with default quantity 1
+            return target.reduce((acc, item) => {
+                acc[item] = 1;
+                return acc;
+            }, {});
+        } else if (typeof target === 'object' && target !== null) {
+            // Already a dictionary - return as is
+            return target;
         }
+        throw new Error('Invalid target format');
+    }
+
+    // Normalize quantities to match target format
+    function normalizeQuantities(targets, quantities) {
+        if (quantities === undefined) {
+            // If no quantities specified, default to 1 for each target
+            return Object.keys(targets).reduce((acc, key) => {
+                acc[key] = 1;
+                return acc;
+            }, {});
+        } else if (typeof quantities === 'number') {
+            // If single number provided, apply to all targets
+            return Object.keys(targets).reduce((acc, key) => {
+                acc[key] = quantities;
+                return acc;
+            }, {});
+        } else if (typeof quantities === 'object' && quantities !== null) {
+            // If quantities dictionary provided, use it directly
+            return quantities;
+        }
+        throw new Error('Invalid number_of_target format');
+    }
+
+    try {
+        // First normalize targets to always have a consistent format
+        const targets = normalizeTargets(data.target);
+        
+        // Determine the required quantities
+        const requiredQuantities = isTargetDictionaryWithQuantities(data.target) 
+            ? data.target 
+            : normalizeQuantities(targets, data.number_of_target);
+
+        // Count items in inventory
+        const inventoryCount = {};
+        agent.bot.inventory.slots.forEach((slot) => {
+            if (slot) {
+                const itemName = slot.name.toLowerCase();
+                inventoryCount[itemName] = (inventoryCount[itemName] || 0) + slot.count;
+            }
+        });
+
+        // Check if all required items are present in sufficient quantities
+        const missingItems = [];
+        let allTargetsMet = true;
+
+        for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
+            const itemName = item.toLowerCase();
+            const currentCount = inventoryCount[itemName] || 0;
+            
+            if (currentCount < requiredCount) {
+                allTargetsMet = false;
+                missingItems.push({
+                    item: itemName,
+                    required: requiredCount,
+                    current: currentCount,
+                    missing: requiredCount - currentCount
+                });
+            }
+        }
+
+        return {
+            success: allTargetsMet,
+            missingItems: missingItems
+        };
+
+    } catch (error) {
+        console.error('Error checking item presence:', error);
+        return {
+            success: false,
+            missingItems: [],
+            error: error.message
+        };
+    }
+}
+
+class CookingCraftingTaskValidator {
+    constructor(data, agent) {
+        this.data = data;
+        this.agent = agent;
+    } 
+    validate() {
+        const result = checkItemPresence(this.data, this.agent);
+        return {
+            "valid": result.success, 
+            "score": result.success ? 1 : 0,
+        };
     }
 }
 
@@ -49,6 +145,7 @@ export class Task {
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
+        this.task_id = task_id;
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
             this.task_type = this.data.type;
@@ -65,10 +162,13 @@ export class Task {
 
             if (this.task_type === 'construction') {
                 this.validator = new ConstructionTaskValidator(this.data, this.agent);
-            } else if (this.task_type === 'techtree') {
-                this.validator = new CraftTaskValidator(this.data, this.agent);
+            } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
+                this.validator = new CookingCraftingTaskValidator(this.data, this.agent);
+            } else {
+                this.validator = null;
             }
-            this.blocked_actions = this.data.blocked_actions || [];
+
+            
             if (this.data.blocked_actions) {
                 this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
             } else {
@@ -81,6 +181,34 @@ export class Task {
                 this.blocked_actions.push('!endConversation');
             console.log('Task loaded:', this.data);
         }
+        
+        this.name = this.agent.name;
+        this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+    }
+
+    getAgentGoal() {
+        if (!this.data || !this.data.goal) {
+            return null;
+        }
+
+        let add_string = '';
+
+        if (this.task_type === 'cooking') {
+            add_string = '\nIn the end, all the food should be given to Andy.';
+        }
+
+        // If goal is a string, all agents share the same goal
+        if (typeof this.data.goal === 'string') {
+            return this.data.goal + add_string;
+        }
+
+        // If goal is an object, get the goal for this agent's count_id
+        if (typeof this.data.goal === 'object' && this.data.goal !== null) {
+            const agentId = this.agent.count_id.toString();
+            return (this.data.goal[agentId] || '') + add_string;
+        }
+
+        return null;
     }
 
     loadTask(task_path, task_id) {
@@ -104,83 +232,140 @@ export class Task {
     }
 
     isDone() {
-        if (this.validator && this.validator.validate())
-            return {"message": 'Task successful', "code": 2};
+        let res = null;
+        if (this.validator)
+            res = this.validator.validate();
+        if (res && res.valid) {
+            return {"message": 'Task successful', "score": res.score};
+        }
+        let other_names = this.available_agents.filter(n => n !== this.name);
+        const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
+
+        if (elapsedTime >= 30 && this.available_agents.length !== this.data.agent_count) {
+            console.log('No other agents found. Task unsuccessful.');
+            return {"message": 'No other agents found', "score": 0};
+        }
+        
         if (this.taskTimeout) {
-            const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
             if (elapsedTime >= this.taskTimeout) {
                 console.log('Task timeout reached. Task unsuccessful.');
-                return {"message": 'Task timeout reached', "code": 4};
+                if (res) {
+                    return {"message": 'Task timeout reached', "score": res.score};
+                } else {
+                    return {"message": 'Task timeout reached', "score": 0};
+                }
+                
             }
         }
         return false;
     }
 
+    async initBotTask() {
+        await this.agent.bot.chat(`/clear ${this.name}`);
+        console.log(`Cleared ${this.name}'s inventory.`);
 
-
-    initBotTask = async () => {
-        if (this.data === null)
-            return;
-        let bot = this.agent.bot;
-        let name = this.agent.name;
-
-        bot.chat(`/clear ${name}`);
-        console.log(`Cleared ${name}'s inventory.`);
-
-        //kill all drops
-        if (this.agent.count_id === 0) {
-            bot.chat(`/kill @e[type=item]`);
-        }
         //wait for a bit so inventory is cleared
         await new Promise((resolve) => setTimeout(resolve, 500));
-        let initial_inventory = null;
-        if (this.data.agent_count > 1) {
-            initial_inventory = this.data.initial_inventory[this.agent.count_id.toString()];
-            console.log("Initial inventory:", initial_inventory);
-        } else if (this.data) {
-            console.log("Initial inventory:", this.data.initial_inventory);
-            initial_inventory = this.data.initial_inventory;
+
+        if (this.data === null)
+            return;
+        
+        if (this.task_type === 'cooking') {
+            this.initiator = new CookingTaskInitiator(this.data, this.agent);
+        } else {
+            this.initiator = null;
         }
-    
-        if ("initial_inventory" in this.data) {
+
+        await this.teleportBots();
+
+        //wait for a bit so bots are teleported
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        if (this.data.initial_inventory) {
             console.log("Setting inventory...");
-            console.log("Inventory to set:", initial_inventory);
-            for (let key of Object.keys(initial_inventory)) {
-                console.log('Giving item:', key);
-                bot.chat(`/give ${name} ${key} ${initial_inventory[key]}`);
-            };
-            //wait for a bit so inventory is set
+            let initialInventory = {};
+            
+            // Handle multi-agent inventory assignment
+            if (this.data.agent_count > 1) {
+                initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
+                console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
+            } else {
+                initialInventory = this.data.initial_inventory;
+                console.log("Initial inventory:", initialInventory);
+            }
+
+            // Assign inventory items
+            for (let key of Object.keys(initialInventory)) {
+                const itemName = key.toLowerCase();
+                const quantity = initialInventory[key];
+                await this.agent.bot.chat(`/give ${this.name} ${itemName} ${quantity}`);
+                console.log(`Gave ${this.name} ${quantity} ${itemName}`);
+            }
+
+            // Wait briefly for inventory commands to complete
             await new Promise((resolve) => setTimeout(resolve, 500));
-            console.log("Done giving inventory items.");
         }
-        // Function to generate random numbers
+
+        if (this.initiator) {
+            await this.initiator.init();
+        }
+
+        if (this.data.agent_count && this.data.agent_count > 1) {
+            // TODO wait for other bots to join
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            if (this.available_agents.length < this.data.agent_count) {
+                console.log(`Missing ${this.data.agent_count - this.available_agents.length} bot(s).`);
+                this.agent.killAll();
+            }
+        }
+
+        if (this.data.conversation && this.agent.count_id === 0) {
+            let other_name = this.available_agents.filter(n => n !== this.name)[0];
+            let waitCount = 0;
+            while (other_name === undefined && waitCount < 20) {
+                other_name = this.available_agents.filter(n => n !== this.name)[0];
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                waitCount++;
+            }
+            if (other_name === undefined) {
+                console.log('No other agents found. Task unsuccessful.');
+                this.agent.killAll();
+            }
+            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
+        }
+
+        const agentGoal = this.getAgentGoal();
+        console.log(`Agent goal for agent Id ${this.agent.count_id}: ${agentGoal}`);
+        if (agentGoal) {
+            console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
+            await executeCommand(this.agent, `!goal("${agentGoal}")`);
+        }
+    }
     
+    async teleportBots() {
+        console.log('\n\n\n\n\nTeleporting bots');
         function getRandomOffset(range) {
             return Math.floor(Math.random() * (range * 2 + 1)) - range;
         }
-    
+
         let human_player_name = null;
-        let available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);  // TODO this does not work with command line args
-    
+        let bot = this.agent.bot;
+        
         // Finding if there is a human player on the server
         for (const playerName in bot.players) {
             const player = bot.players[playerName];
-            if (!available_agents.some((n) => n === playerName)) {
+            if (!this.available_agents.some((n) => n === playerName)) {
                 console.log('Found human player:', player.username);
                 human_player_name = player.username
                 break;
             }
         }
 
-        // If there are multiple human players, teleport to the first one
-    
-        // teleport near a human player if found by default
-    
         if (human_player_name) {
-            console.log(`Teleporting ${name} to human ${human_player_name}`)
-            bot.chat(`/tp ${name} ${human_player_name}`) // teleport on top of the human player
-    
+            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
+            bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
+        
         await new Promise((resolve) => setTimeout(resolve, 200));
     
         // now all bots are teleport on top of each other (which kinda looks ugly)
@@ -194,31 +379,22 @@ export class Task {
         */
 
     
+
         if (this.data.type !== 'construction') {
             const pos = getPosition(bot);
             const xOffset = getRandomOffset(5);
             const zOffset = getRandomOffset(5);
-            bot.chat(`/tp ${name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
+            bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
             await new Promise((resolve) => setTimeout(resolve, 200));
         }
 
         if (this.data.agent_count && this.data.agent_count > 1) {
             // TODO wait for other bots to join
             await new Promise((resolve) => setTimeout(resolve, 10000));
-            if (available_agents.length < this.data.agent_count) {
-                console.log(`Missing ${this.data.agent_count - available_agents.length} bot(s).`);
+            if (this.available_agents.length < this.data.agent_count) {
+                console.log(`Missing ${this.data.agent_count - this.available_agents.length} bot(s).`);
                 this.agent.killAll();
             }
-        }
-
-        if (this.goal) {
-            console.log('Setting goal:', this.goal);
-            await executeCommand(this.agent, `!goal("${this.goal}")`);
-        }
-    
-        if (this.conversation && this.agent.count_id === 0) {
-            let other_name = available_agents.filter(n => n !== name)[0];
-            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
         }
 
 

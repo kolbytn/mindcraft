@@ -109,9 +109,11 @@ def launch_parallel_experiments(task_path,
                                 exp_name, 
                                 num_agents=2, 
                                 model="gpt-4o", 
+                                api="openai",
                                 num_parallel=1,
                                 s3=False, 
-                                bucket_name="mindcraft-experiments"):
+                                bucket_name="mindcraft-experiments", 
+                                template_profile="profiles/collab_profile.json"):
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -138,7 +140,10 @@ def launch_parallel_experiments(task_path,
                                  experiments_folder, 
                                  exp_name, 
                                  s3=s3, 
-                                 bucket_name=bucket_name)
+                                 bucket_name=bucket_name, 
+                                 template_profile="profiles/collab_profile.json", 
+                                 model=model, 
+                                 api=api)
         time.sleep(5)
 
 def launch_server_experiment(task_path, 
@@ -148,9 +153,11 @@ def launch_server_experiment(task_path,
                              experiments_folder,
                              exp_name="exp", 
                              num_agents=2, 
-                             model="gpt-4o", 
+                             model="gpt-4o",
+                             api="openai", 
                              s3=False, 
-                             bucket_name="mindcraft-experiments"):
+                             bucket_name="mindcraft-experiments", 
+                             template_profile="profiles/collab_profile.json"):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -169,12 +176,14 @@ def launch_server_experiment(task_path,
     # set up server and agents 
     session_name = str(server_port - 55916)
     if num_agents == 2:
-        agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
+        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}"]
         models = [model] * 2
+        apis = [api] * 2
     else:
-        agent_names = [f"andy_{session_name}", f"jill_{session_name}", f"bob_{session_name}"]
+        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}", f"Bob_{session_name}"]
         models = [model] * 3
-    make_profiles(agent_names, models)
+        apis = [api] * 3
+    make_profiles(agent_names, models, apis, template_profile=template_profile)
 
     # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
@@ -188,6 +197,18 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
+
+    # you need to add the bots to the world first before you can add them as op
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_multi_agent_timeout"
+
+    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+
+    time.sleep(20)
+
+    # add the bots as op
+    for agent in agent_names:
+        subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent}", "C-m"])
+        time.sleep(1)
 
     script_content = ""
     for task_id in task_ids:
@@ -207,6 +228,7 @@ def launch_server_experiment(task_path,
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
+        script_content += f"sleep 10\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
@@ -226,17 +248,24 @@ def launch_server_experiment(task_path,
 
     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
-def make_profiles(agent_names, models):
+def make_profiles(agent_names, models, apis, template_profile="profiles/collab_profile.json"):
     assert len(agent_names) == len(models)
 
-    with open("profiles/collab_profile.json", 'r') as f:
+    with open(template_profile, 'r') as f:
         content = f.read()
     
     profile = json.loads(content)
 
     for index in range(len(agent_names)):
         profile["name"] = agent_names[index]
-        profile["model"] = models[index]
+        if apis[index] == "vllm":
+            profile["model"] = {
+                "api": "vllm",
+                "model": models[index], 
+                "url": "http://localhost:8000/v1"
+            }
+        else: 
+            profile["model"] = models[index]
 
         with open(f"{agent_names[index]}.json", 'w') as f:
             json.dump(profile, f, indent=4)
@@ -298,8 +327,9 @@ def launch_world(server_path="../server_data/", agent_names=["andy", "jill"], se
     cmd = f"cd {server_path} && java -jar server.jar"
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-    for agent in agent_names:
-        subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
+    # for agent in agent_names:
+    #     print(f"\n\n/op {agent}\n\n")
+    #     subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
     time.sleep(5)
 
 def kill_world(session_name="server"):
@@ -353,6 +383,9 @@ def main():
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
+    parser.add_argument('--template_profile', default="andy.json", help='Model to use for the agents')
+    parser.add_argument('--model', default="gpt-4o-mini", help='Model to use for the agents')
+    parser.add_argument('--api', default="openai", help='API to use for the agents')
     # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
     # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
 
@@ -378,7 +411,10 @@ def main():
                                     exp_name=args.exp_name, 
                                     num_parallel=args.num_parallel, 
                                     s3=args.s3, 
-                                    bucket_name=args.bucket_name)
+                                    bucket_name=args.bucket_name, 
+                                    template_profile=args.template_profile, 
+                                    model=args.model, 
+                                    api=args.api)
     
     # servers = create_server_files("../server_data/", args.num_parallel)
     # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

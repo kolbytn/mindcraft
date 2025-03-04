@@ -17,6 +17,28 @@
         },
         "type": "debug"
     },
+    "debug_multi_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug",
+        "timeout": 15
+    },
+    "debug_different_goal": {
+        "goal": {
+            "0": "Reply to all messages with star emojis when prompted",
+            "1": "Reply to all messages with heart emojis when prompted"
+        },
+        "agent_count": 2,
+        "type": "debug"
+    },
     "debug_inventory_restriction": {
         "goal": "Place 1 oak plank, then place 1 stone brick",
         "initial_inventory": {
@@ -44,7 +66,6 @@
     },
     "multiagent_techtree_1_stone_pickaxe": {
         "conversation": "Let's collaborate to build a stone pickaxe",
-        "goal": "Build a stone pickaxe",
         "agent_count": 2,
         "initial_inventory": {
             "0": {
@@ -55,6 +76,7 @@
             }
         },
         "target": "stone_pickaxe",
+        "goal": "Build a stone pickaxe",
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
@@ -322,5 +344,41 @@
         "number_of_target": 1,
         "type": "techtree",
         "timeout": 300
-    }
+    },
+    "multiagent_cooking_1": {
+        "conversation": "Let's collaborate to make dinner, I am going to search for 'potatoes' and make 1 'baked_potato', you on the other hand, search for cow and cook 1 beef. We have a furnace (fuel already present) nearby to help us cook, search for it over long distances to find it. Note : We only need one of each item, lets not waste time by collecting unnecessary resources.",
+        "agent_count": 2,
+        "target": {
+            "baked_potato":1,
+            "cooked_beef":1
+        },
+        "type": "cooking",
+        "timeout": 300,
+        "goal": "Make 1 baked potato, use a furnace nearby to cook which has fuel in it, let the other agent cook 1 beef"
+    },
+    "multiagent_cooking_2": {
+        "conversation": "Let's collaborate to make bread and cooked_mutton. We can split up to gather ingredients and use the nearby furnace that's already fueled.",
+        "agent_count": 2,
+        "target": {
+          "bread": 1,
+          "cooked_mutton": 1
+        },
+        "type": "cooking",
+        "timeout": 300,
+        "recipes": {
+          "bread": [
+            "Step 1: Go to the farm and collect 3 wheat.",
+            "Step 2: Go to the crafting table and use the wheat to craft bread."
+          ],
+          "cooked_mutton": [
+            "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+            "Step 2: Go to furnace and use it to cook the mutton."
+          ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal" : {
+          "0": "Collaborate with randy to make 1 bread and 1 cooked mutton, you can divide the tasks among yourselves.\nThere is a furnace nearby that is already fueled, there is also a smoker and crafting table nearby, use them to your advantage. Crops of all different types are available in the farm where you are standing, you can use them to your advantage as well. The farm also includes animals like cows, pigs, sheep, and chickens that you can use to your advantage.\nSince the farm is huge, make sure to search for the resources over long distances to find them.",
+          "1": "Collaborate with andy to make 1 bread and 1 cooked mutton, you can divide the tasks among yourselves.\nThere is a furnace nearby that is already fueled, there is also a smoker and crafting table nearby, use them to your advantage. Crops of all different types are available in the farm where you are standing, you can use them to your advantage as well. The farm also includes animals like cows, pigs, sheep, and chickens that you can use to your advantage.\nSince the farm is huge, make sure to search for the resources over long distances to find them."
+        }
+      }
 }

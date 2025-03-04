@@ -16,3 +16,5 @@ services/viaproxy/viaproxy.yml
 tmp/
 wandb/
 experiments/
+andy_*.json
+jill_*.json
