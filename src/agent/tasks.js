@@ -4,7 +4,6 @@ import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
 import { Vec3 } from 'vec3';
 import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
-import {autoBuild, autoDelete} from "../../test/test_blueprint_layout.js";
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
 
 //todo: modify validator code to return an object with valid and score -> do more testing hahah
@@ -179,7 +178,6 @@ export class Task {
                 this.blocked_actions.push('!endGoal');
             if (this.conversation)
                 this.blocked_actions.push('!endConversation');
-            console.log('Task loaded:', this.data);
         }
         
         this.name = this.agent.name;
@@ -216,7 +214,6 @@ export class Task {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
             let task = tasks[task_id];
-            console.log('Loaded task:', task);
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }

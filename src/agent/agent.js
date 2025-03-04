@@ -130,7 +130,6 @@ export class Agent {
                     //wait for a bit so inventory is cleared
                     await new Promise((resolve) => setTimeout(resolve, 500));
 
-                    console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
                     if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
                         var initial_inventory = this.task.initial_inventory[this.name];
                         console.log("Initial inventory:", initial_inventory);
@@ -217,11 +216,6 @@ export class Agent {
 
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
-
-
-                    console.log("HERE IS THE LOGGED TASK")
-
-                    console.log(this.task)
 
                     this.task.initBotTask();
 
