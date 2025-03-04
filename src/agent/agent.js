@@ -295,7 +295,7 @@ export class Agent {
                     message: `You have restarted and this message is auto-generated. Continue the conversation with me.`,
                     start: true
                 };
-                convoManager.recieveFromBot(this.last_sender, msg_package);
+                convoManager.receiveFromBot(this.last_sender, msg_package);
             }
         }
         else if (init_message) {

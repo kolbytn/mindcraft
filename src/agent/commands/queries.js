@@ -2,7 +2,7 @@ import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
 import { getCommandDocs } from './index.js';
 import convoManager from '../conversation.js';
-import { checkLevelBlueprint, checkBlueprint } from '../construction_tasks.js';
+import { checkLevelBlueprint, checkBlueprint } from '../task_types/construction_tasks.js';
 
 const pad = (str) => {
     return '\n' + str + '\n';
