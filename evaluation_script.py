@@ -212,7 +212,7 @@ def launch_server_experiment(task_path,
 
     script_content = ""
     for task_id in task_ids:
-        cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
+        cmd = f"node main.js --task_path \'{task_path}\' --task_id {task_id}"
         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
         for _ in range(num_exp):
             script_content += f"{cmd}\n"
