@@ -1,123 +1,50 @@
 {
-  "multiagent_cooking_89748": {
-    "conversation": "Let's work together to make beetroot_soup.",
+  "multiagent_cooking_1_mushroom_stew_blocked_access_andy": {
+    "conversation": "Let's work together to make mushroom_stew.",
     "agent_count": 2,
     "target": {
-      "beetroot_soup": 1
+      "mushroom_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "beetroot_soup": [
-        "Step 1: Go to the farm and collect 6 beetroot.",
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
         "Step 2: Go to the chest and grab oak_planks.",
         "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy"
+      "andy"
     ],
-    "goal": "Collaborate to make 1 beetroot_soup",
+    "goal": "Collaborate to make 1 mushroom_stew",
     "difficulty": "easy"
   },
-  "multiagent_cooking_57604": {
-    "conversation": "Let's collaborate to make cooked_mutton and bread.",
+  "multiagent_cooking_1_bread_1_cookie": {
+    "conversation": "Let's collaborate to make bread and cookie.",
     "agent_count": 2,
     "target": {
-      "cooked_mutton": 1,
-      "bread": 1
+      "bread": 1,
+      "cookie": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ],
       "bread": [
         "Step 1: Go to the farm and collect 3 wheat.",
         "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 bread",
+    "goal": "Collaborate to make 1 bread, 1 cookie",
     "difficulty": "easy"
   },
-  "multiagent_cooking_26471": {
-    "conversation": "Let's work together to make cooked_mutton.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_mutton",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_75484": {
-    "conversation": "Let's work together to make cooked_mutton.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_mutton",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_43481": {
-    "conversation": "Let's work together to make honey_bottle.",
-    "agent_count": 2,
-    "target": {
-      "honey_bottle": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "honey_bottle": [
-        "Step 1: Go to the beehive and collect 1 honey using an empty glass bottle.",
-        "Step 2: Store the honey bottle in your inventory."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 honey_bottle",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_15364": {
-    "conversation": "Let's work together to make pumpkin_pie.",
-    "agent_count": 2,
-    "target": {
-      "pumpkin_pie": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 pumpkin_pie",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_13583": {
+  "multiagent_cooking_1_beetroot_soup_blocked_access_randy": {
     "conversation": "Let's work together to make beetroot_soup.",
     "agent_count": 2,
     "target": {
@@ -139,156 +66,7 @@
     "goal": "Collaborate to make 1 beetroot_soup",
     "difficulty": "easy"
   },
-  "multiagent_cooking_27102": {
-    "conversation": "Let's work together to make cooked_salmon.",
-    "agent_count": 2,
-    "target": {
-      "cooked_salmon": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_salmon": [
-        "Step 1: Fish in water until you catch 1 raw salmon.",
-        "Step 2: Go to furnace and cook the raw salmon."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_salmon",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_72472": {
-    "conversation": "Let's collaborate to make cooked_mutton and cooked_salmon.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1,
-      "cooked_salmon": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ],
-      "cooked_salmon": [
-        "Step 1: Fish in water until you catch 1 raw salmon.",
-        "Step 2: Go to furnace and cook the raw salmon."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 cooked_salmon",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_5032": {
-    "conversation": "Let's work together to make beetroot_soup.",
-    "agent_count": 2,
-    "target": {
-      "beetroot_soup": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "beetroot_soup": [
-        "Step 1: Go to the farm and collect 6 beetroot.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 beetroot_soup",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_916": {
-    "conversation": "Let's work together to make sweet_berries.",
-    "agent_count": 2,
-    "target": {
-      "sweet_berries": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 sweet_berries",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_26227": {
-    "conversation": "Let's work together to make cooked_cod.",
-    "agent_count": 2,
-    "target": {
-      "cooked_cod": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_cod": [
-        "Step 1: Fish in water until you catch 1 raw cod.",
-        "Step 2: Go to furnace and cook the raw cod."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_cod",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_41195": {
-    "conversation": "Let's collaborate to make cookie and baked_potato.",
-    "agent_count": 2,
-    "target": {
-      "cookie": 1,
-      "baked_potato": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cookie": [
-        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean.",
-        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
-      ],
-      "baked_potato": [
-        "Step 1: Go to the farm and collect 1 potato.",
-        "Step 2: Go to the furnace and bake the potato."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cookie, 1 baked_potato",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_7368": {
-    "conversation": "Let's collaborate to make cookie and cooked_porkchop.",
-    "agent_count": 2,
-    "target": {
-      "cookie": 1,
-      "cooked_porkchop": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cookie": [
-        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean.",
-        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
-      ],
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cookie, 1 cooked_porkchop",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_4696": {
+  "multiagent_cooking_1_beetroot_soup_blocked_access_andy": {
     "conversation": "Let's work together to make beetroot_soup.",
     "agent_count": 2,
     "target": {
@@ -310,45 +88,7 @@
     "goal": "Collaborate to make 1 beetroot_soup",
     "difficulty": "easy"
   },
-  "multiagent_cooking_95829": {
-    "conversation": "Let's work together to make baked_potato.",
-    "agent_count": 2,
-    "target": {
-      "baked_potato": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "baked_potato": [
-        "Step 1: Go to the farm and collect 1 potato.",
-        "Step 2: Go to the furnace and bake the potato."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 baked_potato",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_68273": {
-    "conversation": "Let's work together to make cooked_salmon.",
-    "agent_count": 2,
-    "target": {
-      "cooked_salmon": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_salmon": [
-        "Step 1: Fish in water until you catch 1 raw salmon.",
-        "Step 2: Go to furnace and cook the raw salmon."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_salmon",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_44325": {
+  "multiagent_cooking_1_bread": {
     "conversation": "Let's work together to make bread.",
     "agent_count": 2,
     "target": {
@@ -366,104 +106,28 @@
     "goal": "Collaborate to make 1 bread",
     "difficulty": "easy"
   },
-  "multiagent_cooking_69144": {
-    "conversation": "Let's work together to make cookie.",
+  "multiagent_cooking_1_pumpkin_pie_blocked_access_randy": {
+    "conversation": "Let's work together to make pumpkin_pie.",
     "agent_count": 2,
     "target": {
-      "cookie": 1
+      "pumpkin_pie": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cookie": [
-        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean.",
-        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cookie",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_8784": {
-    "conversation": "Let's work together to make honey_bottle.",
-    "agent_count": 2,
-    "target": {
-      "honey_bottle": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "honey_bottle": [
-        "Step 1: Go to the beehive and collect 1 honey using an empty glass bottle.",
-        "Step 2: Store the honey bottle in your inventory."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 honey_bottle",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_11070": {
-    "conversation": "Let's work together to make honey_bottle.",
-    "agent_count": 2,
-    "target": {
-      "honey_bottle": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "honey_bottle": [
-        "Step 1: Go to the beehive and collect 1 honey using an empty glass bottle.",
-        "Step 2: Store the honey bottle in your inventory."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 honey_bottle",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_86082": {
-    "conversation": "Let's work together to make golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
       ]
     },
     "blocked_access_to_recipe": [
       "randy"
     ],
-    "goal": "Collaborate to make 1 golden_carrot",
+    "goal": "Collaborate to make 1 pumpkin_pie",
     "difficulty": "easy"
   },
-  "multiagent_cooking_74162": {
-    "conversation": "Let's work together to make beetroot_soup.",
-    "agent_count": 2,
-    "target": {
-      "beetroot_soup": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "beetroot_soup": [
-        "Step 1: Go to the farm and collect 6 beetroot.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 beetroot_soup",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_59497": {
+  "multiagent_cooking_1_cake_blocked_access_andy": {
     "conversation": "Let's work together to make cake.",
     "agent_count": 2,
     "target": {
@@ -479,240 +143,33 @@
         "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
       ]
     },
-    "blocked_access_to_recipe": [],
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
     "goal": "Collaborate to make 1 cake",
     "difficulty": "easy"
   },
-  "multiagent_cooking_10071": {
-    "conversation": "Let's work together to make cooked_porkchop.",
+  "multiagent_cooking_1_mushroom_stew": {
+    "conversation": "Let's work together to make mushroom_stew.",
     "agent_count": 2,
     "target": {
-      "cooked_porkchop": 1
+      "mushroom_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_porkchop",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_3618": {
-    "conversation": "Let's collaborate to make golden_carrot and cooked_salmon.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1,
-      "cooked_salmon": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ],
-      "cooked_salmon": [
-        "Step 1: Fish in water until you catch 1 raw salmon.",
-        "Step 2: Go to furnace and cook the raw salmon."
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_salmon",
-    "difficulty": "medium"
+    "goal": "Collaborate to make 1 mushroom_stew",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_70179": {
-    "conversation": "Let's work together to make baked_potato.",
-    "agent_count": 2,
-    "target": {
-      "baked_potato": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "baked_potato": [
-        "Step 1: Go to the farm and collect 1 potato.",
-        "Step 2: Go to the furnace and bake the potato."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 baked_potato",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_19149": {
-    "conversation": "Let's work together to make cooked_porkchop.",
-    "agent_count": 2,
-    "target": {
-      "cooked_porkchop": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_porkchop",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_49892": {
-    "conversation": "Let's work together to make pumpkin_pie.",
-    "agent_count": 2,
-    "target": {
-      "pumpkin_pie": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 pumpkin_pie",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_53132": {
-    "conversation": "Let's work together to make baked_potato.",
-    "agent_count": 2,
-    "target": {
-      "baked_potato": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "baked_potato": [
-        "Step 1: Go to the farm and collect 1 potato.",
-        "Step 2: Go to the furnace and bake the potato."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 baked_potato",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_89372": {
-    "conversation": "Let's collaborate to make pumpkin_pie and cooked_mutton.",
-    "agent_count": 2,
-    "target": {
-      "pumpkin_pie": 1,
-      "cooked_mutton": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ],
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 pumpkin_pie, 1 cooked_mutton",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_58719": {
-    "conversation": "Let's collaborate to make sweet_berries and pumpkin_pie.",
-    "agent_count": 2,
-    "target": {
-      "sweet_berries": 1,
-      "pumpkin_pie": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ],
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 sweet_berries, 1 pumpkin_pie",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_42405": {
-    "conversation": "Let's work together to make pumpkin_pie.",
-    "agent_count": 2,
-    "target": {
-      "pumpkin_pie": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 pumpkin_pie",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_58044": {
-    "conversation": "Let's collaborate to make cake and cooked_cod.",
-    "agent_count": 2,
-    "target": {
-      "cake": 1,
-      "cooked_cod": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cake": [
-        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
-        "Step 2: Go to the chest and grab a milk bucket.",
-        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
-        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
-      ],
-      "cooked_cod": [
-        "Step 1: Fish in water until you catch 1 raw cod.",
-        "Step 2: Go to furnace and cook the raw cod."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cake, 1 cooked_cod",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_97729": {
+  "multiagent_cooking_1_rabbit_stew": {
     "conversation": "Let's work together to make rabbit_stew.",
     "agent_count": 2,
     "target": {
@@ -731,14 +188,49 @@
         "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ]
     },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
+    "blocked_access_to_recipe": [],
     "goal": "Collaborate to make 1 rabbit_stew",
-    "difficulty": "medium"
+    "difficulty": "easy"
   },
-  "multiagent_cooking_60675": {
+  "multiagent_cooking_1_cooked_beef": {
+    "conversation": "Let's work together to make cooked_beef.",
+    "agent_count": 2,
+    "target": {
+      "cooked_beef": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_beef",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cooked_beef_blocked_access_randy": {
+    "conversation": "Let's work together to make cooked_beef.",
+    "agent_count": 2,
+    "target": {
+      "cooked_beef": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_beef",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cookie_blocked_access_randy": {
     "conversation": "Let's work together to make cookie.",
     "agent_count": 2,
     "target": {
@@ -748,18 +240,17 @@
     "timeout": 300,
     "recipes": {
       "cookie": [
-        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean.",
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
         "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
       "randy"
     ],
     "goal": "Collaborate to make 1 cookie",
-    "difficulty": "medium"
+    "difficulty": "easy"
   },
-  "multiagent_cooking_4641": {
+  "multiagent_cooking_1_cake": {
     "conversation": "Let's work together to make cake.",
     "agent_count": 2,
     "target": {
@@ -775,19 +266,15 @@
         "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
       ]
     },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
+    "blocked_access_to_recipe": [],
     "goal": "Collaborate to make 1 cake",
-    "difficulty": "medium"
+    "difficulty": "easy"
   },
-  "multiagent_cooking_55458": {
-    "conversation": "Let's collaborate to make beetroot_soup and golden_carrot.",
+  "multiagent_cooking_1_beetroot_soup": {
+    "conversation": "Let's work together to make beetroot_soup.",
     "agent_count": 2,
     "target": {
-      "beetroot_soup": 1,
-      "golden_carrot": 1
+      "beetroot_soup": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -797,64 +284,162 @@
         "Step 2: Go to the chest and grab oak_planks.",
         "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
         "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
-      ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
       ]
     },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 beetroot_soup, 1 golden_carrot",
-    "difficulty": "medium"
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 beetroot_soup",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_12637": {
-    "conversation": "Let's work together to make golden_carrot.",
+  "multiagent_cooking_1_baked_potato_1_cooked_beef": {
+    "conversation": "Let's collaborate to make baked_potato and cooked_beef.",
     "agent_count": 2,
     "target": {
-      "golden_carrot": 1
+      "baked_potato": 1,
+      "cooked_beef": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 baked_potato, 1 cooked_beef",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_baked_potato_1_cookie": {
+    "conversation": "Let's collaborate to make baked_potato and cookie.",
+    "agent_count": 2,
+    "target": {
+      "baked_potato": 1,
+      "cookie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 baked_potato, 1 cookie",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_baked_potato_1_bread": {
+    "conversation": "Let's collaborate to make bread and baked_potato.",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "baked_potato": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 bread, 1 baked_potato",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_pumpkin_pie": {
+    "conversation": "Let's work together to make pumpkin_pie.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 pumpkin_pie",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cooked_beef_1_golden_apple": {
+    "conversation": "Let's collaborate to make cooked_beef and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "cooked_beef": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_beef, 1 golden_apple",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_bread_blocked_access_randy": {
+    "conversation": "Let's work together to make bread.",
+    "agent_count": 2,
+    "target": {
+      "bread": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 golden_carrot",
-    "difficulty": "medium"
+    "goal": "Collaborate to make 1 bread",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_34981": {
-    "conversation": "Let's work together to make golden_carrot.",
+  "multiagent_cooking_1_golden_apple": {
+    "conversation": "Let's work together to make golden_apple.",
     "agent_count": 2,
     "target": {
-      "golden_carrot": 1
+      "golden_apple": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ]
     },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 golden_carrot",
-    "difficulty": "medium"
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 golden_apple",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_95004": {
+  "multiagent_cooking_1_baked_potato_blocked_access_andy": {
     "conversation": "Let's work together to make baked_potato.",
     "agent_count": 2,
     "target": {
@@ -869,88 +454,191 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
       "andy"
     ],
     "goal": "Collaborate to make 1 baked_potato",
-    "difficulty": "medium"
+    "difficulty": "easy"
   },
-  "multiagent_cooking_39581": {
-    "conversation": "Let's collaborate to make honey_bottle and cooked_salmon.",
+  "multiagent_cooking_1_cooked_beef_1_cookie": {
+    "conversation": "Let's collaborate to make cooked_beef and cookie.",
     "agent_count": 2,
     "target": {
-      "honey_bottle": 1,
-      "cooked_salmon": 1
+      "cooked_beef": 1,
+      "cookie": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "honey_bottle": [
-        "Step 1: Go to the beehive and collect 1 honey using an empty glass bottle.",
-        "Step 2: Store the honey bottle in your inventory."
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
       ],
-      "cooked_salmon": [
-        "Step 1: Fish in water until you catch 1 raw salmon.",
-        "Step 2: Go to furnace and cook the raw salmon."
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cooked_beef, 1 cookie",
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_golden_apple_blocked_access_andy": {
+    "conversation": "Let's work together to make golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ]
     },
     "blocked_access_to_recipe": [
       "andy"
     ],
-    "goal": "Collaborate to make 1 honey_bottle, 1 cooked_salmon",
-    "difficulty": "medium"
+    "goal": "Collaborate to make 1 golden_apple",
+    "difficulty": "easy"
   },
-  "multiagent_cooking_79367": {
-    "conversation": "Let's collaborate to make bread and cooked_porkchop.",
+  "multiagent_cooking_1_baked_potato_1_cake_blocked_access_andy": {
+    "conversation": "Let's collaborate to make baked_potato and cake.",
     "agent_count": 2,
     "target": {
-      "bread": 1,
-      "cooked_porkchop": 1
+      "baked_potato": 1,
+      "cake": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "bread": [
-        "Step 1: Go to the farm and collect 3 wheat.",
-        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
       ],
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
+    "goal": "Collaborate to make 1 baked_potato, 1 cake",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_golden_apple_blocked_access_randy": {
+    "conversation": "Let's collaborate to make baked_potato and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "baked_potato": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ]
     },
     "blocked_access_to_recipe": [
       "randy"
     ],
-    "goal": "Collaborate to make 1 bread, 1 cooked_porkchop",
+    "goal": "Collaborate to make 1 baked_potato, 1 golden_apple",
     "difficulty": "medium"
   },
-  "multiagent_cooking_48468": {
-    "conversation": "Let's collaborate to make cooked_porkchop and cooked_cod.",
+  "multiagent_cooking_1_beetroot_soup_1_bread_blocked_access_randy": {
+    "conversation": "Let's collaborate to make beetroot_soup and bread.",
     "agent_count": 2,
     "target": {
-      "cooked_porkchop": 1,
-      "cooked_cod": 1
+      "beetroot_soup": 1,
+      "bread": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
       ],
-      "cooked_cod": [
-        "Step 1: Fish in water until you catch 1 raw cod.",
-        "Step 2: Go to furnace and cook the raw cod."
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 beetroot_soup, 1 bread",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_mushroom_stew_1_rabbit_stew": {
+    "conversation": "Let's collaborate to make rabbit_stew and mushroom_stew.",
+    "agent_count": 2,
+    "target": {
+      "rabbit_stew": 1,
+      "mushroom_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 rabbit_stew, 1 mushroom_stew",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_1_golden_apple_blocked_access_andy": {
+    "conversation": "Let's collaborate to make golden_apple and cake.",
+    "agent_count": 2,
+    "target": {
+      "golden_apple": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
       ]
     },
     "blocked_access_to_recipe": [
       "andy"
     ],
-    "goal": "Collaborate to make 1 cooked_porkchop, 1 cooked_cod",
+    "goal": "Collaborate to make 1 golden_apple, 1 cake",
     "difficulty": "medium"
   },
-  "multiagent_cooking_43693": {
+  "multiagent_cooking_1_cookie_blocked_access_andy_randy": {
     "conversation": "Let's work together to make cookie.",
     "agent_count": 2,
     "target": {
@@ -960,72 +648,315 @@
     "timeout": 300,
     "recipes": {
       "cookie": [
-        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean.",
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
         "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
     "goal": "Collaborate to make 1 cookie",
     "difficulty": "medium"
   },
-  "multiagent_cooking_53953": {
-    "conversation": "Let's work together to make cooked_porkchop.",
+  "multiagent_cooking_1_baked_potato_1_cooked_beef_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make baked_potato and cooked_beef.",
     "agent_count": 2,
     "target": {
-      "cooked_porkchop": 1
+      "baked_potato": 1,
+      "cooked_beef": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
-    "goal": "Collaborate to make 1 cooked_porkchop",
+    "goal": "Collaborate to make 1 baked_potato, 1 cooked_beef",
     "difficulty": "medium"
   },
-  "multiagent_cooking_11793": {
-    "conversation": "Let's work together to make cooked_mutton.",
+  "multiagent_cooking_1_bread_1_cooked_beef_blocked_access_randy": {
+    "conversation": "Let's collaborate to make bread and cooked_beef.",
     "agent_count": 2,
     "target": {
-      "cooked_mutton": 1
+      "bread": 1,
+      "cooked_beef": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "randy"
     ],
-    "goal": "Collaborate to make 1 cooked_mutton",
+    "goal": "Collaborate to make 1 bread, 1 cooked_beef",
     "difficulty": "medium"
   },
-  "multiagent_cooking_41874": {
-    "conversation": "Let's collaborate to make cooked_porkchop and beetroot_soup.",
+  "multiagent_cooking_1_golden_apple_1_mushroom_stew_blocked_access_andy": {
+    "conversation": "Let's collaborate to make golden_apple and mushroom_stew.",
     "agent_count": 2,
     "target": {
-      "cooked_porkchop": 1,
+      "golden_apple": 1,
+      "mushroom_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ],
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
+    "goal": "Collaborate to make 1 golden_apple, 1 mushroom_stew",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_pumpkin_pie_1_rabbit_stew": {
+    "conversation": "Let's collaborate to make pumpkin_pie and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 pumpkin_pie, 1 rabbit_stew",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_beetroot_soup_1_cookie_blocked_access_randy": {
+    "conversation": "Let's collaborate to make beetroot_soup and cookie.",
+    "agent_count": 2,
+    "target": {
+      "beetroot_soup": 1,
+      "cookie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 beetroot_soup, 1 cookie",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_beef_blocked_access_andy_randy": {
+    "conversation": "Let's work together to make cooked_beef.",
+    "agent_count": 2,
+    "target": {
+      "cooked_beef": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_beef",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_beetroot_soup_1_cooked_beef_blocked_access_randy": {
+    "conversation": "Let's collaborate to make beetroot_soup and cooked_beef.",
+    "agent_count": 2,
+    "target": {
+      "beetroot_soup": 1,
+      "cooked_beef": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 beetroot_soup, 1 cooked_beef",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_cookie_blocked_access_randy": {
+    "conversation": "Let's collaborate to make baked_potato and cookie.",
+    "agent_count": 2,
+    "target": {
+      "baked_potato": 1,
+      "cookie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 baked_potato, 1 cookie",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_bread_1_golden_apple_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make bread and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 bread, 1 golden_apple",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_1_golden_apple": {
+    "conversation": "Let's collaborate to make cake and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 cake, 1 golden_apple",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_bread_1_pumpkin_pie_blocked_access_andy": {
+    "conversation": "Let's collaborate to make pumpkin_pie and bread.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1,
+      "bread": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ],
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy"
+    ],
+    "goal": "Collaborate to make 1 pumpkin_pie, 1 bread",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_beetroot_soup_1_pumpkin_pie_blocked_access_andy": {
+    "conversation": "Let's collaborate to make pumpkin_pie and beetroot_soup.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1,
       "beetroot_soup": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_porkchop": [
-        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
       ],
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -1035,25 +966,177 @@
       ]
     },
     "blocked_access_to_recipe": [
+      "andy"
+    ],
+    "goal": "Collaborate to make 1 pumpkin_pie, 1 beetroot_soup",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cookie_1_mushroom_stew_blocked_access_randy": {
+    "conversation": "Let's collaborate to make mushroom_stew and cookie.",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "cookie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 mushroom_stew, 1 cookie",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_golden_apple_blocked_access_andy_randy": {
+    "conversation": "Let's work together to make golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
       "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 cooked_porkchop, 1 beetroot_soup",
-    "difficulty": "hard"
+    "goal": "Collaborate to make 1 golden_apple",
+    "difficulty": "medium"
   },
-  "multiagent_cooking_19597": {
-    "conversation": "Let's collaborate to make cookie and rabbit_stew.",
+  "multiagent_cooking_1_cookie_1_mushroom_stew": {
+    "conversation": "Let's collaborate to make mushroom_stew and cookie.",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "cookie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": "Collaborate to make 1 mushroom_stew, 1 cookie",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_bread_1_cookie_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cookie and bread.",
     "agent_count": 2,
     "target": {
       "cookie": 1,
-      "rabbit_stew": 1
+      "bread": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
       "cookie": [
-        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean.",
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
         "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ],
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cookie, 1 bread",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_golden_apple_1_pumpkin_pie_blocked_access_randy": {
+    "conversation": "Let's collaborate to make pumpkin_pie and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 pumpkin_pie, 1 golden_apple",
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_beetroot_soup_1_cooked_beef_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make beetroot_soup and cooked_beef.",
+    "agent_count": 2,
+    "target": {
+      "beetroot_soup": 1,
+      "cooked_beef": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 beetroot_soup, 1 cooked_beef",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_beef_1_rabbit_stew_blocked_access_andy": {
+    "conversation": "Let's collaborate to make cooked_beef and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_beef": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
       ],
       "rabbit_stew": [
         "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
@@ -1068,10 +1151,65 @@
     "blocked_access_to_recipe": [
       "andy"
     ],
-    "goal": "Collaborate to make 1 cookie, 1 rabbit_stew",
+    "goal": "Collaborate to make 1 cooked_beef, 1 rabbit_stew",
     "difficulty": "hard"
   },
-  "multiagent_cooking_75313": {
+  "multiagent_cooking_1_cake_1_cooked_beef_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cooked_beef and cake.",
+    "agent_count": 2,
+    "target": {
+      "cooked_beef": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cooked_beef, 1 cake",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cookie_1_pumpkin_pie_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make pumpkin_pie and cookie.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1,
+      "cookie": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 pumpkin_pie, 1 cookie",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_pumpkin_pie_1_rabbit_stew_blocked_access_randy": {
     "conversation": "Let's collaborate to make pumpkin_pie and rabbit_stew.",
     "agent_count": 2,
     "target": {
@@ -1097,67 +1235,162 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy"
+      "randy"
     ],
     "goal": "Collaborate to make 1 pumpkin_pie, 1 rabbit_stew",
     "difficulty": "hard"
   },
-  "multiagent_cooking_69890": {
-    "conversation": "Let's collaborate to make honey_bottle and beetroot_soup.",
+  "multiagent_cooking_1_bread_1_rabbit_stew_blocked_access_andy": {
+    "conversation": "Let's collaborate to make bread and rabbit_stew.",
     "agent_count": 2,
     "target": {
-      "honey_bottle": 1,
-      "beetroot_soup": 1
+      "bread": 1,
+      "rabbit_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "honey_bottle": [
-        "Step 1: Go to the beehive and collect 1 honey using an empty glass bottle.",
-        "Step 2: Store the honey bottle in your inventory."
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
       ],
-      "beetroot_soup": [
-        "Step 1: Go to the farm and collect 6 beetroot.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
       "andy"
     ],
-    "goal": "Collaborate to make 1 honey_bottle, 1 beetroot_soup",
+    "goal": "Collaborate to make 1 bread, 1 rabbit_stew",
     "difficulty": "hard"
   },
-  "multiagent_cooking_3501": {
-    "conversation": "Let's collaborate to make cooked_mutton and golden_carrot.",
+  "multiagent_cooking_1_golden_apple_1_rabbit_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make golden_apple and rabbit_stew.",
     "agent_count": 2,
     "target": {
-      "cooked_mutton": 1,
-      "golden_carrot": 1
+      "golden_apple": 1,
+      "rabbit_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 golden_carrot",
+    "goal": "Collaborate to make 1 golden_apple, 1 rabbit_stew",
     "difficulty": "hard"
   },
-  "multiagent_cooking_84068": {
+  "multiagent_cooking_1_baked_potato_1_cake_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cake and baked_potato.",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "baked_potato": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato.",
+        "Step 2: Go to the furnace and bake the potato."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cake, 1 baked_potato",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_bread_1_rabbit_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make rabbit_stew and bread.",
+    "agent_count": 2,
+    "target": {
+      "rabbit_stew": 1,
+      "bread": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 rabbit_stew, 1 bread",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_bread_1_rabbit_stew_blocked_access_randy": {
+    "conversation": "Let's collaborate to make bread and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 bread, 1 rabbit_stew",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_bread_1_pumpkin_pie_blocked_access_andy_randy": {
     "conversation": "Let's collaborate to make pumpkin_pie and bread.",
     "agent_count": 2,
     "target": {
@@ -1178,18 +1411,108 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
     "goal": "Collaborate to make 1 pumpkin_pie, 1 bread",
     "difficulty": "hard"
   },
-  "multiagent_cooking_20666": {
-    "conversation": "Let's collaborate to make rabbit_stew and cooked_salmon.",
+  "multiagent_cooking_1_cake_1_mushroom_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cake and mushroom_stew.",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "mushroom_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 cake, 1 mushroom_stew",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_mushroom_stew_1_rabbit_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make mushroom_stew and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 mushroom_stew, 1 rabbit_stew",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_golden_apple_1_pumpkin_pie_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make pumpkin_pie and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "pumpkin_pie": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 pumpkin_pie, 1 golden_apple",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_beef_1_rabbit_stew_blocked_access_randy": {
+    "conversation": "Let's collaborate to make rabbit_stew and cooked_beef.",
     "agent_count": 2,
     "target": {
       "rabbit_stew": 1,
-      "cooked_salmon": 1
+      "cooked_beef": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -1203,24 +1526,139 @@
         "Step 6: Go to the furnace and cook the raw rabbit.",
         "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ],
-      "cooked_salmon": [
-        "Step 1: Fish in water until you catch 1 raw salmon.",
-        "Step 2: Go to furnace and cook the raw salmon."
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 rabbit_stew, 1 cooked_beef",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_mushroom_stew_1_rabbit_stew_blocked_access_randy": {
+    "conversation": "Let's collaborate to make mushroom_stew and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 mushroom_stew, 1 rabbit_stew",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_beef_1_mushroom_stew_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make mushroom_stew and cooked_beef.",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "cooked_beef": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the mushrooms and bowl to make mushroom stew."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
       ]
     },
     "blocked_access_to_recipe": [
       "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 rabbit_stew, 1 cooked_salmon",
+    "goal": "Collaborate to make 1 mushroom_stew, 1 cooked_beef",
     "difficulty": "hard"
   },
-  "multiagent_cooking_17549": {
-    "conversation": "Let's collaborate to make baked_potato and beetroot_soup.",
+  "multiagent_cooking_1_beetroot_soup_1_golden_apple_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make beetroot_soup and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "beetroot_soup": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: Go to the chest and grab oak_planks.",
+        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 beetroot_soup, 1 golden_apple",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cake_1_golden_apple_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make golden_apple and cake.",
+    "agent_count": 2,
+    "target": {
+      "golden_apple": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 golden_apple, 1 cake",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_baked_potato_1_pumpkin_pie_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make baked_potato and pumpkin_pie.",
     "agent_count": 2,
     "target": {
       "baked_potato": 1,
-      "beetroot_soup": 1
+      "pumpkin_pie": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -1228,6 +1666,33 @@
       "baked_potato": [
         "Step 1: Go to the farm and collect 1 potato.",
         "Step 2: Go to the furnace and bake the potato."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
+        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "andy",
+      "randy"
+    ],
+    "goal": "Collaborate to make 1 baked_potato, 1 pumpkin_pie",
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_beetroot_soup_1_bread_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make bread and beetroot_soup.",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "beetroot_soup": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
       ],
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -1240,368 +1705,10 @@
       "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 baked_potato, 1 beetroot_soup",
+    "goal": "Collaborate to make 1 bread, 1 beetroot_soup",
     "difficulty": "hard"
   },
-  "multiagent_cooking_30245": {
-    "conversation": "Let's collaborate to make cooked_mutton and rabbit_stew.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1,
-      "rabbit_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ],
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 rabbit_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_15645": {
-    "conversation": "Let's collaborate to make bread and rabbit_stew.",
-    "agent_count": 2,
-    "target": {
-      "bread": 1,
-      "rabbit_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "bread": [
-        "Step 1: Go to the farm and collect 3 wheat.",
-        "Step 2: Go to the crafting table and use the wheat to craft bread."
-      ],
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 bread, 1 rabbit_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_48946": {
-    "conversation": "Let's collaborate to make rabbit_stew and sweet_berries.",
-    "agent_count": 2,
-    "target": {
-      "rabbit_stew": 1,
-      "sweet_berries": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ],
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 rabbit_stew, 1 sweet_berries",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_14337": {
-    "conversation": "Let's collaborate to make cooked_cod and rabbit_stew.",
-    "agent_count": 2,
-    "target": {
-      "cooked_cod": 1,
-      "rabbit_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_cod": [
-        "Step 1: Fish in water until you catch 1 raw cod.",
-        "Step 2: Go to furnace and cook the raw cod."
-      ],
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_cod, 1 rabbit_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_33834": {
-    "conversation": "Let's collaborate to make sweet_berries and rabbit_stew.",
-    "agent_count": 2,
-    "target": {
-      "sweet_berries": 1,
-      "rabbit_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ],
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 sweet_berries, 1 rabbit_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_8954": {
-    "conversation": "Let's collaborate to make rabbit_stew and golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "rabbit_stew": 1,
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect 8 gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 rabbit_stew, 1 golden_carrot",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_30155": {
-    "conversation": "Let's collaborate to make pumpkin_pie and sweet_berries.",
-    "agent_count": 2,
-    "target": {
-      "pumpkin_pie": 1,
-      "sweet_berries": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ],
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 pumpkin_pie, 1 sweet_berries",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_11508": {
-    "conversation": "Let's collaborate to make rabbit_stew and sweet_berries.",
-    "agent_count": 2,
-    "target": {
-      "rabbit_stew": 1,
-      "sweet_berries": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ],
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 rabbit_stew, 1 sweet_berries",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_23706": {
-    "conversation": "Let's collaborate to make cooked_mutton and rabbit_stew.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1,
-      "rabbit_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ],
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 rabbit_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_22500": {
-    "conversation": "Let's collaborate to make bread and rabbit_stew.",
-    "agent_count": 2,
-    "target": {
-      "bread": 1,
-      "rabbit_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "bread": [
-        "Step 1: Go to the farm and collect 3 wheat.",
-        "Step 2: Go to the crafting table and use the wheat to craft bread."
-      ],
-      "rabbit_stew": [
-        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab oak_planks.",
-        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 bread, 1 rabbit_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_86355": {
-    "conversation": "Let's collaborate to make sweet_berries and pumpkin_pie.",
-    "agent_count": 2,
-    "target": {
-      "sweet_berries": 1,
-      "pumpkin_pie": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "sweet_berries": [
-        "Step 1: Find a sweet berry bush in the forest.",
-        "Step 2: Carefully pick the sweet berries from the bush."
-      ],
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 sweet_berries, 1 pumpkin_pie",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_33087": {
-    "conversation": "Let's collaborate to make pumpkin_pie and cooked_cod.",
-    "agent_count": 2,
-    "target": {
-      "pumpkin_pie": 1,
-      "cooked_cod": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "pumpkin_pie": [
-        "Step 1: Go to the farm and collect 1 pumpkin, 1 egg, and 1 sugar cane.",
-        "Step 2: Go to the crafting table and craft the sugar cane into sugar.",
-        "Step 3: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
-      ],
-      "cooked_cod": [
-        "Step 1: Fish in water until you catch 1 raw cod.",
-        "Step 2: Go to furnace and cook the raw cod."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 pumpkin_pie, 1 cooked_cod",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_34479": {
+  "multiagent_cooking_1_bread_1_cake_blocked_access_andy_randy": {
     "conversation": "Let's collaborate to make cake and bread.",
     "agent_count": 2,
     "target": {
@@ -1623,68 +1730,38 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "randy",
-      "andy"
+      "andy",
+      "randy"
     ],
     "goal": "Collaborate to make 1 cake, 1 bread",
     "difficulty": "hard"
   },
-  "multiagent_cooking_94248": {
-    "conversation": "Let's collaborate to make beetroot_soup and cake.",
+  "multiagent_cooking_1_cake_1_cookie_blocked_access_andy_randy": {
+    "conversation": "Let's collaborate to make cake and cookie.",
     "agent_count": 2,
     "target": {
-      "beetroot_soup": 1,
-      "cake": 1
+      "cake": 1,
+      "cookie": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "beetroot_soup": [
-        "Step 1: Go to the farm and collect 6 beetroot.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the beetroot and bowl to make beetroot soup."
-      ],
       "cake": [
         "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
         "Step 2: Go to the chest and grab a milk bucket.",
         "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
         "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat and 1 cocoa bean from the chest.",
+        "Step 2: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
       ]
     },
     "blocked_access_to_recipe": [
       "andy",
       "randy"
     ],
-    "goal": "Collaborate to make 1 beetroot_soup, 1 cake",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_76078": {
-    "conversation": "Let's collaborate to make cake and honey_bottle.",
-    "agent_count": 2,
-    "target": {
-      "cake": 1,
-      "honey_bottle": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cake": [
-        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
-        "Step 2: Go to the chest and grab a milk bucket.",
-        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
-        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
-      ],
-      "honey_bottle": [
-        "Step 1: Go to the beehive and collect 1 honey using an empty glass bottle.",
-        "Step 2: Store the honey bottle in your inventory."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy",
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cake, 1 honey_bottle",
+    "goal": "Collaborate to make 1 cake, 1 cookie",
     "difficulty": "hard"
   }
 }
