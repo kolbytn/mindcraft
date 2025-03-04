@@ -26,6 +26,7 @@ function checkItemPresence(data, agent) {
     function isTargetDictionaryWithQuantities(target) {
         return typeof target === 'object' && 
                !Array.isArray(target) && 
+
                target !== null &&
                Object.values(target).every(value => typeof value === 'number');
     }
@@ -94,7 +95,6 @@ function checkItemPresence(data, agent) {
         for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
             const itemName = item.toLowerCase();
             const currentCount = inventoryCount[itemName] || 0;
-            
             if (currentCount < requiredCount) {
                 allTargetsMet = false;
                 missingItems.push({
@@ -158,16 +158,17 @@ export class Task {
             }
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
+            // Set validator based on task_type
 
             if (this.task_type === 'construction') {
                 this.validator = new ConstructionTaskValidator(this.data, this.agent);
             } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
                 this.validator = new CookingCraftingTaskValidator(this.data, this.agent);
+
             } else {
                 this.validator = null;
             }
 
-            
             if (this.data.blocked_actions) {
                 this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
             } else {
@@ -179,7 +180,7 @@ export class Task {
             if (this.conversation)
                 this.blocked_actions.push('!endConversation');
         }
-        
+
         this.name = this.agent.name;
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
     }
@@ -272,7 +273,6 @@ export class Task {
         } else {
             this.initiator = null;
         }
-
         await this.teleportBots();
 
         //wait for a bit so bots are teleported
@@ -347,7 +347,7 @@ export class Task {
 
         let human_player_name = null;
         let bot = this.agent.bot;
-        
+
         // Finding if there is a human player on the server
         for (const playerName in bot.players) {
             const player = bot.players[playerName];
@@ -362,12 +362,11 @@ export class Task {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
-        
         await new Promise((resolve) => setTimeout(resolve, 200));
-    
+
         // now all bots are teleport on top of each other (which kinda looks ugly)
         // Thus, we need to teleport them to random distances to make it look better
-    
+
         /*
         Note : We don't want randomness for construction task as the reference point matters a lot.
         Another reason for no randomness for construction task is because, often times the user would fly in the air,
@@ -375,7 +374,6 @@ export class Task {
         This was done by MaxRobinson in one of the youtube videos.
         */
 
-    
 
         if (this.data.type !== 'construction') {
             const pos = getPosition(bot);
@@ -394,7 +392,6 @@ export class Task {
             }
         }
 
-
         if (this.data.type === 'construction'){
             //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
             if (this.blueprint){
@@ -410,48 +407,5 @@ export class Task {
                 console.log('no construction blueprint?')
             }
         }
-    }    
-}
-
-export function giveBlueprint(agent, blueprint) {
-    let bot = agent.bot;
-    let name = agent.name;
-    let blueprint_name = blueprint.name;
-    let blueprint_count = blueprint.count;
-    bot.chat(`/clear ${name}`);
-    console.log(`Cleared ${name}'s inventory.`);
-    bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
-    console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
-}
-
-/**
- * Auto-builds blueprint in minecraft world
- * @param agent
- * @param blueprint must be of the blueprint class
- */
-export function buildBlueprint(agent, blueprint){
-    let bot = agent.bot
-    const result = blueprint.autoBuild();
-    // const result = clearHouse(blueprint)
-    const commands = result.commands;
-    const nearbyPosition = result.nearbyPosition;
-    for (const command of commands) {
-        bot.chat(command);
-    }
-}
-
-
-/**
- * auto-deletes a built blueprint
- * @param agent
- * @param blueprint must be of the blueprint class
- */
-export function deleteBlueprint(agent, blueprint){
-    let bot = agent.bot
-    const result = blueprint.autoDelete()
-    const commands = result.commands;
-    const nearbyPosition = result.nearbyPosition;
-    for (const command of commands) {
-        bot.chat(command);
     }
 }

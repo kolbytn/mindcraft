@@ -668,7 +668,6 @@ export class Agent {
         this.history.save();
         process.exit(code);
     }
-
     async checkTaskDone() {
         if (this.task.data) {
             let res = this.task.isDone();

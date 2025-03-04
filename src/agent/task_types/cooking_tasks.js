@@ -332,6 +332,8 @@ export class CookingTaskInitiator {
                     ['minecraft:cooked_mutton', 64],
                     ['minecraft:cooked_salmon', 64],
                     ['minecraft:cooked_cod', 64]
+                    ['minecraft:gold_ingot', 64],
+                    ['minecraft:oak_planks', 64],
                 ];
 
                 // Fill the chest with random cooking items
