@@ -51,8 +51,8 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | xAI | `XAI_API_KEY` | `grok-2` | [docs](https://docs.x.ai/docs) |
 | Deepseek | `DEEPSEEK_API_KEY` | `deepseek-reasoner` | [docs](https://api-docs.deepseek.com/) |
 | Openrouter | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
-| glhf.chat | `GHLF_API_KEY` | `hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
-| Hyperbolic | `HYPERBOLIC_API_KEY` | `hb:deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
+| glhf.chat | `GHLF_API_KEY` | `GLHF/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
+| Hyperbolic | `HYPERBOLIC_API_KEY` | `hyperbolic/deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull qwen2.5 && ollama pull nomic-embed-text`
