@@ -279,6 +279,7 @@ export class Task {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         if (this.data.initial_inventory) {
+            console.log("\n\n\n\n\n")
             console.log("Setting inventory...");
             let initialInventory = {};
             
@@ -289,7 +290,9 @@ export class Task {
             } else {
                 initialInventory = this.data.initial_inventory;
                 console.log("Initial inventory:", initialInventory);
+                console.log("\n\n\n\n");
             }
+            console.log(this.data.initial_inventory);
 
             // Assign inventory items
             for (let key of Object.keys(initialInventory)) {
