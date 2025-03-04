@@ -19,97 +19,86 @@ export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.last_sender = null;
         this.count_id = count_id;
-        try {
-            if (!profile_fp) {
-                throw new Error('No profile filepath provided');
-            }
-            
-            console.log('Starting agent initialization with profile:', profile_fp);
-            
-            // Initialize components with more detailed error handling
-            console.log('Initializing action manager...');
-            this.actions = new ActionManager(this);
-            console.log('Initializing prompter...');
-            this.prompter = new Prompter(this, profile_fp);
-            this.name = this.prompter.getName();
-            console.log('Initializing history...');
-            this.history = new History(this);
-            console.log('Initializing coder...');
-            this.coder = new Coder(this);
-            console.log('Initializing npc controller...');
-            this.npc = new NPCContoller(this);
-            console.log('Initializing memory bank...');
-            this.memory_bank = new MemoryBank();
-            console.log('Initializing self prompter...');
-            this.self_prompter = new SelfPrompter(this);
-            convoManager.initAgent(this);            
-            console.log('Initializing examples...');
-            await this.prompter.initExamples();
-            console.log('Initializing task...');
-            this.task = new Task(this, task_path, task_id);
-            const blocked_actions = this.task.blocked_actions || [];
-            blacklistCommands(blocked_actions);
-
-            serverProxy.connect(this);
-
-            console.log(this.name, 'logging into minecraft...');
-            this.bot = initBot(this.name);
-
-            initModes(this);
-
-            let save_data = null;
-            if (load_mem) {
-                save_data = this.history.load();
-            }
-
-            this.bot.on('login', () => {
-                console.log(this.name, 'logged in!');
-
-                serverProxy.login();
-                
-                // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
-                if (this.prompter.profile.skin)
-                    this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
-                else
-                    this.bot.chat(`/skin clear`);
-            });
-
-            const spawnTimeout = setTimeout(() => {
-                process.exit(0);
-            }, 30000);
-            this.bot.once('spawn', async () => {
-                try {
-                    clearTimeout(spawnTimeout);
-                    addViewer(this.bot, count_id);
-
-                    // wait for a bit so stats are not undefined
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
-                    
-                    console.log(`${this.name} spawned.`);
-                    this.clearBotLogs();
-
-                    this._setupEventHandlers(save_data, init_message);
-                    this.startEvents();
-
-                    // this.task.initBotTask();
-
-                    if (!load_mem) {
-                        this.task.initBotTask();
-                    }
-
-                } catch (error) {
-                    console.error('Error in spawn event:', error);
-                    process.exit(0);
-                }
-            });
-        } catch (error) {
-            // Ensure we're not losing error details
-            console.error('Agent start failed with error')
-            console.error(error.message);
-            console.error(error.stack);
-
-            throw error; // Re-throw with preserved details
+        if (!profile_fp) {
+            throw new Error('No profile filepath provided');
         }
+        
+        console.log('Starting agent initialization with profile:', profile_fp);
+        
+        // Initialize components with more detailed error handling
+        console.log('Initializing action manager...');
+        this.actions = new ActionManager(this);
+        console.log('Initializing prompter...');
+        this.prompter = new Prompter(this, profile_fp);
+        this.name = this.prompter.getName();
+        console.log('Initializing history...');
+        this.history = new History(this);
+        console.log('Initializing coder...');
+        this.coder = new Coder(this);
+        console.log('Initializing npc controller...');
+        this.npc = new NPCContoller(this);
+        console.log('Initializing memory bank...');
+        this.memory_bank = new MemoryBank();
+        console.log('Initializing self prompter...');
+        this.self_prompter = new SelfPrompter(this);
+        convoManager.initAgent(this);            
+        console.log('Initializing examples...');
+        await this.prompter.initExamples();
+        console.log('Initializing task...');
+        this.task = new Task(this, task_path, task_id);
+        const blocked_actions = this.task.blocked_actions || [];
+        blacklistCommands(blocked_actions);
+
+        serverProxy.connect(this);
+
+        console.log(this.name, 'logging into minecraft...');
+        this.bot = initBot(this.name);
+
+        initModes(this);
+
+        let save_data = null;
+        if (load_mem) {
+            save_data = this.history.load();
+        }
+
+        this.bot.on('login', () => {
+            console.log(this.name, 'logged in!');
+
+            serverProxy.login();
+            
+            // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
+            if (this.prompter.profile.skin)
+                this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
+            else
+                this.bot.chat(`/skin clear`);
+        });
+
+        const spawnTimeout = setTimeout(() => {
+            process.exit(0);
+        }, 30000);
+        this.bot.once('spawn', async () => {
+            try {
+                clearTimeout(spawnTimeout);
+                addViewer(this.bot, count_id);
+
+                // wait for a bit so stats are not undefined
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                
+                console.log(`${this.name} spawned.`);
+                this.clearBotLogs();
+
+                this._setupEventHandlers(save_data, init_message);
+                this.startEvents();
+
+                if (!load_mem) {
+                    this.task.initBotTask();
+                }
+
+            } catch (error) {
+                console.error('Error in spawn event:', error);
+                process.exit(0);
+            }
+        });
     }
 
     async _setupEventHandlers(save_data, init_message) {
