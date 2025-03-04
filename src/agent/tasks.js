@@ -3,7 +3,7 @@ import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
 import { Vec3 } from 'vec3';
-import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
+import { ConstructionTaskValidator, Blueprint } from './task_types/construction_tasks.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
 
 //todo: modify validator code to return an object with valid and score -> do more testing hahah
