@@ -2,7 +2,18 @@ import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
+import { Vec3 } from 'vec3';
+import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
+
+//todo: modify validator code to return an object with valid and score -> do more testing hahah
+//todo: figure out how to log these things to the same place as bots/histories
+// export class CraftTaskValidator {
+//     constructor(data, agent) {
+//         this.target = data.target;
+//         this.number_of_target = data.number_of_target;
+//         this.agent = agent;
+
 
 /**
  * Validates the presence of required items in an agent's inventory
@@ -110,6 +121,20 @@ function checkItemPresence(data, agent) {
     }
 }
 
+class CookingCraftingTaskValidator {
+    constructor(data, agent) {
+        this.data = data;
+        this.agent = agent;
+    } 
+    validate() {
+        const result = checkItemPresence(this.data, this.agent);
+        return {
+            "valid": result.success, 
+            "score": result.success ? 1 : 0,
+        };
+    }
+}
+
 export class Task {
     constructor(agent, task_path, task_id) {
         this.agent = agent;
@@ -117,29 +142,41 @@ export class Task {
         this.taskTimeout = 300;
         this.taskStartTime = Date.now();
         this.validator = null;
+        this.reset_function = null;
         this.blocked_actions = [];
         this.task_id = task_id;
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
+            this.task_type = this.data.type;
+            if (this.task_type === 'construction' && this.data.blueprint) {
+                this.blueprint = new Blueprint(this.data.blueprint);
+                this.goal = this.data.goal + ' \n' + this.blueprint.explain() + " \n" + "make sure to place the lower levels of the blueprint first";
+                this.conversation = this.data.conversation + ' \n' + this.blueprint.explain();
+            } else {
+                this.goal = this.data.goal;
+                this.conversation = this.data.conversation;
+            }
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
-            this.task_type = this.data.type;
-            
-            // Set validator based on task_type
-            if (this.task_type === 'cooking' || this.task_type === 'techtree') {
-                this.validator = () => {
-                    const result = checkItemPresence(this.data, this.agent);
-                    return result.success;
-                };
+
+            if (this.task_type === 'construction') {
+                this.validator = new ConstructionTaskValidator(this.data, this.agent);
+            } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
+                this.validator = new CookingCraftingTaskValidator(this.data, this.agent);
             } else {
                 this.validator = null;
             }
+
             
-            this.blocked_actions = this.data.blocked_actions || [];
+            if (this.data.blocked_actions) {
+                this.blocked_actions = this.data.blocked_actions[this.agent.count_id.toString()] || [];
+            } else {
+                this.blocked_actions = [];
+            }
             this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
-            if (this.data.conversation)
+            if (this.conversation)
                 this.blocked_actions.push('!endConversation');
         }
         
@@ -176,7 +213,7 @@ export class Task {
         try {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
-            const task = tasks[task_id];
+            let task = tasks[task_id];
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
@@ -192,21 +229,29 @@ export class Task {
     }
 
     isDone() {
-        if (this.validator && this.validator())
-            return {"message": 'Task successful', "code": 2};
-
+        let res = null;
+        if (this.validator)
+            res = this.validator.validate();
+        if (res && res.valid) {
+            return {"message": 'Task successful', "score": res.score};
+        }
         let other_names = this.available_agents.filter(n => n !== this.name);
         const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
 
         if (elapsedTime >= 30 && this.available_agents.length !== this.data.agent_count) {
             console.log('No other agents found. Task unsuccessful.');
-            return {"message": 'No other agents found', "code": 3};
+            return {"message": 'No other agents found', "score": 0};
         }
         
         if (this.taskTimeout) {
             if (elapsedTime >= this.taskTimeout) {
                 console.log('Task timeout reached. Task unsuccessful.');
-                return {"message": 'Task timeout reached', "code": 4};
+                if (res) {
+                    return {"message": 'Task timeout reached', "score": res.score};
+                } else {
+                    return {"message": 'Task timeout reached', "score": 0};
+                }
+                
             }
         }
         return false;
@@ -319,6 +364,18 @@ export class Task {
         }
         
         await new Promise((resolve) => setTimeout(resolve, 200));
+    
+        // now all bots are teleport on top of each other (which kinda looks ugly)
+        // Thus, we need to teleport them to random distances to make it look better
+    
+        /*
+        Note : We don't want randomness for construction task as the reference point matters a lot.
+        Another reason for no randomness for construction task is because, often times the user would fly in the air,
+        then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
+        This was done by MaxRobinson in one of the youtube videos.
+        */
+
+    
 
         if (this.data.type !== 'construction') {
             const pos = getPosition(bot);
@@ -327,5 +384,74 @@ export class Task {
             bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
             await new Promise((resolve) => setTimeout(resolve, 200));
         }
+
+        if (this.data.agent_count && this.data.agent_count > 1) {
+            // TODO wait for other bots to join
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            if (this.available_agents.length < this.data.agent_count) {
+                console.log(`Missing ${this.data.agent_count - this.available_agents.length} bot(s).`);
+                this.agent.killAll();
+            }
+        }
+
+
+        if (this.data.type === 'construction'){
+            //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
+            if (this.blueprint){
+                const result = this.blueprint.autoDelete();
+                // const result = clearHouse(blueprint)
+                const commands = result.commands;
+                const nearbyPosition = result.nearbyPosition;
+                for (const command of commands) {
+                    bot.chat(command);
+                }
+            }
+            else{
+                console.log('no construction blueprint?')
+            }
+        }
+    }    
+}
+
+export function giveBlueprint(agent, blueprint) {
+    let bot = agent.bot;
+    let name = agent.name;
+    let blueprint_name = blueprint.name;
+    let blueprint_count = blueprint.count;
+    bot.chat(`/clear ${name}`);
+    console.log(`Cleared ${name}'s inventory.`);
+    bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
+    console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
+}
+
+/**
+ * Auto-builds blueprint in minecraft world
+ * @param agent
+ * @param blueprint must be of the blueprint class
+ */
+export function buildBlueprint(agent, blueprint){
+    let bot = agent.bot
+    const result = blueprint.autoBuild();
+    // const result = clearHouse(blueprint)
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
+    }
+}
+
+
+/**
+ * auto-deletes a built blueprint
+ * @param agent
+ * @param blueprint must be of the blueprint class
+ */
+export function deleteBlueprint(agent, blueprint){
+    let bot = agent.bot
+    const result = blueprint.autoDelete()
+    const commands = result.commands;
+    const nearbyPosition = result.nearbyPosition;
+    for (const command of commands) {
+        bot.chat(command);
     }
 }
