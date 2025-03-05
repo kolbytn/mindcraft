@@ -23,8 +23,6 @@ export default
         // "./profiles/grok.json",
         // "./profiles/mistral.json",
         // "./profiles/deepseek.json",
-        // "./profiles/glhf.json",
-        // "./profiles/hyperbolic.json",
 
         // using more than 1 profile requires you to /msg each bot indivually
         // individual profiles override values from the base profile
