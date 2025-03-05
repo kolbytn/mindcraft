@@ -41,7 +41,6 @@ export class Prompter {
                 this.profile[key] = base_profile[key];
         }
         // base overrides default, individual overrides base
-        // Removed this comment
 
         this.convo_examples = null;
         this.coding_examples = null;
@@ -140,9 +139,9 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
-            else if (profile.model.includes("GLHF/")
+            else if (profile.model.includes("glhf/")
                 profile.api = 'glhf';
-            else if (profile.model.includes("Hyperbolic/")
+            else if (profile.model.includes("hyperbolic/")
                 profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
