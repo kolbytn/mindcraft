@@ -43,9 +43,9 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-3-5-haiku-20241022` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | Replicate | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
 | Ollama (local) | n/a | `ollama/qwen2.5` | [docs](https://ollama.com/library) |
-| Groq | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
+| Groq (Not Grok) | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
 | Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | [docs](https://huggingface.co/models) |
-| Novita AI | `NOVITA_API_KEY` | `gryphe/mythomax-l2-13b` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
+| Novita | `NOVITA_API_KEY` | `novita/deepseek/deepseek-r1` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
 | Qwen | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 | Mistral | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
 | xAI | `XAI_API_KEY` | `grok-2` | [docs](https://docs.x.ai/docs) |
@@ -53,6 +53,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | Openrouter | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
 | glhf.chat | `GHLF_API_KEY` | `GLHF/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
 | Hyperbolic | `HYPERBOLIC_API_KEY` | `hyperbolic/deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
+
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull qwen2.5 && ollama pull nomic-embed-text`
