@@ -278,7 +278,7 @@ def make_profiles(agent_names, models, apis, template_profile="profiles/collab_p
             profile["model"] = {
                 "api": "vllm",
                 "model": models[index], 
-                "url": "http://localhost:8000/v1"
+                "url": "http://127.0.0.1:8000/v1"
             }
         else: 
             profile["model"] = models[index]
