@@ -42,7 +42,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | Google | `GEMINI_API_KEY` | `gemini-2.0-flash` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-3-5-haiku-20241022` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | Replicate | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
-| Ollama (local) | n/a | `ollama/qwen2.5` | [docs](https://ollama.com/library) |
+| Ollama (local) | n/a | `ollama/llama3.1` | [docs](https://ollama.com/library) |
 | Groq (Not Grok) | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
 | Hugging Face | `HUGGINGFACE_API_KEY` | `huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B` | [docs](https://huggingface.co/models) |
 | Novita | `NOVITA_API_KEY` | `novita/deepseek/deepseek-r1` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
@@ -51,13 +51,13 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | xAI | `XAI_API_KEY` | `grok-2` | [docs](https://docs.x.ai/docs) |
 | Deepseek | `DEEPSEEK_API_KEY` | `deepseek-reasoner` | [docs](https://api-docs.deepseek.com/) |
 | Openrouter | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
-| glhf.chat | `GHLF_API_KEY` | `GLHF/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
+| glhf.chat | `GHLF_API_KEY` | `glhf/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
 | Hyperbolic | `HYPERBOLIC_API_KEY` | `hyperbolic/deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
 
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
-`ollama pull qwen2.5 && ollama pull nomic-embed-text`
-Note that you can you any local model, such as `qwen2.5` `llama3` or fine tuned models like `sweaterdog/andy-3.6` But not matter what model, it is recommended you put `ollama/` before the model so Mindcraft can handle it properly.
+`ollama pull llama3.1 && ollama pull nomic-embed-text`
+Note that you can you any local model, such as `qwen2.5` `llama3.1` or fine tuned models like `sweaterdog/andy-3.6` But not matter what model, you must put `ollama/` before the model so Mindcraft can handle it properly.
 
 ### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
