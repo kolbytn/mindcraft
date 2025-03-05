@@ -41,7 +41,7 @@ export class Prompter {
                 this.profile[key] = base_profile[key];
         }
         // base overrides default, individual overrides base
-        // Removed a bit of space that was right here by adding a comment instead of deleting it because I am making a pull request to this code and I can do whatever I want because I decided to add 2 new API services to Mindcraft now look at me go! Woohoo! I am flying off the edge of the screen oh no!
+        // Removed this comment
 
         this.convo_examples = null;
         this.coding_examples = null;
