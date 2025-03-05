@@ -126,7 +126,7 @@ def launch_parallel_experiments(task_path,
     task_ids = list(task_ids)
     task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
 
-    servers = create_server_files("../server_data/", num_parallel, world_name=world_name)
+    servers = create_server_files("./server_data/", num_parallel, world_name=world_name)
     date_time = datetime.now().strftime("%m-%d_%H-%M")
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
@@ -292,7 +292,7 @@ def create_server_files(source_path, num_copies, world_name="Forest"):
     print(num_copies)
     servers = []
     for i in range(num_copies):
-        dest_path = f"../server_data_{i}/"
+        dest_path = f"./server_data_{i}/"
         copy_server_files(source_path, dest_path)
         print(dest_path)
         edit_file(dest_path + "server.properties", {"server-port": 55916 + i, 
@@ -319,7 +319,7 @@ def edit_file(file, content_dict):
 def clean_up_server_files(num_copies):
     """Delete server files from multiple locations."""
     for i in range(num_copies):
-        dest_path = f"../server_data_{i}/"
+        dest_path = f"./server_data_{i}/"
         delete_server_files(dest_path)
 
 def copy_server_files(source_path, dest_path):
@@ -338,7 +338,7 @@ def delete_server_files(dest_path):
     except Exception as e:
         print(f"Error deleting server files: {e}")
 
-def launch_world(server_path="../server_data/", agent_names=["andy", "jill"], session_name="server"):
+def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server"):
     """Launch the Minecraft world."""
     print(server_path)
     cmd = f"cd {server_path} && java -jar server.jar"
@@ -406,7 +406,7 @@ def main():
     parser.add_argument('--world_name', default="Forest", help='Name of the world')
 
     args = parser.parse_args()
-    
+
     try: 
         subprocess.run(['tmux', 'kill-server'], check=True)
     except: 

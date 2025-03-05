@@ -556,13 +556,6 @@ export class Agent {
 
     cleanKill(msg='Killing agent process...', code=1) {
         this.history.add('system', msg);
-
-        if (code === 2 || code === 3 || code === 4) {
-            this.bot.chat('Exiting the world permanently.');
-        }
-        else {
-            this.bot.chat('Restarting.')
-        }
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
@@ -571,7 +564,7 @@ export class Agent {
         if (this.task.data) {
             let res = this.task.isDone();
             if (res) {
-                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
+                await this.history.add('system', `Task ended with score : ${res.score}`);
                 await this.history.save();
                 console.log('Task finished:', res.message);
                 this.killAll();

@@ -128,9 +128,13 @@ class CookingCraftingTaskValidator {
     } 
     validate() {
         const result = checkItemPresence(this.data, this.agent);
+        let score = 0;
+        if (result.success) {
+            score = 1;
+        }
         return {
             "valid": result.success, 
-            "score": result.success ? 1 : 0,
+            "score": score,
         };
     }
 }
@@ -279,7 +283,6 @@ export class Task {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         if (this.data.initial_inventory) {
-            console.log("\n\n\n\n\n")
             console.log("Setting inventory...");
             let initialInventory = {};
             
@@ -290,7 +293,6 @@ export class Task {
             } else {
                 initialInventory = this.data.initial_inventory;
                 console.log("Initial inventory:", initialInventory);
-                console.log("\n\n\n\n");
             }
             console.log(this.data.initial_inventory);
 
@@ -343,7 +345,7 @@ export class Task {
     }
     
     async teleportBots() {
-        console.log('\n\n\n\n\nTeleporting bots');
+        console.log('\n\nTeleporting bots');
         function getRandomOffset(range) {
             return Math.floor(Math.random() * (range * 2 + 1)) - range;
         }
