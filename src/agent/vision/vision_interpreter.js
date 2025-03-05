@@ -1,5 +1,5 @@
 import { Vec3 } from 'vec3';
-import { Camera } from "../utils/camera.js";
+import { Camera } from "./camera.js";
 import fs from 'fs';
 
 const RENDER_TIME = 1000;

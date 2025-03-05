@@ -1,9 +1,7 @@
 import * as mc from "../../utils/mcdata.js";
-import { Camera } from "../../utils/camera.js";
 import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
-import fs from 'fs';
 
 
 export function log(bot, message) {

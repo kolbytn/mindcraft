@@ -1,6 +1,6 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
-import { VisionInterpreter } from './vision_interpreter.js';
+import { VisionInterpreter } from './vision/vision_interpreter.js';
 import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
