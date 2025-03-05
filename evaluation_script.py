@@ -113,7 +113,8 @@ def launch_parallel_experiments(task_path,
                                 num_parallel=1,
                                 s3=False, 
                                 bucket_name="mindcraft-experiments", 
-                                template_profile="profiles/collab_profile.json"):
+                                template_profile="profiles/collab_profile.json", 
+                                world_name="Forest"):
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -125,7 +126,7 @@ def launch_parallel_experiments(task_path,
     task_ids = list(task_ids)
     task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
 
-    servers = create_server_files("../server_data/", num_parallel)
+    servers = create_server_files("../server_data/", num_parallel, world_name=world_name)
     date_time = datetime.now().strftime("%m-%d_%H-%M")
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
@@ -141,7 +142,7 @@ def launch_parallel_experiments(task_path,
                                  exp_name, 
                                  s3=s3, 
                                  bucket_name=bucket_name, 
-                                 template_profile="profiles/collab_profile.json", 
+                                 template_profile=template_profile, 
                                  model=model, 
                                  api=api)
         time.sleep(5)
@@ -168,6 +169,8 @@ def launch_server_experiment(task_path,
     @param exp_name: Name of the experiment for wandb dataset
     @param num_agents: Number of agents to run
     @param model: Model to use for the agents
+    @param s3: Boolean flag to enable S3 upload
+    @param bucket_name: Name of the S3 bucket
     """
     server_path, server_port = server
     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
@@ -185,9 +188,8 @@ def launch_server_experiment(task_path,
         apis = [api] * 3
     make_profiles(agent_names, models, apis, template_profile=template_profile)
 
-    # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
-    agent_profiles_str = f"\'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]\'"
+    agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
     print(agent_profiles_str)
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 
@@ -213,19 +215,29 @@ def launch_server_experiment(task_path,
 
     script_content = ""
     for task_id in task_ids:
+        # Create a separate folder for each task_id
+        task_folder = os.path.join(experiments_folder, str(task_id))
+        os.makedirs(task_folder, exist_ok=True)
+        assert os.path.exists(task_folder), f"Directory {task_folder} was not created"
+        print(f"Created directory: {task_folder}")
+        
         cmd = f"node main.js --task_path \'{task_path}\' --task_id {task_id}"
         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
         for _ in range(num_exp):
             script_content += f"{cmd}\n"
             script_content += "sleep 2\n"
             for agent in agent_names:
-                cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
+                agent_file_path = os.path.join(task_folder, f"{agent}_{_}.json")
+                assert os.path.exists(f"bots/{agent}/memory.json"), f"Source file bots/{agent}/memory.json does not exist"
+                script_content += f"echo 'Saving to {agent_file_path}'\n"
+                cp_cmd = f"cp bots/{agent}/memory.json {agent_file_path}"
                 script_content += f"echo '{cp_cmd}'\n"
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to s3'\n"
-                    s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{_}/{agent}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_upload_experiment = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
@@ -236,10 +248,13 @@ def launch_server_experiment(task_path,
 
     script_dir = os.path.dirname(script_file)
     os.makedirs(script_dir, exist_ok=True)
+    assert os.path.exists(script_dir), f"Script directory {script_dir} was not created"
+    print(f"Created script directory: {script_dir}")
 
     # Call the function before writing the script file
     with open(script_file, 'w') as f:
         f.write(script_content)
+    assert os.path.exists(script_file), f"Script file {script_file} was not created"
 
     script_file_run = "bash " + script_file
 
@@ -271,7 +286,7 @@ def make_profiles(agent_names, models, apis, template_profile="profiles/collab_p
         with open(f"{agent_names[index]}.json", 'w') as f:
             json.dump(profile, f, indent=4)
 
-def create_server_files(source_path, num_copies):
+def create_server_files(source_path, num_copies, world_name="Forest"):
     """Create multiple copies of server files for parallel experiments."""
     print("Creating server files...")
     print(num_copies)
@@ -280,7 +295,8 @@ def create_server_files(source_path, num_copies):
         dest_path = f"../server_data_{i}/"
         copy_server_files(source_path, dest_path)
         print(dest_path)
-        edit_file(dest_path + "server.properties", {"server-port": 55916 + i})
+        edit_file(dest_path + "server.properties", {"server-port": 55916 + i, 
+                                                    "level-name": world_name})
         # edit_server_properties_file(dest_path, 55916 + i)
         servers.append((dest_path, 55916 + i))
     return servers
@@ -384,19 +400,13 @@ def main():
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
-    parser.add_argument('--template_profile', default="andy.json", help='Model to use for the agents')
+    parser.add_argument('--template_profile', default="profiles/collab_profile.json", help='Model to use for the agents')
     parser.add_argument('--model', default="gpt-4o-mini", help='Model to use for the agents')
     parser.add_argument('--api', default="openai", help='API to use for the agents')
-    # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
-    # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
+    parser.add_argument('--world_name', default="Forest", help='Name of the world')
 
     args = parser.parse_args()
-
-    # if args.wandb:
-    #     import wandb
-    #     wandb.init(project=args.wandb_project, name=args.exp_name)
-
-    # kill all tmux session before starting
+    
     try: 
         subprocess.run(['tmux', 'kill-server'], check=True)
     except: 
@@ -415,17 +425,9 @@ def main():
                                     bucket_name=args.bucket_name, 
                                     template_profile=args.template_profile, 
                                     model=args.model, 
-                                    api=args.api)
-    
-    # servers = create_server_files("../server_data/", args.num_parallel)
-    # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    # experiments_folder = f"{args.exp_name}_{date_time}"
-    # os.makedirs(experiments_folder, exist_ok=True)
-    # for server in servers:
-    #     launch_server_experiment(args.task_path, [args.task_id], args.num_exp, server, experiments_folder)
-    #     time.sleep(5)
-    
-    # run_experiment(args.task_path, args.task_id, args.num_exp)
+                                    api=args.api, 
+                                    world_name=args.world_name)
+        cmd = "aws s3"
 
 if __name__ == "__main__":
     main()

@@ -18,3 +18,4 @@ wandb/
 experiments/
 andy_*.json
 jill_*.json
+src/models/logs/*
