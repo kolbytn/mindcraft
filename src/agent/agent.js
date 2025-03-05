@@ -64,37 +64,6 @@ export class Agent {
                 save_data = this.history.load();
             }
 
-
-            if (this.task) {
-                this.task.loadTask(task_path, task_id);
-                this.taskTimeout = this.task.timeout || 300;
-                this.taskStartTime = Date.now();
-                if (this.task.type === 'harvest' || this.task.type === 'techtree') {
-                    // todo: this validator doesn't exist?
-                    // this.validator = new TechTreeHarvestValidator(this.task, this.bot);
-                }
-                // this.validator = new TechTreeHarvestValidator(this.task, this.bot);
-
-            } else {
-                console.log('called without task')
-                this.task = null;
-                this.taskTimeout = null;
-                this.validator = null;
-            }
-
-            // handle blocked actions
-            if (this.task && "blocked_actions" in this.task) {
-                if ("agent_number" in this.task && this.task.agent_number > 1) {
-                    this.blocked_actions = this.task.blocked_actions[this.name];
-                    console.log(`Blocked actions for ${this.name}:`, this.blocked_actions);
-                } else {
-                    this.blocked_actions = this.task.blocked_actions;
-                    console.log(`Blocked actions:`, this.blocked_actions);
-                }
-            }
-
-            console.log("Is validated:", this.validator && this.validator.validate());
-
             this.bot.on('login', () => {
                 console.log(this.name, 'logged in!');
 
