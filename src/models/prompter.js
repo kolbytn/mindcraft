@@ -339,7 +339,7 @@ export class Prompter {
         let resp = await this.code_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
         return resp;
-git     }
+    }
 
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
