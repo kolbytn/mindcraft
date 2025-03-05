@@ -1,0 +1,5 @@
+{
+    "name": "TogetherAI",
+
+    "model": "together/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"
+}
