@@ -18,8 +18,8 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
-import { hyperbolic } from './hyperbolic.js';
-import { glhf } from './glhf.js';
+import { Hyperbolic } from './hyperbolic.js';
+import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 
 export class Prompter {
@@ -140,6 +140,10 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
+            else if (profile.model.includes("GLHF/")
+                profile.api = 'glhf';
+            else if (profile.model.includes("Hyperbolic/")
+                profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
             else if (profile.model.includes('qwen'))
@@ -149,7 +153,7 @@ export class Prompter {
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
             else 
-                profile.api = 'ollama'; // Assume the model is ollama, even if the user didn't use ollama/
+                throw new Error('Unknown model:', profile.model, 'Did you check the name is correct?'); // Asks the user if the name is correct
         }
         return profile;
     }
@@ -171,6 +175,10 @@ export class Prompter {
             model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
         else if (profile.api === 'huggingface')
             model = new HuggingFace(profile.model, profile.url, profile.params);
+        else if (profile.api === 'glhf')
+            model = new GLHF(profile.model.replace('glhf/', ''), profile.url, profile.params);
+        else if (profile.api === 'hyperbolic')
+            model = new Hyperbolic(profile.model.replace('hyperbolic/', ''), profile.url, profile.params);
         else if (profile.api === 'novita')
             model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
         else if (profile.api === 'qwen')
