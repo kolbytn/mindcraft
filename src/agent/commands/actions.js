@@ -411,19 +411,23 @@ export const actionsList = [
         name: '!lookAtPlayer',
         description: 'Look at a player or look in the same direction as the player.',
         params: {
-            'player_name': {
-                type: 'string',
-                description: 'Name of the target player'
-            },
+            'player_name': { type: 'string', description: 'Name of the target player' },
             'direction': {
                 type: 'string',
                 description: 'How to look ("at": look at the player, "with": look in the same direction as the player)',
-                enum: ['at', 'with']
             }
         },
-        perform: runAsAction(async (agent, player_name, direction) => {
-            await agent.vision_interpreter.lookAtPlayer(player_name, direction);
-        })
+        perform: async function(agent, player_name, direction) {
+            if (direction !== 'at' && direction !== 'with') {
+                return "Invalid direction. Use 'at' or 'with'.";
+            }
+            let result = "";
+            const actionFn = async () => {
+                result = await agent.vision_interpreter.lookAtPlayer(player_name, direction);
+            };
+            await agent.actions.runAction('action:lookAtPlayer', actionFn);
+            return result;
+        }
     },
     {
         name: '!lookAtPosition',
@@ -433,8 +437,13 @@ export const actionsList = [
             'y': { type: 'int', description: 'y coordinate' },
             'z': { type: 'int', description: 'z coordinate' }
         },
-        perform: runAsAction(async (agent, x, y, z) => {
-            await agent.vision_interpreter.lookAtPosition(x, y, z);
-        })
+        perform: async function(agent, x, y, z) {
+            let result = "";
+            const actionFn = async () => {
+                result = await agent.vision_interpreter.lookAtPosition(x, y, z);
+            };
+            await agent.actions.runAction('action:lookAtPosition', actionFn);
+            return result;
+        }
     }
 ];

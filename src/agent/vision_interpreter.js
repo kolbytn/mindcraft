@@ -1,12 +1,8 @@
 import { Vec3 } from 'vec3';
 import { Camera } from "../utils/camera.js";
 import fs from 'fs';
-import { log } from './library/skills.js';
-import * as world from './library/world.js';
 
-const pad = (str) => {
-    return '\n' + str + '\n';
-}
+const RENDER_TIME = 1000;
 
 export class VisionInterpreter {
     constructor(agent, allow_vision) {
@@ -16,89 +12,61 @@ export class VisionInterpreter {
     }
 
     async lookAtPlayer(player_name, direction) {
+        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
+            return "Vision is disabled. Use other methods to describe the environment.";
+        }
+        let result = "";
         const bot = this.agent.bot;
         const player = bot.players[player_name]?.entity;
         if (!player) {
-            log(bot, `Could not find player ${player_name}`);
+            return `Could not find player ${player_name}`;
         }
 
         let filename;
         if (direction === 'with') {
             await bot.look(player.yaw, player.pitch);
             const camera = new Camera(bot, this.fp);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            log(bot, `Looking in the same direction as ${player_name}`);
+            await new Promise(resolve => setTimeout(resolve, RENDER_TIME));
+            result = `Looking in the same direction as ${player_name}\n`;
             filename = await camera.capture();
         } else {
             await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
             const camera = new Camera(bot, this.fp);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            log(bot, `Looking at player ${player_name}`);
+            await new Promise(resolve => setTimeout(resolve, RENDER_TIME));
+            result = `Looking at player ${player_name}\n`;
             filename = await camera.capture();
+
         }
 
-        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
-            log(this.agent.bot, "Vision is disabled. Using text-based environment description instead.");
-            log(this.agent.bot, this._nearbyBlocks());
-        } else {
-            await this.analyzeImage(filename);
-        }
+        return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
     }
 
     async lookAtPosition(x, y, z) {
+        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
+            return "Vision is disabled. Use other methods to describe the environment.";
+        }
+        let result = "";
         const bot = this.agent.bot;
         await bot.lookAt(new Vec3(x, y + 2, z));
         const camera = new Camera(bot, this.fp);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        log(bot, `Looking at coordinate ${x, y, z}`);
+        await new Promise(resolve => setTimeout(resolve, RENDER_TIME));
+        result = `Looking at coordinate ${x, y, z}\n`;
 
         let filename = await camera.capture();
 
-        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
-            log(this.agent.bot, "Vision is disabled. Using text-based environment description instead.");
-            log(this.agent.bot, this._nearbyBlocks());
-        } else {
-            await this.analyzeImage(filename);
-        }
+        return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
     }
 
     async analyzeImage(filename) {
-        let prompt = this.agent.prompter.profile.image_conversing;
-        let res = null;
-
         try {
-            const bot = this.agent.bot;
             const imageBuffer = fs.readFileSync(`${this.fp}/${filename}.jpg`);
             const messages = this.agent.history.getHistory();
-            res = await this.agent.prompter.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
-            
-            if (res == 'Vision is only supported by certain models.') {
-                log(bot, "Vision may not be supported on this model. Using text-based environment description instead.");
-                log(bot, this._nearbyBlocks());
-            } else {
-                log(bot, res);
-            }
+
+            return await this.agent.prompter.promptVision(messages, imageBuffer);
 
         } catch (error) {
-            log(this.agent.bot, `Error analyzing image: ${error.message}`);
+            console.warn('Error reading image:', error);
+            return `Error reading image: ${error.message}`;
         }
-    }
-
-    _nearbyBlocks() {
-        const bot = this.agent.bot;
-        let res = 'NEARBY_BLOCKS';
-        
-        let blocks = world.getNearbyBlockTypes(bot);
-        for (let i = 0; i < blocks.length; i++) {
-            res += `\n- ${blocks[i]}`;
-        }
-        if (blocks.length == 0) {
-            res += ': none';
-        } else {
-            // Environmental Awareness
-            res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
-            res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
-        }        
-        return pad(res);
     }
 } 

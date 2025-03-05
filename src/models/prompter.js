@@ -343,6 +343,13 @@ git     }
         return res.trim().toLowerCase() === 'respond';
     }
 
+    async promptVision(messages, imageBuffer) {
+        await this.checkCooldown();
+        let prompt = this.profile.image_analysis;
+        prompt = await this.replaceStrings(prompt, messages, null, null, null);
+        return await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
+    }
+
     async promptGoalSetting(messages, last_goals) {
         let system_message = this.profile.goal_setting;
         system_message = await this.replaceStrings(system_message, messages);
