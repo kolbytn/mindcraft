@@ -1375,3 +1375,82 @@ export async function activateNearestBlock(bot, type) {
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
     return true;
 }
+
+export async function exitVehicle(bot) {
+    /**
+     * Exit the current vehicle (boat, minecart, horse etc).
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @returns {Promise<boolean>} true if successfully exited vehicle, false if not in a vehicle.
+     * @example
+     * await skills.exitVehicle(bot);
+     **/
+    if (!bot.vehicle) {
+        log(bot, `Not in a vehicle.`);
+        return false;
+    }
+
+    try {
+        await bot.dismount();
+        log(bot, `Successfully exited vehicle.`);
+        return true;
+    } catch (err) {
+        log(bot, `Failed to exit vehicle: ${err}`);
+        return false;
+    }
+}
+
+export async function mountVehicle(bot, vehicleType) {
+    /**
+     * Find and mount the nearest vehicle or mob of the specified type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} vehicleType, the type of vehicle to mount ('boat', 'minecart', 'horse', 'strider', 'pig', etc).
+     * @returns {Promise<boolean>} true if successfully mounted vehicle, false otherwise.
+     * @example
+     * await skills.mountVehicle(bot, "boat");
+     * await skills.mountVehicle(bot, "minecart");
+     * await skills.mountVehicle(bot, "horse");
+     **/
+    let vehicle = world.getNearestEntityWhere(bot, entity => entity.name === vehicleType, 16);
+    if (!vehicle) {
+        log(bot, `Could not find any ${vehicleType}s nearby.`);
+        return false;
+    }
+
+    // Get close to the vehicle
+    if (bot.entity.position.distanceTo(vehicle.position) > 3) {
+        await goToPosition(bot, vehicle.position.x, vehicle.position.y, vehicle.position.z, 2);
+    }
+
+    // Handle saddleable mobs (pig, strider)
+    // TODO(mw2000): We potentially add saddling and adding things to inventory as a seperate action for horses, donkeys etc
+    if ((vehicleType === 'pig' || vehicleType === 'strider') && !vehicle.saddled) {
+        // Check if we have a saddle
+        let hasSaddle = world.getInventoryCounts(bot)['saddle'] > 0;
+        if (!hasSaddle) {
+            log(bot, `Cannot mount ${vehicleType}, no saddle in inventory and ${vehicleType} is not saddled.`);
+            return false;
+        }
+
+        // Place saddle on mob
+        try {
+            await bot.lookAt(vehicle.position);
+            await bot.equip('saddle', 'hand');
+            await bot.activateEntity(vehicle);
+            log(bot, `Placed saddle on ${vehicleType}.`);
+        } catch (err) {
+            log(bot, `Failed to place saddle on ${vehicleType}: ${err}`);
+            return false;
+        }
+    }
+
+    // Look at and mount the vehicle
+    await bot.lookAt(vehicle.position);
+    try {
+        await bot.mount(vehicle);
+        log(bot, `Successfully mounted ${vehicleType}.`);
+        return true;
+    } catch (err) {
+        log(bot, `Failed to mount ${vehicleType}: ${err}`);
+        return false;
+    }
+}
