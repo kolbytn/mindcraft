@@ -1,4 +1,3 @@
-// glhf-no-logger.js
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
 
