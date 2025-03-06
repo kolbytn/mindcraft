@@ -1,0 +1,7 @@
+{
+  
+  "name": "Ollama",
+
+  "model": "ollama/llama3.1"
+
+}
