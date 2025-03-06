@@ -10,11 +10,11 @@ export class Local {
     }
 
     async sendRequest(turns, systemMessage) {
-        let model = this.model_name || 'llama3';
+        let model = this.model_name || 'llama3.1'; // Updated to llama3.1, as it is more performant than llama3
         let messages = strictFormat(turns);
         messages.unshift({ role: 'system', content: systemMessage });
         
-        // We'll attempt up to 5 times for models like "deepseek-r1" if the <think> tags are mismatched.
+        // We'll attempt up to 5 times for models with deepseek-r1-esk reasoning if the <think> tags are mismatched.
         const maxAttempts = 5;
         let attempt = 0;
         let finalRes = null;
