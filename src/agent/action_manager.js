@@ -151,5 +151,4 @@ export class ActionManager {
             await this.stop(); // last attempt to stop
         }, TIMEOUT_MINS * 60 * 1000);
     }
-
 }
