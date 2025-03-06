@@ -39,7 +39,6 @@ export class Gemini {
             model: this.model_name || "gemini-1.5-flash",
             // systemInstruction does not work bc google is trash
         };
-      
         if (this.url) {
             model = this.genAI.getGenerativeModel(
                 modelConfig,
