@@ -1,6 +1,6 @@
 export default 
 {
-    "minecraft_version": "1.20.4", // supports up to 1.21.1
+    "minecraft_version": "1.21.1", // supports up to 1.21.1
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
     "port": process.env.MINECRAFT_PORT || 55916,
     "auth": "offline", // or "microsoft"

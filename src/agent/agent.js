@@ -11,7 +11,7 @@ import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
-import { addViewer } from './viewer.js';
+import { addBrowserViewer } from './vision/browser_viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
 import { Task } from './tasks.js';
@@ -36,8 +36,6 @@ export class Agent {
         this.history = new History(this);
         console.log('Initializing coder...');
         this.coder = new Coder(this);
-        console.log('Initializing vision intepreter...');
-        this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
         console.log('Initializing npc controller...');
         this.npc = new NPCContoller(this);
         console.log('Initializing memory bank...');
@@ -82,7 +80,7 @@ export class Agent {
         this.bot.once('spawn', async () => {
             try {
                 clearTimeout(spawnTimeout);
-                addViewer(this.bot, count_id);
+                addBrowserViewer(this.bot, count_id);
 
                 // wait for a bit so stats are not undefined
                 await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -96,6 +94,9 @@ export class Agent {
                 if (!load_mem) {
                     this.task.initBotTask();
                 }
+
+                console.log('Initializing vision intepreter...');
+                this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
 
             } catch (error) {
                 console.error('Error in spawn event:', error);

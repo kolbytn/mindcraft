@@ -2,13 +2,12 @@ import { Vec3 } from 'vec3';
 import { Camera } from "./camera.js";
 import fs from 'fs';
 
-const RENDER_TIME = 1000;
-
 export class VisionInterpreter {
     constructor(agent, allow_vision) {
         this.agent = agent;
         this.allow_vision = allow_vision;
         this.fp = './bots/'+agent.name+'/screenshots/';
+        this.camera = new Camera(agent.bot, this.fp);
     }
 
     async lookAtPlayer(player_name, direction) {
@@ -25,16 +24,12 @@ export class VisionInterpreter {
         let filename;
         if (direction === 'with') {
             await bot.look(player.yaw, player.pitch);
-            const camera = new Camera(bot, this.fp);
-            await new Promise(resolve => setTimeout(resolve, RENDER_TIME));
             result = `Looking in the same direction as ${player_name}\n`;
-            filename = await camera.capture();
+            filename = await this.camera.capture();
         } else {
             await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
-            const camera = new Camera(bot, this.fp);
-            await new Promise(resolve => setTimeout(resolve, RENDER_TIME));
             result = `Looking at player ${player_name}\n`;
-            filename = await camera.capture();
+            filename = await this.camera.capture();
 
         }
 
@@ -48,11 +43,9 @@ export class VisionInterpreter {
         let result = "";
         const bot = this.agent.bot;
         await bot.lookAt(new Vec3(x, y + 2, z));
-        const camera = new Camera(bot, this.fp);
-        await new Promise(resolve => setTimeout(resolve, RENDER_TIME));
         result = `Looking at coordinate ${x, y, z}\n`;
 
-        let filename = await camera.capture();
+        let filename = await this.camera.capture();
 
         return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
     }
