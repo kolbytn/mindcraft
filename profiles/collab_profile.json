@@ -14,30 +14,26 @@
             {"role": "assistant", "content": "Let me give you the stones and you can craft the pickaxe. !givePlayer(\"stone\", 10, \"playername\")"},
             {"role": "user", "content": "Thanks for the stones! Now I can craft the pickaxe. !craftItem(\"stone_pickaxe\", 1)"}
 
-        ], 
-        [
-            {"role": "user", "content": "Hey! let's collaborate to build shears!"},
-            {"role": "assistant", "content": "Cool, let me check what is in my inventory !inventory\nI have 1 iron ingot. What do you have?"},
-            {"role": "user", "content": "Let me check !inventory \nI have 1 iron ingot. "},
-            {"role": "assistant", "content": "Nice let's check what we need to craft shears. !getCraftingPlan(\"shears\", 1)"},
-            {"role": "user", "content": "We need 2 iron ingots to craft the shears. Could you share your iron ingot with me?"},
-            {"role": "assistant", "content": "Yes, here is my iron ingot !givePlayer(\"iron_ingot\", 1, \"playername\")"},
-            {"role": "user", "content": "Thanks for the iron ingot! Now I can craft the shears. !craftItem(\"shears\", 1)"}
-        ], 
-        [
-            {"role": "user", "content": "Hey! Let's collaborate to build a brush"}, 
-            {"role": "assistant", "content": "Cool, let's check what we need for that !getCraftingPlan(\"brush\", 1)"},
-            {"role": "system", "content": "CRAFTING_PLAN\n- 2 sticks\n- 2 feathers\n- 1 iron ingot"},
-            {"role": "assistant", "content": "We need 2 sticks, 2 feathers, and 1 iron ingot to craft the brush. Do you have any of these items?"},
-            {"role": "user", "content": "Let me check !inventory \nI have 2 sticks and 2 feathers."},
-            {"role": "assistant", "content": "Great! I have 1 iron ingot. Let me give you my iron ingot and you can craft the brush. !givePlayer(\"iron_ingot\", 1, \"playername\")"},
-            {"role": "user", "content": "Thanks for the iron ingot! Now I can craft the brush. !craftItem(\"brush\", 1)"}
         ],
         [
-            {"role": "user", "content": "Hey! Let's collaborate to build a brush"}, 
-            {"role": "assistant", "content": "Cool, let's check what we need for that !getCraftingPlan(\"brush\", 1)"}, 
-            {"role": "system", "content": "no such tool"}, 
-            {"role": "assistant", "content": "I'm sorry, I don't have the crafting plan for a brush. Let me check my inventory to see if I have the items needed. !inventory Do you have access to the crafting plan?"}
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) Lets craft 5 chains together"},
+            {"role": "assistant", "content": "Sure, can you let me know what inventory do you have while I check how to craft chains?"},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) I have 10 iron_nugget and 3 mushroom."},
+            {"role": "assistant", "content": "Thanks for letting me know, let me check how to build a chain, !getCraftingPlan(\"chain\",5)"},
+            {"role": "system", "content": "You are missing the following items:\n- 2 iron_ingot\n\nOnce you have these items, here's your crafting plan:\n\nCraft 2 iron_ingot -> 18 iron_nugget\nCraft 10 iron_nugget + 5 iron_ingot -> 5 chain"},
+            {"role": "assistant", "content": "Seems like we need 2 iron_ingot, but wait, we need the iron_ingot for getting 10 iron_nugget, since you already have 10 iron_nugget, I don't need to search for 2 iron_ingots in the world, could you give me the 10 iron_nugget ?"},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) Sure, here you go !givePlayer(\"iron_nugget\", 10, \"jacob\")"},
+            {"role": "assistant", "content": "Thanks for the iron_nuggets, now I can craft the chains. !craftItem(\"chain\", 5)"}
+        ],
+        [
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) Lets craft a pink_wool together"},
+            {"role": "assistant", "content": "Sure, can you let me what inventory do you have while I check how to craft it?"},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) I have 1 pink_dye with me."},
+            {"role": "assistant", "content": "Thanks for letting me know, let me check how to craft a pink_wool, !getCraftingPlan(\"pink_wool\",1)"},
+            {"role": "system", "content": "You are missing the following items:\n- 1 peony\n\nOnce you have these items, here's your crafting plan:\n\nCraft 1 peony -> 2 pink_dye\nCraft 1 pink_dye + 1 black_wool -> 1 pink_wool"},
+            {"role": "assistant", "content": "Seems like we need are missing 1 peony which we can use craft 1 pink_dye which is an intermediate item, but since you already have a pink_dye, there is no need to search for peony which is used to craft pink_dye, can you pass the pink_dye to me?"},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) Sure, here you go !givePlayer(\"pink_dye\", 1, \"jacob\")"},
+            {"role": "assistant", "content": "Thanks for the pink_dye, now I can craft the pink_wool. !craftItem(\"pink_wool\", 1)"}
         ],
         [
             {"role": "user", "content": "miner_32: Hey! What are you up to?"},
