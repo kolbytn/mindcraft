@@ -144,6 +144,8 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
+	    else if (profile.model.includes('mistral'))
+                profile.api = 'mistral';
             else if (profile.model.includes('llama3'))
                 profile.api = 'ollama';
             else 
