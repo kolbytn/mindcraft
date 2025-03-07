@@ -1,9 +1,40 @@
 {
-  "multiagent_cooking_1_cooked_porkchop": {
-    "conversation": "Let's work together to make cooked_porkchop.",
+  "multiagent_cooking_1_golden_apple_blocked_access_0": {
+    "conversation": "Let's work together to make golden_apple.",
     "agent_count": 2,
     "target": {
-      "cooked_porkchop": 1
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 golden_apple. ",
+      "1": "Collaborate with agents around you to make 1 golden_apple. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 2,
+      "blocked_agents_count": 1,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_cooked_porkchop": {
+    "conversation": "Let's collaborate to make cooked_porkchop and cooked_chicken.",
+    "agent_count": 2,
+    "target": {
+      "cooked_porkchop": 1,
+      "cooked_chicken": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -11,123 +42,72 @@
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
         "Step 2: Go to furnace and use it to cook the porkchop."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_porkchop",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_1_cooked_chicken": {
-    "conversation": "Let's work together to make cooked_chicken.",
-    "agent_count": 2,
-    "target": {
-      "cooked_chicken": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
+      ],
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
         "Step 2: Go to furnace and use it to cook the raw chicken."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_chicken",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_1_cooked_rabbit_blocked_access_andy": {
-    "conversation": "Let's work together to make cooked_rabbit.",
-    "agent_count": 2,
-    "target": {
-      "cooked_rabbit": 1
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_porkchop, 1 cooked_chicken. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+      "1": "Collaborate with agents around you to make 1 cooked_porkchop, 1 cooked_chicken. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken."
     },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_rabbit": [
-        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw rabbit."
-      ]
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 0,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
     },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_rabbit",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_1_golden_carrot": {
-    "conversation": "Let's work together to make golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 golden_carrot",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_1_golden_carrot_blocked_access_randy": {
-    "conversation": "Let's work together to make golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 golden_carrot",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_1_cooked_chicken_blocked_access_randy": {
-    "conversation": "Let's work together to make cooked_chicken.",
-    "agent_count": 2,
-    "target": {
-      "cooked_chicken": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_chicken": [
-        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw chicken."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_chicken",
     "difficulty": "easy"
   },
   "multiagent_cooking_1_cooked_chicken_1_cooked_rabbit": {
-    "conversation": "Let's collaborate to make cooked_chicken and cooked_rabbit.",
+    "conversation": "Let's collaborate to make cooked_rabbit and cooked_chicken.",
     "agent_count": 2,
     "target": {
-      "cooked_chicken": 1,
+      "cooked_rabbit": 1,
+      "cooked_chicken": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_chicken. \n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+      "1": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_chicken. \n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 0,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
+    "difficulty": "easy"
+  },
+  "multiagent_cooking_1_cooked_rabbit_1_golden_apple": {
+    "conversation": "Let's collaborate to make golden_apple and cooked_rabbit.",
+    "agent_count": 2,
+    "target": {
+      "golden_apple": 1,
       "cooked_rabbit": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_chicken": [
-        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw chicken."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ],
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -135,15 +115,25 @@
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_chicken, 1 cooked_rabbit",
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.",
+      "1": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 0,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
     "difficulty": "easy"
   },
-  "multiagent_cooking_1_cooked_chicken_1_cooked_mutton": {
-    "conversation": "Let's collaborate to make cooked_chicken and cooked_mutton.",
+  "multiagent_cooking_1_cooked_chicken_1_golden_apple": {
+    "conversation": "Let's collaborate to make cooked_chicken and golden_apple.",
     "agent_count": 2,
     "target": {
       "cooked_chicken": 1,
-      "cooked_mutton": 1
+      "golden_apple": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -152,13 +142,23 @@
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
         "Step 2: Go to furnace and use it to cook the raw chicken."
       ],
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_chicken, 1 cooked_mutton",
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 golden_apple. \n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+      "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 golden_apple. \n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 0,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
     "difficulty": "easy"
   },
   "multiagent_cooking_1_cooked_porkchop_1_cooked_rabbit": {
@@ -181,35 +181,24 @@
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_rabbit, 1 cooked_porkchop",
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_porkchop. \n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.",
+      "1": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_porkchop. \n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 0,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
     "difficulty": "easy"
   },
-  "multiagent_cooking_1_cooked_mutton_blocked_access_randy": {
-    "conversation": "Let's work together to make cooked_mutton.",
+  "multiagent_cooking_1_cooked_porkchop": {
+    "conversation": "Let's work together to make cooked_porkchop.",
     "agent_count": 2,
     "target": {
-      "cooked_mutton": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_mutton",
-    "difficulty": "easy"
-  },
-  "multiagent_cooking_1_cooked_porkchop_1_suspicious_stew_blocked_access_randy": {
-    "conversation": "Let's collaborate to make cooked_porkchop and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "cooked_porkchop": 1,
-      "suspicious_stew": 1
+      "cooked_porkchop": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -217,169 +206,55 @@
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
         "Step 2: Go to furnace and use it to cook the porkchop."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_porkchop, 1 suspicious_stew",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_blocked_access_andy": {
-    "conversation": "Let's collaborate to make golden_carrot and cooked_mutton.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1,
-      "cooked_mutton": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ],
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_mutton",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_1_cooked_rabbit_1_golden_carrot": {
-    "conversation": "Let's collaborate to make golden_carrot and cooked_rabbit.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1,
-      "cooked_rabbit": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ],
-      "cooked_rabbit": [
-        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw rabbit."
       ]
     },
     "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_rabbit",
-    "difficulty": "medium"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_porkchop. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.",
+      "1": "Collaborate with agents around you to make 1 cooked_porkchop. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 2,
+      "blocked_agents_count": 0,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 2,
+      "difficulty_category": "easy"
+    },
+    "difficulty": "easy"
   },
-  "multiagent_cooking_1_cooked_rabbit_1_golden_carrot_blocked_access_randy": {
-    "conversation": "Let's collaborate to make cooked_rabbit and golden_carrot.",
+  "multiagent_cooking_1_cake_blocked_access_0": {
+    "conversation": "Let's work together to make cake.",
     "agent_count": 2,
     "target": {
-      "cooked_rabbit": 1,
-      "golden_carrot": 1
+      "cake": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_rabbit": [
-        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw rabbit."
-      ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
       ]
     },
     "blocked_access_to_recipe": [
-      "randy"
+      "0"
     ],
-    "goal": "Collaborate to make 1 cooked_rabbit, 1 golden_carrot",
-    "difficulty": "medium"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cake. ",
+      "1": "Collaborate with agents around you to make 1 cake. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.\nStep 2: Go to the chest and grab a milk bucket.\nStep 3: Go to the crafting table and craft the sugarcane into sugar.\nStep 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 1,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
+    "difficulty": "easy"
   },
-  "multiagent_cooking_1_golden_carrot_blocked_access_andy_randy": {
-    "conversation": "Let's work together to make golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 golden_carrot",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_1_cooked_chicken_1_golden_carrot": {
-    "conversation": "Let's collaborate to make cooked_chicken and golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "cooked_chicken": 1,
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_chicken": [
-        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw chicken."
-      ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ]
-    },
-    "blocked_access_to_recipe": [],
-    "goal": "Collaborate to make 1 cooked_chicken, 1 golden_carrot",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_blocked_access_randy": {
-    "conversation": "Let's collaborate to make cooked_mutton and golden_carrot.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1,
-      "golden_carrot": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 golden_carrot",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_1_cooked_porkchop_blocked_access_andy_randy": {
+  "multiagent_cooking_1_cooked_porkchop_blocked_access_1": {
     "conversation": "Let's work together to make cooked_porkchop.",
     "agent_count": 2,
     "target": {
@@ -394,108 +269,62 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "1"
     ],
-    "goal": "Collaborate to make 1 cooked_porkchop",
-    "difficulty": "medium"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_porkchop. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.",
+      "1": "Collaborate with agents around you to make 1 cooked_porkchop. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 2,
+      "blocked_agents_count": 1,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 3,
+      "difficulty_category": "easy"
+    },
+    "difficulty": "easy"
   },
-  "multiagent_cooking_1_cooked_chicken_1_suspicious_stew_blocked_access_andy": {
-    "conversation": "Let's collaborate to make cooked_chicken and suspicious_stew.",
+  "multiagent_cooking_1_golden_apple": {
+    "conversation": "Let's work together to make golden_apple.",
     "agent_count": 2,
     "target": {
-      "cooked_chicken": 1,
-      "suspicious_stew": 1
+      "golden_apple": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_chicken": [
-        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw chicken."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ]
     },
-    "blocked_access_to_recipe": [
-      "andy"
-    ],
-    "goal": "Collaborate to make 1 cooked_chicken, 1 suspicious_stew",
-    "difficulty": "medium"
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 golden_apple. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+      "1": "Collaborate with agents around you to make 1 golden_apple. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 2,
+      "blocked_agents_count": 0,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 2,
+      "difficulty_category": "easy"
+    },
+    "difficulty": "easy"
   },
-  "multiagent_cooking_1_cooked_chicken_1_suspicious_stew_blocked_access_randy": {
-    "conversation": "Let's collaborate to make cooked_chicken and suspicious_stew.",
+  "multiagent_cooking_1_cooked_chicken_1_golden_apple_blocked_access_1": {
+    "conversation": "Let's collaborate to make golden_apple and cooked_chicken.",
     "agent_count": 2,
     "target": {
-      "cooked_chicken": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_chicken": [
-        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw chicken."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_chicken, 1 suspicious_stew",
-    "difficulty": "medium"
-  },
-  "multiagent_cooking_1_cooked_mutton_1_suspicious_stew_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make cooked_mutton and suspicious_stew.",
-    "agent_count": 2,
-    "target": {
-      "cooked_mutton": 1,
-      "suspicious_stew": 1
-    },
-    "type": "cooking",
-    "timeout": 300,
-    "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
-      ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ]
-    },
-    "blocked_access_to_recipe": [
-      "andy",
-      "randy"
-    ],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 suspicious_stew",
-    "difficulty": "hard"
-  },
-  "multiagent_cooking_1_cooked_chicken_1_golden_carrot_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make golden_carrot and cooked_chicken.",
-    "agent_count": 2,
-    "target": {
-      "golden_carrot": 1,
+      "golden_apple": 1,
       "cooked_chicken": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ],
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -503,54 +332,138 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "1"
     ],
-    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_chicken",
-    "difficulty": "hard"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_chicken. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+      "1": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_chicken. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
   },
-  "multiagent_cooking_1_cooked_rabbit_1_suspicious_stew_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make suspicious_stew and cooked_rabbit.",
+  "multiagent_cooking_1_rabbit_stew_blocked_access_0": {
+    "conversation": "Let's work together to make rabbit_stew.",
     "agent_count": 2,
     "target": {
-      "suspicious_stew": 1,
-      "cooked_rabbit": 1
+      "rabbit_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
-      ],
-      "cooked_rabbit": [
-        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "0"
     ],
-    "goal": "Collaborate to make 1 suspicious_stew, 1 cooked_rabbit",
-    "difficulty": "hard"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 rabbit_stew. ",
+      "1": "Collaborate with agents around you to make 1 rabbit_stew. \n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab oak_planks.\nStep 4: Go to the crafting table and make a bowl using the oak_planks.\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "blocked_agents_count": 1,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
   },
-  "multiagent_cooking_1_cooked_porkchop_1_golden_carrot_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make golden_carrot and cooked_porkchop.",
+  "multiagent_cooking_1_cooked_chicken_1_cooked_rabbit_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make cooked_rabbit and cooked_chicken.",
     "agent_count": 2,
     "target": {
-      "golden_carrot": 1,
+      "cooked_rabbit": 1,
+      "cooked_chicken": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_chicken. ",
+      "1": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_chicken. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_blocked_access_0_1": {
+    "conversation": "Let's work together to make cake.",
+    "agent_count": 2,
+    "target": {
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cake. ",
+      "1": "Collaborate with agents around you to make 1 cake. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 2,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_cooked_porkchop_blocked_access_1": {
+    "conversation": "Let's collaborate to make cooked_chicken and cooked_porkchop.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
       "cooked_porkchop": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
       ],
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -558,55 +471,105 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "1"
     ],
-    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_porkchop",
-    "difficulty": "hard"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 cooked_porkchop. \n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.",
+      "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 cooked_porkchop. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
   },
-  "multiagent_cooking_1_golden_carrot_1_suspicious_stew_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make suspicious_stew and golden_carrot.",
+  "multiagent_cooking_1_cake_1_cooked_chicken": {
+    "conversation": "Let's collaborate to make cooked_chicken and cake.",
     "agent_count": 2,
     "target": {
-      "suspicious_stew": 1,
-      "golden_carrot": 1
+      "cooked_chicken": 1,
+      "cake": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
       ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 cake. \n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.\nStep 2: Go to the chest and grab a milk bucket.\nStep 3: Go to the crafting table and craft the sugarcane into sugar.\nStep 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.",
+      "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 cake. \n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.\nStep 2: Go to the chest and grab a milk bucket.\nStep 3: Go to the crafting table and craft the sugarcane into sugar.\nStep 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "blocked_agents_count": 0,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_porkchop_1_cooked_rabbit_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make cooked_rabbit and cooked_porkchop.",
+    "agent_count": 2,
+    "target": {
+      "cooked_rabbit": 1,
+      "cooked_porkchop": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "0",
+      "1"
     ],
-    "goal": "Collaborate to make 1 suspicious_stew, 1 golden_carrot",
-    "difficulty": "hard"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_porkchop. ",
+      "1": "Collaborate with agents around you to make 1 cooked_rabbit, 1 cooked_porkchop. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
   },
-  "multiagent_cooking_1_cooked_rabbit_1_golden_carrot_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make golden_carrot and cooked_rabbit.",
+  "multiagent_cooking_1_cooked_rabbit_1_golden_apple_blocked_access_1": {
+    "conversation": "Let's collaborate to make golden_apple and cooked_rabbit.",
     "agent_count": 2,
     "target": {
-      "golden_carrot": 1,
+      "golden_apple": 1,
       "cooked_rabbit": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
       ],
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -614,27 +577,67 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "1"
     ],
-    "goal": "Collaborate to make 1 golden_carrot, 1 cooked_rabbit",
-    "difficulty": "hard"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.",
+      "1": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
   },
-  "multiagent_cooking_1_cooked_chicken_1_suspicious_stew_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make suspicious_stew and cooked_chicken.",
+  "multiagent_cooking_1_cooked_porkchop_blocked_access_0_1": {
+    "conversation": "Let's work together to make cooked_porkchop.",
     "agent_count": 2,
     "target": {
-      "suspicious_stew": 1,
+      "cooked_porkchop": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_porkchop. ",
+      "1": "Collaborate with agents around you to make 1 cooked_porkchop. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 2,
+      "blocked_agents_count": 2,
+      "unique_target_items": 1,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_1_cooked_chicken_blocked_access_0": {
+    "conversation": "Let's collaborate to make cake and cooked_chicken.",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
       "cooked_chicken": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
       ],
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -642,45 +645,232 @@
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "0"
     ],
-    "goal": "Collaborate to make 1 suspicious_stew, 1 cooked_chicken",
-    "difficulty": "hard"
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cake, 1 cooked_chicken. ",
+      "1": "Collaborate with agents around you to make 1 cake, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.\nStep 2: Go to the chest and grab a milk bucket.\nStep 3: Go to the crafting table and craft the sugarcane into sugar.\nStep 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
   },
-  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make cooked_mutton and golden_carrot.",
+  "multiagent_cooking_1_cooked_chicken_1_rabbit_stew_blocked_access_0": {
+    "conversation": "Let's collaborate to make cooked_chicken and rabbit_stew.",
     "agent_count": 2,
     "target": {
-      "cooked_mutton": 1,
-      "golden_carrot": 1
+      "cooked_chicken": 1,
+      "rabbit_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
     "recipes": {
-      "cooked_mutton": [
-        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
-        "Step 2: Go to furnace and use it to cook the mutton."
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
       ],
-      "golden_carrot": [
-        "Step 1: Go to the farm and collect 1 carrot.",
-        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
-        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "0"
     ],
-    "goal": "Collaborate to make 1 cooked_mutton, 1 golden_carrot",
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 rabbit_stew. ",
+      "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 rabbit_stew. \n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab oak_planks.\nStep 4: Go to the crafting table and make a bowl using the oak_planks.\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
     "difficulty": "hard"
   },
-  "multiagent_cooking_1_cooked_porkchop_1_suspicious_stew_blocked_access_andy_randy": {
-    "conversation": "Let's collaborate to make cooked_porkchop and suspicious_stew.",
+  "multiagent_cooking_1_cooked_rabbit_1_rabbit_stew_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make rabbit_stew and cooked_rabbit.",
+    "agent_count": 2,
+    "target": {
+      "rabbit_stew": 1,
+      "cooked_rabbit": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 rabbit_stew, 1 cooked_rabbit. ",
+      "1": "Collaborate with agents around you to make 1 rabbit_stew, 1 cooked_rabbit. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 7,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_rabbit_stew_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make cooked_chicken and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 rabbit_stew. ",
+      "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 rabbit_stew. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 7,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cake_1_rabbit_stew_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make rabbit_stew and cake.",
+    "agent_count": 2,
+    "target": {
+      "rabbit_stew": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 rabbit_stew, 1 cake. ",
+      "1": "Collaborate with agents around you to make 1 rabbit_stew, 1 cake. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 11,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 7,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_chicken_1_rabbit_stew_blocked_access_1": {
+    "conversation": "Let's collaborate to make rabbit_stew and cooked_chicken.",
+    "agent_count": 2,
+    "target": {
+      "rabbit_stew": 1,
+      "cooked_chicken": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 rabbit_stew, 1 cooked_chicken. \n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab oak_planks.\nStep 4: Go to the crafting table and make a bowl using the oak_planks.\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+      "1": "Collaborate with agents around you to make 1 rabbit_stew, 1 cooked_chicken. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_porkchop_1_rabbit_stew_blocked_access_0": {
+    "conversation": "Let's collaborate to make cooked_porkchop and rabbit_stew.",
     "agent_count": 2,
     "target": {
       "cooked_porkchop": 1,
-      "suspicious_stew": 1
+      "rabbit_stew": 1
     },
     "type": "cooking",
     "timeout": 300,
@@ -689,18 +879,186 @@
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
         "Step 2: Go to furnace and use it to cook the porkchop."
       ],
-      "suspicious_stew": [
-        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom, and 1 dandelion.",
-        "Step 2: Go to the chest and grab oak_planks.",
-        "Step 3: Go to the crafting table and make a bowl using the oak_planks.",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
       ]
     },
     "blocked_access_to_recipe": [
-      "andy",
-      "randy"
+      "0"
     ],
-    "goal": "Collaborate to make 1 cooked_porkchop, 1 suspicious_stew",
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_porkchop, 1 rabbit_stew. ",
+      "1": "Collaborate with agents around you to make 1 cooked_porkchop, 1 rabbit_stew. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab oak_planks.\nStep 4: Go to the crafting table and make a bowl using the oak_planks.\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_golden_apple_1_rabbit_stew_blocked_access_1": {
+    "conversation": "Let's collaborate to make rabbit_stew and golden_apple.",
+    "agent_count": 2,
+    "target": {
+      "rabbit_stew": 1,
+      "golden_apple": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 rabbit_stew, 1 golden_apple. \n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab oak_planks.\nStep 4: Go to the crafting table and make a bowl using the oak_planks.\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+      "1": "Collaborate with agents around you to make 1 rabbit_stew, 1 golden_apple. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cake_1_cooked_chicken_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make cooked_chicken and cake.",
+    "agent_count": 2,
+    "target": {
+      "cooked_chicken": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Go to furnace and use it to cook the raw chicken."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 cake. ",
+      "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 cake. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cooked_porkchop_1_rabbit_stew_blocked_access_1": {
+    "conversation": "Let's collaborate to make cooked_porkchop and rabbit_stew.",
+    "agent_count": 2,
+    "target": {
+      "cooked_porkchop": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab oak_planks.",
+        "Step 4: Go to the crafting table and make a bowl using the oak_planks.",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cooked_porkchop, 1 rabbit_stew. \n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom.\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab oak_planks.\nStep 4: Go to the crafting table and make a bowl using the oak_planks.\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.",
+      "1": "Collaborate with agents around you to make 1 cooked_porkchop, 1 rabbit_stew. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 9,
+      "blocked_agents_count": 1,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
+    "difficulty": "hard"
+  },
+  "multiagent_cooking_1_cake_1_cooked_porkchop_blocked_access_0_1": {
+    "conversation": "Let's collaborate to make cake and cooked_porkchop.",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "cooked_porkchop": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane, and 1 egg.",
+        "Step 2: Go to the chest and grab a milk bucket.",
+        "Step 3: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 4: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [
+      "0",
+      "1"
+    ],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 cake, 1 cooked_porkchop. ",
+      "1": "Collaborate with agents around you to make 1 cake, 1 cooked_porkchop. "
+    },
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "blocked_agents_count": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 6,
+      "difficulty_category": "hard"
+    },
     "difficulty": "hard"
   }
 }
