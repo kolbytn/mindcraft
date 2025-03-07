@@ -46,7 +46,7 @@ export class Agent {
         await this.prompter.initExamples();
         console.log('Initializing task...');
         this.task = new Task(this, task_path, task_id);
-        const blocked_actions = this.task.blocked_actions || [];
+        const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(blocked_actions);
 
         serverProxy.connect(this);
