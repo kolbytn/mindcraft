@@ -323,6 +323,7 @@ export class Blueprint {
  * @param carpetStyle 0,1,2 increasingly more complex
  * @param windowStyle 0,1,2 increasingly more complex
  * @param complexity 0,1,2,3,4 for increasingly complex materials for room generation
+ * @param startCoord an array of the x,y,z coordinates to create the blueprint. default = [148,-60,-170]
  * @returns a blueprint object
  */
 export function proceduralGeneration(m = 20,
@@ -336,7 +337,8 @@ export function proceduralGeneration(m = 20,
                                      wrapping = "air",
                                      carpetStyle = 1,
                                      windowStyle = 1,
-                                     complexity = 4) {
+                                     complexity = 4,
+                                     startCoord = [148,-60,-170]) {
     // Build 3D space
     const matrix = Array.from({length: p}, () =>
         Array.from({length: m}, () =>
@@ -915,7 +917,7 @@ export function proceduralGeneration(m = 20,
     // uncomment to visualize blueprint output
     // printMatrix(matrix)
 
-    return matrixToBlueprint(matrix, [148,-60,-170])
+    return matrixToBlueprint(matrix, startCoord)
 }
 
 
