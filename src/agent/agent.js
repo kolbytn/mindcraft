@@ -63,9 +63,9 @@ export class Agent {
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');
-
+          
             serverProxy.login();
-
+            
             // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
             if (this.prompter.profile.skin)
                 this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
@@ -80,23 +80,23 @@ export class Agent {
             try {
                 clearTimeout(spawnTimeout);
                 addViewer(this.bot, count_id);
-
+              
                 // wait for a bit so stats are not undefined
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 
                 console.log(`${this.name} spawned.`);
                 this.clearBotLogs();
-                
+              
                 this._setupEventHandlers(save_data, init_message);
                 this.startEvents();
-
+              
                 if (!load_mem) {
                     this.task.initBotTask();
                 }
 
                 await new Promise((resolve) => setTimeout(resolve, 10000));
                 this.checkAllPlayersPresent();
-
+              
             } catch (error) {
                 console.error('Error in spawn event:', error);
                 process.exit(0);

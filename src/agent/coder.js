@@ -39,7 +39,7 @@ export class Coder {
         // check function exists
         const missingSkills = skills.filter(skill => !!allDocs[skill]);
         if (missingSkills.length > 0) {
-            result += 'These functions do not exist. Please modify the correct function name and try again.\n';
+            result += 'These functions do not exist.\n';
             result += '### FUNCTIONS NOT FOUND ###\n';
             result += missingSkills.join('\n');
             console.log(result)
@@ -177,12 +177,14 @@ export class Coder {
                 }
                 
                 if (failures >= 3) {
+                    console.warn("Action failed, agent would not write code.");
                     return { success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false };
                 }
                 messages.push({
                     role: 'system', 
                     content: 'Error: no code provided. Write code in codeblock in your response. ``` // example ```'}
                 );
+                console.warn("No code block generated.");
                 failures++;
                 continue;
             }
@@ -192,12 +194,14 @@ export class Coder {
             let src_lint_copy = result.src_lint_copy;
             const analysisResult = await this.lintCode(src_lint_copy);
             if (analysisResult) {
-                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n';
+                const message = 'Error: Code lint error:'+'\n'+analysisResult+'\nPlease try again.';
+                console.warn("Linting error:"+'\n'+analysisResult+'\n');
                 messages.push({ role: 'system', content: message });
                 continue;
             }
             if (!executionModuleExports) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
+                console.warn("Failed to stage code, something is wrong.");
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
             
