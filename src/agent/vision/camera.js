@@ -17,7 +17,7 @@ export class Camera extends EventEmitter {
         super();
         this.bot = bot;
         this.fp = fp;
-        this.viewDistance = 4;
+        this.viewDistance = 12;
         this.width = 800;
         this.height = 512;
         this.canvas = createCanvas(this.width, this.height);
@@ -43,6 +43,7 @@ export class Camera extends EventEmitter {
     async capture() {
         const center = new Vec3(this.bot.entity.position.x, this.bot.entity.position.y+this.bot.entity.height, this.bot.entity.position.z);
         this.viewer.camera.position.set(center.x, center.y, center.z);
+        await this.worldView.updatePosition(center);
         this.viewer.setFirstPersonCamera(this.bot.entity.position, this.bot.entity.yaw, this.bot.entity.pitch);
         this.viewer.update();
         this.renderer.render(this.viewer.scene, this.viewer.camera);
