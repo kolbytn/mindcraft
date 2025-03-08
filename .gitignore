@@ -20,3 +20,4 @@ andy_*.json
 jill_*.json
 src/models/logs/*
 server_data*
+results/*
