@@ -3,7 +3,7 @@ import { Coder } from './coder.js';
 import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
@@ -13,13 +13,10 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-// import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
-import {getPosition} from './library/world.js'
 import { Task } from './tasks.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
-
         this.last_sender = null;
         this.count_id = count_id;
         try {
@@ -50,7 +47,8 @@ export class Agent {
             await this.prompter.initExamples();
             console.log('Initializing task...');
             this.task = new Task(this, task_path, task_id);
-            this.blocked_actions = this.task.blocked_actions || [];
+            const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
+            blacklistCommands(blocked_actions);
 
             serverProxy.connect(this);
 
