@@ -151,6 +151,8 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
+	          else if (profile.model.includes('mistral'))
+                profile.api = 'mistral';
             else 
                 throw new Error('Unknown model:', profile.model, 'Did you check the name is correct?'); // Asks the user if the name is correct
         }
