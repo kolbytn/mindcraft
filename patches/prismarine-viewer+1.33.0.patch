@@ -1,0 +1,13 @@
+diff --git a/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js b/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js
+index 8945452..dab25be 100644
+--- a/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js
++++ b/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js
+@@ -203,7 +203,7 @@ function getMesh (texture, jsonModel) {
+ class Entity {
+   constructor (version, type, scene) {
+     const e = entities[type]
+-    if (!e) throw new Error(`Unknown entity ${type}`)
++    if (!e) return; //throw new Error(`Unknown entity ${type}`)
+ 
+     this.mesh = new THREE.Object3D()
+     for (const [name, jsonModel] of Object.entries(e.geometry)) {

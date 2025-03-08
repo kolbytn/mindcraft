@@ -69,13 +69,34 @@ export class GroqCloudAPI {
         }
 
         catch(err) {
-
+            if (err.message.includes("content must be a string")) {
+                res = "Vision is only supported by certain models.";
+            } else {
+                console.log(this.model_name);
+                res = "My brain disconnected, try again.";
+            }
             console.log(err);
-            res = "My brain just kinda stopped working. Try again.";
-
         }
 
         return res;
+    }
+
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = messages.filter(message => message.role !== 'system');
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages);
     }
 
     async embed(_) {

@@ -26,7 +26,7 @@ export class Claude {
                     this.params.max_tokens = this.params.thinking.budget_tokens + 1000;
                     // max_tokens must be greater than thinking.budget_tokens
                 } else {
-                    this.params.max_tokens = 16000;
+                    this.params.max_tokens = 4096;
                 }
             }
             const resp = await this.anthropic.messages.create({
@@ -47,16 +47,40 @@ export class Claude {
             }
         }
         catch (err) {
+            if (err.message.includes("does not support image input")) {
+                res = "Vision is only supported by certain models.";
+            } else {
+                res = "My brain disconnected, try again.";
+            }
             console.log(err);
-            res = 'My brain disconnected, try again.';
         }
         return res;
+    }
+
+    async sendVisionRequest(turns, systemMessage, imageBuffer) {
+        const imageMessages = [...turns];
+        imageMessages.push({
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: systemMessage
+                },
+                {
+                    type: "image",
+                    source: {
+                        type: "base64",
+                        media_type: "image/jpeg",
+                        data: imageBuffer.toString('base64')
+                    }
+                }
+            ]
+        });
+
+        return this.sendRequest(imageMessages, systemMessage);
     }
 
     async embed(text) {
         throw new Error('Embeddings are not supported by Claude.');
     }
 }
-
-
-
