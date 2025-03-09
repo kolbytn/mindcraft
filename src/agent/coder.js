@@ -35,11 +35,11 @@ export class Coder {
         while ((match = skillRegex.exec(code)) !== null) {
             skills.push(match[1]);
         }
-        const allDocs = await this.agent.prompter.skill_libary.getRelevantSkillDocs();
-        //lint if the function exists
-        const missingSkills = skills.filter(skill => !allDocs.includes(skill));
+        const allDocs = await this.agent.prompter.skill_libary.getAllSkillDocs();
+        // check function exists
+        const missingSkills = skills.filter(skill => !!allDocs[skill]);
         if (missingSkills.length > 0) {
-            result += 'These functions do not exist. Please modify the correct function name and try again.\n';
+            result += 'These functions do not exist.\n';
             result += '### FUNCTIONS NOT FOUND ###\n';
             result += missingSkills.join('\n');
             console.log(result)
@@ -163,7 +163,6 @@ export class Coder {
         for (let i=0; i<5; i++) {
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
-            console.log(messages)
             let res = await this.agent.prompter.promptCoding(JSON.parse(JSON.stringify(messages)));
             if (this.agent.bot.interrupt_code)
                 return interrupt_return;
@@ -178,12 +177,14 @@ export class Coder {
                 }
                 
                 if (failures >= 3) {
+                    console.warn("Action failed, agent would not write code.");
                     return { success: false, message: 'Action failed, agent would not write code.', interrupted: false, timedout: false };
                 }
                 messages.push({
                     role: 'system', 
                     content: 'Error: no code provided. Write code in codeblock in your response. ``` // example ```'}
                 );
+                console.warn("No code block generated.");
                 failures++;
                 continue;
             }
@@ -193,12 +194,14 @@ export class Coder {
             let src_lint_copy = result.src_lint_copy;
             const analysisResult = await this.lintCode(src_lint_copy);
             if (analysisResult) {
-                const message = 'Error: Code syntax error. Please try again:'+'\n'+analysisResult+'\n';
+                const message = 'Error: Code lint error:'+'\n'+analysisResult+'\nPlease try again.';
+                console.warn("Linting error:"+'\n'+analysisResult+'\n');
                 messages.push({ role: 'system', content: message });
                 continue;
             }
             if (!executionModuleExports) {
                 agent_history.add('system', 'Failed to stage code, something is wrong.');
+                console.warn("Failed to stage code, something is wrong.");
                 return {success: false, message: null, interrupted: false, timedout: false};
             }
             

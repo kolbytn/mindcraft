@@ -1,7 +1,6 @@
 import { readFileSync, mkdirSync, writeFileSync} from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from '../agent/commands/index.js';
-import { getSkillDocs } from '../agent/library/index.js';
 import { SkillLibrary } from "../agent/library/skill_library.js";
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
@@ -19,6 +18,7 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
+import { OpenRouter } from './openrouter.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -90,14 +90,19 @@ export class Prompter {
                 this.embedding_model = new Qwen(embedding.model, embedding.url);
             else if (embedding.api === 'mistral')
                 this.embedding_model = new Mistral(embedding.model, embedding.url);
+            else if (embedding.api === 'huggingface')
+                this.embedding_model = new HuggingFace(embedding.model, embedding.url);
+            else if (embedding.api === 'novita')
+                this.embedding_model = new Novita(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
-                console.log('Unknown embedding: ', embedding ? embedding.api : '[NOT SPECIFIED]', '. Using word overlap.');
+                let embedding_name = embedding ? embedding.api : '[NOT SPECIFIED]'
+                console.warn('Unsupported embedding: ' + embedding_name + '. Using word-overlap instead, expect reduced performance. Recommend using a supported embedding model. See Readme.');
             }
         }
         catch (err) {
-            console.log('Warning: Failed to initialize embedding model:', err.message);
-            console.log('Continuing anyway, using word overlap instead.');
+            console.warn('Warning: Failed to initialize embedding model:', err.message);
+            console.log('Continuing anyway, using word-overlap instead.');
             this.embedding_model = null;
         }
         this.skill_libary = new SkillLibrary(agent, this.embedding_model);
@@ -117,6 +122,8 @@ export class Prompter {
         if (!profile.api) {
             if (profile.model.includes('gemini'))
                 profile.api = 'google';
+            else if (profile.model.includes('openrouter/'))
+                profile.api = 'openrouter'; // must do before others bc shares model names
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
@@ -137,8 +144,12 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-            else
-            profile.api = 'ollama';
+	    else if (profile.model.includes('mistral'))
+                profile.api = 'mistral';
+            else if (profile.model.includes('llama3'))
+                profile.api = 'ollama';
+            else 
+                throw new Error('Unknown model:', profile.model);
         }
         return profile;
     }
@@ -152,7 +163,7 @@ export class Prompter {
         else if (profile.api === 'anthropic')
             model = new Claude(profile.model, profile.url, profile.params);
         else if (profile.api === 'replicate')
-            model = new ReplicateAPI(profile.model, profile.url, profile.params);
+            model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
         else if (profile.api === 'ollama')
             model = new Local(profile.model, profile.url, profile.params);
         else if (profile.api === 'mistral')
@@ -169,6 +180,8 @@ export class Prompter {
             model = new Grok(profile.model, profile.url, profile.params);
         else if (profile.api === 'deepseek')
             model = new DeepSeek(profile.model, profile.url, profile.params);
+        else if (profile.api === 'openrouter')
+            model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
@@ -192,12 +205,18 @@ export class Prompter {
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples),
                 this.skill_libary.initSkillLibrary()
-            ]);
+            ]).catch(error => {
+                // Preserve error details
+                console.error('Failed to initialize examples. Error details:', error);
+                console.error('Stack trace:', error.stack);
+                throw error;
+            });
 
             console.log('Examples initialized.');
         } catch (error) {
             console.error('Failed to initialize examples:', error);
-            throw error;
+            console.error('Stack trace:', error.stack);
+            throw error; // Re-throw with preserved details
         }
     }
 
@@ -227,9 +246,6 @@ export class Prompter {
                 await this.skill_libary.getRelevantSkillDocs(code_task_content, settings.relevant_docs_count)
             );
         }
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
-        if (prompt.includes('$CODE_DOCS'))
-            prompt = prompt.replaceAll('$CODE_DOCS', getSkillDocs());
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))
@@ -239,7 +255,8 @@ export class Prompter {
         if (prompt.includes('$CONVO'))
             prompt = prompt.replaceAll('$CONVO', 'Recent conversation:\n' + stringifyTurns(messages));
         if (prompt.includes('$SELF_PROMPT')) {
-            let self_prompt = this.agent.self_prompter.on ? `YOUR CURRENT ASSIGNED GOAL: "${this.agent.self_prompter.prompt}"\n` : '';
+            // if active or paused, show the current goal
+            let self_prompt = !this.agent.self_prompter.isStopped() ? `YOUR CURRENT ASSIGNED GOAL: "${this.agent.self_prompter.prompt}"\n` : '';
             prompt = prompt.replaceAll('$SELF_PROMPT', self_prompt);
         }
         if (prompt.includes('$LAST_GOALS')) {
