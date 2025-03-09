@@ -113,7 +113,7 @@ def launch_parallel_experiments(task_path,
                                 num_parallel=1,
                                 s3=False, 
                                 bucket_name="mindcraft-experiments", 
-                                template_profile="profiles/collab_profile.json", 
+                                template_profile="profiles/tasks/collab_profile.json", 
                                 world_name="Forest", 
                                 insecure_coding=False):
     
@@ -161,7 +161,7 @@ def launch_server_experiment(task_path,
                              api="openai", 
                              s3=False, 
                              bucket_name="mindcraft-experiments", 
-                             template_profile="profiles/collab_profile.json", 
+                             template_profile="profiles/tasks/collab_profile.json", 
                              insecure_coding=False):
     """
     Launch a Minecraft server and run experiments on it.
