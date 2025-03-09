@@ -371,7 +371,11 @@ export const actionsList = [
                 const html = await response.text();
                 const $ = load(html);
             
-                const divContent = $("div.mw-parser-output").text();
+                const parserOutput = $("div.mw-parser-output");
+                
+                parserOutput.find("table.navbox").remove();
+
+                const divContent = parserOutput.text();
             
                 return divContent.trim();
               } catch (error) {
