@@ -149,6 +149,7 @@ export class Task {
         this.reset_function = null;
         this.blocked_actions = [];
         this.task_id = task_id;
+        console.log('Task ID:', task_id);
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
             this.task_type = this.data.type;
@@ -219,12 +220,14 @@ export class Task {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
             let task = tasks[task_id];
+            console.log(task);
+            console.log(this.agent.count_id);
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
-            if ((!task.agent_count || task.agent_count <= 1) && this.agent.count_id > 0) {
-                task = null;
-            }
+            // if ((!task.agent_count || task.agent_count <= 1) && this.agent.count_id > 0) {
+            //     task = null;
+            // }
 
             return task;
         } catch (error) {
