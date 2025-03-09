@@ -244,7 +244,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent));
         if (prompt.includes('$CODE_DOCS')) {
             const code_task_content = messages.slice().reverse().find(msg =>
                 msg.role !== 'system' && msg.content.includes('!newAction(')
