@@ -24,61 +24,83 @@ export class GroqCloudAPI {
 
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
 
+
     }
 
-    async sendRequest(turns, systemMessage, stop_seq=null) {
+ async sendRequest(turns, systemMessage, stop_seq = null) {
+  // Variables for DeepSeek-R1 models
+  const maxAttempts = 5;
+  let attempt = 0;
+  let finalRes = null;
+  let res = null;
 
-        let messages = [{"role": "system", "content": systemMessage}].concat(turns); // The standard for GroqCloud is just appending to a messages array starting with the system prompt, but
-                                                                                     // this is perfectly acceptable too, and I recommend it. 
-                                                                                     // I still feel as though I should note it for any future revisions of MindCraft, though.
+  // Construct messages array
+  let messages = [{"role": "system", "content": systemMessage}].concat(turns);
 
-        // These variables look odd, but they're for the future. Please keep them intact.
-        let raw_res = null;
-        let res = null;
-        let tool_calls = null;
+  while (attempt < maxAttempts) {
+    attempt++;
 
-        try {
+    // These variables look odd, but they're for the future.
+    let raw_res = null;
+    let tool_calls = null;
 
-            console.log("Awaiting Groq response...");
+    try {
+      console.log("Awaiting Groq response...");
 
-            if (this.params.max_tokens) {
+      // Handle deprecated max_tokens parameter
+      if (this.params.max_tokens) {
+        console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
+        this.params.max_completion_tokens = this.params.max_tokens;
+        delete this.params.max_tokens;
+      }
 
-                console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
-                this.params.max_completion_tokens = this.params.max_tokens;
-                delete this.params.max_tokens;
+      if (!this.params.max_completion_tokens) {
+        this.params.max_completion_tokens = 8000; // Set it lower.
+      }
 
-            }
+      let completion = await this.groq.chat.completions.create({
+        "messages": messages,
+        "model": this.model_name || "llama-3.3-70b-versatile",
+        "stream": false,
+        "stop": stop_seq,
+        ...(this.params || {})
+      });
 
-            if (!this.params.max_completion_tokens) {
-
-                this.params.max_completion_tokens = 8000; // Set it lower. This is a common theme.
-
-            }
-
-            let completion = await this.groq.chat.completions.create({
-                "messages": messages,
-                "model": this.model_name || "llama-3.3-70b-versatile",
-                "stream": false,
-                "stop": stop_seq,
-                ...(this.params || {})
-            });
-
-            raw_res = completion.choices[0].message;
-            res = raw_res.content;
-
-        }
-
-        catch(err) {
-
-            console.log(err);
-            res = "My brain just kinda stopped working. Try again.";
-
-        }
-
-        return res;
+      raw_res = completion.choices[0].message;
+      res = raw_res.content;
+    } catch (err) {
+      console.log(err);
+      res = "My brain just kinda stopped working. Try again.";
     }
 
-    async embed(_) {
-        throw new Error('Embeddings are not supported by Groq.');
+    // Check for <think> tag issues
+    const hasOpenTag = res.includes("<think>");
+    const hasCloseTag = res.includes("</think>");
+
+    // If a partial <think> block is detected, log a warning and retry
+    if (hasOpenTag && !hasCloseTag) {
+      console.warn("Partial <think> block detected. Re-generating Groq request...");
+      continue; // This will skip the rest of the loop and try again
     }
+
+    // If only the closing tag is present, prepend an opening tag
+    if (hasCloseTag && !hasOpenTag) {
+      res = '<think>' + res;
+    }
+    
+    // Remove the complete <think> block (and any content inside) from the response
+    res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+    finalRes = res;
+    break; // Exit the loop once a valid response is obtained
+  }
+
+  if (finalRes == null) {
+    console.warn("Could not obtain a valid <think> block or normal response after max attempts.");
+    finalRes = "I thought too hard, sorry, try again.";
+  }
+
+  finalRes = finalRes.replace(/<\|separator\|>/g, '*no response*');
+  return finalRes;
+  }
 }

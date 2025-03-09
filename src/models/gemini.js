@@ -39,7 +39,6 @@ export class Gemini {
             model: this.model_name || "gemini-1.5-flash",
             // systemInstruction does not work bc google is trash
         };
-        
         if (this.url) {
             model = this.genAI.getGenerativeModel(
                 modelConfig,
@@ -72,7 +71,26 @@ export class Gemini {
             }
         });
         const response = await result.response;
-        const text = response.text();
+        let text;
+
+        // Handle "thinking" models since they smart 
+        if (this.model_name && this.model_name.includes("thinking")) {
+            if (
+                response.candidates &&
+                response.candidates.length > 0 &&
+                response.candidates[0].content &&
+                response.candidates[0].content.parts &&
+                response.candidates[0].content.parts.length > 1
+            ) {
+                text = response.candidates[0].content.parts[1].text;
+            } else {
+                console.warn("Unexpected response structure for thinking model:", response);
+                text = response.text();
+            }
+        } else {
+            text = response.text();
+        }
+
         console.log('Received.');
 
         return text;
