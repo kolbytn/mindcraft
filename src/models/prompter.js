@@ -18,8 +18,6 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
-import { Hyperbolic } from './hyperbolic.js';
-import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 import { VLLM } from './vllm.js';
 import { promises as fs } from 'fs';
@@ -49,6 +47,7 @@ export class Prompter {
         }
         // base overrides default, individual overrides base
 
+
         this.convo_examples = null;
         this.coding_examples = null;
         
@@ -71,14 +70,6 @@ export class Prompter {
         }
         else {
             this.code_model = this.chat_model;
-        }
-
-        if (this.profile.vision_model) {
-            let vision_model_profile = this._selectAPI(this.profile.vision_model);
-            this.vision_model = this._createModel(vision_model_profile);
-        }
-        else {
-            this.vision_model = this.chat_model;
         }
 
         let embedding = this.profile.embedding;
@@ -136,14 +127,10 @@ export class Prompter {
             profile = {model: profile};
         }
         if (!profile.api) {
-            if (profile.model.includes('openrouter/'))
-                profile.api = 'openrouter'; // must do first because shares names with other models
-            else if (profile.model.includes('ollama/'))
-                profile.api = 'ollama'; // also must do early because shares names with other models
-            else if (profile.model.includes('gemini'))
+            if (profile.model.includes('gemini'))
                 profile.api = 'google';
-            else if (profile.model.includes('vllm/'))
-                profile.api = 'vllm';
+            else if (profile.model.includes('openrouter/'))
+                profile.api = 'openrouter'; // must do before others bc shares model names
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
@@ -156,10 +143,6 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
-            else if (profile.model.includes("glhf/"))
-                profile.api = 'glhf';
-            else if (profile.model.includes("hyperbolic/"))
-                profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
             else if (profile.model.includes('qwen'))
@@ -167,14 +150,17 @@ export class Prompter {
             else if (profile.model.includes('grok'))
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
-                profile.api = 'deepseek';
-	        else if (profile.model.includes('mistral'))
+                profile.api = 'deepseek';     
+	    else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
+            else if (profile.model.includes('llama3'))
+                profile.api = 'ollama';
             else 
                 throw new Error('Unknown model:', profile.model);
         }
         return profile;
     }
+
     _createModel(profile) {
         let model = null;
         if (profile.api === 'google')
@@ -186,17 +172,13 @@ export class Prompter {
         else if (profile.api === 'replicate')
             model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
         else if (profile.api === 'ollama')
-            model = new Local(profile.model.replace('ollama/', ''), profile.url, profile.params);
+            model = new Local(profile.model, profile.url, profile.params);
         else if (profile.api === 'mistral')
             model = new Mistral(profile.model, profile.url, profile.params);
         else if (profile.api === 'groq')
             model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
         else if (profile.api === 'huggingface')
             model = new HuggingFace(profile.model, profile.url, profile.params);
-        else if (profile.api === 'glhf')
-            model = new GLHF(profile.model.replace('glhf/', ''), profile.url, profile.params);
-        else if (profile.api === 'hyperbolic')
-            model = new Hyperbolic(profile.model.replace('hyperbolic/', ''), profile.url, profile.params);
         else if (profile.api === 'novita')
             model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
         else if (profile.api === 'qwen')
@@ -208,11 +190,12 @@ export class Prompter {
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
-            model = new VLLM(profile.model, profile.url, profile.params);
+            model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
     }
+
     getName() {
         return this.profile.name;
     }
@@ -261,7 +244,7 @@ export class Prompter {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
         if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent));
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
         if (prompt.includes('$CODE_DOCS')) {
             const code_task_content = messages.slice().reverse().find(msg =>
                 msg.role !== 'system' && msg.content.includes('!newAction(')
@@ -347,6 +330,19 @@ export class Prompter {
     //     return '';
     // }
 
+    async saveToFile(logFile, logEntry) {
+        task_id = this.task_id;
+        let logDir;
+        if (this.task_id === null) {
+            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
+        } else {
+            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
+        }
+
+        await fs.mkdir(logDir, { recursive: true });
+        await fs.appendFile(logFile, String(logEntry), 'utf-8');
+    }
+
     async promptConvo(messages) {
         // console.log(`[${new Date().toISOString()}] promptConvo called with messages:`, messages);
 
@@ -371,26 +367,16 @@ export class Prompter {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');
                 }
-                console.log("Generated response:", generation);
-                
-
-                // Create directory if it doesn't exist
+                console.log("Generated response:", generation); 
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                let logDir;
-                if (this.task_id) {
-                    task_id = this.task_id;
-                    logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
+                let logEntry;
+                if (this.task_id === null) {
+                    logEntry = `[${timestamp}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
                 } else {
-                    logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
+                    logEntry = `[${timestamp}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
                 }
-                
-                await fs.mkdir(logDir, { recursive: true });
-
-                // Write prompt & conversation to a task-specific file
-                const logFile = path.join(logDir, `conversation_${timestamp}.txt`);
-                const logEntry = `[${new Date().toISOString()}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
-                
-                await fs.appendFile(logFile, String(logEntry), 'utf-8');
+                const logFile = `conversation/${timestamp}.txt`;
+                await this.saveToFile(logFile, logEntry);
 
             } catch (error) {
                 console.error('Error during message generation or file writing:', error);
@@ -406,11 +392,6 @@ export class Prompter {
             if (current_msg_time !== this.most_recent_msg_time) {
                 console.warn(`${this.agent.name} received new message while generating, discarding old response.`);
                 return '';
-            } 
-
-            if (generation?.includes('</think>')) {
-                const [_, afterThink] = generation.split('</think>')
-                generation = afterThink
             }
 
             return generation;
@@ -429,23 +410,32 @@ export class Prompter {
         let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
 
+        let logEntry;
+        if (this.task_id === null) {
+            logEntry = `[${new Date().toISOString()}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        } else {
+            logEntry = `[${new Date().toISOString()}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        }
+        const logFile = `coding/${timestamp}.txt`;
+        await this.saveToFile(logFile, logEntry);
         let resp = await this.code_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
-        await this._saveLog(prompt, messages, resp, 'coding');
         return resp;
     }
 
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
         let prompt = this.profile.saving_memory;
-        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
-        let resp = await this.chat_model.sendRequest([], prompt);
-        await this._saveLog(prompt, to_summarize, resp, 'memSaving');
-        if (resp?.includes('</think>')) {
-            const [_, afterThink] = resp.split('</think>')
-            resp = afterThink
+        let logEntry;
+        if (this.task_id === null) {
+            logEntry = `[${new Date().toISOString()}] \nPrompt:\n${prompt}\n\nTo Summarize:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        } else {
+            logEntry = `[${new Date().toISOString()}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
         }
-        return resp;
+        const logFile = `memSaving/${timestamp}.txt`;
+        await this.saveToFile(logFile, logEntry);
+        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
+        return await this.chat_model.sendRequest([], prompt);
     }
 
     async promptShouldRespondToBot(new_message) {
@@ -458,15 +448,7 @@ export class Prompter {
         return res.trim().toLowerCase() === 'respond';
     }
 
-    async promptVision(messages, imageBuffer) {
-        await this.checkCooldown();
-        let prompt = this.profile.image_analysis;
-        prompt = await this.replaceStrings(prompt, messages, null, null, null);
-        return await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
-    }
-
     async promptGoalSetting(messages, last_goals) {
-        // deprecated
         let system_message = this.profile.goal_setting;
         system_message = await this.replaceStrings(system_message, messages);
 
@@ -491,36 +473,4 @@ export class Prompter {
         goal.quantity = parseInt(goal.quantity);
         return goal;
     }
-
-    async _saveLog(prompt, messages, generation, tag) {
-        if (!settings.log_all_prompts)
-            return;
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        let logEntry;
-        let task_id = this.agent.task.task_id;
-        if (task_id == null) {
-            logEntry = `[${timestamp}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
-        } else {
-            logEntry = `[${timestamp}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
-        }
-        const logFile = `${tag}_${timestamp}.txt`;
-        await this._saveToFile(logFile, logEntry);
-    }
-
-    async _saveToFile(logFile, logEntry) {
-        let task_id = this.agent.task.task_id;
-        let logDir;
-        if (task_id == null) {
-            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
-        } else {
-            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
-        }
-
-        await fs.mkdir(logDir, { recursive: true });
-
-        logFile = path.join(logDir, logFile);
-        await fs.appendFile(logFile, String(logEntry), 'utf-8');
-    }
-
-
 }
