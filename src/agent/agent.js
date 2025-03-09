@@ -240,13 +240,6 @@ export class Agent {
                     this.routeResponse(source, execute_res);
                 return true;
             }
-        } else {
-            console.log('Self-prompting:', message);
-            // if self_prompt contains something that indicates the goal is complete, stop self-prompting
-            if (message.includes('goal complete')) {
-                this.self_prompter.stop();
-                process.exit(0);
-            }
         }
 
         if (from_other_bot)
@@ -378,12 +371,6 @@ export class Agent {
 
     startEvents() {
         // Custom events
-        // this.bot.on('spawn', () => {
-
-        //     //check that inventory has been set
-        // });
-
-
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
             this.bot.emit('sunrise');
