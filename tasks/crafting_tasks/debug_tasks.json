@@ -1,5 +1,58 @@
 {
-    "multiagent_crafting_magma_block_no_plan__depth_0": {
+  "multiagent_techtree_1_shears": {
+    "goal": "Collaborate with other agents to build a shear.",
+    "conversation": "Let's collaborate to build a shear.",
+    "agent_count": 2,
+    "initial_inventory": {
+        "0": {
+            "iron_ingot": 1
+        },
+        "1": {
+            "iron_ingot": 1, 
+            "crafting_table": 1
+        }
+    },
+    "blocked_actions": {
+        "0": ["!collectBlocks"],
+        "1": ["!collectBlocks"]
+    },
+    "target": "shears",
+    "number_of_target": 1,
+    "type": "techtree",
+    "timeout": 120
+  }, 
+  "multiagent_crafting_daylight_detector_no_plan__depth_0": {
+    "goal": "Collaborate with other agents to craft an daylight_detector",
+    "conversation": "Let's work together to craft an daylight_detector.",
+    "initial_inventory": {
+      "0": {
+        "glass": 2,
+        "quartz": 2,
+        "oak_slab": 2
+      },
+      "1": {
+        "glass": 1,
+        "quartz": 1,
+        "oak_slab": 1
+      }
+    },
+    "agent_count": 2,
+    "target": "daylight_detector",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 0,
+    "timeout": 120,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ]
+    },
+    "missing_items": []
+  }, "multiagent_crafting_magma_block_no_plan__depth_0": {
         "goal": "Collaborate with other agents to craft an magma_block",
         "conversation": "Let's work together to craft an magma_block.",
         "initial_inventory": {
