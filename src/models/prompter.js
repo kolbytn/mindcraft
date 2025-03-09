@@ -139,9 +139,9 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
-            else if (profile.model.includes("glhf/")
+            else if (profile.model.includes("glhf/"))
                 profile.api = 'glhf';
-            else if (profile.model.includes("hyperbolic/")
+            else if (profile.model.includes("hyperbolic/"))
                 profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
