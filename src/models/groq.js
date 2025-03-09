@@ -102,4 +102,5 @@ export class GroqCloudAPI {
 
   finalRes = finalRes.replace(/<\|separator\|>/g, '*no response*');
   return finalRes;
+  }
 }
