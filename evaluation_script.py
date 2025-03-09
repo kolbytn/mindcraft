@@ -114,7 +114,8 @@ def launch_parallel_experiments(task_path,
                                 s3=False, 
                                 bucket_name="mindcraft-experiments", 
                                 template_profile="profiles/collab_profile.json", 
-                                world_name="Forest"):
+                                world_name="Forest", 
+                                insecure_coding=False):
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -144,7 +145,8 @@ def launch_parallel_experiments(task_path,
                                  bucket_name=bucket_name, 
                                  template_profile=template_profile, 
                                  model=model, 
-                                 api=api)
+                                 api=api, 
+                                 insecure_coding=insecure_coding)
         time.sleep(5)
 
 def launch_server_experiment(task_path, 
@@ -154,11 +156,12 @@ def launch_server_experiment(task_path,
                              experiments_folder,
                              exp_name="exp", 
                              num_agents=2, 
-                             model="gpt-4o-mini",
+                             model="gpt-4o",
                              api="openai", 
                              s3=False, 
                              bucket_name="mindcraft-experiments", 
-                             template_profile="profiles/collab_profile.json"):
+                             template_profile="profiles/collab_profile.json", 
+                             insecure_coding=False):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -199,7 +202,8 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
-    set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
+    if insecure_coding:
+        set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
 
     # you need to add the bots to the world first before you can add them as op
     cmd = f"node main.js --task_path example_tasks.json --task_id debug_multi_agent_timeout"
@@ -228,7 +232,6 @@ def launch_server_experiment(task_path,
             script_content += "sleep 2\n"
             for agent in agent_names:
                 agent_file_path = os.path.join(task_folder, f"{agent}_{_}.json")
-                assert os.path.exists(f"bots/{agent}/memory.json"), f"Source file bots/{agent}/memory.json does not exist"
                 script_content += f"echo 'Saving to {agent_file_path}'\n"
                 cp_cmd = f"cp bots/{agent}/memory.json {agent_file_path}"
                 script_content += f"echo '{cp_cmd}'\n"
@@ -242,6 +245,9 @@ def launch_server_experiment(task_path,
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
         script_content += f"sleep 10\n"
+        if s3:
+            for agent in agent_names:
+                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{exp_name}/bots/{agent} --recursive\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
@@ -400,10 +406,11 @@ def main():
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
-    parser.add_argument('--template_profile', default="profiles/collab_profile.json", help='Model to use for the agents')
+    parser.add_argument('--template_profile', default="profiles/tasks/collab_profile.json", help='Model to use for the agents')
     parser.add_argument('--model', default="gpt-4o-mini", help='Model to use for the agents')
     parser.add_argument('--api', default="openai", help='API to use for the agents')
     parser.add_argument('--world_name', default="Forest", help='Name of the world')
+    parser.add_argument('--insecure_coding', action='store_true', help='Enable insecure coding')
 
     args = parser.parse_args()
 
@@ -426,7 +433,8 @@ def main():
                                     template_profile=args.template_profile, 
                                     model=args.model, 
                                     api=args.api, 
-                                    world_name=args.world_name)
+                                    world_name=args.world_name, 
+                                    insecure_coding=args.insecure_coding)
         cmd = "aws s3"
 
 if __name__ == "__main__":

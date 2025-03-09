@@ -359,7 +359,14 @@ export class Prompter {
 
                 // Create directory if it doesn't exist
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const logDir = path.join(__dirname, 'logs', String(task_id));
+                let logDir;
+                if (this.task_id) {
+                    task_id = this.task_id;
+                    logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
+                } else {
+                    logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
+                }
+                
                 await fs.mkdir(logDir, { recursive: true });
 
                 // Write prompt & conversation to a task-specific file
