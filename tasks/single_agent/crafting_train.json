@@ -1,0 +1,127 @@
+{ 
+    "crafting_wooden_pickaxe": {
+        "goal": "Craft a wooden pickaxe.",
+        "initial_inventory": {},
+        "agent_count": 1,
+        "target": "wooden_pickaxe",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 120
+      }, 
+    "crafting_stone_pickaxe": {
+        "goal": "Craft a stone pickaxe.",
+        "initial_inventory": {},
+        "agent_count": 1,
+        "target": "stone_pickaxe",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 240
+      },
+    "crafting_iron_pickaxe": {
+        "goal": "Craft an iron pickaxe.",
+        "initial_inventory": {
+            "0": {
+                "stone_pickaxe": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "iron_pickaxe",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 240
+    },
+    "crafting_shears": {
+        "goal": "Craft shears.",
+        "initial_inventory": {
+            "0": {
+                "iron_pickaxe": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "shears",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 360
+    }, 
+    "crafting_redstone": {
+        "goal": "Get redstone.",
+        "initial_inventory": {
+            "0": {
+                "iron_pickaxe": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "redstone",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 360
+    }, 
+    "crafting_light_gray_banner": {
+        "goal": "Craft a light gray banner.",
+        "initial_inventory": {
+            "0": {
+                "shears": 1, 
+                "light_gray_dye": 7,
+                "oak_planks": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "light_gray_banner",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 360
+    }, 
+    "crafting_brush_missing_copper_ingot_": {
+        "goal": "Craft a brush.",
+        "initial_inventory": {
+            "0": {
+                "feather": 1, 
+                "diamond_pickaxe": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "brush",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 360
+    },
+    "crafting_shield_missing_planks": {
+        "goal": "Craft a shield.",
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 6
+            }
+        },
+        "agent_count": 1,
+        "target": "shield",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 360
+    }, 
+    "crafting_shield_missing_iron_ingot": {
+        "goal": "Craft a shield.",
+        "initial_inventory": {
+            "0": {
+                "oak_planks": 7
+            }
+        },
+        "agent_count": 1,
+        "target": "shield",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 360
+    },
+    "crafting_stone_hoe": {
+        "goal": "Craft a stone hoe.",
+        "initial_inventory": {
+            "0": {
+                "wooden_pickaxe": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "stone_hoe", 
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 360
+    }
+}
