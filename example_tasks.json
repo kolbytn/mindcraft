@@ -29,7 +29,7 @@
             }
         },
         "type": "debug",
-        "timeout": 15
+        "timeout": 30
     },
     "debug_different_goal": {
         "goal": {
