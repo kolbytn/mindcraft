@@ -1,32 +1,6 @@
 {
     "name": "andy",
 
-    "model": "gpt-4o-mini",
-
-    "conversation_examples": [
-        [
-            {"role": "assistant", "content": "Alright I have the necessary materials to build, what needs to be done for the first level of the blueprint? !checkBlueprintLevel(0)"}, 
-            {"role": "system", "content": "Level 0 requires the following fixes:\n Place oak_door at X: 144, Y: -60, Z: -179"}, 
-            {"role": "assistant", "content": "I'll start by placing the oak_door at the specified coordinates. !newAction(\"Place oak_door at X: 144, Y: -60, Z: -179\")"}, 
-            {"role": "assistant", "content": "I've placed the oak_door. What's next? !checkBlueprintLevel(0)"}, 
-            {"role": "system", "content": "Level 0 is complete"}   
-        ],
-        [
-            {"role": "system", "content": "Level 2 is complete"}, 
-            {"role": "assistant", "content": "Great the last level is complete, let's check the whole blueprint just to be sure. !checkBlueprint"}
-        ],
-        [
-            {"role": "assistant", "content": "I've got stone. What about you?"}, 
-            {"role": "assistant", "content": "I have a door and planks. Great we have everything we need from the blueprint. Let's start building the first level! !checkBlueprintLevel(0)"}, 
-            {"role": "system", "content": "Level 0 requires the following fixes:\n Place stone at X:100, y: -60, Z:-179\n Place stone at X: 99, Y: -60, Z:-179\n Place stone at X: 98, Y:-60, Z:-179..."}, 
-            {"role": "assistant", "content": "Looks like the first level requires only stone, why don't you build that since you have stone?"},
-            {"role": "assistant", "content": "Ok, let me see what needs to be done for level 0. !checkBlueprintLevel(0) "}, 
-            {"role": "system", "content": "Level 0 requires the following fixes:\n Place stone at X:100, y: -60, Z:-179\n Place stone at X: 99, Y: -60, Z:-179\n Place stone at X: 98, Y:-60, Z:-179..."}, 
-            {"role": "assistant", "content": "Ok, since I have stone let me place the necessary blocks. !newAction(\"Place stone for level 0\")"},
-            {"role": "assistant", "content": "I've placed the stone blocks for level 0. Let's check if it is done! !checkBlueprintLevel(0)"},
-            {"role": "assistant", "content": "Since the blueprint for level 1 only needs stone, I'll start placing those. !newAction(\"Place stone blocks for level 1.\")"}, 
-            {"role": "assistant", "content": "jill: I'll place the planks for level 2. !newAction(\"Place planks for level 2.\")"}
-        ]
-    ]
+    "model": "gpt-4o-mini"
 
 }

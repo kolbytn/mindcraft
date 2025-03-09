@@ -63,7 +63,6 @@ export class Agent {
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');
-          
             serverProxy.login();
             
             // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
@@ -136,6 +135,8 @@ export class Agent {
             }
         }
 
+		        this.respondFunc = respondFunc;
+
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
             this.bot.on('chat', respondFunc);
@@ -148,10 +149,10 @@ export class Agent {
         };
 
         if (save_data?.self_prompt) {
-            let prompt = save_data.self_prompt;
-            // add initial message to history
-            this.history.add('system', prompt);
-            await this.self_prompter.start(prompt);
+            if (init_message) {
+                this.history.add('system', init_message);
+            }
+            await this.self_prompter.handleLoad(save_data.self_prompt, save_data.self_prompting_state);
         }
         if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
@@ -197,7 +198,7 @@ export class Agent {
 
     shutUp() {
         this.shut_up = true;
-        if (this.self_prompter.on) {
+        if (this.self_prompter.isActive()) {
             this.self_prompter.stop(false);
         }
         convoManager.endAllConversations();
@@ -256,7 +257,6 @@ export class Agent {
         console.log('received message from', source, ':', message);
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
-
         let behavior_log = this.bot.modes.flushBehaviorLog();
         if (behavior_log.trim().length > 0) {
             const MAX_LOG = 500;
@@ -271,11 +271,9 @@ export class Agent {
         await this.history.add(source, message);
         this.history.save();
 
-        if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
+        if (!self_prompt && this.self_prompter.isActive()) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
-
-
             if (checkInterrupt()) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
@@ -336,6 +334,7 @@ export class Agent {
     }
 
     async routeResponse(to_player, message) {
+        if (this.shut_up) return;
         let self_prompt = to_player === 'system' || to_player === this.name;
         if (self_prompt && this.last_sender) {
             // this is for when the agent is prompted by system while still in conversation
@@ -377,7 +376,7 @@ export class Agent {
         }
     }
 
-    async startEvents() {
+    startEvents() {
         // Custom events
         // this.bot.on('spawn', () => {
 
@@ -436,9 +435,6 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
-            if (this.task && this.validator && this.validator.validate()) {
-                this.killBots();
-            }
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
@@ -464,40 +460,6 @@ export class Agent {
         }, INTERVAL);
 
         this.bot.emit('idle');
-
-        // Check for task completion
-        if (this.task.data) {
-            setInterval(() => {
-                let res = this.task.isDone();
-                if (res) {
-                    // TODO kill other bots
-                    this.cleanKill(res.message, res.code);
-                }
-            }, 1000);
-        }
-    }
-
-    async killBots() {
-        this.bot.chat('Task completed!');
-        this.bot.chat(`/clear @p`);
-
-        // Kick other bots
-        if (!this.task || !this.task.agent_number) {
-            await this.cleanKill('Task completed', 2);
-            return;
-        }
-        const agent_names = this.task.agent_names;
-        console.log('All agent names:', agent_names);
-        console.log('My name:', this.name);
-        const botNames = agent_names.filter(botName => botName !== this.name);
-        console.log('Kicking bots:', botNames);
-        botNames.forEach(botName => {
-            this.bot.chat(`/kick ${botName}`);
-            console.log(`/kick ${botName}`);
-
-        });
-
-        await this.cleanKill('Task completed, exiting', 2);
     }
 
     async update(delta) {
