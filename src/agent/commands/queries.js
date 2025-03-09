@@ -259,7 +259,7 @@ export const queryList = [
         name: '!help',
         description: 'Lists all available commands and their descriptions.',
         perform: async function (agent) {
-            return getCommandDocs();
+            return getCommandDocs(agent);
         }
     },
 ];
