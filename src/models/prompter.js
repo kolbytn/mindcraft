@@ -150,7 +150,7 @@ export class Prompter {
             else if (profile.model.includes('grok'))
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
-                profile.api = 'deepseek';
+                profile.api = 'deepseek';     
 	    else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
             else if (profile.model.includes('llama3'))
@@ -190,7 +190,7 @@ export class Prompter {
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
-            model = new VLLM(profile.model, profile.url, profile.params);
+            model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
@@ -330,6 +330,19 @@ export class Prompter {
     //     return '';
     // }
 
+    async saveToFile(logFile, logEntry) {
+        task_id = this.task_id;
+        let logDir;
+        if (this.task_id === null) {
+            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
+        } else {
+            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
+        }
+
+        await fs.mkdir(logDir, { recursive: true });
+        await fs.appendFile(logFile, String(logEntry), 'utf-8');
+    }
+
     async promptConvo(messages) {
         // console.log(`[${new Date().toISOString()}] promptConvo called with messages:`, messages);
 
@@ -354,26 +367,16 @@ export class Prompter {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');
                 }
-                console.log("Generated response:", generation);
-                
-
-                // Create directory if it doesn't exist
+                console.log("Generated response:", generation); 
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                let logDir;
-                if (this.task_id) {
-                    task_id = this.task_id;
-                    logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
+                let logEntry;
+                if (this.task_id === null) {
+                    logEntry = `[${timestamp}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
                 } else {
-                    logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
+                    logEntry = `[${timestamp}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
                 }
-                
-                await fs.mkdir(logDir, { recursive: true });
-
-                // Write prompt & conversation to a task-specific file
-                const logFile = path.join(logDir, `conversation_${timestamp}.txt`);
-                const logEntry = `[${new Date().toISOString()}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
-                
-                await fs.appendFile(logFile, String(logEntry), 'utf-8');
+                const logFile = `conversation/${timestamp}.txt`;
+                await this.saveToFile(logFile, logEntry);
 
             } catch (error) {
                 console.error('Error during message generation or file writing:', error);
@@ -406,6 +409,15 @@ export class Prompter {
         await this.checkCooldown();
         let prompt = this.profile.coding;
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
+
+        let logEntry;
+        if (this.task_id === null) {
+            logEntry = `[${new Date().toISOString()}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        } else {
+            logEntry = `[${new Date().toISOString()}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        }
+        const logFile = `coding/${timestamp}.txt`;
+        await this.saveToFile(logFile, logEntry);
         let resp = await this.code_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
         return resp;
@@ -414,6 +426,14 @@ export class Prompter {
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
         let prompt = this.profile.saving_memory;
+        let logEntry;
+        if (this.task_id === null) {
+            logEntry = `[${new Date().toISOString()}] \nPrompt:\n${prompt}\n\nTo Summarize:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        } else {
+            logEntry = `[${new Date().toISOString()}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+        }
+        const logFile = `memSaving/${timestamp}.txt`;
+        await this.saveToFile(logFile, logEntry);
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         return await this.chat_model.sendRequest([], prompt);
     }

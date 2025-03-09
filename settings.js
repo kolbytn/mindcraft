@@ -45,4 +45,5 @@ export default
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
+    "log_all_prompts": false, // log all prompts to console
 }
