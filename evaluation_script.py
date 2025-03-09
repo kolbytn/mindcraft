@@ -181,7 +181,11 @@ def launch_server_experiment(task_path,
     
     # set up server and agents 
     session_name = str(server_port - 55916)
-    if num_agents == 2:
+    if num_agents == 1: 
+        agent_names = [f"Andy_{session_name}"]
+        models = [model]
+        apis = [api]
+    elif num_agents == 2:
         agent_names = [f"Andy_{session_name}", f"Jill_{session_name}"]
         models = [model] * 2
         apis = [api] * 2
@@ -192,7 +196,11 @@ def launch_server_experiment(task_path,
     make_profiles(agent_names, models, apis, template_profile=template_profile)
 
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
-    agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
+
+    if num_agents == 1:
+        agent_profiles_str = f"'[\"{agent_profiles[0]}\"]'"
+    elif num_agents == 2:
+        agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
     print(agent_profiles_str)
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 

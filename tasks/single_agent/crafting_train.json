@@ -1,4 +1,22 @@
 { 
+    "crafting_stick": {
+        "goal": "Craft sticks.",
+        "initial_inventory": {},
+        "agent_count": 1,
+        "target": "stick",
+        "number_of_target": 4,
+        "type": "techtree", 
+        "timeout": 500
+    },
+    "crafting_oak_log": {
+        "goal": "Get oak logs.",
+        "initial_inventory": {},
+        "agent_count": 1,
+        "target": "oak_log",
+        "number_of_target": 1,
+        "type": "techtree", 
+        "timeout": 500
+    },
     "crafting_wooden_pickaxe": {
         "goal": "Craft a wooden pickaxe.",
         "initial_inventory": {},
@@ -6,7 +24,7 @@
         "target": "wooden_pickaxe",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 120
+        "timeout": 500
       }, 
     "crafting_stone_pickaxe": {
         "goal": "Craft a stone pickaxe.",
@@ -15,7 +33,7 @@
         "target": "stone_pickaxe",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 240
+        "timeout": 500
       },
     "crafting_iron_pickaxe": {
         "goal": "Craft an iron pickaxe.",
@@ -28,7 +46,7 @@
         "target": "iron_pickaxe",
         "number_of_target": 1,
         "type": "techtree",
-        "timeout": 240
+        "timeout": 500
     },
     "crafting_shears": {
         "goal": "Craft shears.",
@@ -41,7 +59,7 @@
         "target": "shears",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 360
+        "timeout": 500
     }, 
     "crafting_redstone": {
         "goal": "Get redstone.",
@@ -54,7 +72,7 @@
         "target": "redstone",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 360
+        "timeout": 500
     }, 
     "crafting_light_gray_banner": {
         "goal": "Craft a light gray banner.",
@@ -69,7 +87,7 @@
         "target": "light_gray_banner",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 360
+        "timeout": 500
     }, 
     "crafting_brush_missing_copper_ingot_": {
         "goal": "Craft a brush.",
@@ -83,7 +101,7 @@
         "target": "brush",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 360
+        "timeout": 500
     },
     "crafting_shield_missing_planks": {
         "goal": "Craft a shield.",
@@ -96,7 +114,7 @@
         "target": "shield",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 360
+        "timeout": 500
     }, 
     "crafting_shield_missing_iron_ingot": {
         "goal": "Craft a shield.",
@@ -109,7 +127,7 @@
         "target": "shield",
         "number_of_target": 1,
         "type": "techtree", 
-        "timeout": 360
+        "timeout": 500
     },
     "crafting_stone_hoe": {
         "goal": "Craft a stone hoe.",
@@ -122,6 +140,6 @@
         "target": "stone_hoe", 
         "number_of_target": 1,
         "type": "techtree",
-        "timeout": 360
+        "timeout": 500
     }
 }
