@@ -331,7 +331,8 @@ export class Prompter {
     // }
 
     async saveToFile(logFile, logEntry) {
-        task_id = this.task_id;
+        let task_id = this.agent.task.task_id;
+        console.log(task_id)
         let logDir;
         if (this.task_id === null) {
             logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
@@ -340,6 +341,8 @@ export class Prompter {
         }
 
         await fs.mkdir(logDir, { recursive: true });
+
+        logFile = path.join(logDir, logFile);
         await fs.appendFile(logFile, String(logEntry), 'utf-8');
     }
 
@@ -375,7 +378,7 @@ export class Prompter {
                 } else {
                     logEntry = `[${timestamp}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
                 }
-                const logFile = `conversation/${timestamp}.txt`;
+                const logFile = `conversation_${timestamp}.txt`;
                 await this.saveToFile(logFile, logEntry);
 
             } catch (error) {
@@ -411,12 +414,14 @@ export class Prompter {
         prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
 
         let logEntry;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         if (this.task_id === null) {
-            logEntry = `[${new Date().toISOString()}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+            logEntry = `[${timestamp}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
         } else {
-            logEntry = `[${new Date().toISOString()}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+            logEntry = `[${timestamp}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
         }
-        const logFile = `coding/${timestamp}.txt`;
+
+        const logFile = `coding_${timestamp}.txt`;
         await this.saveToFile(logFile, logEntry);
         let resp = await this.code_model.sendRequest(messages, prompt);
         this.awaiting_coding = false;
@@ -427,12 +432,13 @@ export class Prompter {
         await this.checkCooldown();
         let prompt = this.profile.saving_memory;
         let logEntry;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         if (this.task_id === null) {
-            logEntry = `[${new Date().toISOString()}] \nPrompt:\n${prompt}\n\nTo Summarize:\n${JSON.stringify(messages, null, 2)}\n\n`;
+            logEntry = `[${timestamp}] \nPrompt:\n${prompt}\n\nTo Summarize:\n${JSON.stringify(messages, null, 2)}\n\n`;
         } else {
-            logEntry = `[${new Date().toISOString()}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\n`;
+            logEntry = `[${timestamp}] Task ID: ${this.agent.task.task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(to_summarize, null, 2)}\n\n`;
         }
-        const logFile = `memSaving/${timestamp}.txt`;
+        const logFile = `memSaving_${timestamp}.txt`;
         await this.saveToFile(logFile, logEntry);
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         return await this.chat_model.sendRequest([], prompt);

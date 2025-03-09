@@ -146,7 +146,8 @@ def launch_parallel_experiments(task_path,
                                  template_profile=template_profile, 
                                  model=model, 
                                  api=api, 
-                                 insecure_coding=insecure_coding)
+                                 insecure_coding=insecure_coding,
+                                 num_agents=num_agents)
         time.sleep(5)
 
 def launch_server_experiment(task_path, 
@@ -408,6 +409,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run Minecraft AI agent experiments')
     parser.add_argument('--task_path', default="multiagent_crafting_tasks.json", help='Path to the task file')
     parser.add_argument('--task_id', default=None, help='ID of the task to run')
+    parser.add_argument('--num_agents', default=2, type=int, help='Number of agents to run')
     parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
     parser.add_argument('--num_parallel', default=1, type=int, help='Number of parallel servers to run')
     parser.add_argument('--exp_name', default="exp", help='Name of the experiment')
@@ -442,7 +444,8 @@ def main():
                                     model=args.model, 
                                     api=args.api, 
                                     world_name=args.world_name, 
-                                    insecure_coding=args.insecure_coding)
+                                    insecure_coding=args.insecure_coding,
+                                    num_agents=args.num_agents)
         cmd = "aws s3"
 
 if __name__ == "__main__":
