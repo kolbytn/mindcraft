@@ -1,0 +1,112 @@
+{
+    "multiagent_crafting_magma_block_no_plan__depth_0": {
+        "goal": "Collaborate with other agents to craft an magma_block",
+        "conversation": "Let's work together to craft an magma_block.",
+        "initial_inventory": {
+          "0": {
+            "magma_cream": 3
+          },
+          "1": {
+            "magma_cream": 2
+          }
+        },
+        "agent_count": 2,
+        "target": "magma_block",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 2,
+        "depth": 0,
+        "timeout": 240,
+        "blocked_actions": {
+          "0": [
+            "!getCraftingPlan"
+          ],
+          "1": [
+            "!getCraftingPlan"
+          ]
+        },
+        "missing_items": []
+      },
+      "multiagent_crafting_polished_diorite_no_plan__depth_0": {
+        "goal": "Collaborate with other agents to craft an polished_diorite",
+        "conversation": "Let's work together to craft an polished_diorite.",
+        "initial_inventory": {
+          "0": {
+            "diorite": 3
+          },
+          "1": {
+            "diorite": 2
+          }
+        },
+        "agent_count": 2,
+        "target": "polished_diorite",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 1,
+        "depth": 0,
+        "timeout": 240,
+        "blocked_actions": {
+          "0": [
+            "!getCraftingPlan"
+          ],
+          "1": [
+            "!getCraftingPlan"
+          ]
+        },
+        "missing_items": []
+      },
+      "multiagent_crafting_blast_furnace_full_plan__depth_0": {
+        "goal": "Collaborate with other agents to craft an blast_furnace",
+        "conversation": "Let's work together to craft an blast_furnace.",
+        "initial_inventory": {
+          "0": {
+            "iron_ingot": 3,
+            "furnace": 1,
+            "smooth_stone": 2
+          },
+          "1": {
+            "iron_ingot": 2,
+            "smooth_stone": 1
+          }
+        },
+        "agent_count": 2,
+        "target": "blast_furnace",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 1,
+        "depth": 0,
+        "timeout": 240,
+        "blocked_actions": {
+          "0": [],
+          "1": []
+        },
+        "missing_items": []
+      },
+      "multiagent_crafting_comparator_full_plan__depth_0": {
+        "goal": "Collaborate with other agents to craft an comparator",
+        "conversation": "Let's work together to craft an comparator.",
+        "initial_inventory": {
+          "0": {
+            "redstone_torch": 2,
+            "quartz": 1,
+            "stone": 2
+          },
+          "1": {
+            "redstone_torch": 1,
+            "stone": 1
+          }
+        },
+        "agent_count": 2,
+        "target": "comparator",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 3,
+        "depth": 0,
+        "timeout": 240,
+        "blocked_actions": {
+          "0": [],
+          "1": []
+        },
+        "missing_items": []
+      }
+}

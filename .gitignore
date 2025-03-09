@@ -19,4 +19,10 @@ experiments/
 andy_*.json
 jill_*.json
 src/models/logs/*
+<<<<<<< HEAD
+server_data/*
+server_data_*/*
+=======
 server_data*
+results/*
+>>>>>>> d70491e5974a973b96c47f0515c2722b82c9b253

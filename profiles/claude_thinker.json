@@ -1,0 +1,15 @@
+{
+    "name": "claude_thinker",
+
+    "model": {
+        "model": "claude-3-7-sonnet-latest",
+        "params": {
+            "thinking": {
+                "type": "enabled",
+                "budget_tokens": 16000
+            }
+        }
+    },
+    
+    "embedding": "openai"
+}

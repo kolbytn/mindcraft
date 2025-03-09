@@ -1,6 +1,12 @@
 import fs from 'fs';
 import {proceduralGeneration} from "../../src/agent/task_types/construction_tasks.js";
 
+/**
+ * Helper function to initalize agent inventories
+ * @param blueprint
+ * @param agents
+ * @returns {{}}
+ */
 function createInitialInventory(blueprint, agents) {
     /*
     params:
@@ -23,10 +29,12 @@ function createInitialInventory(blueprint, agents) {
         inventories[i] = {'diamond_pickaxe':1};
     }
 
-    // Count materials in blueprint
+    // Count materials in blueprint and replace ladder variants with "ladder"
     for (const level of blueprint.levels) {
-        for (const row of level.placement) {
-            for (const block of row) {
+        for (let rowIndex = 0; rowIndex < level.placement.length; rowIndex++) {
+            for (let blockIndex = 0; blockIndex < level.placement[rowIndex].length; blockIndex++) {
+                let block = level.placement[rowIndex][blockIndex];
+
                 if (block !== 'air') {
                     // Check if material contains 'door' or 'ladder' and convert appropriately
                     let materialKey = block;
@@ -36,6 +44,7 @@ function createInitialInventory(blueprint, agents) {
                         materialKey = 'oak_door';
                     } else if (block.includes('ladder')) {
                         materialKey = 'ladder';
+                        level.placement[rowIndex][blockIndex] = 'ladder'; // Replace in blueprint
                     }
 
                     materialCounts[materialKey] = (materialCounts[materialKey] || 0) + 1;
@@ -43,6 +52,7 @@ function createInitialInventory(blueprint, agents) {
             }
         }
     }
+
 
     // Distribute materials among agents
     for (const [material, count] of Object.entries(materialCounts)) {
@@ -54,19 +64,33 @@ function createInitialInventory(blueprint, agents) {
     return inventories;
 }
 
+/**
+ * Helper function to allocate space for the blueprint based on the number of rooms
+ * @param rooms
+ * @returns {number}
+ */
 function calculateSpaceNeeded(rooms) {
     const baseSize = 10;
     const scaleFactor = Math.floor(rooms / 4) * 5;
     return baseSize + scaleFactor;
 }
 
+/**
+ * MAIN GENERATION FUNCTION
+ *
+ * Varies materials, room count, windows and carpets to create different complexities of construction tasks.
+ * @param variants is the number of variants within each complexity level you want.
+ * @returns The tasks as nested JSON {{}}
+ */
 function generateConstructionTasks(variants) {
-    const tasks = {};
     const materialLevels = 5;
+    const agentCount = 2
     const roomCounts = [4, 6, 8];
     const windowStyles = [0, 1, 2];
     const carpetStyles = [0, 1, 2];
-    const timeout = 600 // 10 min base?
+    const timeout = 600 // 10 min base
+
+    const tasks = {};
 
     for (let m = 0; m < materialLevels; m++) {
         for (let r = 0; r < roomCounts.length; r++) {
@@ -97,8 +121,8 @@ function generateConstructionTasks(variants) {
                             type: "construction",
                             goal: "Make a house with the blueprint",
                             conversation: "Let's share materials and make a house with the blueprint",
-                            agent_count: 2,
-                            initial_inventory: createInitialInventory(blueprint, 2),
+                            agent_count: agentCount,
+                            initial_inventory: createInitialInventory(blueprint, agentCount),
                             timeout: timeout+(300*r), // 5 minute per additional level of complexity
                             blueprint: blueprint,
 
@@ -112,12 +136,15 @@ function generateConstructionTasks(variants) {
     return tasks;
 }
 
-const tasks = generateConstructionTasks(1);
+
+
+//Main: writes the generated tasks to a file.
+const tasks = generateConstructionTasks(5);
 // Clear existing file content
-fs.writeFileSync('./test_multiagent_construction_tasks.json', '');
+fs.writeFileSync('./train_multiagent_construction_tasks.json', '');
 // re-add
 fs.writeFileSync(
-    './test_multiagent_construction_tasks.json',
+    './train_multiagent_construction_tasks.json',
     JSON.stringify(tasks, null, 2)
 );
 

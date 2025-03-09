@@ -22,7 +22,12 @@ export class Claude {
         try {
             console.log('Awaiting anthropic api response...')
             if (!this.params.max_tokens) {
-                this.params.max_tokens = 4096;
+                if (this.params.thinking?.budget_tokens) {
+                    this.params.max_tokens = this.params.thinking.budget_tokens + 1000;
+                    // max_tokens must be greater than thinking.budget_tokens
+                } else {
+                    this.params.max_tokens = 16000;
+                }
             }
             const resp = await this.anthropic.messages.create({
                 model: this.model_name || "claude-3-sonnet-20240229",
@@ -32,7 +37,14 @@ export class Claude {
             });
 
             console.log('Received.')
-            res = resp.content[0].text;
+            // get first content of type text
+            const textContent = resp.content.find(content => content.type === 'text');
+            if (textContent) {
+                res = textContent.text;
+            } else {
+                console.warn('No text content found in the response.');
+                res = 'No response from Claude.';
+            }
         }
         catch (err) {
             console.log(err);

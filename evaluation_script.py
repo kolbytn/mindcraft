@@ -253,6 +253,9 @@ def launch_server_experiment(task_path,
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
         script_content += f"sleep 10\n"
+        if s3:
+            for agent in agent_names:
+                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{exp_name}/bots/{agent} --recursive\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
@@ -411,7 +414,7 @@ def main():
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
-    parser.add_argument('--template_profile', default="profiles/collab_profile.json", help='Model to use for the agents')
+    parser.add_argument('--template_profile', default="profiles/tasks/collab_profile.json", help='Model to use for the agents')
     parser.add_argument('--model', default="gpt-4o-mini", help='Model to use for the agents')
     parser.add_argument('--api', default="openai", help='API to use for the agents')
     parser.add_argument('--world_name', default="Forest", help='Name of the world')
