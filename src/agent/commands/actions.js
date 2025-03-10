@@ -1,7 +1,6 @@
 import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 import convoManager from '../conversation.js';
-import { load } from 'cheerio';
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
@@ -353,35 +352,6 @@ export const actionsList = [
             return `Mode ${mode_name} is already ${on ? 'on' : 'off'}.`;
             modes.setOn(mode_name, on);
             return `Mode ${mode_name} is now ${on ? 'on' : 'off'}.`;
-        }
-    },
-    {
-        name: '!searchWiki',
-        description: 'Search the Minecraft Wiki for the given query.',
-        params: {
-            'query': { type: 'string', description: 'The query to search for.' }
-        },
-        perform: async function (agent, query) {
-            const url = `https://minecraft.wiki/w/${query}`
-            try {
-                const response = await fetch(url);
-                if (response.status === 404) {
-                  return `${query} was not found on the Minecraft Wiki. Try adjusting your search term.`;
-                }
-                const html = await response.text();
-                const $ = load(html);
-            
-                const parserOutput = $("div.mw-parser-output");
-                
-                parserOutput.find("table.navbox").remove();
-
-                const divContent = parserOutput.text();
-            
-                return divContent.trim();
-              } catch (error) {
-                console.error("Error fetching or parsing HTML:", error);
-                return `The following error occured: ${error}`
-              }
         }
     },
     {
