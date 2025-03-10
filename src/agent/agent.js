@@ -41,13 +41,13 @@ export class Agent {
         this.memory_bank = new MemoryBank();
         console.log('Initializing self prompter...');
         this.self_prompter = new SelfPrompter(this);
-        convoManager.initAgent(this);            
+        convoManager.initAgent(this);
         console.log('Initializing examples...');
         await this.prompter.initExamples();
         console.log('Initializing task...');
         this.task = new Task(this, task_path, task_id);
-        const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
-        blacklistCommands(blocked_actions);
+        this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
+        blacklistCommands(this.blocked_actions);
 
         serverProxy.connect(this);
 
@@ -63,7 +63,6 @@ export class Agent {
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');
-
             serverProxy.login();
             
             // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
@@ -80,20 +79,23 @@ export class Agent {
             try {
                 clearTimeout(spawnTimeout);
                 addViewer(this.bot, count_id);
-
+              
                 // wait for a bit so stats are not undefined
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 
                 console.log(`${this.name} spawned.`);
                 this.clearBotLogs();
-
+              
                 this._setupEventHandlers(save_data, init_message);
                 this.startEvents();
-
+              
                 if (!load_mem) {
                     this.task.initBotTask();
                 }
 
+                await new Promise((resolve) => setTimeout(resolve, 10000));
+                this.checkAllPlayersPresent();
+              
             } catch (error) {
                 console.error('Error in spawn event:', error);
                 process.exit(0);
@@ -132,8 +134,8 @@ export class Agent {
                 console.error('Error handling message:', error);
             }
         }
-		
-		this.respondFunc = respondFunc
+
+		        this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
@@ -170,6 +172,18 @@ export class Agent {
         }
     }
 
+    checkAllPlayersPresent() {
+        if (!this.task || !this.task.agent_names) {
+          return;
+        }
+
+        const missingPlayers = this.task.agent_names.filter(name => !this.bot.players[name]);
+        if (missingPlayers.length > 0) {
+            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+            this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+          }
+        }
+
     requestInterrupt() {
         this.bot.interrupt_code = true;
         this.bot.collectBlock.cancelTask();
@@ -191,6 +205,7 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) {
+        await this.checkTaskDone();
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -235,7 +250,6 @@ export class Agent {
         console.log('received message from', source, ':', message);
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
-        
         let behavior_log = this.bot.modes.flushBehaviorLog();
         if (behavior_log.trim().length > 0) {
             const MAX_LOG = 500;
@@ -258,8 +272,8 @@ export class Agent {
             let res = await this.prompter.promptConvo(history);
 
             console.log(`${this.name} full response to ${source}: ""${res}""`);
-            
-            if (res.trim().length === 0) { 
+
+            if (res.trim().length === 0) {
                 console.warn('no response')
                 break; // empty response ends loop
             }
@@ -438,26 +452,30 @@ export class Agent {
     async update(delta) {
         await this.bot.modes.update();
         this.self_prompter.update(delta);
-        if (this.task.data) {
-            let res = this.task.isDone();
-            if (res) {
-                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
-                await this.history.save();
-                console.log('Task finished:', res.message);
-                this.killAll();
-            }
-        }
+        await this.checkTaskDone();
     }
 
     isIdle() {
         return !this.actions.executing && !this.coder.generating;
     }
     
+
     cleanKill(msg='Killing agent process...', code=1) {
         this.history.add('system', msg);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
+    }
+    async checkTaskDone() {
+        if (this.task.data) {
+            let res = this.task.isDone();
+            if (res) {
+                await this.history.add('system', `Task ended with score : ${res.score}`);
+                await this.history.save();
+                console.log('Task finished:', res.message);
+                this.killAll();
+            }
+        }
     }
 
     killAll() {
