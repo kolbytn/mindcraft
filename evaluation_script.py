@@ -423,6 +423,7 @@ def main():
     parser.add_argument('--insecure_coding', action='store_true', help='Enable insecure coding')
 
     args = parser.parse_args()
+    print(args)
 
     try: 
         subprocess.run(['tmux', 'kill-server'], check=True)
