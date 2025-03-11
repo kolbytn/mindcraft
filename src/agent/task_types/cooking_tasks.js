@@ -331,7 +331,7 @@ export class CookingTaskInitiator {
                     ['minecraft:enchanted_golden_apple', 64],
                     ['minecraft:cooked_mutton', 64],
                     ['minecraft:cooked_salmon', 64],
-                    ['minecraft:cooked_cod', 64]
+                    ['minecraft:cooked_cod', 64],
                     ['minecraft:gold_ingot', 64],
                     ['minecraft:oak_planks', 64],
                 ];
@@ -372,7 +372,7 @@ export class CookingTaskInitiator {
             const summonAnimals = async () => {
                 const animals = ['chicken', 'cow', 'llama', 'mooshroom', 'pig', 'rabbit', 'sheep'];
                 for (const animal of animals) {
-                    for (let i = 0; i < 2; i++) {
+                    for (let i = 0; i < 4; i++) {
                         const x = position.x - 25 + Math.random() * 50;
                         const z = position.z - 25 + Math.random() * 50;
                         await bot.chat(`/summon ${animal} ${Math.floor(x)} ${position.y} ${Math.floor(z)}`);
