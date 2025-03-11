@@ -45,12 +45,11 @@ def download_s3_folders(bucket_name, s3_prefix, local_base_dir):
             if 'Contents' in objects_in_folder:
                 for obj in objects_in_folder['Contents']:
                     s3_key = obj['Key']
-                    if s3_key.endswith(('.json')): # Only download json files
-                        local_file_path = os.path.join(local_folder_path, os.path.basename(s3_key))
-                        try:
-                            s3_client.download_file(bucket_name, s3_key, local_file_path)
-                        except Exception as e:
-                            print(f"Error downloading {s3_key}: {e}")
+                    local_file_path = os.path.join(local_folder_path, os.path.basename(s3_key))
+                    try:
+                        s3_client.download_file(bucket_name, s3_key, local_file_path)
+                    except Exception as e:
+                        print(f"Error downloading {s3_key}: {e}")
             
             else:
                 print(f"No files found in {s3_folder_prefix}")
@@ -77,7 +76,7 @@ def analyze_json_file(file_path):
             if 'turns' in data and isinstance(data['turns'], list):
                 for turn in reversed(data['turns']):  # Check turns from the end
                     if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
-                        if "Task successful ended with code : 2" in turn['content']:
+                        if "Task successful ended with code : 2" in turn['content'] or "Task ended in score: 1" in turn["content"]:
                             return True
         return False
     except FileNotFoundError:
@@ -237,12 +236,13 @@ if __name__ == "__main__":
         print(folders)
     results = aggregate_results(folders)
     print(results)
-# Save results to a file
-with open(LOCAL_DOWNLOAD_DIR + "/results.txt", "w") as file:
-    file.write("Results\n")
-    for key, value in results.items():
-        file.write(f"{key}: {value}\n")
-print("Results saved to results.txt")
+    # Save results to a file
+    os.makedirs(LOCAL_DOWNLOAD_DIR, exist_ok=True)
+    with open(LOCAL_DOWNLOAD_DIR + "/results.txt", "w") as file:
+        file.write("Results\n")
+        for key, value in results.items():
+            file.write(f"{key}: {value}\n")
+    print("Results saved to results.txt")
     # if not downloaded_local_folders:
     #     print("No folders downloaded. Exiting.")
     #     exit()
