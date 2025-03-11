@@ -216,16 +216,19 @@ def get_immediate_subdirectories(a_dir):
 if __name__ == "__main__":
     # 1. Download folders from AWS
     parser = argparse.ArgumentParser()
-    parser.add_argument('--s3_download', default=False, type=bool, help='Download folders from S3')
+    parser.add_argument('--s3_download', action="store_true", help='Download folders from S3')
     parser.add_argument('--aws_bucket_name', default="mindcraft" , type=str, help='AWS bucket name')
-    parser.add_argument('--s3_folder_prefix', default="experiments/4o_craft_better_tasks_03-02_07-15/", type=str, help='S3 folder prefix')
-    parser.add_argument('--local_download_dir', default="results/4o_craft_better_tasks_03-02_07-15/", type=str, help='Local download directory')
+    parser.add_argument('--s3_folder_prefix', default="", type=str, help='S3 folder prefix')
+    parser.add_argument('--local_download_dir', default="results/", type=str, help='Local download directory')
     args = parser.parse_args()
 
     AWS_BUCKET_NAME = args.aws_bucket_name
     S3_FOLDER_PREFIX = args.s3_folder_prefix
-    LOCAL_DOWNLOAD_DIR = args.local_download_dir
-
+    if args.local_download_dir != "":
+        LOCAL_DOWNLOAD_DIR = args.local_download_dir + f"/{S3_FOLDER_PREFIX.replace('/', '_')}"
+    else:
+        LOCAL_DOWNLOAD_DIR = args.local_download_dir
+    
     if (args.s3_download):
         print(f"Downloading folders from s3://{args.aws_bucket_name}/{args.s3_folder_prefix} to {args.local_download_dir}...")
         folders = download_s3_folders(args.aws_bucket_name, args.s3_folder_prefix, args.local_download_dir)
@@ -235,7 +238,7 @@ if __name__ == "__main__":
     results = aggregate_results(folders)
     print(results)
 # Save results to a file
-with open(args.local_download_dir + "/results.txt", "w") as file:
+with open(LOCAL_DOWNLOAD_DIR + "/results.txt", "w") as file:
     file.write("Results\n")
     for key, value in results.items():
         file.write(f"{key}: {value}\n")
