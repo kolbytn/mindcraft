@@ -8,7 +8,7 @@ export class ConstructionTaskValidator {
     validate() {
         try {
             //todo: somehow make this more of a percentage or something
-            console.log('Validating task...');
+            // console.log('Validating task...');
             let valid = false;
             let score = 0;
             let result = this.blueprint.check(this.agent.bot);
@@ -18,11 +18,17 @@ export class ConstructionTaskValidator {
             }
             let total_blocks = result.mismatches.length + result.matches.length;
             score = (result.matches.length / total_blocks) * 100;
-            console.log(`Task is ${score}% complete`);
-            return valid;
+            // console.log(`Task is ${score}% complete`);
+            return {
+                "valid": valid, 
+                "score": score
+            };
         } catch (error) {
             console.error('Error validating task:', error);
-            return false;
+            return {
+                "valid": false,
+                "score": 0
+            };
         }
     }
 }

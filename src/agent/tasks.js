@@ -407,6 +407,8 @@ export class Task {
                 // const result = clearHouse(blueprint)
                 const commands = result.commands;
                 const nearbyPosition = result.nearbyPosition;
+                console.log("nearby position", nearbyPosition);
+                bot.chat(`/tp ${this.name} ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
                 for (const command of commands) {
                     bot.chat(command);
                 }
