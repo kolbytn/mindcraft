@@ -148,8 +148,8 @@ function generateConstructionTasks(variants) {
 //Main: writes the generated tasks to a file.
 
 // VARIABLES TO CHANGE HERE
-const variants = 1
-const file = './test_multiagent_construction_tasks.json'
+const variants = 5
+const file = './train_multiagent_construction_tasks.json'
 
 const tasks = generateConstructionTasks(variants);
 // Clear existing file content
