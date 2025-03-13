@@ -441,7 +441,7 @@ export function proceduralGeneration(m = 20,
             newZ >= 0 && newZ + newDepth <= p &&
             isSpaceValid(newX, newY, newZ, newLength, newWidth, newDepth)
         ) {
-            console.log(`Placing room at (${newX}, ${newY}, ${newZ}) with dimensions (${newLength}x${newWidth}x${newDepth})`);
+            // console.log(`Placing room at (${newX}, ${newY}, ${newZ}) with dimensions (${newLength}x${newWidth}x${newDepth})`);
             for (let di = 0; di < newDepth; di++) {
                 for (let dj = 0; dj < newLength; dj++) {
                     for (let dk = 0; dk < newWidth; dk++) {
