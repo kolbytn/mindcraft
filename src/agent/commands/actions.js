@@ -407,6 +407,27 @@ export const actionsList = [
             return `Converstaion with ${player_name} ended.`;
         }
     },
+    {
+        name: '!exitVehicle', 
+        description: 'Exit the current vehicle (boat, minecart, horse etc).',
+        params: {},
+        perform: runAsAction(async (agent) => {
+            await skills.exitVehicle(agent.bot);
+        })
+    },
+    {
+        name: '!mountVehicle',
+        description: 'Find and mount the nearest vehicle or mob of the specified type.',
+        params: {
+            'vehicleType': { 
+                type: 'string', 
+                description: 'The type of vehicle to mount (boat, minecart, horse, strider, pig, etc).'
+            }
+        },
+        perform: runAsAction(async (agent, vehicleType) => {
+            await skills.mountVehicle(agent.bot, vehicleType);
+        })
+    },
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
