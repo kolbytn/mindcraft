@@ -5,28 +5,17 @@ import {proceduralGeneration} from "../../src/agent/task_types/construction_task
  * Helper function to initalize agent inventories
  * @param blueprint
  * @param agents
+ * @param evenlySplit - When true, splits materials evenly across inventories
  * @returns {{}}
  */
-function createInitialInventory(blueprint, agents) {
-    /*
-    params:
-    - blueprint object
-    - number of agents (for inventory initialization)
-
-    logic of the function:
-    - loop matrix
-    - every time a new material is hit, put it in a different agents inventory
-    -
-     */
-
-
+function createInitialInventory(blueprint, agents, evenlySplit = true) {
     const inventories = {};
     const materialCounts = {};
     let currentAgent = 0;
 
     // Initialize inventories
     for (let i = 0; i < agents; i++) {
-        inventories[i] = {'diamond_pickaxe':1};
+        inventories[i] = {'diamond_pickaxe': 1};
     }
 
     // Count materials in blueprint and replace ladder variants with "ladder"
@@ -53,13 +42,29 @@ function createInitialInventory(blueprint, agents) {
         }
     }
 
+    if (evenlySplit) {
+        // Distribute materials evenly among agents
+        for (const [material, count] of Object.entries(materialCounts)) {
+            const baseAmount = Math.floor(count / agents);
+            const remainder = count % agents;
 
-    // Distribute materials among agents
-    for (const [material, count] of Object.entries(materialCounts)) {
-        inventories[currentAgent][material] = count;
-        currentAgent = (currentAgent + 1) % agents;
+            // Give each agent the base amount
+            for (let i = 0; i < agents; i++) {
+                inventories[i][material] = baseAmount;
+            }
+
+            // Distribute remainder one by one to agents
+            for (let i = 0; i < remainder; i++) {
+                inventories[i][material]++;
+            }
+        }
+    } else {
+        // Original distribution - one material type to one agent
+        for (const [material, count] of Object.entries(materialCounts)) {
+            inventories[currentAgent][material] = count;
+            currentAgent = (currentAgent + 1) % agents;
+        }
     }
-    
 
     return inventories;
 }
@@ -78,13 +83,13 @@ function calculateSpaceNeeded(rooms) {
 /**
  * MAIN GENERATION FUNCTION
  *
- * Varies materials, room count, windows and carpets to create different complexities of construction tasks.
+ * Varies agents, materials, room count, windows and carpets to create different complexities of construction tasks.
  * @param variants is the number of variants within each complexity level you want.
  * @returns The tasks as nested JSON {{}}
  */
 function generateConstructionTasks(variants) {
     const materialLevels = 5;
-    const agentCount = 2
+    const agentCount = 5
     const roomCounts = [4, 6, 8];
     const windowStyles = [0, 1, 2];
     const carpetStyles = [0, 1, 2];
@@ -96,37 +101,40 @@ function generateConstructionTasks(variants) {
         for (let r = 0; r < roomCounts.length; r++) {
             for (let w = 0; w < windowStyles.length; w++) {
                 for (let c = 0; c < carpetStyles.length; c++) {
-                    for (let variant = 0; variant < variants; variant++) {
-                        const rooms = roomCounts[r];
-                        const spaceSize = calculateSpaceNeeded(rooms);
+                    for (let agent = 2; agent <= agentCount; agent++) {
+                        for (let variant = 0; variant < variants; variant++) {
 
-                        const blueprint = proceduralGeneration(
-                            spaceSize,
-                            spaceSize,
-                            spaceSize,
-                            rooms,
-                            4,
-                            4,
-                            4,
-                            5,
-                            "air",
-                            carpetStyles[c],
-                            windowStyles[w],
-                            m + 1
-                        );
+                            const rooms = roomCounts[r];
+                            const spaceSize = calculateSpaceNeeded(rooms);
 
-                        const taskName = `materials_${m}_rooms_${r}_window_${w}_carpet_${c}_variant_${variant}`;
+                            const blueprint = proceduralGeneration(
+                                spaceSize,
+                                spaceSize,
+                                spaceSize,
+                                rooms,
+                                4,
+                                4,
+                                4,
+                                5,
+                                "air",
+                                carpetStyles[c],
+                                windowStyles[w],
+                                m + 1
+                            );
 
-                        tasks[taskName] = {
-                            type: "construction",
-                            goal: "Make a house with the blueprint",
-                            conversation: "Let's share materials and make a house with the blueprint",
-                            agent_count: agentCount,
-                            initial_inventory: createInitialInventory(blueprint, agentCount),
-                            timeout: timeout+(300*r), // 5 minute per additional level of complexity
-                            blueprint: blueprint,
+                            const taskName = `agents_${agent}_materials_${m}_rooms_${r}_window_${w}_carpet_${c}_variant_${variant}`;
 
-                        };
+                            tasks[taskName] = {
+                                type: "construction",
+                                goal: "Make a house with the blueprint",
+                                conversation: "Let's share materials and make a house with the blueprint",
+                                agent_count: agent,
+                                initial_inventory: createInitialInventory(blueprint, agent),
+                                timeout: timeout + (300 * r), // 5 minute per additional level of complexity
+                                blueprint: blueprint,
+
+                            };
+                        }
                     }
                 }
             }
@@ -137,15 +145,18 @@ function generateConstructionTasks(variants) {
 }
 
 
-
 //Main: writes the generated tasks to a file.
-const tasks = generateConstructionTasks(5);
+
+// VARIABLES TO CHANGE HERE
+const variants = 1
+const file = './test_multiagent_construction_tasks.json'
+
+const tasks = generateConstructionTasks(variants);
 // Clear existing file content
-fs.writeFileSync('./train_multiagent_construction_tasks.json', '');
+fs.writeFileSync(file, '');
 // re-add
 fs.writeFileSync(
-    './train_multiagent_construction_tasks.json',
+    file,
     JSON.stringify(tasks, null, 2)
 );
-
-console.log("Generated tasks saved to test_multiagent_construction_tasks.json");
+console.log("Generated tasks saved to ",file);

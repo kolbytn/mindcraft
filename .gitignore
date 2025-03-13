@@ -26,3 +26,5 @@ server_data_*/*
 server_data*
 results/*
 >>>>>>> d70491e5974a973b96c47f0515c2722b82c9b253
+tasks/construction_tasks/test_multiagent_construction_tasks.json
+tasks/construction_tasks/train_multiagent_construction_tasks.json
