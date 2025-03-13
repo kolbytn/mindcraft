@@ -86,7 +86,7 @@ export class Agent {
                 
                 console.log(`${this.name} spawned.`);
                 this.clearBotLogs();
-		    
+
                 this._setupEventHandlers(save_data, init_message);
                 this.startEvents();
 
