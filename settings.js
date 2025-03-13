@@ -19,7 +19,6 @@ export default
         // "./profiles/gemini.json",
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
-        // "./profiles/mistral.json",
         // "./profiles/grok.json",
         // "./profiles/mistral.json",
         // "./profiles/deepseek.json",
