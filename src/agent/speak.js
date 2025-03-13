@@ -37,6 +37,7 @@ function processQueue() {
       console.error(`${error.stack}`);
     } else if (stderr) {
       console.error(`Error: ${stderr}`);
+    }
     processQueue(); // Continue with the next message in the queue
   });
 }
