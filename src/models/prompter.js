@@ -154,7 +154,7 @@ export class Prompter {
 	          else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
             else 
-                throw new Error('Unknown model:', profile.model, 'Did you check the name is correct?'); // Asks the user if the name is correct
+                throw new Error('Unknown model:', profile.model);
         }
         return profile;
     }
