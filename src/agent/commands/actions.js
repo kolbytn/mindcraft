@@ -407,6 +407,14 @@ export const actionsList = [
             return `Converstaion with ${player_name} ended.`;
         }
     },
+    {
+        name: '!digDown',
+        description: 'Digs down a specified distance.',
+        params: {'distance': { type: 'int', description: 'Distance to dig down'}},
+        perform: runAsAction(async (agent, distance) => {
+            await skills.digDown(agent.bot, distance)
+        })
+    },
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
