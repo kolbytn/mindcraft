@@ -26,7 +26,7 @@ export class Claude {
                     this.params.max_tokens = this.params.thinking.budget_tokens + 1000;
                     // max_tokens must be greater than thinking.budget_tokens
                 } else {
-                    this.params.max_tokens = 16000;
+                    this.params.max_tokens = 4096;
                 }
             }
             const resp = await this.anthropic.messages.create({
