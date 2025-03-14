@@ -346,7 +346,7 @@ export function proceduralGeneration(m = 20,
         )
     );
 
-    // set materials
+    // todo: extrapolate into another param? then have set materials be dynamic? 
     let roomMaterials = ["stone", "terracotta", "quartz_block", "copper_block", "purpur_block"]
 
     if (complexity < roomMaterials.length) {

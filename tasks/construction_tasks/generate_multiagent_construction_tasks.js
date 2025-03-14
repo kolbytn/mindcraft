@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import {proceduralGeneration} from "../../src/agent/task_types/construction_tasks.js";
 
 //note 'main' (script to run generation of tasks) is at bottom of page
@@ -89,9 +90,8 @@ function calculateSpaceNeeded(rooms) {
  * @param variants is the number of variants within each complexity level you want.
  * @returns The tasks as nested JSON {{}}
  */
-function generateConstructionTasks(variants) {
+function generateConstructionTasks(variants, agents) {
     const materialLevels = 5;
-    const agentCount = 5
     const roomCounts = [4, 6, 8];
     const windowStyles = [0, 1, 2];
     const carpetStyles = [0, 1, 2];
@@ -103,7 +103,6 @@ function generateConstructionTasks(variants) {
         for (let r = 0; r < roomCounts.length; r++) {
             for (let w = 0; w < windowStyles.length; w++) {
                 for (let c = 0; c < carpetStyles.length; c++) {
-                    for (let agent = 2; agent <= agentCount; agent++) {
                         for (let variant = 0; variant < variants; variant++) {
 
                             const rooms = roomCounts[r];
@@ -124,20 +123,20 @@ function generateConstructionTasks(variants) {
                                 m + 1
                             );
 
-                            const taskName = `agents_${agent}_materials_${m}_rooms_${r}_window_${w}_carpet_${c}_variant_${variant}`;
+                            const taskName = `materials_${m}_rooms_${r}_window_${w}_carpet_${c}_variant_${variant}`;
 
                             tasks[taskName] = {
                                 type: "construction",
                                 goal: "Make a house with the blueprint",
                                 conversation: "Let's share materials and make a house with the blueprint",
-                                agent_count: agent,
-                                initial_inventory: createInitialInventory(blueprint, agent),
+                                agent_count: agents,
+                                initial_inventory: createInitialInventory(blueprint, agents),
                                 timeout: timeout + (300 * r), // 5 minute per additional level of complexity
                                 blueprint: blueprint,
 
                             };
                         }
-                    }
+
                 }
             }
         }
@@ -147,18 +146,29 @@ function generateConstructionTasks(variants) {
 }
 
 
-//Main: writes the generated tasks to a file.
+// const fs = require('fs');
+// const path = require('path');
 
-// VARIABLES TO CHANGE HERE
-const variants = 5
-const file = './train_multiagent_construction_tasks.json'
+// Function to create directories and generate tasks
+function setupTaskFiles(baseDirs, agentCounts, variants) {
+    baseDirs.forEach(base => {
+        if (!fs.existsSync(base)) {
+            fs.mkdirSync(base, { recursive: true });
+        }
 
-const tasks = generateConstructionTasks(variants);
-// Clear existing file content
-fs.writeFileSync(file, '');
-// re-add
-fs.writeFileSync(
-    file,
-    JSON.stringify(tasks, null, 2)
-);
-console.log("Generated tasks saved to ",file);
+        agentCounts.forEach(count => {
+            const tasks = generateConstructionTasks(variants, count);
+            const filePath = path.join(base, `${count}agents.json`);
+
+            fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
+            console.log(`Generated tasks saved to ${filePath}`);
+        });
+    });
+}
+
+const baseDirs = ['./train', './test'];
+const agentCounts = [2, 3, 4, 5];
+const variants = 5;
+
+setupTaskFiles(baseDirs, agentCounts, variants);
+
