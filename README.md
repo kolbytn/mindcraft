@@ -102,9 +102,9 @@ STT can be enabled in `settings.js` under the section that looks like this:
     "stt_agent_name": ""
 ```
 
-The Text to Speech engine will begin listening on the **system default input device**, ensure you have your preferred device set as the default.
+The Text to Speech engine will begin listening on the system default input device.
 
-When using TTS, you **need** a [GroqCloud API key](https://console.groq.com/keys) as Groq is used for Audio transcription
+When using STT, you **need** a [GroqCloud API key](https://console.groq.com/keys) as Groq is used for Audio transcription
 
 # Bot Profiles
 
