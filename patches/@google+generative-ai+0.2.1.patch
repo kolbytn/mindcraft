@@ -10,4 +10,4 @@ index 23a175b..aab7e19 100644
 +const API_VERSION = "v1beta";
  /**
   * We can't `require` package.json if this runs on web. We will use rollup to
-  * swap in the version number here at build time.
+		* swap in the version number here at build time.
