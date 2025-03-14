@@ -109,8 +109,7 @@ export class Agent {
                 process.exit(0);
             }
         });
-    }  throw error;
-        }
+    }
 
 
     async _setupEventHandlers(save_data, init_message) {
