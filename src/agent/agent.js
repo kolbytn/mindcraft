@@ -19,7 +19,7 @@ import { say } from './speak.js';
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.last_sender = null;
-        // Safely attach agent instance to a global-like object so TTS code can access it.
+        // Safely attach agent instance to a global-like object so STT code can access it.
         // This works in Node.js ESM or CommonJS. If "global" doesn't exist, fallback to "globalThis".
         const globalObj = (typeof global !== 'undefined') ? global : globalThis;
         try {
