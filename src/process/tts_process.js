@@ -1,4 +1,3 @@
-// ============================ tts_process.js ============================
 import settings from '../../settings.js';
 import { GroqCloudTTS } from '../models/groq.js';
 import portAudio from 'naudiodon';
@@ -31,8 +30,8 @@ const RMS_THRESHOLD = 500;          // Lower threshold for faint audio
 const SILENCE_DURATION = 2000;      // 2 seconds of silence after speech => stop
 const SAMPLE_RATE = 16000;
 const BIT_DEPTH = 16;
-const TTS_USERNAME = settings.tts_username || "SERVER";        // Name that appears as sender
-const TTS_AGENT_NAME = settings.tts_agent_name || "";          // If blank, broadcast to all
+const STT_USERNAME = settings.stt_username || "SERVER";        // Name that appears as sender
+const STT_AGENT_NAME = settings.stt_agent_name || "";          // If blank, broadcast to all
 
 /**
  * Records one session, transcribes, and sends to MindServer as a chat message
@@ -88,7 +87,6 @@ function recordAndTranscribeOnce() {
       if (rms > RMS_THRESHOLD) {
         if (!hasHeardSpeech) {
           hasHeardSpeech = true;
-          console.log("Speech detected");
         }
         resetSilenceTimer();
       }
@@ -123,15 +121,15 @@ function recordAndTranscribeOnce() {
         // Format message so it looks like: "[SERVER] hello there"
         const finalMessage = `[${TTS_USERNAME}] ${text}`;
 
-        // If TTS_AGENT_NAME is empty, broadcast to all agents
-        if (!TTS_AGENT_NAME.trim()) {
+        // If STT_AGENT_NAME is empty, broadcast to all agents
+        if (!STT_AGENT_NAME.trim()) {
           const agentNames = getAllInGameAgentNames(); // from mind_server
           for (const agentName of agentNames) {
             getIO().emit('send-message', agentName, finalMessage);
           }
         } else {
           // Otherwise, send only to the specified agent
-          getIO().emit('send-message', TTS_AGENT_NAME, finalMessage);
+          getIO().emit('send-message', STT_AGENT_NAME, finalMessage);
         }
 
         resolve(text);
@@ -152,7 +150,7 @@ async function continuousLoop() {
     try {
       await recordAndTranscribeOnce();
     } catch (err) {
-      console.error("[TTS Error]", err);
+      console.error("[STT Error]", err);
     }
     // short gap
     await new Promise(res => setTimeout(res, 1000));
@@ -160,10 +158,10 @@ async function continuousLoop() {
 }
 
 /**
- * Initialize TTS if enabled
+ * Initialize STT if enabled
  */
 export function initTTS() {
-  if (!settings.tts_transcription) return;
+  if (!settings.stt_transcription) return;
   continuousLoop().catch(() => {});
 }
 
