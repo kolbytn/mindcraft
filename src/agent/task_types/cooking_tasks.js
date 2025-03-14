@@ -143,7 +143,8 @@ export class CookingTaskInitiator {
                         const x = xStart + i;
                         const z = zStart + j;
                         await bot.chat(`/setblock ${x} ${position.y - 1} ${z} mycelium`);
-                        await bot.chat(`/setblock ${x} ${position.y} ${z} red_mushroom`);
+                        const mushroomType = (i + j) % 2 === 0 ? 'red_mushroom' : 'brown_mushroom';
+                        await bot.chat(`/setblock ${x} ${position.y} ${z} ${mushroomType}`);
                     }
                 }
             };
@@ -312,7 +313,7 @@ export class CookingTaskInitiator {
                 const cookingItems = [
                     ['minecraft:milk_bucket', 1],     // Non-stackable
                     ['minecraft:egg', 16],            // Stacks to 16
-                    ['minecraft:melon_slice', 64],    // Stacks to 64
+                    ['minecraft:dandelion', 64],    // Stacks to 64
                     ['minecraft:sugar', 64],
                     ['minecraft:cocoa_beans', 64],
                     ['minecraft:apple', 64],
@@ -334,6 +335,9 @@ export class CookingTaskInitiator {
                     ['minecraft:cooked_cod', 64],
                     ['minecraft:gold_ingot', 64],
                     ['minecraft:oak_planks', 64],
+                    ['minecraft:iron_ingot', 64],
+                    ['minecraft:milk_bucket', 1],
+                    ['minecraft:milk_bucket', 1],
                 ];
 
                 // Fill the chest with random cooking items
@@ -355,16 +359,16 @@ export class CookingTaskInitiator {
             await new Promise(resolve => setTimeout(resolve, 300));
 
             // Animal management
-            await bot.chat('/kill @e[type=item,distance=..50]');
-            await bot.chat('/kill @e[type=chicken,distance=..50]');
-            await bot.chat('/kill @e[type=cow,distance=..50]');
-            await bot.chat('/kill @e[type=llama,distance=..50]');
-            await bot.chat('/kill @e[type=mooshroom,distance=..50]');
-            await bot.chat('/kill @e[type=pig,distance=..50]');
-            await bot.chat('/kill @e[type=rabbit,distance=..50]');
-            await bot.chat('/kill @e[type=sheep,distance=..50]');
+            await bot.chat('/kill @e[type=item,distance=..200]');
+            await bot.chat('/kill @e[type=chicken,distance=..200]');
+            await bot.chat('/kill @e[type=cow,distance=..200]');
+            await bot.chat('/kill @e[type=llama,distance=..200]');
+            await bot.chat('/kill @e[type=mooshroom,distance=..200]');
+            await bot.chat('/kill @e[type=pig,distance=..200]');
+            await bot.chat('/kill @e[type=rabbit,distance=..200]');
+            await bot.chat('/kill @e[type=sheep,distance=..200]');
 
-            await bot.chat(`/kill @e[type=item,distance=..50]`);
+            await bot.chat(`/kill @e[type=item,distance=..200]`);
 
             await new Promise(resolve => setTimeout(resolve, 300));
 
