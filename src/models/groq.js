@@ -114,7 +114,7 @@ export class GroqCloudTTS {
   async transcribe(filePath, options = {}) {
     const transcription = await this.groq.audio.transcriptions.create({
       file: fs.createReadStream(filePath),
-      model: options.model || "distil-whisper-large-v3-en", // or "whisper-large-v3-turbo", etc.
+      model: options.model || "distil-whisper-large-v3-en", // or "whisper-large-v3-turbo"
       prompt: options.prompt || "",
       response_format: options.response_format || "json",
       language: options.language || "en",
