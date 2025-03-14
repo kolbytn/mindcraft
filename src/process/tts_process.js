@@ -119,7 +119,7 @@ function recordAndTranscribeOnce() {
         console.log("Transcription:", text);
 
         // Format message so it looks like: "[SERVER] hello there"
-        const finalMessage = `[${TTS_USERNAME}] ${text}`;
+        const finalMessage = `[${STT_USERNAME}] ${text}`;
 
         // If STT_AGENT_NAME is empty, broadcast to all agents
         if (!STT_AGENT_NAME.trim()) {
