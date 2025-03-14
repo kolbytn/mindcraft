@@ -1,4 +1,4 @@
-import Groq from 'groq-sdk';
+import Groq from 'groq-sdk'
 import fs from "fs";
 import { getKey } from '../utils/keys.js';
 
@@ -72,6 +72,7 @@ export class GroqCloudAPI {
     } catch (err) {
       console.log(err);
       res = "My brain just kinda stopped working. Try again.";
+    }
 
     // Check for <think> tag issues
     const hasOpenTag = res.includes("<think>");
@@ -82,8 +83,7 @@ export class GroqCloudAPI {
       console.warn("Partial <think> block detected. Re-generating Groq request...");
       continue; // This will skip the rest of the loop and try again
     }
-    return res;
-  }
+
     // If only the closing tag is present, prepend an opening tag
     if (hasCloseTag && !hasOpenTag) {
       res = '<think>' + res;
