@@ -198,7 +198,7 @@ export class Task {
         let add_string = '';
 
         if (this.task_type === 'cooking') {
-            add_string = '\nIn the end, all the food should be given to Andy.';
+            add_string = '\nIn the end, all the food items should be given to one single player.';
         }
 
         // If goal is a string, all agents share the same goal
