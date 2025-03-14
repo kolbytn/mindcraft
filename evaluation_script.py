@@ -106,6 +106,8 @@ def launch_parallel_experiments(task_path,
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
 
+    
+
     # start wandb
     os.makedirs(experiments_folder, exist_ok=True)
     for i, server in enumerate(servers):
@@ -124,6 +126,12 @@ def launch_parallel_experiments(task_path,
                                  num_agents=num_agents, 
                                  url=url)
         time.sleep(5)
+    
+    for i in range(20):
+        for i in range(len(servers)):
+            session_name = str(servers[i][1] - 55916)
+            subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
+            time.sleep(1)
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -204,10 +212,13 @@ def launch_server_experiment(task_path,
 
     time.sleep(40)
 
+    subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent_names[0]}", "C-m"])
+
     # add the bots as op
-    for agent in agent_names:
-        subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent}", "C-m"])
-        time.sleep(1)
+    # op_script_content = "sleep 5\n\op @p" * 20
+    # op_script_file = f"./tmp/op_script_{session_name}.sh"
+    # make_script_file_and_run(op_script_content, "server_" + session_name, op_script_file)
+    
 
     script_content = ""
     for task_id in task_ids:
@@ -243,22 +254,27 @@ def launch_server_experiment(task_path,
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
+    make_script_file_and_run(script_content, session_name, script_file)
 
-    script_dir = os.path.dirname(script_file)
+    
+
+
+
+def make_script_file_and_run(script_content, session_name, file_name):
+    script_dir = os.path.dirname(file_name)
     os.makedirs(script_dir, exist_ok=True)
     assert os.path.exists(script_dir), f"Script directory {script_dir} was not created"
     print(f"Created script directory: {script_dir}")
 
     # Call the function before writing the script file
-    with open(script_file, 'w') as f:
+    with open(file_name, 'w') as f:
         f.write(script_content)
-    assert os.path.exists(script_file), f"Script file {script_file} was not created"
+    assert os.path.exists(file_name), f"Script file {file_name} was not created"
 
-    script_file_run = "bash " + script_file
+    script_file_run = "bash " + file_name
 
     # Execute the shell script using subprocess
     subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
-
 
     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
