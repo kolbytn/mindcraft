@@ -5,6 +5,6 @@
 
     "max_tokens": 4000,
 
-    "embedding": "google"
+    "embedding": "openai"
     
 }
