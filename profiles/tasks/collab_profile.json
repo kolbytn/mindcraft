@@ -34,7 +34,14 @@
             {"role": "assistant", "content": "Seems like we need are missing 1 peony which we can use craft 1 pink_dye which is an intermediate item, but since you already have a pink_dye, there is no need to search for peony which is used to craft pink_dye, can you pass the pink_dye to me?"},
             {"role": "user", "content": "terrance: (FROM OTHER BOT) Sure, here you go !givePlayer(\"pink_dye\", 1, \"jacob\")"},
             {"role": "assistant", "content": "Thanks for the pink_dye, now I can craft the pink_wool. !craftItem(\"pink_wool\", 1)"}
+        ], 
+        [
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) Lets craft a cyan bed together"},
+            {"role": "assistant", "content": "Sure, I have !inventory\n I have a cyan_dye and oak_planks. What do you have? "},
+            {"role": "user", "content": "terrance: (FROM OTHER BOT) I have 1 cyan_wool and 1 oak_planks. Let me give those to you !givePlayer(\"cyan_wool\", 1, \"andy\") !givePlayer(\"oak_planks\", 1, \"andy\")"},
+            {"role": "assistant", "content": "Hmm seems like we don't have enough to craft a cyan bed, let me reach out to the third agent and ask for help! !startConversation(\"jacob\", Hey jacob, can you help us craft a cyan bed? We need cyan_dye and oak_planks"},
+            {"role": "user", "content": "jacob: (FROM OTHER BOT) Sure! Let me give those to you !givePlayer(\"cyan_dye\", 1, \"andy\") !givePlayer(\"oak_planks\", 1, \"andy\")"},
+            {"role": "assistant", "content": "Thanks for the items, now I can craft the cyan bed. !craftItem(\"cyan_bed\", 1)"}
         ]
     ]
-
 }

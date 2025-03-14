@@ -71,34 +71,7 @@ def check_task_completion(agents):
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error reading memory for agent {agent}: {e}")
             continue
-            
     return False  # Default to failure if no conclusive result found
-
-def update_results_file(task_id, success_count, total_count, time_taken, experiment_results, results_filename):
-    """Update the results file with current success ratio and time taken."""
-    success_ratio = success_count / total_count
-    
-    with open(results_filename, 'w') as f:  # 'w' mode overwrites the file each time
-        f.write(f"Task ID: {task_id}\n")
-        f.write(f"Experiments completed: {total_count}\n")
-        f.write(f"Successful experiments: {success_count}\n")
-        f.write(f"Success ratio: {success_ratio:.2f}\n")
-        f.write(f"Time taken for last experiment: {time_taken:.2f} seconds\n")
-        
-        # Write individual experiment results
-        for i, result in enumerate(experiment_results, 1):
-            f.write(f"Experiment {i}: {'Success' if result['success'] else 'Failure'}, Time taken: {result['time_taken']:.2f} seconds\n")
-        
-        # Write aggregated metrics
-        total_time = sum(result['time_taken'] for result in experiment_results)
-        f.write(f"\nAggregated metrics:\n")
-        f.write(f"Total experiments: {total_count}\n")
-        f.write(f"Total successful experiments: {success_count}\n")
-        f.write(f"Overall success ratio: {success_ratio:.2f}\n")
-        f.write(f"Total time taken: {total_time:.2f} seconds\n")
-        f.write(f"Average time per experiment: {total_time / total_count:.2f} seconds\n")
-        f.write(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-
 
 def set_environment_variable_tmux_session(session_name, key, value):
     """Set an environment variable for the current process."""
@@ -194,7 +167,9 @@ def launch_server_experiment(task_path,
         models = [model] * 2
         apis = [api] * 2
     else:
-        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}", f"Bob_{session_name}"]
+        agent_names = []
+        for i in range(num_agents):
+            agent_names.append(f"Agent_{i}_{session_name}")
         models = [model] * 3
         apis = [api] * 3
     make_profiles(agent_names, models, apis, template_profile=template_profile, url=url)
@@ -205,6 +180,11 @@ def launch_server_experiment(task_path,
         agent_profiles_str = f"'[\"{agent_profiles[0]}\"]'"
     elif num_agents == 2:
         agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
+    else: 
+        agent_profiles_str = "'["
+        for agent in agent_profiles[:-1]:
+            agent_profiles_str += f'\"{agent}\", '
+        agent_profiles_str += f"\"{agent_profiles[-1]}\"]'"
     print(agent_profiles_str)
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 
@@ -218,11 +198,11 @@ def launch_server_experiment(task_path,
         set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
 
     # you need to add the bots to the world first before you can add them as op
-    cmd = f"node main.js --task_path example_tasks.json --task_id debug_multi_agent_timeout"
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
 
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
 
-    time.sleep(20)
+    time.sleep(40)
 
     # add the bots as op
     for agent in agent_names:
