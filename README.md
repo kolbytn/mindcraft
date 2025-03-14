@@ -91,15 +91,15 @@ When running in docker, if you want the bot to join your local minecraft server,
 
 To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
 
-## TTS in Mindcraft
+## STT in Mindcraft
 
-TTS is an acronym for "Text To Speech", allowing you to talk into a microphone and the model responding.
+STT allows you to speak to the model if you have a microphone
 
-TTS can be enabled in `settings.js` under the section that looks like this:
+STT can be enabled in `settings.js` under the section that looks like this:
 ```javascript
-    "tts_transcription": true, // Change this to "true" to enable TTS
-    "tts_username": "SYSTEM",
-    "tts_agent_name": ""
+    "stt_transcription": true, // Change this to "true" to enable STT
+    "stt_username": "SYSTEM",
+    "stt_agent_name": ""
 ```
 
 The Text to Speech engine will begin listening on the **system default input device**, ensure you have your preferred device set as the default.
