@@ -40,8 +40,8 @@ async function main() {
     const profiles = getProfiles(args);
     console.log(profiles);
     const { load_memory, init_message } = settings;
-
-    for (let i = 0; i < profiles.length; i++) {
+    
+    for (let i=0; i<profiles.length; i++) {
         const agent_process = new AgentProcess();
         const profile = readFileSync(profiles[i], 'utf8');
         const agent_json = JSON.parse(profile);
