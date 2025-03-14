@@ -131,7 +131,7 @@ def launch_parallel_experiments(task_path,
         for i in range(len(servers)):
             session_name = str(servers[i][1] - 55916)
             subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
-            time.sleep(1)
+            time.sleep(10)
 
 def launch_server_experiment(task_path, 
                              task_ids, 

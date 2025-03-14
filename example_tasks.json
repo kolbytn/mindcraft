@@ -17,6 +17,15 @@
         },
         "type": "debug"
     },
+    "debug_1_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 1,
+        "initial_inventory": {
+            "iron_ingot": 1
+        },
+        "type": "debug",
+        "timeout": 60
+    },
     "debug_2_agent_timeout": {
         "goal": "Just stand at a place and don't do anything",
         "agent_count": 2,
