@@ -155,7 +155,7 @@ def aggregate_results(local_folders):
             success = int(extract_result(folder_path))
             successful += success
 
-            if "missing" in folder_path:
+            if "missing" in folder_path and not is_base(folder_path):
                 missing_successful += success
                 missing_total += 1
             if is_base(folder_path):
