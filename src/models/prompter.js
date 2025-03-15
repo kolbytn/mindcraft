@@ -430,7 +430,8 @@ export class Prompter {
 
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
-        let prompt = await this.replaceStrings(prompt, null, null, to_summarize);
+        let prompt = this.profile.saving_memory;
+        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         let logEntry;
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         if (this.task_id === null) {
