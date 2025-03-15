@@ -27,50 +27,38 @@ export class GroqCloudAPI {
 
     }
 
- async sendRequest(turns, systemMessage, stop_seq = null) {
-  // Variables for DeepSeek-R1 models
-  const maxAttempts = 5;
-  let attempt = 0;
-  let finalRes = null;
-  let res = null;
+    async sendRequest(turns, systemMessage, stop_seq = null) {
+        // Construct messages array
+        let messages = [{"role": "system", "content": systemMessage}].concat(turns);
 
-  // Construct messages array
-  let messages = [{"role": "system", "content": systemMessage}].concat(turns);
+        let res = null;
 
-  while (attempt < maxAttempts) {
-    attempt++;
+        try {
+            console.log("Awaiting Groq response...");
 
-    // These variables look odd, but they're for the future.
-    let raw_res = null;
-    let tool_calls = null;
+            // Handle deprecated max_tokens parameter
+            if (this.params.max_tokens) {
+                console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
+                this.params.max_completion_tokens = this.params.max_tokens;
+                delete this.params.max_tokens;
+            }
 
-    try {
-      console.log("Awaiting Groq response...");
+            if (!this.params.max_completion_tokens) {
+                this.params.max_completion_tokens = 4000;
+            }
 
-      // Handle deprecated max_tokens parameter
-      if (this.params.max_tokens) {
-        console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
-        this.params.max_completion_tokens = this.params.max_tokens;
-        delete this.params.max_tokens;
-      }
+            let completion = await this.groq.chat.completions.create({
+                "messages": messages,
+                "model": this.model_name || "llama-3.3-70b-versatile",
+                "stream": false,
+                "stop": stop_seq,
+                ...(this.params || {})
+            });
 
-      if (!this.params.max_completion_tokens) {
-        this.params.max_completion_tokens = 8000; // Set it lower.
-      }
+            res = completion.choices[0].message;
 
-      let completion = await this.groq.chat.completions.create({
-        "messages": messages,
-        "model": this.model_name || "llama-3.3-70b-versatile",
-        "stream": false,
-        "stop": stop_seq,
-        ...(this.params || {})
-      });
-
-            raw_res = completion.choices[0].message;
-            res = raw_res.content;
-
+            res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         }
-
         catch(err) {
             if (err.message.includes("content must be a string")) {
                 res = "Vision is only supported by certain models.";
@@ -80,7 +68,6 @@ export class GroqCloudAPI {
             }
             console.log(err);
         }
-
         return res;
     }
 
