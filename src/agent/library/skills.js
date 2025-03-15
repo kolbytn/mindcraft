@@ -460,7 +460,14 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
             return false;
         }
         try {
-            await bot.collectBlock.collect(block);
+            if (mc.mustCollectManually(blockType)) {
+                await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
+                await bot.dig(block);
+                await pickupNearbyItems(bot);
+            }
+            else {
+                await bot.collectBlock.collect(block);
+            }
             collected++;
             await autoLight(bot);
         }
