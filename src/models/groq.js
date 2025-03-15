@@ -24,44 +24,47 @@ export class GroqCloudAPI {
 
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
 
+
     }
 
-    async sendRequest(turns, systemMessage, stop_seq=null) {
+ async sendRequest(turns, systemMessage, stop_seq = null) {
+  // Variables for DeepSeek-R1 models
+  const maxAttempts = 5;
+  let attempt = 0;
+  let finalRes = null;
+  let res = null;
 
-        let messages = [{"role": "system", "content": systemMessage}].concat(turns); // The standard for GroqCloud is just appending to a messages array starting with the system prompt, but
-                                                                                     // this is perfectly acceptable too, and I recommend it. 
-                                                                                     // I still feel as though I should note it for any future revisions of MindCraft, though.
+  // Construct messages array
+  let messages = [{"role": "system", "content": systemMessage}].concat(turns);
 
-        // These variables look odd, but they're for the future. Please keep them intact.
-        let raw_res = null;
-        let res = null;
-        let tool_calls = null;
+  while (attempt < maxAttempts) {
+    attempt++;
 
-        try {
+    // These variables look odd, but they're for the future.
+    let raw_res = null;
+    let tool_calls = null;
 
-            console.log("Awaiting Groq response...");
+    try {
+      console.log("Awaiting Groq response...");
 
-            if (this.params.max_tokens) {
+      // Handle deprecated max_tokens parameter
+      if (this.params.max_tokens) {
+        console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
+        this.params.max_completion_tokens = this.params.max_tokens;
+        delete this.params.max_tokens;
+      }
 
-                console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
-                this.params.max_completion_tokens = this.params.max_tokens;
-                delete this.params.max_tokens;
+      if (!this.params.max_completion_tokens) {
+        this.params.max_completion_tokens = 8000; // Set it lower.
+      }
 
-            }
-
-            if (!this.params.max_completion_tokens) {
-
-                this.params.max_completion_tokens = 8000; // Set it lower. This is a common theme.
-
-            }
-
-            let completion = await this.groq.chat.completions.create({
-                "messages": messages,
-                "model": this.model_name || "llama-3.3-70b-versatile",
-                "stream": false,
-                "stop": stop_seq,
-                ...(this.params || {})
-            });
+      let completion = await this.groq.chat.completions.create({
+        "messages": messages,
+        "model": this.model_name || "llama-3.3-70b-versatile",
+        "stream": false,
+        "stop": stop_seq,
+        ...(this.params || {})
+      });
 
             raw_res = completion.choices[0].message;
             res = raw_res.content;

@@ -460,7 +460,14 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
             return false;
         }
         try {
-            await bot.collectBlock.collect(block);
+            if (mc.mustCollectManually(blockType)) {
+                await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
+                await bot.dig(block);
+                await pickupNearbyItems(bot);
+            }
+            else {
+                await bot.collectBlock.collect(block);
+            }
             collected++;
             await autoLight(bot);
         }
@@ -1373,5 +1380,62 @@ export async function activateNearestBlock(bot, type) {
     }
     await bot.activateBlock(block);
     log(bot, `Activated ${type} at x:${block.position.x.toFixed(1)}, y:${block.position.y.toFixed(1)}, z:${block.position.z.toFixed(1)}.`);
+    return true;
+}
+
+export async function digDown(bot, distance = 10) {
+    /**
+     * Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {int} distance, distance to dig down.
+     * @returns {Promise<boolean>} true if successfully dug all the way down.
+     * @example
+     * await skills.digDown(bot, 10);
+     **/
+
+    let start_block_pos = bot.blockAt(bot.entity.position).position;
+    for (let i = 1; i <= distance; i++) {
+        const targetBlock = bot.blockAt(start_block_pos.offset(0, -i, 0));
+        let belowBlock = bot.blockAt(start_block_pos.offset(0, -i-1, 0));
+
+        if (!targetBlock || !belowBlock) {
+            log(bot, `Dug down ${i-1} blocks, but reached the end of the world.`);
+            return true;
+        }
+
+        // Check for lava, water
+        if (targetBlock.name === 'lava' || targetBlock.name === 'water' || 
+            belowBlock.name === 'lava' || belowBlock.name === 'water') {
+            log(bot, `Dug down ${i-1} blocks, but reached ${belowBlock ? belowBlock.name : '(lava/water)'}`)
+            return false;
+        }
+
+        const MAX_FALL_BLOCKS = 2;
+        let num_fall_blocks = 0;
+        for (let j = 0; j <= MAX_FALL_BLOCKS; j++) {
+            if (!belowBlock || (belowBlock.name !== 'air' && belowBlock.name !== 'cave_air')) {
+                break;
+            }
+            num_fall_blocks++;
+            belowBlock = bot.blockAt(belowBlock.position.offset(0, -1, 0));
+        }
+        if (num_fall_blocks > MAX_FALL_BLOCKS) {
+            log(bot, `Dug down ${i-1} blocks, but reached a drop below the next block.`);
+            return false;
+        }
+
+        if (targetBlock.name === 'air' || targetBlock.name === 'cave_air') {
+            log(bot, 'Skipping air block');
+            console.log(targetBlock.position);
+            continue;
+        }
+
+        let dug = await breakBlockAt(bot, targetBlock.position.x, targetBlock.position.y, targetBlock.position.z);
+        if (!dug) {
+            log(bot, 'Failed to dig block at position:' + targetBlock.position);
+            return false;
+        }
+    }
+    log(bot, `Dug down ${distance} blocks.`);
     return true;
 }
