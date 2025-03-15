@@ -9,6 +9,30 @@ import sys
 import os
 import time
 
+BLOCKED_ACTIONS_COOKING = [
+    '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!endGoal', '!entities', '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
+    '!goToBed', '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
+    '!restart', '!setMode', '!stay', '!stfu', '!stop'
+]
+BLOCKED_ACTIONS_CRAFTING = [
+    '!activate', '!attack', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!endGoal', '!entities', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
+    '!goToBed', '!help', '!modes', '!newAction', '!putInChest', '!restart',
+    '!searchForEntity', '!setMode', '!stay', '!stfu', '!stop', '!takeFromChest',
+    '!viewChest'
+]
+BLOCKED_ACTIONS_CONSTRUCTION = [
+    '!activate', '!attackPlayer', '!clearChat', '!clearFurnace', '!collectBlocks',
+    '!consume', '!craftable', '!discard', '!endConversation', '!endGoal', '!entities',
+    '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel', '!goToBed',
+    '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
+    '!restart', '!searchForBlock', '!searchForEntity', '!setMode', '!stay', '!stfu',
+    '!stop', '!takeFromChest', '!viewChest'
+]
+
 def read_settings(file_path):
     """Read and parse the settings.js file to get agent profiles."""
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -71,34 +95,7 @@ def check_task_completion(agents):
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Error reading memory for agent {agent}: {e}")
             continue
-            
     return False  # Default to failure if no conclusive result found
-
-def update_results_file(task_id, success_count, total_count, time_taken, experiment_results, results_filename):
-    """Update the results file with current success ratio and time taken."""
-    success_ratio = success_count / total_count
-    
-    with open(results_filename, 'w') as f:  # 'w' mode overwrites the file each time
-        f.write(f"Task ID: {task_id}\n")
-        f.write(f"Experiments completed: {total_count}\n")
-        f.write(f"Successful experiments: {success_count}\n")
-        f.write(f"Success ratio: {success_ratio:.2f}\n")
-        f.write(f"Time taken for last experiment: {time_taken:.2f} seconds\n")
-        
-        # Write individual experiment results
-        for i, result in enumerate(experiment_results, 1):
-            f.write(f"Experiment {i}: {'Success' if result['success'] else 'Failure'}, Time taken: {result['time_taken']:.2f} seconds\n")
-        
-        # Write aggregated metrics
-        total_time = sum(result['time_taken'] for result in experiment_results)
-        f.write(f"\nAggregated metrics:\n")
-        f.write(f"Total experiments: {total_count}\n")
-        f.write(f"Total successful experiments: {success_count}\n")
-        f.write(f"Overall success ratio: {success_ratio:.2f}\n")
-        f.write(f"Total time taken: {total_time:.2f} seconds\n")
-        f.write(f"Average time per experiment: {total_time / total_count:.2f} seconds\n")
-        f.write(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-
 
 def set_environment_variable_tmux_session(session_name, key, value):
     """Set an environment variable for the current process."""
@@ -123,6 +120,9 @@ def launch_parallel_experiments(task_path,
     json_data = json.loads(content)
 
     task_ids = json_data.keys()
+
+    task_type = json_data[list(task_ids)[0]]["type"]
+    
 
     # split the task_ids into num_parallel groups
     task_ids = list(task_ids)
@@ -149,8 +149,15 @@ def launch_parallel_experiments(task_path,
                                  api=api, 
                                  insecure_coding=insecure_coding,
                                  num_agents=num_agents, 
-                                 url=url)
+                                 url=url, 
+                                 task_type=task_type)
         time.sleep(5)
+    
+    for i in range(20):
+        for i in range(len(servers)):
+            session_name = str(servers[i][1] - 55916)
+            subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
+            time.sleep(10)
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -165,7 +172,8 @@ def launch_server_experiment(task_path,
                              bucket_name="mindcraft-experiments", 
                              template_profile="profiles/tasks/collab_profile.json", 
                              insecure_coding=False, 
-                             url="http://127.0.0.1:8000/v1"):
+                             url="http://127.0.0.1:8000/v1", 
+                             task_type="techtree"):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -194,7 +202,9 @@ def launch_server_experiment(task_path,
         models = [model] * 2
         apis = [api] * 2
     else:
-        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}", f"Bob_{session_name}"]
+        agent_names = []
+        for i in range(num_agents):
+            agent_names.append(f"Agent_{i}_{session_name}")
         models = [model] * 3
         apis = [api] * 3
     make_profiles(agent_names, models, apis, template_profile=template_profile, url=url)
@@ -205,6 +215,11 @@ def launch_server_experiment(task_path,
         agent_profiles_str = f"'[\"{agent_profiles[0]}\"]'"
     elif num_agents == 2:
         agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
+    else: 
+        agent_profiles_str = "'["
+        for agent in agent_profiles[:-1]:
+            agent_profiles_str += f'\"{agent}\", '
+        agent_profiles_str += f"\"{agent_profiles[-1]}\"]'"
     print(agent_profiles_str)
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 
@@ -218,16 +233,25 @@ def launch_server_experiment(task_path,
         set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
 
     # you need to add the bots to the world first before you can add them as op
-    cmd = f"node main.js --task_path example_tasks.json --task_id debug_multi_agent_timeout"
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
 
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
 
-    time.sleep(20)
+    time.sleep(40)
+
+    subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent_names[0]}", "C-m"])
 
     # add the bots as op
-    for agent in agent_names:
-        subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent}", "C-m"])
-        time.sleep(1)
+    # op_script_content = "sleep 5\n\op @p" * 20
+    # op_script_file = f"./tmp/op_script_{session_name}.sh"
+    # make_script_file_and_run(op_script_content, "server_" + session_name, op_script_file)
+    if task_type == "cooking":
+        set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_COOKING)
+    elif task_type == "techtree":
+        set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CRAFTING)
+    elif task_type == "construction":
+        set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CONSTRUCTION)
+    
 
     script_content = ""
     for task_id in task_ids:
@@ -263,22 +287,23 @@ def launch_server_experiment(task_path,
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
+    make_script_file_and_run(script_content, session_name, script_file)
 
-    script_dir = os.path.dirname(script_file)
+def make_script_file_and_run(script_content, session_name, file_name):
+    script_dir = os.path.dirname(file_name)
     os.makedirs(script_dir, exist_ok=True)
     assert os.path.exists(script_dir), f"Script directory {script_dir} was not created"
     print(f"Created script directory: {script_dir}")
 
     # Call the function before writing the script file
-    with open(script_file, 'w') as f:
+    with open(file_name, 'w') as f:
         f.write(script_content)
-    assert os.path.exists(script_file), f"Script file {script_file} was not created"
+    assert os.path.exists(file_name), f"Script file {file_name} was not created"
 
-    script_file_run = "bash " + script_file
+    script_file_run = "bash " + file_name
 
     # Execute the shell script using subprocess
     subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
-
 
     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
