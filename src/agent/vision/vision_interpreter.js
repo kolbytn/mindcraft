@@ -7,7 +7,9 @@ export class VisionInterpreter {
         this.agent = agent;
         this.allow_vision = allow_vision;
         this.fp = './bots/'+agent.name+'/screenshots/';
-        this.camera = new Camera(agent.bot, this.fp);
+        if (allow_vision) {
+            this.camera = new Camera(agent.bot, this.fp);
+        }
     }
 
     async lookAtPlayer(player_name, direction) {
@@ -43,11 +45,23 @@ export class VisionInterpreter {
         let result = "";
         const bot = this.agent.bot;
         await bot.lookAt(new Vec3(x, y + 2, z));
-        result = `Looking at coordinate ${x, y, z}\n`;
+        result = `Looking at coordinate ${x}, ${y}, ${z}\n`;
 
         let filename = await this.camera.capture();
 
         return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+    }
+
+    getCenterBlockInfo() {
+        const bot = this.agent.bot;
+        const maxDistance = 128; // Maximum distance to check for blocks
+        const targetBlock = bot.blockAtCursor(maxDistance);
+        
+        if (targetBlock) {
+            return `Block at center view: ${targetBlock.name} at (${targetBlock.position.x}, ${targetBlock.position.y}, ${targetBlock.position.z})`;
+        } else {
+            return "No block in center view";
+        }
     }
 
     async analyzeImage(filename) {
@@ -55,7 +69,9 @@ export class VisionInterpreter {
             const imageBuffer = fs.readFileSync(`${this.fp}/${filename}.jpg`);
             const messages = this.agent.history.getHistory();
 
-            return await this.agent.prompter.promptVision(messages, imageBuffer);
+            const blockInfo = this.getCenterBlockInfo();
+            const result = await this.agent.prompter.promptVision(messages, imageBuffer);
+            return result + `\n${blockInfo}`;
 
         } catch (error) {
             console.warn('Error reading image:', error);
