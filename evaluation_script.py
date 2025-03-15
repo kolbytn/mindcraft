@@ -9,9 +9,29 @@ import sys
 import os
 import time
 
-BLOCKED_ACTIONS_COOKING = []
-BLOCKED_ACTIONS_CRAFTING = []
-BLOCKED_ACTIONS_CONSTRUCTION = []
+BLOCKED_ACTIONS_COOKING = [
+    '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!endGoal', '!entities', '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
+    '!goToBed', '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
+    '!restart', '!setMode', '!stay', '!stfu', '!stop'
+]
+BLOCKED_ACTIONS_CRAFTING = [
+    '!activate', '!attack', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!endGoal', '!entities', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
+    '!goToBed', '!help', '!modes', '!newAction', '!putInChest', '!restart',
+    '!searchForEntity', '!setMode', '!stay', '!stfu', '!stop', '!takeFromChest',
+    '!viewChest'
+]
+BLOCKED_ACTIONS_CONSTRUCTION = [
+    '!activate', '!attackPlayer', '!clearChat', '!clearFurnace', '!collectBlocks',
+    '!consume', '!craftable', '!discard', '!endConversation', '!endGoal', '!entities',
+    '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel', '!goToBed',
+    '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
+    '!restart', '!searchForBlock', '!searchForEntity', '!setMode', '!stay', '!stfu',
+    '!stop', '!takeFromChest', '!viewChest'
+]
 
 def read_settings(file_path):
     """Read and parse the settings.js file to get agent profiles."""
