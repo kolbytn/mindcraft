@@ -9,6 +9,30 @@ import sys
 import os
 import time
 
+BLOCKED_ACTIONS_COOKING = [
+    '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!endGoal', '!entities', '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
+    '!goToBed', '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
+    '!restart', '!setMode', '!stay', '!stfu', '!stop'
+]
+BLOCKED_ACTIONS_CRAFTING = [
+    '!activate', '!attack', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!endGoal', '!entities', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
+    '!goToBed', '!help', '!modes', '!newAction', '!putInChest', '!restart',
+    '!searchForEntity', '!setMode', '!stay', '!stfu', '!stop', '!takeFromChest',
+    '!viewChest'
+]
+BLOCKED_ACTIONS_CONSTRUCTION = [
+    '!activate', '!attackPlayer', '!clearChat', '!clearFurnace', '!collectBlocks',
+    '!consume', '!craftable', '!discard', '!endConversation', '!endGoal', '!entities',
+    '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel', '!goToBed',
+    '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
+    '!restart', '!searchForBlock', '!searchForEntity', '!setMode', '!stay', '!stfu',
+    '!stop', '!takeFromChest', '!viewChest'
+]
+
 def read_settings(file_path):
     """Read and parse the settings.js file to get agent profiles."""
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -97,6 +121,9 @@ def launch_parallel_experiments(task_path,
 
     task_ids = json_data.keys()
 
+    task_type = json_data[list(task_ids)[0]]["type"]
+    
+
     # split the task_ids into num_parallel groups
     task_ids = list(task_ids)
     task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
@@ -105,8 +132,6 @@ def launch_parallel_experiments(task_path,
     date_time = datetime.now().strftime("%m-%d_%H-%M")
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
-
-    
 
     # start wandb
     os.makedirs(experiments_folder, exist_ok=True)
@@ -124,7 +149,8 @@ def launch_parallel_experiments(task_path,
                                  api=api, 
                                  insecure_coding=insecure_coding,
                                  num_agents=num_agents, 
-                                 url=url)
+                                 url=url, 
+                                 task_type=task_type)
         time.sleep(5)
     
     for i in range(20):
@@ -146,7 +172,8 @@ def launch_server_experiment(task_path,
                              bucket_name="mindcraft-experiments", 
                              template_profile="profiles/tasks/collab_profile.json", 
                              insecure_coding=False, 
-                             url="http://127.0.0.1:8000/v1"):
+                             url="http://127.0.0.1:8000/v1", 
+                             task_type="techtree"):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -218,6 +245,12 @@ def launch_server_experiment(task_path,
     # op_script_content = "sleep 5\n\op @p" * 20
     # op_script_file = f"./tmp/op_script_{session_name}.sh"
     # make_script_file_and_run(op_script_content, "server_" + session_name, op_script_file)
+    if task_type == "cooking":
+        set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_COOKING)
+    elif task_type == "techtree":
+        set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CRAFTING)
+    elif task_type == "construction":
+        set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CONSTRUCTION)
     
 
     script_content = ""
@@ -255,10 +288,6 @@ def launch_server_experiment(task_path,
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
     make_script_file_and_run(script_content, session_name, script_file)
-
-    
-
-
 
 def make_script_file_and_run(script_content, session_name, file_name):
     script_dir = os.path.dirname(file_name)
