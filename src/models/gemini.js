@@ -96,6 +96,51 @@ export class Gemini {
         return text;
     }
 
+    async sendVisionRequest(turns, systemMessage, imageBuffer) {
+        let model;
+        if (this.url) {
+            model = this.genAI.getGenerativeModel(
+                { model: this.model_name || "gemini-1.5-flash" },
+                { baseUrl: this.url },
+                { safetySettings: this.safetySettings }
+            );
+        } else {
+            model = this.genAI.getGenerativeModel(
+                { model: this.model_name || "gemini-1.5-flash" },
+                { safetySettings: this.safetySettings }
+            );
+        }
+
+        const imagePart = {
+            inlineData: {
+                data: imageBuffer.toString('base64'),
+                mimeType: 'image/jpeg'
+            }
+        };
+
+        const stop_seq = '***';
+        const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
+        let res = null;
+        try {
+            console.log('Awaiting Google API vision response...');
+            const result = await model.generateContent([prompt, imagePart]);
+            const response = await result.response;
+            const text = response.text();
+            console.log('Received.');
+            if (!text.includes(stop_seq)) return text;
+            const idx = text.indexOf(stop_seq);
+            res = text.slice(0, idx);
+        } catch (err) {
+            console.log(err);
+            if (err.message.includes("Image input modality is not enabled for models/")) {
+                res = "Vision is only supported by certain models.";
+            } else {
+                res = "An unexpected error occurred, please try again.";
+            }
+        }
+        return res;
+    }
+
     async embed(text) {
         let model;
         if (this.url) {

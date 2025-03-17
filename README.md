@@ -119,6 +119,11 @@ You can pass a string or an object for these fields. A model object must specify
   "model": "gpt-4",
   "url": "https://api.openai.com/v1/"
 },
+"vision_model": {
+  "api": "openai",
+  "model": "gpt-4o",
+  "url": "https://api.openai.com/v1/"
+},
 "embedding": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
@@ -127,7 +132,7 @@ You can pass a string or an object for these fields. A model object must specify
 
 ```
 
-`model` is used for chat, `code_model` is used for newAction coding, and `embedding` is used to embed text for example selection. If `code_model` or `embedding` are not specified, they will use `model` by default. Not all APIs have an embedding model.
+`model` is used for chat, `code_model` is used for newAction coding, `vision_model` is used for image interpretation, and `embedding` is used to embed text for example selection. If `code_model` or `vision_model` is not specified, `model` will be used by default. Not all APIs support embeddings or vision.
 
 All apis have default models and urls, so those fields are optional. The `params` field is optional and can be used to specify additional parameters for the model. It accepts any key-value pairs supported by the api. Is not supported for embedding models.
 

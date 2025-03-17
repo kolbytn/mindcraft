@@ -1399,7 +1399,6 @@ export async function activateNearestBlock(bot, type) {
     return true;
 }
 
-
 export async function digDown(bot, distance = 10) {
     /**
      * Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.

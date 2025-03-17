@@ -66,6 +66,14 @@ export class Prompter {
             this.code_model = this.chat_model;
         }
 
+        if (this.profile.vision_model) {
+            let vision_model_profile = this._selectAPI(this.profile.vision_model);
+            this.vision_model = this._createModel(vision_model_profile);
+        }
+        else {
+            this.vision_model = this.chat_model;
+        }
+
         let embedding = this.profile.embedding;
         if (embedding === undefined) {
             if (chat_model_profile.api !== 'ollama')
@@ -357,6 +365,13 @@ export class Prompter {
         prompt = await this.replaceStrings(prompt, null, null, messages);
         let res = await this.chat_model.sendRequest([], prompt);
         return res.trim().toLowerCase() === 'respond';
+    }
+
+    async promptVision(messages, imageBuffer) {
+        await this.checkCooldown();
+        let prompt = this.profile.image_analysis;
+        prompt = await this.replaceStrings(prompt, messages, null, null, null);
+        return await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
     }
 
     async promptGoalSetting(messages, last_goals) {
