@@ -24,6 +24,8 @@ export class Agent {
         }
         
         console.log('Starting agent initialization with profile:', profile_fp);
+
+        
         
         // Initialize components with more detailed error handling
         console.log('Initializing action manager...');
@@ -45,7 +47,21 @@ export class Agent {
         console.log('Initializing examples...');
         await this.prompter.initExamples();
         console.log('Initializing task...');
-        this.task = new Task(this, task_path, task_id);
+
+        // load mem first before doing task
+        let save_data = null;
+        if (load_mem) {
+            save_data = this.history.load();
+        }
+        console.log(save_data);
+        let taskStart = null;
+        if (save_data) {
+            taskStart = save_data.taskStart;
+        } else {
+            taskStart = Date.now();
+        }
+        // incorporate new restart time into task
+        this.task = new Task(this, task_path, task_id, taskStart);
         this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(this.blocked_actions);
 
@@ -56,10 +72,7 @@ export class Agent {
 
         initModes(this);
 
-        let save_data = null;
-        if (load_mem) {
-            save_data = this.history.load();
-        }
+        
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');

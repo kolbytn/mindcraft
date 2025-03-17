@@ -149,11 +149,16 @@ class CookingCraftingTaskValidator {
 }
 
 export class Task {
-    constructor(agent, task_path, task_id) {
+    constructor(agent, task_path, task_id, taskStartTime = null) {
         this.agent = agent;
         this.data = null;
-        this.taskTimeout = 300;
-        this.taskStartTime = Date.now();
+        console.log("task start time", taskStartTime);
+        if (taskStartTime !== null)
+            this.taskStartTime = taskStartTime;
+        else
+            this.taskStartTime = Date.now();
+
+        console.log(this.taskStartTime);
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
