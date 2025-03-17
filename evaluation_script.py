@@ -13,6 +13,7 @@ import json
 import glob
 
 from tqdm import tqdm
+import boto3
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
@@ -105,8 +106,6 @@ def aggregate_results(local_folders):
             if result is not None:
                 total += 1
                 successful += int(result)
-            success = int(extract_result(folder_path))
-            successful += success
         except Exception as e:
             print(f"Error processing {folder_name}: {e}")
     
@@ -215,6 +214,14 @@ def launch_parallel_experiments(task_path,
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
 
+    split_task_path = task_path.split("/")
+    if len(split_task_path) > 1:
+        task_path_name = split_task_path[-2]
+    else:
+        task_path_name = "tasks"
+
+    s3_path = f"{bucket_name}/{task_type}/{model}/{task_path_name}/{exp_name}/"
+
     # start wandb
     os.makedirs(experiments_folder, exist_ok=True)
     for i, server in enumerate(servers):
@@ -232,18 +239,25 @@ def launch_parallel_experiments(task_path,
                                  insecure_coding=insecure_coding,
                                  num_agents=num_agents, 
                                  url=url, 
-                                 task_type=task_type)
+                                 task_type=task_type, 
+                                 s3_path=s3_path)
         time.sleep(5)
     
-    # total_num_tasks = len(task_ids)
-    # total_num_experiments = total_num_tasks * num_exp
-    # total_run = 0
-    # while total_run < total_num_experiments:
-    #     results = aggregate_results([f"{experiments_folder}/{task_id}" for task_id in task_ids])
-    #     total_run = results["total"]
-    #     print(f"Total tasks run: {total_run}/{total_num_experiments}")
-    #     print(results)
-    #     time.sleep(15)
+    total_num_tasks = len(task_ids)
+    total_num_experiments = total_num_tasks * num_exp
+    total_run = 0
+    while total_run < total_num_experiments:
+        results = aggregate_results([f"{experiments_folder}/{task_id}" for task_id in task_ids])
+        total_run = results["total"]
+        print(f"Total tasks run: {total_run}/{total_num_experiments}")
+        print(results)
+        with open(f"{experiments_folder}/results.txt", "w") as file:
+            file.write(str(results))
+        if s3: 
+            s3 = boto3.client('s3')
+            s3.upload_file(f"{experiments_folder}/results.txt", bucket_name, s3_path)
+        
+        time.sleep(15)
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -259,7 +273,8 @@ def launch_server_experiment(task_path,
                              template_profile="profiles/tasks/collab_profile.json", 
                              insecure_coding=False, 
                              url="http://127.0.0.1:8000/v1", 
-                             task_type="techtree"):
+                             task_type="techtree", 
+                             s3_path=""):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -341,11 +356,8 @@ def launch_server_experiment(task_path,
     elif task_type == "construction":
         set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CONSTRUCTION)
     
-    split_task_path = task_path.split("/")
-    if len(split_task_path) > 1:
-        task_path_name = split_task_path[-2]
-    else:
-        task_path_name = "tasks"
+    
+    
 
     script_content = ""
     for task_id in task_ids:
@@ -368,7 +380,7 @@ def launch_server_experiment(task_path,
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{task_type}/{model}/{task_path_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{s3_path}/{task_id}/{agent}_{_}.json"
                     script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
@@ -376,7 +388,7 @@ def launch_server_experiment(task_path,
         script_content += f"sleep 10\n"
         if s3:
             for agent in agent_names:
-                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{task_type}/{model}/{task_path_name}/{exp_name}/bots/{agent} --recursive\n"
+                script_content += f"aws s3 cp bots/{agent} s3://{s3_path}/bots/{agent} --recursive\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
