@@ -459,6 +459,12 @@ def make_profiles(agent_names, models, apis, template_profile="profiles/collab_p
                 "model": models[index], 
                 "url": url
             }
+        elif apis[index] == "ollama":
+            profile["model"] = {
+                "api": "ollama",
+                "model": models[index],
+                "embedding": "ollama"
+            }
         else: 
             profile["model"] = models[index]
 
