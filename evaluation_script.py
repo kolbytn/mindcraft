@@ -11,6 +11,7 @@ import time
 import filecmp
 import json
 import glob
+import socket
 
 from tqdm import tqdm
 import boto3
@@ -322,7 +323,7 @@ def launch_server_experiment(task_path,
             agent_profiles_str += f'\"{agent}\", '
         agent_profiles_str += f"\"{agent_profiles[-1]}\"]'"
     print(agent_profiles_str)
-    launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
+    launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names, port=server_port)
 
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
 
@@ -542,16 +543,30 @@ def delete_server_files(dest_path):
         delete_server_files(dest_path)
     
 
-def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server"):
+def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server", port=55916):
     """Launch the Minecraft world."""
-    print(server_path)
+    print(f"Launching Minecraft world with port {port}...")
     cmd = f"cd {server_path} && java -jar server.jar"
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-    # for agent in agent_names:
-    #     print(f"\n\n/op {agent}\n\n")
-    #     subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
-    time.sleep(5)
+    time.sleep(10)
+    if not test_server_running(port):
+        print("Server failed to start. Retrying...")
+        launch_world(server_path, agent_names, session_name, port)
+
+def test_server_running(port=55916):
+    host = 'localhost'
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.connect((host, port))
+            print("Server is running on port 55916")
+            return True
+        except ConnectionRefusedError:
+            print("Server is not running on port 55916")
+            return False
+
+    
 
 def kill_world(session_name="server"):
     """Kill the Minecraft world."""
