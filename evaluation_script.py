@@ -274,8 +274,8 @@ def launch_server_experiment(task_path,
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
-                    s3_upload_experiment = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{task_type}/{model}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_upload_experiment = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{task_type}/{model}/{exp_name}/{task_id}/{agent}_{_}.json"
                     script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
@@ -283,7 +283,7 @@ def launch_server_experiment(task_path,
         script_content += f"sleep 10\n"
         if s3:
             for agent in agent_names:
-                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{exp_name}/bots/{agent} --recursive\n"
+                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{task_type}/{model}/{exp_name}/bots/{agent} --recursive\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
