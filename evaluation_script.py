@@ -500,8 +500,6 @@ def clean_up_server_files(num_copies):
     for i in range(num_copies):
         dest_path = f"./server_data_{i}/"
         delete_server_files(dest_path)
-    
-    
 
 def copy_server_files(source_path, dest_path):
     """Copy server files to the specified location."""
@@ -535,7 +533,6 @@ def delete_server_files(dest_path):
         print(f"Server files deleted from {dest_path}")
     except Exception as e:
         print(f"Error deleting server files: {e}")
-        delete_server_files(dest_path)
     if not os.path.exists(dest_path):
         print("Server files deleted successfully.")
     else:
