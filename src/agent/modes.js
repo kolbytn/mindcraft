@@ -83,6 +83,7 @@ const modes_list = [
         stuck_time: 0,
         last_time: Date.now(),
         max_stuck_time: 20,
+        prev_dig_block: null,
         update: async function (agent) {
             if (agent.isIdle()) { 
                 this.prev_location = null;
@@ -90,12 +91,17 @@ const modes_list = [
                 return; // don't get stuck when idle
             }
             const bot = agent.bot;
-            if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < this.distance) {
+            const cur_dig_block = bot.targetDigBlock;
+            if (cur_dig_block && !this.prev_dig_block) {
+                this.prev_dig_block = cur_dig_block;
+            }
+            if (this.prev_location && this.prev_location.distanceTo(bot.entity.position) < this.distance && cur_dig_block == this.prev_dig_block) {
                 this.stuck_time += (Date.now() - this.last_time) / 1000;
             }
             else {
                 this.prev_location = bot.entity.position.clone();
                 this.stuck_time = 0;
+                this.prev_dig_block = null;
             }
             if (this.stuck_time > this.max_stuck_time) {
                 say(agent, 'I\'m stuck!');
