@@ -43,7 +43,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `anthropic` | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | `xai` | `XAI_API_KEY` | `grok-2-1212` | [docs](https://docs.x.ai/docs) |
 | `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` | [docs](https://api-docs.deepseek.com/) |
-| `ollama` (local) | n/a | `llama3.1` | [docs](https://ollama.com/library) |
+| `ollama` (local) | n/a | `ollama/llama3.1` | [docs](https://ollama.com/library) |
 | `qwen` | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 | `mistral` | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
 | `replicate` | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
@@ -134,6 +134,11 @@ You can pass a string or an object for these fields. A model object must specify
   "model": "gpt-4",
   "url": "https://api.openai.com/v1/"
 },
+"vision_model": {
+  "api": "openai",
+  "model": "gpt-4o",
+  "url": "https://api.openai.com/v1/"
+},
 "embedding": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
@@ -142,7 +147,7 @@ You can pass a string or an object for these fields. A model object must specify
 
 ```
 
-`model` is used for chat, `code_model` is used for newAction coding, and `embedding` is used to embed text for example selection. If `code_model` or `embedding` are not specified, they will use `model` by default. Not all APIs have an embedding model.
+`model` is used for chat, `code_model` is used for newAction coding, `vision_model` is used for image interpretation, and `embedding` is used to embed text for example selection. If `code_model` or `vision_model` is not specified, `model` will be used by default. Not all APIs support embeddings or vision.
 
 All apis have default models and urls, so those fields are optional. The `params` field is optional and can be used to specify additional parameters for the model. It accepts any key-value pairs supported by the api. Is not supported for embedding models.
 

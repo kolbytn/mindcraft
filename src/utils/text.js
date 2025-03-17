@@ -46,7 +46,9 @@ export function strictFormat(turns) {
     let messages = [];
     let filler = {role: 'user', content: '_'};
     for (let msg of turns) {
-        msg.content = msg.content.trim();
+        if (typeof msg.content === 'string')  {
+            msg.content = msg.content.trim();
+        }
         if (msg.role === 'system') {
             msg.role = 'user';
             msg.content = 'SYSTEM: ' + msg.content;
