@@ -10,6 +10,9 @@ import os
 import time
 import filecmp
 import json
+import glob
+
+from tqdm import tqdm
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
@@ -34,6 +37,83 @@ BLOCKED_ACTIONS_CONSTRUCTION = [
     '!restart', '!searchForBlock', '!searchForEntity', '!setMode', '!stay', '!stfu',
     '!stop', '!takeFromChest', '!viewChest'
 ]
+
+def analyze_json_file(file_path):
+    """
+    Analyzes a single JSON file to extract the task outcome.
+
+    Args:
+        file_path (str): Path to the JSON file.
+
+    Returns:
+        str or None: The task outcome string if found, otherwise None.
+    """
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            if 'turns' in data and isinstance(data['turns'], list):
+                for turn in reversed(data['turns']):  # Check turns from the end
+                    if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
+                        if "Task successful ended with code : 2" in turn['content'] or "Task ended with score : 1" in turn["content"] or "Task ended in score: 1" in turn["content"]:
+                            return True
+        return False
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}")
+        return None
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in: {file_path}")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred while processing {file_path}: {e}")
+        return None
+    
+def extract_result(folder_path):
+    folder_name = os.path.basename(folder_path)
+    json_files = glob.glob(os.path.join(folder_path, "*.json"))
+    # assert len(json_files) == 2, f"Expected 2 json files in {folder_name}, found {len(json_files)}"
+
+    if not json_files:
+        print(f"No JSON files found in {folder_name}")
+        return None
+    else: 
+        outcome = False
+        for json_file in json_files:
+            outcome = analyze_json_file(json_file)
+            if outcome:
+                return True
+        return False
+    
+def aggregate_results(local_folders):
+    """
+    Aggregates the analysis results for each folder.
+
+    Args:
+        local_folders (list): List of local folder paths containing the JSON files.
+
+    Returns:
+        dict: A dictionary where keys are folder names and values are the aggregated outcomes.
+    """
+    aggregated_data = {}
+
+    total = 0
+    successful = 0
+    for folder_path in tqdm(local_folders):
+        folder_name = os.path.basename(folder_path)
+
+        try: 
+            result = extract_result(folder_path)
+            if result is not None:
+                total += 1
+                successful += int(result)
+            success = int(extract_result(folder_path))
+            successful += success
+        except Exception as e:
+            print(f"Error processing {folder_name}: {e}")
+    
+    return {
+        "total": total,
+        "successful": successful,
+    }
 
 def read_settings(file_path):
     """Read and parse the settings.js file to get agent profiles."""
@@ -155,11 +235,15 @@ def launch_parallel_experiments(task_path,
                                  task_type=task_type)
         time.sleep(5)
     
-    for i in range(20):
-        for i in range(len(servers)):
-            session_name = str(servers[i][1] - 55916)
-            subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
-            time.sleep(10)
+    # total_num_tasks = len(task_ids)
+    # total_num_experiments = total_num_tasks * num_exp
+    # total_run = 0
+    # while total_run < total_num_experiments:
+    #     results = aggregate_results([f"{experiments_folder}/{task_id}" for task_id in task_ids])
+    #     total_run = results["total"]
+    #     print(f"Total tasks run: {total_run}/{total_num_experiments}")
+    #     print(results)
+    #     time.sleep(15)
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -403,6 +487,8 @@ def clean_up_server_files(num_copies):
     for i in range(num_copies):
         dest_path = f"./server_data_{i}/"
         delete_server_files(dest_path)
+    
+    
 
 def copy_server_files(source_path, dest_path):
     """Copy server files to the specified location."""
@@ -436,6 +522,13 @@ def delete_server_files(dest_path):
         print(f"Server files deleted from {dest_path}")
     except Exception as e:
         print(f"Error deleting server files: {e}")
+        delete_server_files(dest_path)
+    if not os.path.exists(dest_path):
+        print("Server files deleted successfully.")
+    else:
+        print("Error deleting server files.")
+        delete_server_files(dest_path)
+    
 
 def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server"):
     """Launch the Minecraft world."""
