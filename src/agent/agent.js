@@ -177,6 +177,7 @@ export class Agent {
 
     requestInterrupt() {
         this.bot.interrupt_code = true;
+        this.bot.stopDigging();
         this.bot.collectBlock.cancelTask();
         this.bot.pathfinder.stop();
         this.bot.pvp.stop();
@@ -357,7 +358,7 @@ export class Agent {
         }
         else {
 	    if (settings.speak) {
-            	say(message);
+            say(to_translate);
 	    }
             this.bot.chat(message);
         }

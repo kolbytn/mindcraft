@@ -24,7 +24,7 @@ function processQueue() {
   let command;
 
   if (isWin) {
-    command = `powershell -Command "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak(\\"${textToSpeak}\\")"`;
+    command = `powershell -Command "Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Rate = 2; $s.Speak(\\"${textToSpeak}\\"); $s.Dispose()"`;
   } else if (isMac) {
     command = `say "${textToSpeak}"`;
   } else {
