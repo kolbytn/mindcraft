@@ -1,0 +1,15 @@
+{
+  "num_tasks": 131,
+  "avg_depth": 2.8461538461538463,
+  "std_depth": 0.9880948137434719,
+  "num_tasks_based_depth": {
+    "0": 45,
+    "1": 60,
+    "2": 15,
+    "3": 10
+  },
+  "num_missing_resources": {
+    "0": 95,
+    "1": 35
+  }
+}
