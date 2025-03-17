@@ -8,6 +8,8 @@ import re
 import sys
 import os
 import time
+import filecmp
+import json
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
@@ -225,6 +227,8 @@ def launch_server_experiment(task_path,
 
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
 
+    
+
     # set environment variables
     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
@@ -233,13 +237,14 @@ def launch_server_experiment(task_path,
         set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
 
     # you need to add the bots to the world first before you can add them as op
-    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
+    # cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
 
-    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+    # subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
 
-    time.sleep(40)
+    # time.sleep(40)
 
-    subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent_names[0]}", "C-m"])
+    # subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
+    make_ops(agent_names, session_name)
 
     # add the bots as op
     # op_script_content = "sleep 5\n\op @p" * 20
@@ -252,6 +257,11 @@ def launch_server_experiment(task_path,
     elif task_type == "construction":
         set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CONSTRUCTION)
     
+    split_task_path = task_path.split("/")
+    if len(split_task_path) > 1:
+        task_path_name = split_task_path[-2]
+    else:
+        task_path_name = "tasks"
 
     script_content = ""
     for task_id in task_ids:
@@ -274,8 +284,7 @@ def launch_server_experiment(task_path,
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
-                    s3_upload_experiment = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{task_type}/{model}/{task_path_name}/{exp_name}/{task_id}/{agent}_{_}.json"
                     script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
@@ -283,11 +292,41 @@ def launch_server_experiment(task_path,
         script_content += f"sleep 10\n"
         if s3:
             for agent in agent_names:
-                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{exp_name}/bots/{agent} --recursive\n"
+                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{task_type}/{model}/{task_path_name}/{exp_name}/bots/{agent} --recursive\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
     make_script_file_and_run(script_content, session_name, script_file)
+
+def make_ops(agent_names, session_name):
+    """Make the agents operators in the Minecraft world."""
+    print('Making agents operators...')
+
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{len(agent_names)}_agent_timeout"
+
+    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+
+    time.sleep(30)
+
+    subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
+
+    agents_op = check_agent_ops(agent_names, ops_file=f"./server_data_{session_name}/ops.json")
+    if agents_op:
+        print("Agents are operators! You are good to go :D")
+    else: 
+        print("Agents are not operators! Something went wrong :(")
+        make_ops(agent_names, session_name)
+
+def check_agent_ops(agent_names, ops_file="ops.json"):
+    with open(ops_file, "r") as f:
+        ops_data = json.load(f)
+    
+    ops_names = [op["name"] for op in ops_data]
+    
+    for agent in agent_names:
+        if agent not in ops_names:
+            return False 
+    return True
 
 def make_script_file_and_run(script_content, session_name, file_name):
     script_dir = os.path.dirname(file_name)
@@ -372,6 +411,23 @@ def copy_server_files(source_path, dest_path):
         print(f"Server files copied to {dest_path}")
     except Exception as e:
         print(f"Error copying server files: {e}")
+    time.sleep(10)
+
+    same_files = check_same_files(source_path, dest_path)
+    if not same_files:
+        copy_server_files(source_path, dest_path)
+        print("The destination path does not contain all the same files as the source path.")
+    else:
+        print("The destination path contains all the same files as the source path.")
+
+def check_same_files(d1, d2):
+
+    items1 = set(os.listdir(d1))
+    items2 = set(os.listdir(d2))
+
+    if items1 != items2:
+        return False
+    return True
 
 def delete_server_files(dest_path):
     """Delete server files from the specified location."""
