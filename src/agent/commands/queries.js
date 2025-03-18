@@ -211,7 +211,6 @@ export const queryList = [
             // Generate crafting plan
             let craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
             craftingPlan = prefixMessage + craftingPlan;
-            console.log(craftingPlan);
             return pad(craftingPlan);
         },
     },
