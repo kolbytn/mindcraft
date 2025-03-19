@@ -432,7 +432,6 @@ export class Prompter {
 
     async _saveToFile(logFile, logEntry) {
         let task_id = this.agent.task.task_id;
-        console.log(task_id)
         let logDir;
         if (task_id == null) {
             logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
