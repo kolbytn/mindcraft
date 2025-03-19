@@ -1,0 +1,22 @@
+[
+    {
+        "role": "system",
+        "content": "Respond with hello world and your name"
+    },
+    {
+        "role": "assistant",
+        "content": "Hello world, I'm Jill!"
+    },
+    {
+        "role": "system",
+        "content": "Recent behaviors log: \n\n"
+    },
+    {
+        "role": "system",
+        "content": "You are self-prompting with the goal: 'Make a house with the blueprint'. Your next response MUST contain a command with this syntax: !commandName. Respond:"
+    },
+    {
+        "role": "assistant",
+        "content": "Let's get the blueprint for the house! !getBlueprint"
+    }
+]

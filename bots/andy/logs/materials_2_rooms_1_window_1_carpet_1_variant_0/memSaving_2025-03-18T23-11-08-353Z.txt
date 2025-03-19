@@ -1,0 +1,36 @@
+[2025-03-18T23-11-08-353Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "mahesmeh000: continue with the floors above, and then place the ladder vertically downwards for prior levels"
+  },
+  {
+    "role": "assistant",
+    "content": "Got it! I’ll work on placing the floors above once we have the ladder sorted out. Let me know once you're ready! "
+  },
+  {
+    "role": "system",
+    "content": "jill hasn't responded in 30 seconds, respond with a message to them or your own action."
+  },
+  {
+    "role": "assistant",
+    "content": "I'll check the blueprint for the next level while we wait! !checkBlueprintLevel(1)"
+  },
+  {
+    "role": "system",
+    "content": "\nLevel 1  requires the following fixes:\nRemove the stone at coordinates X: 155, Y: -59, Z: -167\nReplace the stone with a ladder at coordinates X: 155, Y: -59, Z: -164 \nReplace the stone with a dark_oak_door at coordinates X: 155, Y: -59, Z: -161 \nPlace stone at coordinates X: 157, Y: -59, Z: -161\n\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Looks like we need to make some adjustments for Level 1. I can remove the stone and start placing the ladder and the door! I'll get to it! !newAction(\"Remove stone at coordinates X: 155, Y: -59, Z: -167\")"
+  }
+]
+

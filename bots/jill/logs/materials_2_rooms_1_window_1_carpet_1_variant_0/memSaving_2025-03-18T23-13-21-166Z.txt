@@ -1,0 +1,36 @@
+[2025-03-18T23-13-21-166Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)All required blocks for Level 3 have been placed! It's looking great. Let’s check if it's complete or if we need to move on to the next level. !checkBlueprintLevel(3)Looks like there are still some blocks missing for Level 3! I'll place the remaining quartz blocks, glass, and stone needed to complete it. Let’s finish this up! !newAction(\"Place the remaining blocks for Level 3.\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Awesome job, Andy! While you finish that up, I can keep an eye on the upper levels. Let me know when Level 3 is done! \t"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)I've placed all the remaining blocks for Level 3! It's finally complete. Let’s check the status! !checkBlueprintLevel(3)We still have some blocks left for Level 3. Let me finish placing all the missing quartz and stone blocks! Here we go! !newAction(\"Finish placing all the required blocks for Level 3.\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Sounds like we’re almost there! Keep up the good work, Andy! Just let me know when you're ready to move on to the next level. \t"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)I’ve placed all the final missing blocks for Level 3. Let’s check if it’s complete now! !checkBlueprintLevel(3)It seems I still missed some blocks. I'll place the remaining quartz, glass, and stone that's left for Level 3 right now. Let’s get it done! !newAction(\"Place the remaining missing blocks for Level 3 again.\")"
+  },
+  {
+    "role": "assistant",
+    "content": "You're so close, Andy! Just a bit more, and we’ll have Level 3 finished. Let me know when you wrap it up! \t"
+  }
+]
+

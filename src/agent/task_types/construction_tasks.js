@@ -18,7 +18,7 @@ export class ConstructionTaskValidator {
             }
             let total_blocks = result.mismatches.length + result.matches.length;
             score = (result.matches.length / total_blocks) * 100;
-            // console.log(`Task is ${score}% complete`);
+            console.log(`Task is ${score}% complete`);
             return {
                 "valid": valid, 
                 "score": score
@@ -180,6 +180,8 @@ export class Blueprint {
                     if (blockName === "air" && actualBlockName === "air") {
                         continue;
                     }
+
+                    // todo: skip if blockname contains _door and the actual does as well
 
                     if (actualBlockName !== blockName) {
                         mismatches.push({
@@ -485,10 +487,15 @@ export function proceduralGeneration(m = 20,
         matrix[z][x][y] = material;
 
         // Place the lower half of the door
-        matrix[z + 1][x][y] = 'dark_oak_door[half=lower, hinge=left]';
+        // matrix[z + 1][x][y] = 'dark_oak_door[half=lower, hinge=left]';
+
+        matrix[z + 1][x][y] = 'dark_oak_door';
+
 
         // Place the upper half of the door
-        matrix[z + 2][x][y] = 'dark_oak_door[half=upper, hinge=left]';
+        // matrix[z + 2][x][y] = 'dark_oak_door[half=upper, hinge=left]';
+        matrix[z + 2][x][y] = 'dark_oak_door';
+
     }
 
 
@@ -707,19 +714,23 @@ export function proceduralGeneration(m = 20,
 
         // Build the first 3 ladder segments from floor level downwards
         for (let i = 0; i < 3; i++) {
+            // Place stone block behind ladder
+            matrix[currentZ][x - 1][y] = 'stone';
+            // Place ladder
             matrix[currentZ][x][y] = 'ladder[facing=north]';
-            currentZ -= 1
+            currentZ -= 1;
         }
 
         // Continue building ladder downwards until a floor is hit or we reach the bottom
         while (currentZ >= 0 && matrix[currentZ][x][y] === 'air') {
+            // Place stone block behind ladder
+            matrix[currentZ][x - 1][y] = 'stone';
             // Place ladder
             matrix[currentZ][x][y] = 'ladder[facing=north]';
 
             // Move down
             currentZ--;
         }
-
     }
 
 

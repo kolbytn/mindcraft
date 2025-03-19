@@ -1,0 +1,36 @@
+[2025-03-18T23-38-01-312Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Looks like the quartz block is already in place at (157, -57, -163)! We're making great progress. What's next? !checkBlueprintLevel(1)Level 1 is complete! Nice work, team! Ready for Level 2? What do we need to do next?"
+  },
+  {
+    "role": "assistant",
+    "content": "Awesome teamwork! Let’s check what needs to be done for level 2. !checkBlueprintLevel(2)"
+  },
+  {
+    "role": "system",
+    "content": "\nLevel 2 is correct\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Level 2 is also complete! We’ve finished all the levels. What a build! What's our next project?"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Epic job, team! All levels are complete! 🎉 For our next project, why don't we gather materials and create a cozy farm or a majestic castle? What do you think?"
+  },
+  {
+    "role": "assistant",
+    "content": "Both sound fun! A cozy farm will be relaxing, but a majestic castle would be epic! I’m down for either. What do you want to start with?"
+  }
+]
+

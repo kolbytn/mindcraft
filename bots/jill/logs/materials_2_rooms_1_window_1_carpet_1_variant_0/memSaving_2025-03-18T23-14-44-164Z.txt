@@ -1,0 +1,36 @@
+[2025-03-18T23-14-44-164Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)All the missing blocks for Level 3 are placed again. Let’s check if it's finally complete this time! !checkBlueprintLevel(3)Ugh, still not complete! I’ll place those blocks one more time to get this done. Here I go! !newAction(\"Place all the missing blocks for Level 3 again!\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Hang in there, Andy! It must be so frustrating, but you're almost there! Let me know when you've completed Level 3. I'm here cheering you on! \t"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)All the missing blocks for Level 3 have been placed again! Crossing my fingers this time! Let’s check if it’s finally complete! !checkBlueprintLevel(3)Still not complete! I'm going to place those blocks again. Here we go! !newAction(\"Place the remaining blocks for Level 3 one more time!\")"
+  },
+  {
+    "role": "assistant",
+    "content": "You're unstoppable, Andy! Keep at it! I know you’ll get it done this time. Just let me know when Level 3 is finally complete! \t"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)All the blocks for Level 3 have been placed again! Let's check if it's finally complete! !checkBlueprintLevel(3)Ugh, still not done! Let's get to it again and place all those blocks that are still missing! Here we go! !newAction(\"Place remaining blocks for Level 3 yet again\")"
+  },
+  {
+    "role": "assistant",
+    "content": "You’ve got this, Andy! It’s like a game of whack-a-mole with those blocks! Just a bit more effort, and we'll get it right. Let me know when it's finally finished! \t"
+  }
+]
+

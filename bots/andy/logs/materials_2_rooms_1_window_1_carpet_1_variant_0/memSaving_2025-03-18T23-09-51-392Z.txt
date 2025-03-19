@@ -1,0 +1,36 @@
+[2025-03-18T23-09-51-392Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "jill: (FROM OTHER BOT)Still a no-go! I really need a solid block directly above to place that ladder. Let me check the block above me at (155, -55, -164) to see if I can place it there. !goToCoordinates(155, -55, -164, 2)"
+  },
+  {
+    "role": "assistant",
+    "content": "Got it! Fingers crossed that you can find a solid block above. Let me know if you can place it there!"
+  },
+  {
+    "role": "system",
+    "content": "jill hasn't responded in 30 seconds, respond with a message to them or your own action."
+  },
+  {
+    "role": "assistant",
+    "content": "Hey Jill, are you able to place the ladder now? If not, let’s brainstorm a plan! "
+  },
+  {
+    "role": "user",
+    "content": "jill: (FROM OTHER BOT)Hey Andy! I still can't place the ladder since there's no solid block above me. Let's brainstorm! If we can build a temporary block above my head, that might help me place the ladder. What do you think?"
+  },
+  {
+    "role": "assistant",
+    "content": "That sounds like a great plan! I can place a stone block above you to give you something solid to attach the ladder to. Let me do that!  !placeHere(\"stone\")"
+  }
+]
+
