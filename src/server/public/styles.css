@@ -5,15 +5,43 @@ body {
     color: #e0e0e0;
 }
 
-#agents {
+.container {
     background: #2d2d2d;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin:20px;
+}
+
+.formOption {
+    background: #575757;
+    padding: 10px;
+    border-radius:4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin:10px;
+}
+
+input[type="text"], input[type="number"], select {
+    background: #cfcfcf;
+    color: #000;
+    border-radius: 4px;
+    padding:5px;
+    border: none;
 }
 
 h1 {
     color: #ffffff;
+}
+
+h5 {
+    margin-bottom:0;
+}
+
+code {
+    background:#aaaaaa;
+    border-radius:4px;
+    padding:4px;
+    color:#000;
 }
 
 .agent {
@@ -26,7 +54,7 @@ h1 {
     align-items: center;
 }
 
-.restart-btn, .start-btn, .stop-btn {
+button {
     color: white;
     border: none;
     padding: 5px 10px;
@@ -35,21 +63,21 @@ h1 {
     margin-left: 5px;
 }
 
-.restart-btn {
+.green-btn {
     background: #4CAF50;
 }
 
-.start-btn {
+.blue-btn {
     background: #2196F3;
 }
 
-.stop-btn {
+.red-btn {
     background: #f44336;
 }
 
-.restart-btn:hover { background: #45a049; }
-.start-btn:hover { background: #1976D2; }
-.stop-btn:hover { background: #d32f2f; }
+.green-btn:hover { background: #45a049; }
+.blue-btn:hover { background: #1976D2; }
+.red-btn:hover { background: #d32f2f; }
 
 .status-icon {
     font-size: 12px;

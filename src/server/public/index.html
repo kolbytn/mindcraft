@@ -7,7 +7,119 @@
 </head>
 <body>
     <h1>Mindcraft</h1>
-    <div id="agents"></div>
+    <div id="agents" class="container"></div>
+    <div id="settings" class="container">
+        <h3>Edit settings</h3>
+        <br>
+        <em>Edits won't take effect until restarting Mindcraft.</em>
+        <br>
+        <div class="formOption">
+            <label for="mcVersion">Minecraft Version: </label>
+            <input id="mcVersion" type="text" placeholder="Up to 1.21.1">
+        </div>
+        <div class="formOption">
+            <label for="mcHostSelector">Host: </label>
+            <select id="mcHostSelector">
+                <option value="localhost">localhost</option>
+                <option value="remote">Public Server</option>
+            </select>
+        </div>
+        <div class="formOption">
+            <label for="mcPort">Port: </label>
+            <input id="mcPort" type="number" placeholder="55916">
+        </div>
+        <div class="formOption">
+            <label for="mcAuth">Authentication Method: </label>
+            <select id="mcAuth">
+                <option value="offline">Offline (requires cracked server)</option>
+                <option value="microsoft">Microsoft Account</option>
+            </select>
+        </div>
+        <div class="formOption">
+            <label for="mcBaseProfile">Base Profile: </label>
+            <select id="mcBaseProfile">
+                <option value="./profiles/defaults/survival.json">Survival</option>
+                <option value="./profiles/defaults/creative.json">Creative</option>
+                <option value="./profiles/defaults/god_mode.json">God Mode</option>
+            </select>
+            <h5>The base profile is shared by all bots for default prompts/examples/modes</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcProfileList">Profiles: </label>
+            <p id="mcProfileList">I'll do this last, once I've finished the other settings options. It will take the style of a todo list app, with the delete/add/checkbox functionality.</p>
+        </div>
+        <div class="formOption">
+            <label for="mcLoadMemory">Load Memory?</label>
+            <input type="radio" name="mcLoadMemory" value="true">Yes</input>
+            <input type="radio" name="mcLoadMemory" value="false" checked>No</input>
+        </div>
+        <div class="formOption">
+            <label for="mcInitMessage">Initial Message</label>
+            <input id="mcInitMessage" type="text" placeholder="Respond with hello world and your name" style="min-width:40%;">
+            <h5>This message gets sent to all bots on spawn.</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcOnlyChatWith">Only chat with: (leave empty to chat publicly)</label>
+            <p id="mcOnlyChatWith">Will copy the style of the profile list once I've finished with that.</p>
+            <h5>users that the bots listen to and send general messages to. if empty it will chat publicly</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcSpeak">Speak?</label>
+            <input type="radio" name="mcSpeak" value="true">Yes</input>
+            <input type="radio" name="mcSpeak" value="false" checked>No</input>
+            <h5>Allows all bots to speak through system text-to-speech.<br>This works on Windows and Mac, but on Linux you may need to run <code>sudo apt install espeak</code> first.</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcLanguage">Language: </label>
+            <input id="mcLanguage" type="text" placeholder="en">
+            <h5>Translates chat into specified language. <a href="https://cloud.google.com/translate/docs/languages">Supported languages</a></h5>
+        </div>
+        <div class="formOption">
+            <label for="mcShowBotViews">Show bot views in browser?</label>
+            <input type="radio" name="mcShowBotViews" value="true">Yes</input>
+            <input type="radio" name="mcShowBotViews" value="false" checked>No</input>
+            <h5>Only supports 1.20.4 and previous versions.<br>These can be accessed at http://localhost:3000, 3001, 3002, etc. depending on which bot you want to view.</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcAllowInsecureCoding">Allow Insecure Coding?</label>
+            <input type="radio" name="mcAllowInsecureCoding" value="true">Yes</input>
+            <input type="radio" name="mcAllowInsecureCoding" value="false" checked>No</input>
+            <h5>Allows newAction command and model can write/run code on your computer. Enable at your own risk (it's fine if nobody <b>untrustworthy</b> is playing with your bot).</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcAllowVision">Allow Insecure Coding?</label>
+            <input type="radio" name="mcAllowVision" value="true">Yes</input>
+            <input type="radio" name="mcAllowVision" value="false" checked>No</input>
+            <h5>Allows the vision model to interpret screenshots as inputs. Requires version 1.20.4 or less.</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcBlockedActions">Blocked Actions: </label>
+            <p id="mcBlockedActions">Will copy the style of the profile list once I've finished with that.</p>
+        </div>
+        <div class="formOption">
+            <label for="mcMessageHistory">Maxmimum Message History Length: </label>
+            <input type="number" placeholder="15">
+            <h5>Maximum number of previous messages to keep in context. Increasing it may produce longer response times and higher cost if using a paid API, but with the benefit of increasing memory.</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcVerboseCommands">Verbose Commands?</label>
+            <input type="radio" name="mcVerboseCommands" value="true" checked>Yes</input>
+            <input type="radio" name="mcVerboseCommands" value="false">No</input>
+            <h5>Show full command syntax.</h5>
+        </div>
+        <div class="formOption">
+            <label for="mcNarrateBehavior">Narrate Behavior?</label>
+            <input type="radio" name="mcNarrateBehavior" value="true" checked>Yes</input>
+            <input type="radio" name="mcNarrateBehavior" value="false">No</input>
+            <h5>Chat simple, automatic actions for example <code>Picking up item!</code></h5>
+        </div>
+        <div class="formOption">
+            <label for="mcChatBotMessages">Chat to other bots?</label>
+            <input type="radio" name="mcChatBotMessages" value="true" checked>Yes</input>
+            <input type="radio" name="mcChatBotMessages" value="false">No</input>
+            <h5>Publicly chat messages to other bots.</h5>
+        </div>
+    </div>
 
     <script>
         const socket = io();
@@ -23,17 +135,17 @@
                         </span>
                         <div>
                             ${agent.in_game ? `
-                                <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
-                                <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
-                                <input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
+                                <button class="red-btn" onclick="stopAgent('${agent.name}')">Stop</button>
+                                <button class="green-btn" onclick="restartAgent('${agent.name}')">Restart</button>
+                                <input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="blue-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
                             ` : `
-                                <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
+                                <button class="blue-btn" onclick="startAgent('${agent.name}')">Start</button>
                             `}
                         </div>
                     </div>
                 `).join('') + 
-                `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
-                <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
+                `<button class="red-btn" onclick="killAllAgents()">Stop All</button>
+                <button class="red-btn" onclick="shutdown()">Shutdown</button>` :
                 '<div class="agent">No agents connected</div>';
         });
 
