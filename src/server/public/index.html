@@ -3,62 +3,7 @@
 <head>
     <title>Mindcraft</title>
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-        #agents {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        h1 {
-            color: #ffffff;
-        }
-        .agent {
-            margin: 10px 0;
-            padding: 10px;
-            background: #363636;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .restart-btn, .start-btn, .stop-btn {
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        .restart-btn {
-            background: #4CAF50;
-        }
-        .start-btn {
-            background: #2196F3;
-        }
-        .stop-btn {
-            background: #f44336;
-        }
-        .restart-btn:hover { background: #45a049; }
-        .start-btn:hover { background: #1976D2; }
-        .stop-btn:hover { background: #d32f2f; }
-        .status-icon {
-            font-size: 12px;
-            margin-right: 8px;
-        }
-        .status-icon.online {
-            color: #4CAF50;
-        }
-        .status-icon.offline {
-            color: #f44336;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
 </head>
 <body>
     <h1>Mindcraft</h1>
@@ -80,7 +25,7 @@
                             ${agent.in_game ? `
                                 <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
                                 <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
-								<input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
+                                <input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
                             ` : `
                                 <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
                             `}
@@ -111,10 +56,10 @@
         function shutdown() {
             socket.emit('shutdown');
         }
-		
-		function sendMessage(agentName, message) {
-			socket.emit('send-message', agentName, message)
-		}
+        
+        function sendMessage(agentName, message) {
+            socket.emit('send-message', agentName, message)
+        }
     </script>
 </body>
-</html> 
+</html>
