@@ -1,0 +1,26 @@
+[
+    {
+        "role": "system",
+        "content": "Respond with hello world and your name"
+    },
+    {
+        "role": "assistant",
+        "content": "Hello world, I'm Jill!"
+    },
+    {
+        "role": "system",
+        "content": "You are self-prompting with the goal: 'Make a house with the blueprint'. Your next response MUST contain a command with this syntax: !commandName. Respond:"
+    },
+    {
+        "role": "assistant",
+        "content": "Let's get the blueprint for the house! !getBlueprint"
+    },
+    {
+        "role": "system",
+        "content": "\nLevel 0: Start at coordinates X: 148, Y: -60, Z: -170Level 1: Start at coordinates X: 148, Y: -59, Z: -170Level 2: Start at coordinates X: 148, Y: -58, Z: -170Level 3: Start at coordinates X: 148, Y: -57, Z: -170Level 4: Start at coordinates X: 148, Y: -56, Z: -170Level 5: Start at coordinates X: 148, Y: -55, Z: -170Level 6: Start at coordinates X: 148, Y: -54, Z: -170Level 7: Start at coordinates X: 148, Y: -53, Z: -170Level 8: Start at coordinates X: 148, Y: -52, Z: -170Level 9: Start at coordinates X: 148, Y: -51, Z: -170Level 10: Start at coordinates X: 148, Y: -50, Z: -170Level 11: Start at coordinates X: 148, Y: -49, Z: -170Level 12: Start at coordinates X: 148, Y: -48, Z: -170Level 13: Start at coordinates X: 148, Y: -47, Z: -170Level 14: Start at coordinates X: 148, Y: -46, Z: -170\n"
+    },
+    {
+        "role": "assistant",
+        "content": "Let's start with level 0! I need to go to the specified coordinates first. !goToCoordinates(148, -60, -170)"
+    }
+]

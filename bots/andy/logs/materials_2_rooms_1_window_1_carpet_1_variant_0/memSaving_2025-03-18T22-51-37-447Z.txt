@@ -1,0 +1,36 @@
+[2025-03-18T22-51-37-447Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "jill: (FROM OTHER BOT)Alright, we have a list of fixes for level 1! I’ll start placing the quartz blocks and doors now. !newAction(\"Place quartz blocks and doors for level 1\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Sounds like a solid plan! I'll keep an eye on level 1 while you work on it. Let me know if you need anything! "
+  },
+  {
+    "role": "user",
+    "content": "jill: (FROM OTHER BOT)I placed most of the quartz blocks, but I got an issue with the doors. Let me fix that and place the doors again! !newAction(\"Place dark oak doors for level 1\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Got it! While you work on the doors, I'll check if there's anything else we need to do for level 1.  !checkBlueprintLevel(1)"
+  },
+  {
+    "role": "system",
+    "content": "\nLevel 1  requires the following fixes:\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 154, Y: -59, Z: -162\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 151, Y: -59, Z: -160\nPlace ladder at coordinates X: 154, Y: -59, Z: -160\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 157, Y: -59, Z: -160\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 154, Y: -59, Z: -159\n\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Level 1 still needs some dark oak doors and a ladder. I see the exact coordinates to place them. Let me help with that! I'll place the dark oak doors and the ladder. !newAction(\"Place dark oak doors and ladder for level 1\")"
+  }
+]
+

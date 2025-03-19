@@ -1,0 +1,32 @@
+[2025-03-18T23-06-48-548Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "system",
+    "content": "Summary of newAction\nAgent wrote this code: \n```\nlet stoneCoords = [\n    [149, -60, -169], [150, -60, -169], [151, -60, -169], [152, -60, -169],\n    [153, -60, -169], [154, -60, -169], [155, -60, -169], [156, -60, -169],\n    [157, -60, -169], [158, -60, -169], [159, -60, -169], [160, -60, -169],\n    [161, -60, -169],\n    [149, -60, -168], [150, -60, -168], [151, -60, -168], [152, -60, -168],\n    [153, -60, -168], [154, -60, -168], [155, -60, -168], [156, -60, -168],\n    [157, -60, -168], [158, -60, -168], [159, -60, -168], [160, -60, -168],\n    [161, -60, -168],\n    [149, -60, -167], [150, -60, -167], [151, -60, -167], [152, -60, -167],\n    [153, -60, -167], [154, -60, -167], [155, -60, -167], [156, -60, -167],\n    [157, -60, -167], [158, -60, -167], [159, -60, -167], [160, -60, -167],\n    [161, -60, -167],\n    [149, -60, -166], [150, -60, -166], [151, -60, -166], [152, -60, -166],\n    [153, -60, -166], [154, -60, -166], [155, -60, -166], [156, -60, -166],\n    [157, -60, -166], [158, -60, -166], [159, -60, -166], [160, -60, -166],\n    [161, -60, -166],\n    [149, -60, -165], [150, -60, -165], [151, -60, -165], [152, -60, -165],\n    [153, -60, -165], [154, -60, -165], [155, -60, -165], [156, -60, -165],\n    [157, -60, -165], [158, -60, -165], [159, -60, -165], [160, -60, -165],\n    [161, -60, -165],\n    [149, -60, -164], [150, -60, -164], [151, -60, -164], [152, -60, -164],\n    [153, -60, -164], [154, -60, -164], [155, -60, -164], [156, -60, -164],\n    [157, -60, -164], [158, -60, -164], [159, -60, -164], [160, -60, -164],\n    [161, -60, -164],\n    [149, -60, -163], [150, -60, -163], [151, -60, -163], [152, -60, -163],\n    [153, -60, -163], [154, -60, -163], [155, -60, -163], [156, -60, -163],\n    [157, -60, -163], [158, -60, -163], [159, -60, -163], [160, -60, -163],\n    [161, -60, -163],\n    [149, -60, -162], [150, -60, -162], [151, -60, -162], [152, -60, -162],\n    [153, -60, -162], [154, -60, -162], [155, -60, -162], [156, -60, -162],\n    [157, -60, -162], [158, -60, -162], [159, -60, -162], [160, -60, -162],\n    [161, -60, -162],\n    [149, -60, -161], [150, -60, -161], [151, -60, -161], [152, -60, -161],\n    [153, -60, -161], [154, -60, -161], [155, -60, -161], [156, -60, -161],\n    [157, -60, -161], [158, -60, -161], [159, -60, -161], [160, -60, -161],\n    [161, -60, -161],\n    [149, -60, -160], [150, -60, -160], [151, -60, -160], [152, -60, -160],\n    [153, -60, -160], [154, -60, -160], [155, -60, -160], [156, -60, -160],\n    [157, -60, -160], [158, -60, -160], [159, -60, -160], [160, -60, -160],\n    [161, -60, -160],\n    [149, -60, -159], [150, -60, -159], [151, -60, -159], [152, -60, -159],\n    [153, -60, -159], [154, -60, -159], [155, -60, -159], [156, -60, -159],\n    [157, -60, -159], [158, -60, -159], [159, -60, -159], [160, -60, -159],\n    [161, -60, -159],\n    [149, -60, -158], [150, -60, -158], [151, -60, -158], [152, -60, -158],\n    [153, -60, -158], [154, -60, -158], [155, -60, -158], [156, -60, -158],\n    [157, -60, -158], [158, -60, -158], [159, -60, -158], [160, -60, -158],\n    [161, -60, -158],\n    [149, -60, -157], [150, -60, -157], [151, -60, -157], [152, -60, -157],\n    [153, -60, -157], [154, -60, -157], [155, -60, -157], [156, -60, -157],\n    [157, -60, -157], [158, -60, -157], [159, -60, -157], [160, -60, -157],\n    [161, -60, -157]\n];\n\nfor (let [x, y, z] of stoneCoords) {\n    await skills.placeBlock(bot, 'stone', x, y, z);\n}```\nCode Output:\nCode output is very long (6122 chars) and has been shortened.\n\n          First outputs:\nstone already at (149, -60, -169).\nstone already at (150, -60, -169).\nstone already at (151, -60, -169).\nstone already at (152, -60, -169).\nFailed to place stone at (153, -60, -169).\nstone already at (154, -60, -169).\nstone already at (155, -60, -169\n...skipping many lines.\nFinal outputs:\n ced stone at (155, -60, -157).\nPlaced stone at (156, -60, -157).\nPlaced stone at (157, -60, -157).\nPlaced stone at (158, -60, -157).\nPlaced stone at (159, -60, -157).\nPlaced stone at (160, -60, -157).\nPlaced stone at (161, -60, -157).\nCode finished.\n"
+  },
+  {
+    "role": "assistant",
+    "content": "I've placed a bunch of stone blocks for level 0! Let’s check if it's complete. !checkBlueprintLevel(0)"
+  },
+  {
+    "role": "system",
+    "content": "\nLevel 0 is correct\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Awesome! Level 0 is complete. What's next for the blueprint? Let me know!"
+  },
+  {
+    "role": "system",
+    "content": "Recent behaviors log: \n\n"
+  }
+]
+

@@ -1,0 +1,32 @@
+[2025-03-18T23-38-55-557Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "system",
+    "content": "Invalid block type: planks."
+  },
+  {
+    "role": "assistant",
+    "content": "Looks like planks are a no-go too! I'll find some oak wood directly. !searchForBlock(\"oak_wood\", 32)"
+  },
+  {
+    "role": "system",
+    "content": "Code output:\nCould not find any oak_wood in 32 blocks.\n"
+  },
+  {
+    "role": "assistant",
+    "content": "No oak wood around either! I'll keep searching then. Let me try for a different kind of wood. !searchForBlock(\"wood\", 32)"
+  },
+  {
+    "role": "system",
+    "content": "Invalid block type: wood."
+  }
+]
+

@@ -1,0 +1,36 @@
+[2025-03-18T22-51-23-568Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "system",
+    "content": "\nLevel 0 is correct\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Level 0 is complete! Great job! What should we do next? Let’s check level 1! !checkBlueprintLevel(1)"
+  },
+  {
+    "role": "system",
+    "content": "\nLevel 1  requires the following fixes:\nPlace quartz_block at coordinates X: 151, Y: -59, Z: -162\nPlace quartz_block at coordinates X: 152, Y: -59, Z: -162\nPlace quartz_block at coordinates X: 153, Y: -59, Z: -162\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 154, Y: -59, Z: -162\nPlace quartz_block at coordinates X: 155, Y: -59, Z: -162\nPlace quartz_block at coordinates X: 156, Y: -59, Z: -162\nPlace quartz_block at coordinates X: 157, Y: -59, Z: -162\nPlace quartz_block at coordinates X: 151, Y: -59, Z: -161\nPlace quartz_block at coordinates X: 157, Y: -59, Z: -161\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 151, Y: -59, Z: -160\nPlace ladder at coordinates X: 154, Y: -59, Z: -160\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 157, Y: -59, Z: -160\nPlace quartz_block at coordinates X: 151, Y: -59, Z: -159\nPlace quartz_block at coordinates X: 152, Y: -59, Z: -159\nPlace quartz_block at coordinates X: 153, Y: -59, Z: -159\nPlace dark_oak_door[half=lower, hinge=left] at coordinates X: 154, Y: -59, Z: -159\nPlace quartz_block at coordinates X: 155, Y: -59, Z: -159\nPlace quartz_block at coordinates X: 156, Y: -59, Z: -159\nPlace quartz_block at coordinates X: 157, Y: -59, Z: -159\n\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Alright, we have a list of fixes for level 1! I’ll start placing the quartz blocks and doors now. !newAction(\"Place quartz blocks and doors for level 1\")"
+  },
+  {
+    "role": "system",
+    "content": "Summary of newAction\nAgent wrote this code: \n```\nlet quartzDoorPositions = [\n    {x: 151, y: -59, z: -162},\n    {x: 152, y: -59, z: -162},\n    {x: 153, y: -59, z: -162},\n    {x: 154, y: -59, z: -162, type: 'door'},\n    {x: 155, y: -59, z: -162},\n    {x: 156, y: -59, z: -162},\n    {x: 157, y: -59, z: -162},\n    {x: 151, y: -59, z: -161},\n    {x: 157, y: -59, z: -161},\n    {x: 151, y: -59, z: -160, type: 'door'},\n    {x: 154, y: -59, z: -160, type: 'ladder'},\n    {x: 157, y: -59, z: -160, type: 'door'},\n    {x: 151, y: -59, z: -159},\n    {x: 152, y: -59, z: -159},\n    {x: 153, y: -59, z: -159},\n    {x: 154, y: -59, z: -159, type: 'door'},\n    {x: 155, y: -59, z: -159},\n    {x: 156, y: -59, z: -159},\n    {x: 157, y: -59, z: -159}\n];\n\nfor (let pos of quartzDoorPositions) {\n    if (pos.type === 'door') {\n        await skills.placeBlock(bot, 'dark_oak_door[half=lower, hinge=left]', pos.x, pos.y, pos.z);\n    } else if (pos.type === 'ladder') {\n        await skills.placeBlock(bot, 'ladder', pos.x, pos.y, pos.z);\n    } else {\n        await skills.placeBlock(bot, 'quartz_block', pos.x, pos.y, pos.z);\n    }\n}```\nCode Output:\nCode output is very long (869 chars) and has been shortened.\n\n          First outputs:\nPlaced quartz_block at (151, -59, -162).\nPlaced quartz_block at (152, -59, -162).\nPlaced quartz_block at (153, -59, -162).\nInvalid block type: dark_oak_door[half=lower, hinge=left].\nPlaced quartz_block at (155, -59, -162).\nPlaced quartz_block at (156\n...skipping many lines.\nFinal outputs:\n -59, -159).\nPlaced quartz_block at (153, -59, -159).\nInvalid block type: dark_oak_door[half=lower, hinge=left].\nPlaced quartz_block at (155, -59, -159).\nPlaced quartz_block at (156, -59, -159).\nPlaced quartz_block at (157, -59, -159).\nCode finished.\n"
+  },
+  {
+    "role": "assistant",
+    "content": "I placed most of the quartz blocks, but I got an issue with the doors. Let me fix that and place the doors again! !newAction(\"Place dark oak doors for level 1\")"
+  }
+]
+

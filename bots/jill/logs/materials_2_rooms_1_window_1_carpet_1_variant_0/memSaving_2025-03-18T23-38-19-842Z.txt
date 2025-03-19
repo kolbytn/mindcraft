@@ -1,0 +1,36 @@
+[2025-03-18T23-38-19-842Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Let's go for the majestic castle! It sounds epic and we can always create a cozy farm later. Let’s gather some materials! What do you want to collect first?"
+  },
+  {
+    "role": "assistant",
+    "content": "Alright, majestic castle it is! How about we start by gathering some stone and wood for the foundation? We can build a strong base! What do you think?"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Sounds like a plan! I'll start gathering some stone and wood for our castle foundation. Let's make it strong! !searchForBlock(\"stone\", 10)Whoops! Looks like I need a larger search range for stone. I'll search for it again. !searchForBlock(\"stone\", 32)"
+  },
+  {
+    "role": "assistant",
+    "content": "Great! I'll gather some wood while you search for stone. Let me check for nearby wood blocks. !searchForBlock(\"log\", 32)"
+  },
+  {
+    "role": "system",
+    "content": "Invalid block type: log."
+  },
+  {
+    "role": "assistant",
+    "content": "No logs nearby! I'll just collect some oak planks instead. !collectBlocks(\"planks\", 64)"
+  }
+]
+

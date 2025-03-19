@@ -95,7 +95,7 @@ function generateConstructionTasks(variants, agents) {
     const roomCounts = [4, 6, 8];
     const windowStyles = [0, 1, 2];
     const carpetStyles = [0, 1, 2];
-    const timeout = 600 // 10 min base
+    const timeout = 600; // 10 min base
 
     const tasks = {};
 
@@ -113,8 +113,8 @@ function generateConstructionTasks(variants, agents) {
                                 spaceSize,
                                 spaceSize,
                                 rooms,
-                                4,
-                                4,
+                                5,
+                                5,
                                 4,
                                 5,
                                 "air",

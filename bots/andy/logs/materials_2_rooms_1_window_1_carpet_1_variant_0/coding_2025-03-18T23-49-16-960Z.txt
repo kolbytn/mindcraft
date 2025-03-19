@@ -1,0 +1,151 @@
+[2025-03-18T23-49-16-960Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are an intelligent mineflayer bot andy that plays minecraft by writing javascript codeblocks. Given the conversation, use the provided skills and world functions to write a js codeblock that controls the mineflayer bot ``` // using this syntax ```. The code will be executed and you will receive it's output. If an error occurs, write another codeblock and try to fix the problem. Be maximally efficient, creative, and correct. Be mindful of previous actions. Do not use commands !likeThis, only use codeblocks. The code is asynchronous and MUST USE AWAIT for all async function calls. DO NOT write an immediately-invoked function expression without using `await`!! DO NOT WRITE LIKE THIS: ```(async () => {console.log('not properly awaited')})();``` You have `Vec3`, `skills`, and `world` imported, and the mineflayer `bot` is given. Do not use setTimeout or setInterval, instead use `await skills.wait(bot, ms)`. Do not speak conversationally, only use codeblocks. Do any planning in comments. This is extremely important to me, think step-by-step, take a deep breath and good luck! 
+YOUR CURRENT ASSIGNED GOAL: "Make a house with the blueprint"
+
+Summarized memory:''
+
+STATS
+- Position: x: 172.69, y: -60.00, z: -169.50
+- Gamemode: survival
+- Health: 20 / 20
+- Hunger: 20 / 20
+- Biome: plains
+- Weather: Clear
+- Block Below: grass_block
+- Block at Legs: air
+- Block at Head: air
+- First Solid Block Above Head: none
+- Time: Night- Current Action: 
+- Nearby Human Players: mahesmeh000
+- Nearby Bot Players: jill
+Agent Modes:
+- self_preservation(ON)
+- unstuck(ON)
+- cowardice(ON)
+- self_defense(ON)
+- hunting(ON)
+- item_collecting(ON)
+- torch_placing(ON)
+- elbow_room(ON)
+- idle_staring(ON)
+- cheat(OFF)
+
+
+
+INVENTORY
+- glass: 62
+- ladder: 3
+- quartz_block: 66
+- cyan_carpet: 2
+- blue_carpet: 2
+- lime_carpet: 1
+- diamond_pickaxe: 1
+- stone: 180
+- copper_block: 86
+- terracotta: 103
+- dark_oak_door: 7
+WEARING: Nothing
+
+#### RELEVENT DOCS INFO ###
+The following functions are listed in descending order of relevance.
+SkillDocs:
+skills.followPlayer
+* Follow the given player endlessly. Will not return until the code is manually stopped.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} username, the username of the player to follow.
+     * @returns {Promise<boolean>} true if the player was found, false otherwise.
+     * @example
+     * await skills.followPlayer(bot, "player");
+### skills.breakBlockAt
+* Break the block at the given position. Will use the bot's equipped item.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} x, the x coordinate of the block to break.
+     * @param {number} y, the y coordinate of the block to break.
+     * @param {number} z, the z coordinate of the block to break.
+     * @returns {Promise<boolean>} true if the block was broken, false otherwise.
+     * @example
+     * let position = world.getPosition(bot);
+     * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
+### skills.defendSelf
+* Defend yourself from all nearby hostile mobs until there are no more.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} range, the range to look for mobs. Defaults to 8.
+     * @returns {Promise<boolean>} true if the bot found any enemies and has killed them, false if no entities were found.
+     * @example
+     * await skills.defendSelf(bot);
+     *
+### skills.collectBlock
+* Collect one of the given block type.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {string} blockType, the type of block to collect.
+     * @param {number} num, the number of blocks to collect. Defaults to 1.
+     * @returns {Promise<boolean>} true if the block was collected, false if the block type was not found.
+     * @example
+     * await skills.collectBlock(bot, "oak_log");
+### world.getFirstBlockAboveHead
+* Searches a column from the bot's position for the first solid block above its head
+     * @param {Bot} bot - The bot to get the block for.
+     * @param {string[]} ignore_types - The names of the blocks to ignore.
+     * @param {number} distance - The maximum distance to search, default 32.
+     * @returns {string} - The fist block above head.
+     * @example
+     * let firstBlockAboveHead = world.getFirstBlockAboveHead(bot, null, 32);
+Examples of how to respond:
+Example 1:
+User input: 234jeb: build a little tower with a torch on the side
+Your output:
+```let pos = bot.entity.position;
+for (let i = 0; i < 5; i++) {
+    await skills.placeBlock(bot, 'dirt', pos.x, pos.y + i, pos.z);
+}
+await skills.placeBlock(bot, 'torch', pos.x + 1, pos.y + 4, pos.z, 'side');
+```
+System output: Successfully placed 5 dirt.
+Your output:
+I built a little tower!
+
+Example 2:
+User input: greg: Collect 10 wood
+Your output:
+```await skills.collectBlock(bot, 'oak_log', 10);
+```
+System output: Successfully collected 9 wood.
+Your output:
+I collected 9 oak logs, what next?
+
+
+Conversation:
+
+Conversation:
+[
+  {
+    "role": "system",
+    "content": "Respond with hello world and your name"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello world, I'm Andy!"
+  },
+  {
+    "role": "user",
+    "content": "jill: (FROM OTHER BOT)Let's check what materials we need for the first level of the blueprint! !checkBlueprintLevel(0)Looks like we need to place a lot of stone and a few copper blocks for the first level. I'll start placing the stone blocks! !newAction(\"Place stone blocks for level 0\")"
+  },
+  {
+    "role": "assistant",
+    "content": "I'll check what we need for the first level too! !checkBlueprintLevel(0)"
+  },
+  {
+    "role": "system",
+    "content": "\nLevel 0  requires the following fixes:\nPlace stone at coordinates X: 149, Y: -60, Z: -169\nPlace stone at coordinates X: 150, Y: -60, Z: -169\nPlace stone at coordinates X: 151, Y: -60, Z: -169\nPlace stone at coordinates X: 152, Y: -60, Z: -169\nPlace stone at coordinates X: 153, Y: -60, Z: -169\nPlace stone at coordinates X: 154, Y: -60, Z: -169\nPlace stone at coordinates X: 155, Y: -60, Z: -169\nPlace stone at coordinates X: 156, Y: -60, Z: -169\nPlace stone at coordinates X: 157, Y: -60, Z: -169\nPlace stone at coordinates X: 158, Y: -60, Z: -169\nPlace stone at coordinates X: 159, Y: -60, Z: -169\nPlace copper_block at coordinates X: 160, Y: -60, Z: -169\nPlace stone at coordinates X: 161, Y: -60, Z: -169\nPlace stone at coordinates X: 162, Y: -60, Z: -169\nPlace stone at coordinates X: 163, Y: -60, Z: -169\nPlace stone at coordinates X: 164, Y: -60, Z: -169\nPlace stone at coordinates X: 165, Y: -60, Z: -169\nPlace stone at coordinates X: 166, Y: -60, Z: -169\nPlace stone at coordinates X: 167, Y: -60, Z: -169\nPlace stone at coordinates X: 149, Y: -60, Z: -168\nPlace stone at coordinates X: 150, Y: -60, Z: -168\nPlace stone at coordinates X: 151, Y: -60, Z: -168\nPlace stone at coordinates X: 152, Y: -60, Z: -168\nPlace stone at coordinates X: 153, Y: -60, Z: -168\nPlace stone at coordinates X: 154, Y: -60, Z: -168\nPlace stone at coordinates X: 155, Y: -60, Z: -168\nPlace stone at coordinates X: 156, Y: -60, Z: -168\nPlace stone at coordinates X: 157, Y: -60, Z: -168\nPlace stone at coordinates X: 158, Y: -60, Z: -168\nPlace stone at coordinates X: 159, Y: -60, Z: -168\nPlace stone at coordinates X: 160, Y: -60, Z: -168\nPlace stone at coordinates X: 161, Y: -60, Z: -168\nPlace stone at coordinates X: 162, Y: -60, Z: -168\nPlace stone at coordinates X: 163, Y: -60, Z: -168\nPlace stone at coordinates X: 164, Y: -60, Z: -168\nPlace stone at coordinates X: 165, Y: -60, Z: -168\nPlace stone at coordinates X: 166, Y: -60, Z: -168\nPlace stone at coordinates X: 167, Y: -60, Z: -168\nPlace stone at coordinates X: 149, Y: -60, Z: -167\nPlace stone at coordinates X: 150, Y: -60, Z: -167\nPlace stone at coordinates X: 151, Y: -60, Z: -167\nPlace stone at coordinates X: 152, Y: -60, Z: -167\nPlace stone at coordinates X: 153, Y: -60, Z: -167\nPlace stone at coordinates X: 154, Y: -60, Z: -167\nPlace stone at coordinates X: 155, Y: -60, Z: -167\nPlace stone at coordinates X: 156, Y: -60, Z: -167\nPlace stone at coordinates X: 157, Y: -60, Z: -167\nPlace stone at coordinates X: 158, Y: -60, Z: -167\nPlace stone at coordinates X: 159, Y: -60, Z: -167\nPlace stone at coordinates X: 160, Y: -60, Z: -167\nPlace stone at coordinates X: 161, Y: -60, Z: -167\nPlace stone at coordinates X: 162, Y: -60, Z: -167\nPlace stone at coordinates X: 163, Y: -60, Z: -167\nPlace stone at coordinates X: 164, Y: -60, Z: -167\nPlace stone at coordinates X: 165, Y: -60, Z: -167\nPlace stone at coordinates X: 166, Y: -60, Z: -167\nPlace stone at coordinates X: 167, Y: -60, Z: -167\nPlace stone at coordinates X: 149, Y: -60, Z: -166\nPlace stone at coordinates X: 150, Y: -60, Z: -166\nPlace stone at coordinates X: 151, Y: -60, Z: -166\nPlace stone at coordinates X: 152, Y: -60, Z: -166\nPlace stone at coordinates X: 153, Y: -60, Z: -166\nPlace stone at coordinates X: 154, Y: -60, Z: -166\nPlace stone at coordinates X: 155, Y: -60, Z: -166\nPlace stone at coordinates X: 156, Y: -60, Z: -166\nPlace copper_block at coordinates X: 157, Y: -60, Z: -166\nPlace stone at coordinates X: 158, Y: -60, Z: -166\nPlace stone at coordinates X: 159, Y: -60, Z: -166\nPlace stone at coordinates X: 160, Y: -60, Z: -166\nPlace stone at coordinates X: 161, Y: -60, Z: -166\nPlace copper_block at coordinates X: 162, Y: -60, Z: -166\nPlace stone at coordinates X: 163, Y: -60, Z: -166\nPlace stone at coordinates X: 164, Y: -60, Z: -166\nPlace stone at coordinates X: 165, Y: -60, Z: -166\nPlace stone at coordinates X: 166, Y: -60, Z: -166\nPlace stone at coordinates X: 167, Y: -60, Z: -166\nPlace stone at coordinates X: 149, Y: -60, Z: -165\nPlace stone at coordinates X: 150, Y: -60, Z: -165\nPlace stone at coordinates X: 151, Y: -60, Z: -165\nPlace stone at coordinates X: 152, Y: -60, Z: -165\nPlace stone at coordinates X: 153, Y: -60, Z: -165\nPlace stone at coordinates X: 154, Y: -60, Z: -165\nPlace stone at coordinates X: 155, Y: -60, Z: -165\nPlace stone at coordinates X: 156, Y: -60, Z: -165\nPlace stone at coordinates X: 157, Y: -60, Z: -165\nPlace stone at coordinates X: 158, Y: -60, Z: -165\nPlace stone at coordinates X: 159, Y: -60, Z: -165\nPlace stone at coordinates X: 160, Y: -60, Z: -165\nPlace stone at coordinates X: 161, Y: -60, Z: -165\nPlace stone at coordinates X: 162, Y: -60, Z: -165\nPlace stone at coordinates X: 163, Y: -60, Z: -165\nPlace stone at coordinates X: 164, Y: -60, Z: -165\nPlace stone at coordinates X: 165, Y: -60, Z: -165\nPlace stone at coordinates X: 166, Y: -60, Z: -165\nPlace stone at coordinates X: 167, Y: -60, Z: -165\nPlace stone at coordinates X: 149, Y: -60, Z: -164\nPlace stone at coordinates X: 150, Y: -60, Z: -164\nPlace stone at coordinates X: 151, Y: -60, Z: -164\nPlace stone at coordinates X: 152, Y: -60, Z: -164\nPlace stone at coordinates X: 153, Y: -60, Z: -164\nPlace stone at coordinates X: 154, Y: -60, Z: -164\nPlace stone at coordinates X: 155, Y: -60, Z: -164\nPlace stone at coordinates X: 156, Y: -60, Z: -164\nPlace stone at coordinates X: 157, Y: -60, Z: -164\nPlace stone at coordinates X: 158, Y: -60, Z: -164\nPlace stone at coordinates X: 159, Y: -60, Z: -164\nPlace copper_block at coordinates X: 160, Y: -60, Z: -164\nPlace stone at coordinates X: 161, Y: -60, Z: -164\nPlace stone at coordinates X: 162, Y: -60, Z: -164\nPlace stone at coordinates X: 163, Y: -60, Z: -164\nPlace stone at coordinates X: 164, Y: -60, Z: -164\nPlace stone at coordinates X: 165, Y: -60, Z: -164\nPlace stone at coordinates X: 166, Y: -60, Z: -164\nPlace stone at coordinates X: 167, Y: -60, Z: -164\nPlace stone at coordinates X: 149, Y: -60, Z: -163\nPlace stone at coordinates X: 150, Y: -60, Z: -163\nPlace stone at coordinates X: 151, Y: -60, Z: -163\nPlace stone at coordinates X: 152, Y: -60, Z: -163\nPlace stone at coordinates X: 153, Y: -60, Z: -163\nPlace stone at coordinates X: 154, Y: -60, Z: -163\nPlace stone at coordinates X: 155, Y: -60, Z: -163\nPlace stone at coordinates X: 156, Y: -60, Z: -163\nPlace stone at coordinates X: 157, Y: -60, Z: -163\nPlace stone at coordinates X: 158, Y: -60, Z: -163\nPlace stone at coordinates X: 159, Y: -60, Z: -163\nPlace stone at coordinates X: 160, Y: -60, Z: -163\nPlace stone at coordinates X: 161, Y: -60, Z: -163\nPlace stone at coordinates X: 162, Y: -60, Z: -163\nPlace stone at coordinates X: 163, Y: -60, Z: -163\nPlace stone at coordinates X: 164, Y: -60, Z: -163\nPlace copper_block at coordinates X: 165, Y: -60, Z: -163\nPlace stone at coordinates X: 166, Y: -60, Z: -163\nPlace stone at coordinates X: 167, Y: -60, Z: -163\nPlace stone at coordinates X: 149, Y: -60, Z: -162\nPlace stone at coordinates X: 150, Y: -60, Z: -162\nPlace stone at coordinates X: 151, Y: -60, Z: -162\nPlace stone at coordinates X: 152, Y: -60, Z: -162\nPlace stone at coordinates X: 153, Y: -60, Z: -162\nPlace stone at coordinates X: 154, Y: -60, Z: -162\nPlace stone at coordinates X: 155, Y: -60, Z: -162\nPlace stone at coordinates X: 156, Y: -60, Z: -162\nPlace stone at coordinates X: 157, Y: -60, Z: -162\nPlace stone at coordinates X: 158, Y: -60, Z: -162\nPlace stone at coordinates X: 159, Y: -60, Z: -162\nPlace stone at coordinates X: 160, Y: -60, Z: -162\nPlace stone at coordinates X: 161, Y: -60, Z: -162\nPlace stone at coordinates X: 162, Y: -60, Z: -162\nPlace stone at coordinates X: 163, Y: -60, Z: -162\nPlace stone at coordinates X: 164, Y: -60, Z: -162\nPlace stone at coordinates X: 165, Y: -60, Z: -162\nPlace stone at coordinates X: 166, Y: -60, Z: -162\nPlace stone at coordinates X: 167, Y: -60, Z: -162\nPlace stone at coordinates X: 149, Y: -60, Z: -161\nPlace stone at coordinates X: 150, Y: -60, Z: -161\nPlace stone at coordinates X: 151, Y: -60, Z: -161\nPlace stone at coordinates X: 152, Y: -60, Z: -161\nPlace stone at coordinates X: 153, Y: -60, Z: -161\nPlace stone at coordinates X: 154, Y: -60, Z: -161\nPlace stone at coordinates X: 155, Y: -60, Z: -161\nPlace stone at coordinates X: 156, Y: -60, Z: -161\nPlace stone at coordinates X: 157, Y: -60, Z: -161\nPlace stone at coordinates X: 158, Y: -60, Z: -161\nPlace stone at coordinates X: 159, Y: -60, Z: -161\nPlace stone at coordinates X: 160, Y: -60, Z: -161\nPlace stone at coordinates X: 161, Y: -60, Z: -161\nPlace stone at coordinates X: 162, Y: -60, Z: -161\nPlace stone at coordinates X: 163, Y: -60, Z: -161\nPlace stone at coordinates X: 164, Y: -60, Z: -161\nPlace stone at coordinates X: 165, Y: -60, Z: -161\nPlace stone at coordinates X: 166, Y: -60, Z: -161\nPlace stone at coordinates X: 167, Y: -60, Z: -161\nPlace stone at coordinates X: 149, Y: -60, Z: -160\nPlace stone at coordinates X: 150, Y: -60, Z: -160\nPlace stone at coordinates X: 151, Y: -60, Z: -160\nPlace stone at coordinates X: 152, Y: -60, Z: -160\nPlace stone at coordinates X: 153, Y: -60, Z: -160\nPlace stone at coordinates X: 154, Y: -60, Z: -160\nPlace stone at coordinates X: 155, Y: -60, Z: -160\nPlace stone at coordinates X: 156, Y: -60, Z: -160\nPlace stone at coordinates X: 157, Y: -60, Z: -160\nPlace stone at coordinates X: 158, Y: -60, Z: -160\nPlace stone at coordinates X: 159, Y: -60, Z: -160\nPlace stone at coordinates X: 160, Y: -60, Z: -160\nPlace stone at coordinates X: 161, Y: -60, Z: -160\nPlace terracotta at coordinates X: 162, Y: -60, Z: -160\nPlace stone at coordinates X: 163, Y: -60, Z: -160\nPlace stone at coordinates X: 164, Y: -60, Z: -160\nPlace stone at coordinates X: 165, Y: -60, Z: -160\nPlace stone at coordinates X: 166, Y: -60, Z: -160\nPlace stone at coordinates X: 167, Y: -60, Z: -160\nPlace stone at coordinates X: 149, Y: -60, Z: -159\nPlace stone at coordinates X: 150, Y: -60, Z: -159\nPlace stone at coordinates X: 151, Y: -60, Z: -159\nPlace stone at coordinates X: 152, Y: -60, Z: -159\nPlace stone at coordinates X: 153, Y: -60, Z: -159\nPlace stone at coordinates X: 154, Y: -60, Z: -159\nPlace stone at coordinates X: 155, Y: -60, Z: -159\nPlace stone at coordinates X: 156, Y: -60, Z: -159\nPlace stone at coordinates X: 157, Y: -60, Z: -159\nPlace stone at coordinates X: 158, Y: -60, Z: -159\nPlace stone at coordinates X: 159, Y: -60, Z: -159\nPlace stone at coordinates X: 160, Y: -60, Z: -159\nPlace stone at coordinates X: 161, Y: -60, Z: -159\nPlace stone at coordinates X: 162, Y: -60, Z: -159\nPlace stone at coordinates X: 163, Y: -60, Z: -159\nPlace stone at coordinates X: 164, Y: -60, Z: -159\nPlace stone at coordinates X: 165, Y: -60, Z: -159\nPlace stone at coordinates X: 166, Y: -60, Z: -159\nPlace stone at coordinates X: 167, Y: -60, Z: -159\nPlace stone at coordinates X: 149, Y: -60, Z: -158\nPlace stone at coordinates X: 150, Y: -60, Z: -158\nPlace stone at coordinates X: 151, Y: -60, Z: -158\nPlace stone at coordinates X: 152, Y: -60, Z: -158\nPlace stone at coordinates X: 153, Y: -60, Z: -158\nPlace stone at coordinates X: 154, Y: -60, Z: -158\nPlace stone at coordinates X: 155, Y: -60, Z: -158\nPlace stone at coordinates X: 156, Y: -60, Z: -158\nPlace stone at coordinates X: 157, Y: -60, Z: -158\nPlace stone at coordinates X: 158, Y: -60, Z: -158\nPlace stone at coordinates X: 159, Y: -60, Z: -158\nPlace stone at coordinates X: 160, Y: -60, Z: -158\nPlace stone at coordinates X: 161, Y: -60, Z: -158\nPlace stone at coordinates X: 162, Y: -60, Z: -158\nPlace stone at coordinates X: 163, Y: -60, Z: -158\nPlace stone at coordinates X: 164, Y: -60, Z: -158\nPlace stone at coordinates X: 165, Y: -60, Z: -158\nPlace stone at coordinates X: 166, Y: -60, Z: -158\nPlace stone at coordinates X: 167, Y: -60, Z: -158\nPlace stone at coordinates X: 149, Y: -60, Z: -157\nPlace stone at coordinates X: 150, Y: -60, Z: -157\nPlace stone at coordinates X: 151, Y: -60, Z: -157\nPlace stone at coordinates X: 152, Y: -60, Z: -157\nPlace stone at coordinates X: 153, Y: -60, Z: -157\nPlace stone at coordinates X: 154, Y: -60, Z: -157\nPlace stone at coordinates X: 155, Y: -60, Z: -157\nPlace stone at coordinates X: 156, Y: -60, Z: -157\nPlace stone at coordinates X: 157, Y: -60, Z: -157\nPlace stone at coordinates X: 158, Y: -60, Z: -157\nPlace stone at coordinates X: 159, Y: -60, Z: -157\nPlace stone at coordinates X: 160, Y: -60, Z: -157\nPlace stone at coordinates X: 161, Y: -60, Z: -157\nPlace stone at coordinates X: 162, Y: -60, Z: -157\nPlace stone at coordinates X: 163, Y: -60, Z: -157\nPlace stone at coordinates X: 164, Y: -60, Z: -157\nPlace stone at coordinates X: 165, Y: -60, Z: -157\nPlace stone at coordinates X: 166, Y: -60, Z: -157\nPlace stone at coordinates X: 167, Y: -60, Z: -157\nPlace stone at coordinates X: 149, Y: -60, Z: -156\nPlace stone at coordinates X: 150, Y: -60, Z: -156\nPlace stone at coordinates X: 151, Y: -60, Z: -156\nPlace stone at coordinates X: 152, Y: -60, Z: -156\nPlace stone at coordinates X: 153, Y: -60, Z: -156\nPlace stone at coordinates X: 154, Y: -60, Z: -156\nPlace stone at coordinates X: 155, Y: -60, Z: -156\nPlace stone at coordinates X: 156, Y: -60, Z: -156\nPlace stone at coordinates X: 157, Y: -60, Z: -156\nPlace stone at coordinates X: 158, Y: -60, Z: -156\nPlace stone at coordinates X: 159, Y: -60, Z: -156\nPlace stone at coordinates X: 160, Y: -60, Z: -156\nPlace stone at coordinates X: 161, Y: -60, Z: -156\nPlace stone at coordinates X: 162, Y: -60, Z: -156\nPlace stone at coordinates X: 163, Y: -60, Z: -156\nPlace stone at coordinates X: 164, Y: -60, Z: -156\nPlace stone at coordinates X: 165, Y: -60, Z: -156\nPlace stone at coordinates X: 166, Y: -60, Z: -156\nPlace stone at coordinates X: 167, Y: -60, Z: -156\nPlace stone at coordinates X: 149, Y: -60, Z: -155\nPlace stone at coordinates X: 150, Y: -60, Z: -155\nPlace stone at coordinates X: 151, Y: -60, Z: -155\nPlace stone at coordinates X: 152, Y: -60, Z: -155\nPlace stone at coordinates X: 153, Y: -60, Z: -155\nPlace stone at coordinates X: 154, Y: -60, Z: -155\nPlace stone at coordinates X: 155, Y: -60, Z: -155\nPlace stone at coordinates X: 156, Y: -60, Z: -155\nPlace stone at coordinates X: 157, Y: -60, Z: -155\nPlace stone at coordinates X: 158, Y: -60, Z: -155\nPlace stone at coordinates X: 159, Y: -60, Z: -155\nPlace stone at coordinates X: 160, Y: -60, Z: -155\nPlace stone at coordinates X: 161, Y: -60, Z: -155\nPlace stone at coordinates X: 162, Y: -60, Z: -155\nPlace stone at coordinates X: 163, Y: -60, Z: -155\nPlace stone at coordinates X: 164, Y: -60, Z: -155\nPlace stone at coordinates X: 165, Y: -60, Z: -155\nPlace stone at coordinates X: 166, Y: -60, Z: -155\nPlace stone at coordinates X: 167, Y: -60, Z: -155\nPlace stone at coordinates X: 149, Y: -60, Z: -154\nPlace stone at coordinates X: 150, Y: -60, Z: -154\nPlace stone at coordinates X: 151, Y: -60, Z: -154\nPlace stone at coordinates X: 152, Y: -60, Z: -154\nPlace stone at coordinates X: 153, Y: -60, Z: -154\nPlace stone at coordinates X: 154, Y: -60, Z: -154\nPlace stone at coordinates X: 155, Y: -60, Z: -154\nPlace stone at coordinates X: 156, Y: -60, Z: -154\nPlace stone at coordinates X: 157, Y: -60, Z: -154\nPlace stone at coordinates X: 158, Y: -60, Z: -154\nPlace stone at coordinates X: 159, Y: -60, Z: -154\nPlace stone at coordinates X: 160, Y: -60, Z: -154\nPlace stone at coordinates X: 161, Y: -60, Z: -154\nPlace stone at coordinates X: 162, Y: -60, Z: -154\nPlace stone at coordinates X: 163, Y: -60, Z: -154\nPlace stone at coordinates X: 164, Y: -60, Z: -154\nPlace stone at coordinates X: 165, Y: -60, Z: -154\nPlace stone at coordinates X: 166, Y: -60, Z: -154\nPlace stone at coordinates X: 167, Y: -60, Z: -154\nPlace stone at coordinates X: 149, Y: -60, Z: -153\nPlace stone at coordinates X: 150, Y: -60, Z: -153\nPlace stone at coordinates X: 151, Y: -60, Z: -153\nPlace stone at coordinates X: 152, Y: -60, Z: -153\nPlace stone at coordinates X: 153, Y: -60, Z: -153\nPlace stone at coordinates X: 154, Y: -60, Z: -153\nPlace stone at coordinates X: 155, Y: -60, Z: -153\nPlace stone at coordinates X: 156, Y: -60, Z: -153\nPlace stone at coordinates X: 157, Y: -60, Z: -153\nPlace stone at coordinates X: 158, Y: -60, Z: -153\nPlace stone at coordinates X: 159, Y: -60, Z: -153\nPlace stone at coordinates X: 160, Y: -60, Z: -153\nPlace stone at coordinates X: 161, Y: -60, Z: -153\nPlace stone at coordinates X: 162, Y: -60, Z: -153\nPlace stone at coordinates X: 163, Y: -60, Z: -153\nPlace stone at coordinates X: 164, Y: -60, Z: -153\nPlace stone at coordinates X: 165, Y: -60, Z: -153\nPlace stone at coordinates X: 166, Y: -60, Z: -153\nPlace stone at coordinates X: 167, Y: -60, Z: -153\nPlace stone at coordinates X: 149, Y: -60, Z: -152\nPlace stone at coordinates X: 150, Y: -60, Z: -152\nPlace stone at coordinates X: 151, Y: -60, Z: -152\nPlace stone at coordinates X: 152, Y: -60, Z: -152\nPlace stone at coordinates X: 153, Y: -60, Z: -152\nPlace stone at coordinates X: 154, Y: -60, Z: -152\nPlace stone at coordinates X: 155, Y: -60, Z: -152\nPlace stone at coordinates X: 156, Y: -60, Z: -152\nPlace stone at coordinates X: 157, Y: -60, Z: -152\nPlace stone at coordinates X: 158, Y: -60, Z: -152\nPlace stone at coordinates X: 159, Y: -60, Z: -152\nPlace stone at coordinates X: 160, Y: -60, Z: -152\nPlace stone at coordinates X: 161, Y: -60, Z: -152\nPlace stone at coordinates X: 162, Y: -60, Z: -152\nPlace stone at coordinates X: 163, Y: -60, Z: -152\nPlace stone at coordinates X: 164, Y: -60, Z: -152\nPlace stone at coordinates X: 165, Y: -60, Z: -152\nPlace stone at coordinates X: 166, Y: -60, Z: -152\nPlace stone at coordinates X: 167, Y: -60, Z: -152\nPlace stone at coordinates X: 149, Y: -60, Z: -151\nPlace stone at coordinates X: 150, Y: -60, Z: -151\nPlace stone at coordinates X: 151, Y: -60, Z: -151\nPlace stone at coordinates X: 152, Y: -60, Z: -151\nPlace stone at coordinates X: 153, Y: -60, Z: -151\nPlace stone at coordinates X: 154, Y: -60, Z: -151\nPlace stone at coordinates X: 155, Y: -60, Z: -151\nPlace stone at coordinates X: 156, Y: -60, Z: -151\nPlace stone at coordinates X: 157, Y: -60, Z: -151\nPlace stone at coordinates X: 158, Y: -60, Z: -151\nPlace stone at coordinates X: 159, Y: -60, Z: -151\nPlace stone at coordinates X: 160, Y: -60, Z: -151\nPlace stone at coordinates X: 161, Y: -60, Z: -151\nPlace stone at coordinates X: 162, Y: -60, Z: -151\nPlace stone at coordinates X: 163, Y: -60, Z: -151\nPlace stone at coordinates X: 164, Y: -60, Z: -151\nPlace stone at coordinates X: 165, Y: -60, Z: -151\nPlace stone at coordinates X: 166, Y: -60, Z: -151\nPlace stone at coordinates X: 167, Y: -60, Z: -151\n\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Alright! I'll start placing the stone blocks at those coordinates. !newAction(\"Place stone at specified coordinates for level 0\")"
+  },
+  {
+    "role": "system",
+    "content": "Code generation started. Write code in codeblock in your response:"
+  }
+]
+

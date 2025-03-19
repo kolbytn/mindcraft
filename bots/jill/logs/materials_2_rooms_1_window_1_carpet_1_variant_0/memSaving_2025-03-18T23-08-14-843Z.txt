@@ -1,0 +1,32 @@
+[2025-03-18T23-08-14-843Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "system",
+    "content": "Code output:\nYou have reached at 157, -58, -161.\n"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm at the stone coordinates! Let's place the stone block now. !newAction(\"Place stone at (157, -58, -161)\")"
+  },
+  {
+    "role": "system",
+    "content": "Summary of newAction\nAgent wrote this code: \n```\nawait skills.placeBlock(bot, 'stone', 157, -58, -161);```\nCode Output:\nCode output:\nPlaced stone at (157, -58, -161).\nCode finished.\n"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Great! Once you've placed that stone block, we can check on the ladder again. Just let me know how it goes!"
+  },
+  {
+    "role": "assistant",
+    "content": "Great! The stone block is placed. Now, let me try placing the ladder again. !newAction(\"Place ladder at (155, -58, -164)\")"
+  }
+]
+

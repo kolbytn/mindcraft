@@ -1,0 +1,36 @@
+[2025-03-18T22-53-28-799Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Alright, I’m ready to remove the existing doors and place them back with the correct orientation! Here we go! !newAction(\"Remove existing dark oak doors and place them with the correct orientation\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Perfect! Can't wait to see if that works. Once it’s done, I’ll check the blueprint again to confirm we’re set for level 1.\t"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)Looks like I can't remove the doors that way! Let me try to just place them again without needing to remove the existing ones. Here goes! !newAction(\"Place dark oak doors at specified coordinates with correct orientation\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Fingers crossed! Let's see if that does the trick. Once those doors are set, we can finally check if level 1 is complete.\t"
+  },
+  {
+    "role": "user",
+    "content": "andy: (FROM OTHER BOT)I'm still having trouble with removing the doors! Let's just place the dark oak doors correctly at their positions straight away without any removals. Here we go again! !newAction(\"Place dark oak doors correctly at specified coordinates\")"
+  },
+  {
+    "role": "assistant",
+    "content": "Alright, sounds like a plan! Just keep placing those doors. I’ll check the blueprint once we're done to see what’s left for level 1.\t"
+  }
+]
+

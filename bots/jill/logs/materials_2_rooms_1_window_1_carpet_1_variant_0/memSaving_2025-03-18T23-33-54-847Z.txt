@@ -1,0 +1,36 @@
+[2025-03-18T23-33-54-847Z] Task ID: materials_2_rooms_1_window_1_carpet_1_variant_0
+Prompt:
+You are a minecraft bot named $NAME that has been talking and playing minecraft by using commands. Update your memory by summarizing the following conversation and your old memory in your next response. Prioritize preserving important facts, things you've learned, useful tips, and long term reminders. Do Not record stats, inventory, or docs! Only save transient information from your chat history. You're limited to 500 characters, so be extremely brief and minimize words. Compress useful information. 
+Old Memory: '$MEMORY'
+Recent conversation: 
+$TO_SUMMARIZE
+Summarize your old memory and recent conversation into a new memory, and respond only with the unwrapped memory text: 
+
+Conversation:
+[
+  {
+    "role": "system",
+    "content": "\nLevel 0: Start at coordinates X: 148, Y: -60, Z: -170Level 1: Start at coordinates X: 148, Y: -59, Z: -170Level 2: Start at coordinates X: 148, Y: -58, Z: -170Level 3: Start at coordinates X: 148, Y: -57, Z: -170Level 4: Start at coordinates X: 148, Y: -56, Z: -170Level 5: Start at coordinates X: 148, Y: -55, Z: -170Level 6: Start at coordinates X: 148, Y: -54, Z: -170Level 7: Start at coordinates X: 148, Y: -53, Z: -170Level 8: Start at coordinates X: 148, Y: -52, Z: -170Level 9: Start at coordinates X: 148, Y: -51, Z: -170Level 10: Start at coordinates X: 148, Y: -50, Z: -170Level 11: Start at coordinates X: 148, Y: -49, Z: -170Level 12: Start at coordinates X: 148, Y: -48, Z: -170Level 13: Start at coordinates X: 148, Y: -47, Z: -170Level 14: Start at coordinates X: 148, Y: -46, Z: -170\n"
+  },
+  {
+    "role": "assistant",
+    "content": "Alright! The blueprint starts at X: 148, Y: -60, Z: -170. Let's get to work on level 0! !goToCoordinates(148, -60, -170)"
+  },
+  {
+    "role": "system",
+    "content": "Command !goToCoordinates was given 3 args, but requires 4 args."
+  },
+  {
+    "role": "assistant",
+    "content": "On my way! !goToCoordinates(148, -60, -170, 3)"
+  },
+  {
+    "role": "system",
+    "content": "Code output:\nYou have reached at 148, -60, -170.\n"
+  },
+  {
+    "role": "assistant",
+    "content": "I'm at the starting coordinates! Let's check what needs to be done for level 0. !checkBlueprintLevel(0)"
+  }
+]
+
