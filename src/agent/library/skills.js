@@ -460,7 +460,14 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
             return false;
         }
         try {
-            await bot.collectBlock.collect(block);
+            if (mc.mustCollectManually(blockType)) {
+                await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
+                await bot.dig(block);
+                await pickupNearbyItems(bot);
+            }
+            else {
+                await bot.collectBlock.collect(block);
+            }
             collected++;
             await autoLight(bot);
         }
@@ -823,7 +830,7 @@ export async function putInChest(bot, itemName, num=-1) {
 
 export async function takeFromChest(bot, itemName, num=-1) {
     /**
-     * Take the given item from the nearest chest.
+     * Take the given item from the nearest chest, potentially from multiple slots.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item or block name to take from the chest.
      * @param {number} num, the number of items to take from the chest. Defaults to -1, which takes all items.
@@ -838,17 +845,33 @@ export async function takeFromChest(bot, itemName, num=-1) {
     }
     await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
     const chestContainer = await bot.openContainer(chest);
-    let item = chestContainer.containerItems().find(item => item.name === itemName);
-    if (!item) {
+    
+    // Find all matching items in the chest
+    let matchingItems = chestContainer.containerItems().filter(item => item.name === itemName);
+    if (matchingItems.length === 0) {
         log(bot, `Could not find any ${itemName} in the chest.`);
         await chestContainer.close();
         return false;
     }
-    let to_take = num === -1 ? item.count : Math.min(num, item.count);
-    await chestContainer.withdraw(item.type, null, to_take);
+    
+    let totalAvailable = matchingItems.reduce((sum, item) => sum + item.count, 0);
+    let remaining = num === -1 ? totalAvailable : Math.min(num, totalAvailable);
+    let totalTaken = 0;
+    
+    // Take items from each slot until we've taken enough or run out
+    for (const item of matchingItems) {
+        if (remaining <= 0) break;
+        
+        let toTakeFromSlot = Math.min(remaining, item.count);
+        await chestContainer.withdraw(item.type, null, toTakeFromSlot);
+        
+        totalTaken += toTakeFromSlot;
+        remaining -= toTakeFromSlot;
+    }
+    
     await chestContainer.close();
-    log(bot, `Successfully took ${to_take} ${itemName} from the chest.`);
-    return true;
+    log(bot, `Successfully took ${totalTaken} ${itemName} from the chest.`);
+    return totalTaken > 0;
 }
 
 export async function viewChest(bot) {
@@ -979,10 +1002,34 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
         log(bot, `Teleported to ${x}, ${y}, ${z}.`);
         return true;
     }
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalNear(x, y, z, min_distance));
-    log(bot, `You have reached at ${x}, ${y}, ${z}.`);
-    return true;
+    
+    const movements = new pf.Movements(bot);
+    bot.pathfinder.setMovements(movements);
+    
+    const checkProgress = () => {
+        if (bot.targetDigBlock) {
+            const targetBlock = bot.targetDigBlock;
+            const itemId = bot.heldItem ? bot.heldItem.type : null;
+            if (!targetBlock.canHarvest(itemId)) {
+                log(bot, `Pathfinding stopped: Cannot break ${targetBlock.name} with current tools.`);
+                bot.pathfinder.stop();
+                bot.stopDigging();
+            }
+        }
+    };
+    
+    const progressInterval = setInterval(checkProgress, 1000);
+    
+    try {
+        await bot.pathfinder.goto(new pf.goals.GoalNear(x, y, z, min_distance));
+        log(bot, `You have reached at ${x}, ${y}, ${z}.`);
+        return true;
+    } catch (err) {
+        log(bot, `Pathfinding stopped: ${err.message}.`);
+        return false;
+    } finally {
+        clearInterval(progressInterval);
+    }
 }
 
 export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64) {
@@ -1006,7 +1053,7 @@ export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64
         log(bot, `Could not find any ${blockType} in ${range} blocks.`);
         return false;
     }
-    log(bot, `Found ${blockType} at ${block.position}.`);
+    log(bot, `Found ${blockType} at ${block.position}. Navigating...`);
     await goToPosition(bot, block.position.x, block.position.y, block.position.z, min_distance);
     return true;
     
@@ -1376,54 +1423,59 @@ export async function activateNearestBlock(bot, type) {
     return true;
 }
 
-
 export async function digDown(bot, distance = 10) {
     /**
-     * Digs down a specified distance.
+     * Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {int} distance, distance to dig down.
-     * @returns {Promise<boolean>} true if successfully dug down.
+     * @returns {Promise<boolean>} true if successfully dug all the way down.
      * @example
      * await skills.digDown(bot, 10);
      **/
 
-    for (let i = 0; i < distance; i++) {
-        const targetBlock = bot.blockAt(bot.entity.position.offset(0, -1, 0));
-        const belowBlock = bot.blockAt(bot.entity.position.offset(0, -2, 0));
+    let start_block_pos = bot.blockAt(bot.entity.position).position;
+    for (let i = 1; i <= distance; i++) {
+        const targetBlock = bot.blockAt(start_block_pos.offset(0, -i, 0));
+        let belowBlock = bot.blockAt(start_block_pos.offset(0, -i-1, 0));
+
+        if (!targetBlock || !belowBlock) {
+            log(bot, `Dug down ${i-1} blocks, but reached the end of the world.`);
+            return true;
+        }
 
         // Check for lava, water
-        if (!targetBlock || targetBlock.name === 'lava' || targetBlock.name === 'water' || 
-            (belowBlock && (belowBlock.name === 'lava' || belowBlock.name === 'water'))) {
-            console.log(`Dug down ${i} blocks, but reached ${belowBlock ? belowBlock.name : '(lava/water)'}`);
-            log(bot, `Dug down ${i} blocks, but reached ${belowBlock ? belowBlock.name : '(lava/water)'}`)
+        if (targetBlock.name === 'lava' || targetBlock.name === 'water' || 
+            belowBlock.name === 'lava' || belowBlock.name === 'water') {
+            log(bot, `Dug down ${i-1} blocks, but reached ${belowBlock ? belowBlock.name : '(lava/water)'}`)
             return false;
         }
 
-        // Check for a fall of more than 5 blocks below the bot
-        let isSafe = false;
-        for (let j = 1; j <= 5; j++) {
-            const belowBlock = bot.blockAt(bot.entity.position.offset(0, -j-1, 0));
-            if (!belowBlock || belowBlock.name !== 'air') {
-                isSafe = true;
+        const MAX_FALL_BLOCKS = 2;
+        let num_fall_blocks = 0;
+        for (let j = 0; j <= MAX_FALL_BLOCKS; j++) {
+            if (!belowBlock || (belowBlock.name !== 'air' && belowBlock.name !== 'cave_air')) {
                 break;
             }
+            num_fall_blocks++;
+            belowBlock = bot.blockAt(belowBlock.position.offset(0, -1, 0));
         }
-
-        if (!targetBlock || !isSafe) {
-            console.log(`Dug down ${i} blocks, but reached fall`);
-            log(bot, `Dug down ${i} blocks, but reached fall`);
+        if (num_fall_blocks > MAX_FALL_BLOCKS) {
+            log(bot, `Dug down ${i-1} blocks, but reached a drop below the next block.`);
             return false;
         }
 
-        if (bot.canDigBlock(targetBlock)) {
-            await breakBlockAt(bot, bot.entity.position.x, bot.entity.position.y - 1, bot.entity.position.z);
-            await bot.waitForTicks(10); // wait for a short period to avoid issues
-            await bot.entity.position.offset(0, -1, 0);
-        } else {
-            console.log('Cannot dig block at position:', bot.entity.position.offset(0, -1, 0));
-            log(bot, 'Cannot dig block at position:' + bot.entity.position.offset(0, -1, 0))
+        if (targetBlock.name === 'air' || targetBlock.name === 'cave_air') {
+            log(bot, 'Skipping air block');
+            console.log(targetBlock.position);
+            continue;
+        }
+
+        let dug = await breakBlockAt(bot, targetBlock.position.x, targetBlock.position.y, targetBlock.position.z);
+        if (!dug) {
+            log(bot, 'Failed to dig block at position:' + targetBlock.position);
             return false;
         }
     }
+    log(bot, `Dug down ${distance} blocks.`);
     return true;
 }

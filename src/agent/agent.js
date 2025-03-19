@@ -1,5 +1,6 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
+import { VisionInterpreter } from './vision/vision_interpreter.js';
 import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
@@ -10,7 +11,7 @@ import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
-import { addViewer } from './viewer.js';
+import { addBrowserViewer } from './vision/browser_viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
 import { Task } from './tasks.js';
@@ -80,7 +81,7 @@ export class Agent {
         this.bot.once('spawn', async () => {
             try {
                 clearTimeout(spawnTimeout);
-                addViewer(this.bot, count_id);
+                addBrowserViewer(this.bot, count_id);
 
                 // wait for a bit so stats are not undefined
                 await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -94,6 +95,9 @@ export class Agent {
                 if (!load_mem) {
                     this.task.initBotTask();
                 }
+
+                console.log('Initializing vision intepreter...');
+                this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
 
             } catch (error) {
                 console.error('Error in spawn event:', error);
@@ -173,6 +177,7 @@ export class Agent {
 
     requestInterrupt() {
         this.bot.interrupt_code = true;
+        this.bot.stopDigging();
         this.bot.collectBlock.cancelTask();
         this.bot.pathfinder.stop();
         this.bot.pvp.stop();
@@ -353,7 +358,7 @@ export class Agent {
         }
         else {
 	    if (settings.speak) {
-            	say(message);
+            say(to_translate);
 	    }
             this.bot.chat(message);
         }
