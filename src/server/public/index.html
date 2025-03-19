@@ -46,7 +46,8 @@
         </div>
         <div class="formOption">
             <label for="mcProfileList">Profiles: </label>
-            <p id="mcProfileList">I'll do this last, once I've finished the other settings options. It will take the style of a todo list app, with the delete/add/checkbox functionality.</p>
+            <div id="mcProfileList"></div>
+            <button onclick="addProfileItem(`mcProfileList`)" class="blue-btn">Add Item</button>
         </div>
         <div class="formOption">
             <label for="mcLoadMemory">Load Memory?</label>
@@ -60,7 +61,8 @@
         </div>
         <div class="formOption">
             <label for="mcOnlyChatWith">Only chat with: (leave empty to chat publicly)</label>
-            <p id="mcOnlyChatWith">Will copy the style of the profile list once I've finished with that.</p>
+            <div id="mcOnlyChatWith"></div>
+            <button onclick="addProfileItem(`mcOnlyChatWith`)" class="blue-btn">Add Item</button>
             <h5>users that the bots listen to and send general messages to. if empty it will chat publicly</h5>
         </div>
         <div class="formOption">
@@ -171,6 +173,47 @@
         
         function sendMessage(agentName, message) {
             socket.emit('send-message', agentName, message)
+        }
+        
+        function addProfileItem(listName) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'list-item';
+
+            const itemName = document.createElement('input');
+            itemName.type = 'text';
+            itemName.className = 'name';
+
+            const itemCheckbox = document.createElement('input');
+            itemCheckbox.type = 'checkbox';
+            itemCheckbox.onchange = function() {
+                if (itemCheckbox.checked) {
+                    itemName.classList.remove('not-selected');
+                } else {
+                    itemName.classList.add('not-selected');
+                }
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.className = 'red-btn';
+            deleteButton.onclick = function() {
+                itemDiv.remove();
+            };
+
+            itemDiv.appendChild(itemCheckbox);
+            itemDiv.appendChild(itemName);
+            itemDiv.appendChild(deleteButton);
+
+            document.getElementById(listName).appendChild(itemDiv);
+        }
+
+        function getItemNames(listName) {
+            const items = document.querySelectorAll(`#${listName} .item`);
+            const names = Array.from(items)
+                .filter(item => item.querySelector('input[type="checkbox"]').checked)
+                .map(item => item.querySelector('input[type="text"]').value);
+            console.log(names);
+            return names;
         }
     </script>
 </body>

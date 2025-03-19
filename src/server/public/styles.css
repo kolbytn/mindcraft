@@ -14,7 +14,8 @@ body {
 }
 
 .formOption {
-    background: #575757;
+    background: #5757574f;
+    backdrop-filter: blur(10px);
     padding: 10px;
     border-radius:4px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -42,6 +43,24 @@ code {
     border-radius:4px;
     padding:4px;
     color:#000;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.list-item input[type="text"] {
+    margin-right: 10px;
+}
+
+.list-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.list-item .name.not-selected {
+    text-decoration: line-through;
 }
 
 .agent {
