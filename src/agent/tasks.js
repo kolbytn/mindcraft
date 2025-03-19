@@ -126,25 +126,39 @@ class CookingCraftingTaskValidator {
         this.data = data;
         this.agent = agent;
     } 
-    validate() {
-        const result = checkItemPresence(this.data, this.agent);
-        let score = 0;
-        if (result.success) {
-            score = 1;
+    validate(has_initiated) {
+        if (has_initiated) {
+
+            const result = checkItemPresence(this.data, this.agent);
+            let score = 0;
+            if (result.success) {
+                score = 1;
+            }
+            return {
+                "valid": result.success, 
+                "score": score,
+            };
         }
-        return {
-            "valid": result.success, 
-            "score": score,
-        };
+        else {
+            return {
+                "valid": false,
+                "score": 0
+            };
+        }
     }
 }
 
 export class Task {
-    constructor(agent, task_path, task_id) {
+    constructor(agent, task_path, task_id, taskStartTime = null) {
         this.agent = agent;
         this.data = null;
-        this.taskTimeout = 300;
-        this.taskStartTime = Date.now();
+        console.log("task start time", taskStartTime);
+        if (taskStartTime !== null)
+            this.taskStartTime = taskStartTime;
+        else
+            this.taskStartTime = Date.now();
+
+        console.log(this.taskStartTime);
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
@@ -188,6 +202,7 @@ export class Task {
 
         this.name = this.agent.name;
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+        this.agent_initialized = false;
     }
 
     getAgentGoal() {
@@ -239,7 +254,7 @@ export class Task {
     isDone() {
         let res = null;
         if (this.validator)
-            res = this.validator.validate();
+            res = this.validator.validate(this.agent_initialized);
         if (res && res.valid) {
             return {"message": 'Task successful', "score": res.score};
         }
@@ -310,6 +325,8 @@ export class Task {
             // Wait briefly for inventory commands to complete
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
+
+        this.agent_initialized = true;
 
         if (this.initiator) {
             await this.initiator.init();

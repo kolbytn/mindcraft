@@ -8,6 +8,13 @@ import re
 import sys
 import os
 import time
+import filecmp
+import json
+import glob
+import socket
+
+from tqdm import tqdm
+import boto3
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
@@ -32,6 +39,81 @@ BLOCKED_ACTIONS_CONSTRUCTION = [
     '!restart', '!searchForBlock', '!searchForEntity', '!setMode', '!stay', '!stfu',
     '!stop', '!takeFromChest', '!viewChest'
 ]
+
+def analyze_json_file(file_path):
+    """
+    Analyzes a single JSON file to extract the task outcome.
+
+    Args:
+        file_path (str): Path to the JSON file.
+
+    Returns:
+        str or None: The task outcome string if found, otherwise None.
+    """
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            if 'turns' in data and isinstance(data['turns'], list):
+                for turn in reversed(data['turns']):  # Check turns from the end
+                    if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
+                        if "Task successful ended with code : 2" in turn['content'] or "Task ended with score : 1" in turn["content"] or "Task ended in score: 1" in turn["content"]:
+                            return True
+        return False
+    except FileNotFoundError:
+        print(f"Error: File not found: {file_path}")
+        return None
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in: {file_path}")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred while processing {file_path}: {e}")
+        return None
+    
+def extract_result(folder_path):
+    folder_name = os.path.basename(folder_path)
+    json_files = glob.glob(os.path.join(folder_path, "*.json"))
+    # assert len(json_files) == 2, f"Expected 2 json files in {folder_name}, found {len(json_files)}"
+
+    if not json_files:
+        print(f"No JSON files found in {folder_name}")
+        return None
+    else: 
+        outcome = False
+        for json_file in json_files:
+            outcome = analyze_json_file(json_file)
+            if outcome:
+                return True
+        return False
+    
+def aggregate_results(local_folders):
+    """
+    Aggregates the analysis results for each folder.
+
+    Args:
+        local_folders (list): List of local folder paths containing the JSON files.
+
+    Returns:
+        dict: A dictionary where keys are folder names and values are the aggregated outcomes.
+    """
+    aggregated_data = {}
+
+    total = 0
+    successful = 0
+    for folder_path in tqdm(local_folders):
+        folder_name = os.path.basename(folder_path)
+
+        try: 
+            result = extract_result(folder_path)
+            if result is not None:
+                total += 1
+                successful += int(result)
+        except Exception as e:
+            print(f"Error processing {folder_name}: {e}")
+    
+    return {
+        "total": total,
+        "successful": successful,
+    }
 
 def read_settings(file_path):
     """Read and parse the settings.js file to get agent profiles."""
@@ -133,6 +215,14 @@ def launch_parallel_experiments(task_path,
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
 
+    split_task_path = task_path.split("/")
+    if len(split_task_path) > 1:
+        task_path_name = split_task_path[-2]
+    else:
+        task_path_name = "tasks"
+
+    s3_path = f"{bucket_name}/{task_type}/{model}/{task_path_name}/{exp_name}/"
+
     # start wandb
     os.makedirs(experiments_folder, exist_ok=True)
     for i, server in enumerate(servers):
@@ -150,14 +240,25 @@ def launch_parallel_experiments(task_path,
                                  insecure_coding=insecure_coding,
                                  num_agents=num_agents, 
                                  url=url, 
-                                 task_type=task_type)
+                                 task_type=task_type, 
+                                 s3_path=s3_path)
         time.sleep(5)
     
-    for i in range(20):
-        for i in range(len(servers)):
-            session_name = str(servers[i][1] - 55916)
-            subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
-            time.sleep(10)
+    total_num_tasks = len(task_ids)
+    total_num_experiments = total_num_tasks * num_exp
+    total_run = 0
+    while total_run < total_num_experiments:
+        results = aggregate_results([f"{experiments_folder}/{task_id}" for task_id in task_ids])
+        total_run = results["total"]
+        print(f"Total tasks run: {total_run}/{total_num_experiments}")
+        print(results)
+        with open(f"{experiments_folder}/results.txt", "w") as file:
+            file.write(str(results))
+        if s3: 
+            s3 = boto3.client('s3')
+            s3.upload_file(f"{experiments_folder}/results.txt", bucket_name, s3_path)
+        
+        time.sleep(15)
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -173,7 +274,8 @@ def launch_server_experiment(task_path,
                              template_profile="profiles/tasks/collab_profile.json", 
                              insecure_coding=False, 
                              url="http://127.0.0.1:8000/v1", 
-                             task_type="techtree"):
+                             task_type="techtree", 
+                             s3_path=""):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -221,9 +323,11 @@ def launch_server_experiment(task_path,
             agent_profiles_str += f'\"{agent}\", '
         agent_profiles_str += f"\"{agent_profiles[-1]}\"]'"
     print(agent_profiles_str)
-    launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
+    launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names, port=server_port)
 
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
+
+    
 
     # set environment variables
     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
@@ -233,13 +337,14 @@ def launch_server_experiment(task_path,
         set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
 
     # you need to add the bots to the world first before you can add them as op
-    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
+    # cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
 
-    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+    # subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
 
-    time.sleep(40)
+    # time.sleep(40)
 
-    subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent_names[0]}", "C-m"])
+    # subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
+    make_ops(agent_names, session_name)
 
     # add the bots as op
     # op_script_content = "sleep 5\n\op @p" * 20
@@ -251,6 +356,8 @@ def launch_server_experiment(task_path,
         set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CRAFTING)
     elif task_type == "construction":
         set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CONSTRUCTION)
+    
+    
     
 
     script_content = ""
@@ -274,8 +381,7 @@ def launch_server_experiment(task_path,
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
-                    s3_upload_experiment = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{s3_path}/{task_id}/{agent}_{_}.json"
                     script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
@@ -283,11 +389,41 @@ def launch_server_experiment(task_path,
         script_content += f"sleep 10\n"
         if s3:
             for agent in agent_names:
-                script_content += f"aws s3 cp bots/{agent} s3://{bucket_name}/{exp_name}/bots/{agent} --recursive\n"
+                script_content += f"aws s3 cp bots/{agent} s3://{s3_path}/bots/{agent} --recursive\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
     make_script_file_and_run(script_content, session_name, script_file)
+
+def make_ops(agent_names, session_name):
+    """Make the agents operators in the Minecraft world."""
+    print('Making agents operators...')
+
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{len(agent_names)}_agent_timeout"
+
+    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+
+    time.sleep(30)
+
+    subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
+
+    agents_op = check_agent_ops(agent_names, ops_file=f"./server_data_{session_name}/ops.json")
+    if agents_op:
+        print("Agents are operators! You are good to go :D")
+    else: 
+        print("Agents are not operators! Something went wrong :(")
+        make_ops(agent_names, session_name)
+
+def check_agent_ops(agent_names, ops_file="ops.json"):
+    with open(ops_file, "r") as f:
+        ops_data = json.load(f)
+    
+    ops_names = [op["name"] for op in ops_data]
+    
+    for agent in agent_names:
+        if agent not in ops_names:
+            return False 
+    return True
 
 def make_script_file_and_run(script_content, session_name, file_name):
     script_dir = os.path.dirname(file_name)
@@ -322,6 +458,12 @@ def make_profiles(agent_names, models, apis, template_profile="profiles/collab_p
                 "api": "vllm",
                 "model": models[index], 
                 "url": url
+            }
+        elif apis[index] == "ollama":
+            profile["model"] = {
+                "api": "ollama",
+                "model": models[index],
+                "embedding": "ollama"
             }
         else: 
             profile["model"] = models[index]
@@ -372,6 +514,23 @@ def copy_server_files(source_path, dest_path):
         print(f"Server files copied to {dest_path}")
     except Exception as e:
         print(f"Error copying server files: {e}")
+    time.sleep(10)
+
+    same_files = check_same_files(source_path, dest_path)
+    if not same_files:
+        copy_server_files(source_path, dest_path)
+        print("The destination path does not contain all the same files as the source path.")
+    else:
+        print("The destination path contains all the same files as the source path.")
+
+def check_same_files(d1, d2):
+
+    items1 = set(os.listdir(d1))
+    items2 = set(os.listdir(d2))
+
+    if items1 != items2:
+        return False
+    return True
 
 def delete_server_files(dest_path):
     """Delete server files from the specified location."""
@@ -380,17 +539,37 @@ def delete_server_files(dest_path):
         print(f"Server files deleted from {dest_path}")
     except Exception as e:
         print(f"Error deleting server files: {e}")
+    if not os.path.exists(dest_path):
+        print("Server files deleted successfully.")
+    else:
+        print("Error deleting server files.")
+        delete_server_files(dest_path)
+    
 
-def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server"):
+def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server", port=55916):
     """Launch the Minecraft world."""
-    print(server_path)
+    print(f"Launching Minecraft world with port {port}...")
     cmd = f"cd {server_path} && java -jar server.jar"
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-    # for agent in agent_names:
-    #     print(f"\n\n/op {agent}\n\n")
-    #     subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
-    time.sleep(5)
+    time.sleep(10)
+    if not test_server_running(port):
+        print("Server failed to start. Retrying...")
+        launch_world(server_path, agent_names, session_name, port)
+
+def test_server_running(port=55916):
+    host = 'localhost'
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.connect((host, port))
+            print("Server is running on port 55916")
+            return True
+        except ConnectionRefusedError:
+            print("Server is not running on port 55916")
+            return False
+
+    
 
 def kill_world(session_name="server"):
     """Kill the Minecraft world."""
