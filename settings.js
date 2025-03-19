@@ -46,6 +46,11 @@ const settings = {
     "chat_bot_messages": true, // publicly chat messages to other bots
 }
 
+// Function to update settings
+export function updateSettings(newSettings) {
+    return Object.assign(settings, newSettings);
+}
+
 // these environment variables override certain settings
 if (process.env.MINECRAFT_PORT) {
     settings.port = process.env.MINECRAFT_PORT;
