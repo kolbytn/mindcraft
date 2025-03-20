@@ -46,7 +46,7 @@
             <div class="formOption">
                 <label for="mcProfileList">Profiles: </label>
                 <div id="mcProfileList"></div>
-                <button onclick="addProfileItem(`mcProfileList`, `./andy.json`)" class="blue-btn">Add Item</button>
+                <button onclick="addProfileItem(`mcProfileList`, `./andy.json`)" class="blue-btn add-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="10" y="2" width="4" height="20"/><rect x="2" y="10" width="20" height="4"/></g></svg>Add Item</button>
             </div>
             <div class="formOption">
                 <label for="mcLoadMemory">Load Memory?</label>
@@ -61,7 +61,7 @@
             <div class="formOption">
                 <label for="mcOnlyChatWith">Only chat with: (leave empty to chat publicly)</label>
                 <div id="mcOnlyChatWith"></div>
-                <button onclick="addProfileItem(`mcOnlyChatWith`, `Bob123`)" class="blue-btn">Add Item</button>
+                <button onclick="addProfileItem(`mcOnlyChatWith`, `Bob123`)" class="blue-btn add-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="10" y="2" width="4" height="20"/><rect x="2" y="10" width="20" height="4"/></g></svg>Add Item</button>
                 <h5>Users that the bots listen to and send general messages to. If empty, it will chat publicly.</h5>
             </div>
             <div class="formOption">
@@ -96,7 +96,7 @@
             <div class="formOption">
                 <label for="mcBlockedActions">Blocked Actions: </label>
                 <div id="mcBlockedActions"></div>
-                <button onclick="addProfileItem(`mcBlockedActions`, `!setMode`)" class="blue-btn">Add Item</button>
+                <button onclick="addProfileItem(`mcBlockedActions`, `!setMode`)" class="blue-btn add-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="10" y="2" width="4" height="20"/><rect x="2" y="10" width="20" height="4"/></g></svg>Add Item</button>
                 <h5>Commands to disable and remove from the docs.</h5>
             </div>
             <div class="formOption">
@@ -192,6 +192,7 @@
         }
 
         function updateListItem(listId, listContent) {
+            document.getElementById(listId).innerHTML = "";
             listContent.forEach(element => {
                 addProfileItem(listId, element);
             });
@@ -202,6 +203,10 @@
             const falseRadio = document.querySelector(`input[name="${radioName}"][value="false"]`);
             trueRadio.checked = value;
             falseRadio.checked = !value;
+        }
+
+        function getBooleanRadio(radioName) {
+            return document.querySelector(`input[name="${radioName}"][value="true"]`).checked;
         }
 
         function updateSettings(settings) {
@@ -229,6 +234,37 @@
             updateListItem("mcProfileList", settings["profiles"]);
             updateListItem("mcBlockedActions", settings["blocked_actions"]);
             updateListItem("mcOnlyChatWith", settings["only_chat_with"]);
+        }
+
+        function getNewSettings() {
+            let settings = {};
+
+            // string/integer fields
+            settings["minecraft_version"] = document.getElementById("mcVersion").value;
+            settings["host"] = document.getElementById("mcHostSelector").value;
+            settings["port"] = parseInt(document.getElementById("mcPort").value, 10); // Convert to integer using base 10
+            settings["auth"] = document.getElementById("mcAuth").value;
+            settings["base_profile"] = document.getElementById("mcBaseProfile").value;
+            settings["init_message"] = document.getElementById("mcInitMessage").value;
+            settings["language"] = document.getElementById("mcLanguage").value;
+            settings["max_messages"] = parseInt(document.getElementById("mcMessageHistory").value, 10); // Convert to integer using base 10
+
+            // boolean fields
+            settings["load_memory"] = getBooleanRadio("mcLoadMemory");
+            settings["speak"] = getBooleanRadio("mcSpeak");
+            settings["show_bot_views"] = getBooleanRadio("mcShowBotViews");
+            settings["allow_insecure_coding"] = getBooleanRadio("mcAllowInsecureCoding");
+            settings["allow_vision"] = getBooleanRadio("mcAllowVision");
+            settings["verbose_commands"] = getBooleanRadio("mcVerboseCommands");
+            settings["narrate_behavior"] = getBooleanRadio("mcNarrateBehavior");
+            settings["chat_bot_messages"] = getBooleanRadio("mcChatBotMessages");
+
+            // array/list fields
+            settings["profiles"] = getItemNames("mcProfileList");
+            settings["blocked_actions"] = getItemNames("mcBlockedActions");
+            settings["only_chat_with"] = getItemNames("mcOnlyChatWith");
+
+            return settings;
         }
         
         function addProfileItem(listName, itemNameArg) {
@@ -270,11 +306,10 @@
         }
 
         function getItemNames(listName) {
-            const items = document.querySelectorAll(`#${listName} .item`);
+            const items = document.querySelectorAll(`#${listName} .list-item`);
             const names = Array.from(items)
                 .filter(item => item.querySelector('input[type="checkbox"]').checked)
                 .map(item => item.querySelector('input[type="text"]').value);
-            console.log(names);
             return names;
         }
 

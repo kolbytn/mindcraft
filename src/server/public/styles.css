@@ -92,6 +92,18 @@ button {
     background: #5c5c5c
 }
 
+button:hover {
+    background: #444;
+}
+
+.add-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 3px 10px;
+    justify-content: space-between;
+}
+
 .green-btn {
     background: #4CAF50;
 }
