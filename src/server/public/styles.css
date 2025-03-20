@@ -104,6 +104,10 @@ button:hover {
     justify-content: space-between;
 }
 
+.add-btn svg {
+    margin-right: 5px;
+}
+
 .green-btn {
     background: #4CAF50;
 }
