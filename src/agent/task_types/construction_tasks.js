@@ -181,8 +181,6 @@ export class Blueprint {
                         continue;
                     }
 
-                    // todo: skip if blockname contains _door and the actual does as well
-
                     if (actualBlockName !== blockName) {
                         mismatches.push({
                             level: levelData.level,
