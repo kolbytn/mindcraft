@@ -23,7 +23,10 @@ export class VLLM {
     async sendRequest(turns, systemMessage, stop_seq = '***') {
         let messages = [{ 'role': 'system', 'content': systemMessage }].concat(turns);
         
-        messages = strictFormat(messages);
+        if (this.model_name.includes("deepseek") || this.model_name.inclues("qwen")) {
+            messages = strictFormat(messages);
+        } 
+        
 
         const pack = {
             model: this.model_name || "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
