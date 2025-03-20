@@ -395,6 +395,11 @@ export class Prompter {
             if (current_msg_time !== this.most_recent_msg_time) {
                 console.warn(`${this.agent.name} received new message while generating, discarding old response.`);
                 return '';
+            } 
+
+            if (generation?.includes('</think>')) {
+                const [_, afterThink] = generation.split('</think>')
+                generation = afterThink
             }
 
             return generation;
