@@ -178,7 +178,7 @@
         let settings;
         function getSettings() {
             socket.emit('get-settings', (response) => {
-                settings = JSON.parse(response);
+                settings = response;
                 console.log(settings);
             })
         }

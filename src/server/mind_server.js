@@ -131,7 +131,7 @@ export function createMindServer(port = 8080) {
 		});
 
         socket.on('get-settings', (callback) => {
-            callback(JSON.stringify(settings));
+            callback(settings);
         })
     });
 
