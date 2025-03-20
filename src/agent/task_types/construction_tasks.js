@@ -634,51 +634,46 @@ export function proceduralGeneration(m = 20,
     }
 
 
-    // out of commission
-    function addStairs(matrix, x, y, z, direction) {
-        let dz = 0; // Change in Z direction
-        let dx = 0; // Change in X direction
-        let facing = '';
-
-        // Determine direction and facing
-        switch (direction) {
-            case 'north':
-                dz = -1;
-                facing = 'oak_stairs[facing=north]';
-                break;
-            case 'south':
-                dz = 1;
-                facing = 'oak_stairs[facing=south]';
-                break;
-            case 'east':
-                dx = 1;
-                facing = 'oak_stairs[facing=east]';
-                break;
-            case 'west':
-                dx = -1;
-                facing = 'oak_stairs[facing=west]';
-                break;
-            default:
-                console.error('Invalid stair direction');
-                return;
-        }
-
-        // Bore stair pattern downwards until we hit a floor or the matrix edge
+    //still a little buggy
+    function addStairs(matrix, x, y, z, length, width, material) {
         let currentZ = z;
-        while (currentZ > 0 && matrix[currentZ - 1][x][y] === 'air') {
-            // Place stone as foundation
-            matrix[currentZ - 1][x][y] = 'stone';
+        let currentX = x + 1;
+        let currentY = y + 1;
+        let direction = 0;
+        let stepCount = 0;
+        const maxSteps = length * width; // Safety limit
 
-            // Place stair above the stone
-            matrix[currentZ][x][y] = facing;
+        while (currentZ >= 0 && currentX < x + length - 1 && currentY < y + width - 1 && stepCount < maxSteps) {
+            // Place stair block
+            matrix[currentZ][currentX][currentY] = material || 'stone';
 
-            // Move down diagonally
-            x += dx;
-            y += dz;
-            currentZ--;
+            // Clear 3 blocks above for headroom
+            for (let i = 1; i <= 3; i++) {
+                if (currentZ + i < matrix.length) {
+                    matrix[currentZ + i][currentX][currentY] = 'air';
+                }
+            }
 
-            // Check if we've hit the edge
-            if (x < 0 || x >= matrix[0].length || y < 0 || y >= matrix[0][0].length) break;
+            // Move to next position based on direction
+            if (direction === 0) {
+                currentX++;
+                if (currentX >= x + length - 1) {
+                    currentX = x + length - 2;
+                    direction = 1;
+                } else {
+                    currentZ--;
+                }
+            } else {
+                currentY++;
+                if (currentY >= y + width - 1) {
+                    currentY = y + width - 2;
+                    direction = 0;
+                } else {
+                    currentZ--;
+                }
+            }
+
+            stepCount++;
         }
     }
 
@@ -817,9 +812,11 @@ export function proceduralGeneration(m = 20,
 
                             embellishments(carpetStyle, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material)
 
-                            addLadder(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
-                                lastRoom.y + Math.floor(lastRoom.width / 2),
-                                newZ); // Adding the ladder
+                            // addLadder(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                            //     lastRoom.y + Math.floor(lastRoom.width / 2),
+                            //     newZ); // Adding the ladder
+
+                            addStairs(matrix, newX, newY, newZ, newLength, newWidth, material)
 
 
                             lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
@@ -998,3 +995,24 @@ function matrixToBlueprint(matrix, startCoord) {
     };
 }
 
+
+
+// testing code
+
+// let blueprint = proceduralGeneration(10,10,20)
+// const b = new Blueprint(blueprint)
+// const result = b.autoBuild();
+// const commands = result.commands;
+// const nearbyPosition = result.nearbyPosition;
+//
+// import {initBot} from "../../utils/mcdata.js";
+// let bot = initBot("andy");
+//
+//
+// bot.on('spawn', async () => {
+//     console.log("nearby position", nearbyPosition);
+//     bot.chat(`/tp @andy ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+//     for (const command of commands) {
+//         bot.chat(command);
+//     }
+// });
