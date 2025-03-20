@@ -22,6 +22,8 @@ export class VLLM {
 
     async sendRequest(turns, systemMessage, stop_seq = '***') {
         let messages = [{ 'role': 'system', 'content': systemMessage }].concat(turns);
+        
+        messages = strictFormat(messages);
 
         const pack = {
             model: this.model_name || "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
@@ -49,6 +51,22 @@ export class VLLM {
             }
         }
         return res;
+    }
+
+    async saveToFile(logFile, logEntry) {
+        let task_id = this.agent.task.task_id;
+        console.log(task_id)
+        let logDir;
+        if (this.task_id === null) {
+            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
+        } else {
+            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
+        }
+
+        await fs.mkdir(logDir, { recursive: true });
+
+        logFile = path.join(logDir, logFile);
+        await fs.appendFile(logFile, String(logEntry), 'utf-8');
     }
 
 }
