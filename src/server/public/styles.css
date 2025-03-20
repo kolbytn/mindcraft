@@ -13,8 +13,16 @@ body {
     margin:20px;
 }
 
+.miniContainer {
+    background: linear-gradient(to bottom, #414141, #3f3f3f);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin: 10px;
+}
+
 .formOption {
-    background: #5757574f;
+    background: #2d2d2d4f;
     backdrop-filter: blur(10px);
     padding: 10px;
     border-radius:4px;
@@ -80,7 +88,8 @@ button {
     border-radius: 4px;
     cursor: pointer;
     margin-left: 5px;
-    transition: all 0.3s ease
+    transition: all 0.3s ease;
+    background: #5c5c5c
 }
 
 .green-btn {
