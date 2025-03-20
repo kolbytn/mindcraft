@@ -3,6 +3,7 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import settings from '../../settings.js';
 
 // Module-level variables
 let io;
@@ -128,6 +129,10 @@ export function createMindServer(port = 8080) {
 				console.error('Error: ', error);
 			}
 		});
+
+        socket.on('get-settings', (callback) => {
+            callback(JSON.stringify(settings));
+        })
     });
 
     server.listen(port, 'localhost', () => {
