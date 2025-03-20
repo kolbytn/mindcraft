@@ -411,7 +411,7 @@ def make_ops(agent_names, session_name):
     """Make the agents operators in the Minecraft world."""
     print('Making agents operators...')
 
-    cmd = f"node main.js --task_path example_tasks.json --task_id debug_{len(agent_names)}_agent_timeout"
+    cmd = f"node main.js --task_path tasks/example_tasks.json --task_id debug_{len(agent_names)}_agent_timeout"
 
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
 
