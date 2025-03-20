@@ -261,6 +261,7 @@ def launch_parallel_experiments(task_path,
         total_run = results["total"]
         print(f"Total tasks run: {total_run}/{total_num_experiments}")
         print(results)
+        results["exp_name"] = exp_name
         results["template_profile"] = template_profile
         results["model"] = model
         results["api"] = api
@@ -358,15 +359,6 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "NUM_EXAMPLES", str(num_examples))
     if insecure_coding:
         set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
-
-    # you need to add the bots to the world first before you can add them as op
-    # cmd = f"node main.js --task_path example_tasks.json --task_id debug_{num_agents}_agent_timeout"
-
-    # subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-
-    # time.sleep(40)
-
-    # subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op @a", "C-m"])
     make_ops(agent_names, session_name)
 
     # add the bots as op
@@ -379,9 +371,6 @@ def launch_server_experiment(task_path,
         set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CRAFTING)
     elif task_type == "construction":
         set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", BLOCKED_ACTIONS_CONSTRUCTION)
-    
-    
-    
 
     script_content = ""
     for task_id in task_ids:
