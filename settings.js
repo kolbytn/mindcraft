@@ -36,12 +36,14 @@ export default
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
-    "allow_insecure_coding": process.env.INSECURE_CODING || true, // allows newAction command and model can write/run code on your computer. enable at own risk
-    "blocked_actions" : [], // commands to disable and remove from docs. Ex: ["!setMode"]
+
+    "allow_insecure_coding": process.env.INSECURE_CODING || false, // allows newAction command and model can write/run code on your computer. enable at own risk
+    "blocked_actions" : process.env.BLOCKED_ACTIONS || [] , // commands to disable and remove from docs. Ex: ["!setMode"]
+
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
     "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
-    "max_messages": 15, // max number of messages to keep in context
+    "max_messages": process.env.MAX_MESSAGES || 15, // max number of messages to keep in context
     "num_examples": 2, // number of examples to give to the model
     "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "verbose_commands": true, // show full command syntax

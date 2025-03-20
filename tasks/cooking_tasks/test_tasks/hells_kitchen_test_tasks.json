@@ -1,0 +1,537 @@
+{
+  "multiagent_cooking_1_bread_1_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make bread and cooked_mutton together. You are supposed to make cooked_mutton and I am supposed to make ('bread',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "cooked_mutton": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make bread, but you don't have the recipe for it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make cooked_mutton, but you don't have the recipe for it!\n\nYour partner needs to make bread. You have their recipe:\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "max_steps_per_recipe": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_golden_carrot_hells_kitchen": {
+    "conversation": "We need to make baked_potato and golden_carrot together. You are supposed to make golden_carrot and I am supposed to make ('baked_potato',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "baked_potato": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make baked_potato, but you don't have the recipe for it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make golden_carrot, but you don't have the recipe for it!\n\nYour partner needs to make baked_potato. You have their recipe:\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 5,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_mutton_1_mushroom_stew_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and mushroom_stew together. You are supposed to make mushroom_stew and I am supposed to make ('cooked_mutton',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1,
+      "mushroom_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ],
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make mushroom_stew, but you don't have the recipe for it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 5,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_1_golden_carrot_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and cake together. You are supposed to make cake and I am supposed to make ('golden_carrot',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "golden_carrot": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+        "Step 2: Go to the chest and grab 3 milk buckets.",
+        "Step 3: Go to the chest and grab an egg.",
+        "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it!\n\nYour partner needs to make cake. You have their recipe:\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make cake, but you don't have the recipe for it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 5,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cooked_mutton_1_golden_carrot_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and golden_carrot together. You are supposed to make golden_carrot and I am supposed to make ('cooked_mutton',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1,
+      "golden_carrot": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make golden_carrot, but you don't have the recipe for it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 5,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_bread_hells_kitchen": {
+    "conversation": "We need to make bread and baked_potato together. You are supposed to make baked_potato and I am supposed to make ('bread',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "baked_potato": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make bread, but you don't have the recipe for it!\n\nYour partner needs to make baked_potato. You have their recipe:\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make baked_potato, but you don't have the recipe for it!\n\nYour partner needs to make bread. You have their recipe:\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "max_steps_per_recipe": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_1_mushroom_stew_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and cake together. You are supposed to make cake and I am supposed to make ('mushroom_stew',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "cake": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+        "Step 2: Go to the chest and grab 3 milk buckets.",
+        "Step 3: Go to the chest and grab an egg.",
+        "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it!\n\nYour partner needs to make cake. You have their recipe:\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make cake, but you don't have the recipe for it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 5,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_cake_hells_kitchen": {
+    "conversation": "We need to make cake and baked_potato together. You are supposed to make baked_potato and I am supposed to make ('cake',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "baked_potato": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+        "Step 2: Go to the chest and grab 3 milk buckets.",
+        "Step 3: Go to the chest and grab an egg.",
+        "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cake, but you don't have the recipe for it!\n\nYour partner needs to make baked_potato. You have their recipe:\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make baked_potato, but you don't have the recipe for it!\n\nYour partner needs to make cake. You have their recipe:\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 5,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and baked_potato together. You are supposed to make baked_potato and I am supposed to make ('cooked_mutton',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "cooked_mutton": 1,
+      "baked_potato": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it!\n\nYour partner needs to make baked_potato. You have their recipe:\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make baked_potato, but you don't have the recipe for it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 4,
+      "max_steps_per_recipe": 2,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 4,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_golden_carrot_1_mushroom_stew_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and mushroom_stew together. You are supposed to make mushroom_stew and I am supposed to make ('golden_carrot',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "golden_carrot": 1,
+      "mushroom_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make mushroom_stew, but you don't have the recipe for it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_bread_1_mushroom_stew_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and bread together. You are supposed to make bread and I am supposed to make ('mushroom_stew',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "mushroom_stew": 1,
+      "bread": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it!\n\nYour partner needs to make bread. You have their recipe:\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make bread, but you don't have the recipe for it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 5,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_cake_1_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make cake and cooked_mutton together. You are supposed to make cooked_mutton and I am supposed to make ('cake',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "cooked_mutton": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+        "Step 2: Go to the chest and grab 3 milk buckets.",
+        "Step 3: Go to the chest and grab an egg.",
+        "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cake, but you don't have the recipe for it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make cooked_mutton, but you don't have the recipe for it!\n\nYour partner needs to make cake. You have their recipe:\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 5,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_bread_1_golden_carrot_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and bread together. You are supposed to make bread and I am supposed to make ('golden_carrot',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "golden_carrot": 1,
+      "bread": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it!\n\nYour partner needs to make bread. You have their recipe:\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make bread, but you don't have the recipe for it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 5,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_baked_potato_1_mushroom_stew_hells_kitchen": {
+    "conversation": "We need to make baked_potato and mushroom_stew together. You are supposed to make mushroom_stew and I am supposed to make ('baked_potato',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "baked_potato": 1,
+      "mushroom_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: Go to the chest and grab a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make baked_potato, but you don't have the recipe for it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make mushroom_stew, but you don't have the recipe for it!\n\nYour partner needs to make baked_potato. You have their recipe:\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 5,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_1_bread_1_cake_hells_kitchen": {
+    "conversation": "We need to make cake and bread together. You are supposed to make bread and I am supposed to make ('cake',)but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": {
+      "cake": 1,
+      "bread": 1
+    },
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+        "Step 2: Go to the chest and grab 3 milk buckets.",
+        "Step 3: Go to the chest and grab an egg.",
+        "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cake, but you don't have the recipe for it!\n\nYour partner needs to make bread. You have their recipe:\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nYou must communicate effectively to exchange recipe information and complete both dishes.",
+      "1": "You need to make bread, but you don't have the recipe for it!\n\nYour partner needs to make cake. You have their recipe:\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nYou must communicate effectively to exchange recipe information and complete both dishes."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 5,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  }
+}

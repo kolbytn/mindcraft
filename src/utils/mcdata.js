@@ -86,6 +86,16 @@ export function isHostile(mob) {
     return  (mob.type === 'mob' || mob.type === 'hostile') && mob.name !== 'iron_golem' && mob.name !== 'snow_golem';
 }
 
+// blocks that don't work with collectBlock, need to be manually collected
+export function mustCollectManually(blockName) {
+    // all crops (that aren't normal blocks), torches, buttons, levers, redstone,
+    const full_names = ['wheat', 'carrots', 'potatoes', 'beetroots', 'nether_wart', 'cocoa', 'sugar_cane', 'kelp', 'short_grass', 'fern', 'tall_grass', 'bamboo',
+        'poppy', 'dandelion', 'blue_orchid', 'allium', 'azure_bluet', 'oxeye_daisy', 'cornflower', 'lilac', 'wither_rose', 'lily_of_the_valley', 'wither_rose',
+        'lever', 'redstone_wire', 'lantern']
+    const partial_names = ['sapling', 'torch', 'button', 'carpet', 'pressure_plate', 'mushroom', 'tulip', 'bush', 'vines', 'fern']
+    return full_names.includes(blockName.toLowerCase()) || partial_names.some(partial => blockName.toLowerCase().includes(partial));
+}
+
 export function getItemId(itemName) {
     let item = mcdata.itemsByName[itemName];
     if (item) {

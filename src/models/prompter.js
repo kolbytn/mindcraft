@@ -395,6 +395,11 @@ export class Prompter {
             if (current_msg_time !== this.most_recent_msg_time) {
                 console.warn(`${this.agent.name} received new message while generating, discarding old response.`);
                 return '';
+            } 
+
+            if (generation?.includes('</think>')) {
+                const [_, afterThink] = generation.split('</think>')
+                generation = afterThink
             }
 
             return generation;
@@ -431,6 +436,7 @@ export class Prompter {
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
         let prompt = this.profile.saving_memory;
+        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         let logEntry;
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         if (this.task_id === null) {
@@ -440,8 +446,14 @@ export class Prompter {
         }
         const logFile = `memSaving_${timestamp}.txt`;
         await this.saveToFile(logFile, logEntry);
-        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
-        return await this.chat_model.sendRequest([], prompt);
+
+        let generation = await this.chat_model.sendRequest([], prompt);
+        if (generation?.includes('</think>')) {
+            const [_, afterThink] = generation.split('</think>')
+            generation = afterThink
+        }
+        
+        return generation;
     }
 
     async promptShouldRespondToBot(new_message) {
