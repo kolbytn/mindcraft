@@ -446,8 +446,14 @@ export class Prompter {
         }
         const logFile = `memSaving_${timestamp}.txt`;
         await this.saveToFile(logFile, logEntry);
+
+        let generation = await this.chat_model.sendRequest([], prompt);
+        if (generation?.includes('</think>')) {
+            const [_, afterThink] = generation.split('</think>')
+            generation = afterThink
+        }
         
-        return await this.chat_model.sendRequest([], prompt);
+        return generation;
     }
 
     async promptShouldRespondToBot(new_message) {
