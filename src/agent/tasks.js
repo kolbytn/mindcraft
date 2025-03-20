@@ -126,25 +126,16 @@ class CookingCraftingTaskValidator {
         this.data = data;
         this.agent = agent;
     } 
-    validate(has_initiated) {
-        if (has_initiated) {
-
-            const result = checkItemPresence(this.data, this.agent);
-            let score = 0;
-            if (result.success) {
-                score = 1;
-            }
-            return {
-                "valid": result.success, 
-                "score": score,
-            };
+    validate() {
+        const result = checkItemPresence(this.data, this.agent);
+        let score = 0;
+        if (result.success) {
+            score = 1;
         }
-        else {
-            return {
-                "valid": false,
-                "score": 0
-            };
-        }
+        return {
+            "valid": result.success, 
+            "score": score,
+        };
     }
 }
 
@@ -202,7 +193,6 @@ export class Task {
 
         this.name = this.agent.name;
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
-        this.agent_initialized = false;
     }
 
     getAgentGoal() {
@@ -213,7 +203,7 @@ export class Task {
         let add_string = '';
 
         if (this.task_type === 'cooking') {
-            add_string = '\nIn the end, all the food items should be given to one single player.';
+            add_string = '\nIn the end, all the food items should be given to one single bot.';
         }
 
         // If goal is a string, all agents share the same goal
@@ -254,8 +244,12 @@ export class Task {
     isDone() {
         let res = null;
         if (this.validator)
-            res = this.validator.validate(this.agent_initialized);
+            res = this.validator.validate();
         if (res && res.valid) {
+            // Find all the agents and clear their inventories
+            for (let agent of this.available_agents) {
+                this.agent.bot.chat(`/clear ${agent}`);
+            }
             return {"message": 'Task successful', "score": res.score};
         }
         let other_names = this.available_agents.filter(n => n !== this.name);
@@ -325,8 +319,6 @@ export class Task {
             // Wait briefly for inventory commands to complete
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
-
-        this.agent_initialized = true;
 
         if (this.initiator) {
             await this.initiator.init();
