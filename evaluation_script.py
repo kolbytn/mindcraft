@@ -261,6 +261,14 @@ def launch_parallel_experiments(task_path,
         total_run = results["total"]
         print(f"Total tasks run: {total_run}/{total_num_experiments}")
         print(results)
+        results["template_profile"] = template_profile
+        results["model"] = model
+        results["api"] = api
+        results["num_agents"] = num_agents
+        results["task_path"] = task_path
+        results["task_type"] = task_type
+        results["max_messages"] = max_messages
+        results["num_examples"] = num_examples
         with open(f"{experiments_folder}/results.txt", "w") as file:
             file.write(str(results))
         if s3: 
