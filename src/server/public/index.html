@@ -19,10 +19,7 @@
         </div>
         <div class="formOption">
             <label for="mcHostSelector">Host: </label>
-            <select id="mcHostSelector">
-                <option value="localhost">localhost</option>
-                <option value="remote">Public Server</option>
-            </select>
+            <input id="mcHostSelector" type="text" placeholder="localhost">
         </div>
         <div class="formOption">
             <label for="mcPort">Port: </label>
@@ -47,7 +44,7 @@
         <div class="formOption">
             <label for="mcProfileList">Profiles: </label>
             <div id="mcProfileList"></div>
-            <button onclick="addProfileItem(`mcProfileList`)" class="blue-btn">Add Item</button>
+            <button onclick="addProfileItem(`mcProfileList`, `./andy.json`)" class="blue-btn">Add Item</button>
         </div>
         <div class="formOption">
             <label for="mcLoadMemory">Load Memory?</label>
@@ -62,8 +59,8 @@
         <div class="formOption">
             <label for="mcOnlyChatWith">Only chat with: (leave empty to chat publicly)</label>
             <div id="mcOnlyChatWith"></div>
-            <button onclick="addProfileItem(`mcOnlyChatWith`)" class="blue-btn">Add Item</button>
-            <h5>users that the bots listen to and send general messages to. if empty it will chat publicly</h5>
+            <button onclick="addProfileItem(`mcOnlyChatWith`, `Bob123`)" class="blue-btn">Add Item</button>
+            <h5>Users that the bots listen to and send general messages to. If empty, it will chat publicly.</h5>
         </div>
         <div class="formOption">
             <label for="mcSpeak">Speak?</label>
@@ -96,11 +93,13 @@
         </div>
         <div class="formOption">
             <label for="mcBlockedActions">Blocked Actions: </label>
-            <p id="mcBlockedActions">Will copy the style of the profile list once I've finished with that.</p>
+            <div id="mcBlockedActions"></div>
+            <button onclick="addProfileItem(`mcBlockedActions`, `!setMode`)" class="blue-btn">Add Item</button>
+            <h5>Commands to disable and remove from the docs.</h5>
         </div>
         <div class="formOption">
             <label for="mcMessageHistory">Maxmimum Message History Length: </label>
-            <input type="number" placeholder="15">
+            <input id="mcMessageHistory" type="number" placeholder="15">
             <h5>Maximum number of previous messages to keep in context. Increasing it may produce longer response times and higher cost if using a paid API, but with the benefit of increasing memory.</h5>
         </div>
         <div class="formOption">
@@ -180,19 +179,62 @@
             socket.emit('get-settings', (response) => {
                 settings = response;
                 console.log(settings);
+                updateSettings(settings);
             })
         }
+
+        function updateListItem(listId, listContent) {
+            listContent.forEach(element => {
+                addProfileItem(listId, element);
+            });
+        }
+
+        function updateBooleanRadio(radioName, value) {
+            const trueRadio = document.querySelector(`input[name="${radioName}"][value="true"]`);
+            const falseRadio = document.querySelector(`input[name="${radioName}"][value="false"]`);
+            trueRadio.checked = value;
+            falseRadio.checked = !value;
+        }
+
+        function updateSettings(settings) {
+            // string/integer fields
+            document.getElementById("mcVersion").value = settings["minecraft_version"];
+            document.getElementById("mcHostSelector").value = settings["host"];
+            document.getElementById("mcPort").value = settings["port"];
+            document.getElementById("mcAuth").value = settings["auth"];
+            document.getElementById("mcBaseProfile").value = settings["base_profile"];
+            document.getElementById("mcInitMessage").value = settings["init_message"];
+            document.getElementById("mcLanguage").value = settings["language"];
+            document.getElementById("mcMessageHistory").value = settings["max_messages"];
+
+            // boolean fields
+            updateBooleanRadio("mcLoadMemory", settings["load_memory"]);
+            updateBooleanRadio("mcSpeak", settings["speak"]);
+            updateBooleanRadio("mcShowBotViews", settings["show_bot_views"]);
+            updateBooleanRadio("mcAllowInsecureCoding", settings["allow_insecure_coding"]);
+            updateBooleanRadio("mcAllowVision", settings["allow_vision"]);
+            updateBooleanRadio("mcVerboseCommands", settings["verbose_commands"]);
+            updateBooleanRadio("mcNarrateBehavior", settings["narrate_behavior"]);
+            updateBooleanRadio("mcChatBotMessages", settings["chat_bot_messages"]);
+
+            // array/list fields
+            updateListItem("mcProfileList", settings["profiles"]);
+            updateListItem("mcBlockedActions", settings["blocked_actions"]);
+            updateListItem("mcOnlyChatWith", settings["only_chat_with"]);
+        }
         
-        function addProfileItem(listName) {
+        function addProfileItem(listName, itemNameArg) {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'list-item';
 
             const itemName = document.createElement('input');
             itemName.type = 'text';
             itemName.className = 'name';
+            itemName.value = itemNameArg;
 
             const itemCheckbox = document.createElement('input');
             itemCheckbox.type = 'checkbox';
+            itemCheckbox.checked = true;
             itemCheckbox.onchange = function() {
                 if (itemCheckbox.checked) {
                     itemName.classList.remove('not-selected');
@@ -223,6 +265,9 @@
             console.log(names);
             return names;
         }
+
+
+        getSettings();
     </script>
 </body>
 </html>
