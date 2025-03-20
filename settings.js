@@ -13,9 +13,7 @@ export default
     // the base profile is shared by all bots for default prompts/examples/modes
     "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
     "profiles": ((process.env.PROFILES) && JSON.parse(process.env.PROFILES)) || [
-        "./Andy_100.json",
-        "./Jill_100.json",
-        // "./profiles/deepseek.json",
+        "./profiles/deepseek.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
