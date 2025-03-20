@@ -348,9 +348,9 @@ export class Task {
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
 
-        const agentGoal = this.getAgentGoal();
-        console.log(`Agent goal for agent Id ${this.agent.count_id}: ${agentGoal}`);
+        let agentGoal = this.getAgentGoal();
         if (agentGoal) {
+            agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
             console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
             await executeCommand(this.agent, `!goal("${agentGoal}")`);
         }
