@@ -460,7 +460,14 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
             return false;
         }
         try {
-            await bot.collectBlock.collect(block);
+            if (mc.mustCollectManually(blockType)) {
+                await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
+                await bot.dig(block);
+                await pickupNearbyItems(bot);
+            }
+            else {
+                await bot.collectBlock.collect(block);
+            }
             collected++;
             await autoLight(bot);
         }
@@ -823,7 +830,7 @@ export async function putInChest(bot, itemName, num=-1) {
 
 export async function takeFromChest(bot, itemName, num=-1) {
     /**
-     * Take the given item from the nearest chest.
+     * Take the given item from the nearest chest, potentially from multiple slots.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item or block name to take from the chest.
      * @param {number} num, the number of items to take from the chest. Defaults to -1, which takes all items.
@@ -838,17 +845,33 @@ export async function takeFromChest(bot, itemName, num=-1) {
     }
     await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
     const chestContainer = await bot.openContainer(chest);
-    let item = chestContainer.containerItems().find(item => item.name === itemName);
-    if (!item) {
+    
+    // Find all matching items in the chest
+    let matchingItems = chestContainer.containerItems().filter(item => item.name === itemName);
+    if (matchingItems.length === 0) {
         log(bot, `Could not find any ${itemName} in the chest.`);
         await chestContainer.close();
         return false;
     }
-    let to_take = num === -1 ? item.count : Math.min(num, item.count);
-    await chestContainer.withdraw(item.type, null, to_take);
+    
+    let totalAvailable = matchingItems.reduce((sum, item) => sum + item.count, 0);
+    let remaining = num === -1 ? totalAvailable : Math.min(num, totalAvailable);
+    let totalTaken = 0;
+    
+    // Take items from each slot until we've taken enough or run out
+    for (const item of matchingItems) {
+        if (remaining <= 0) break;
+        
+        let toTakeFromSlot = Math.min(remaining, item.count);
+        await chestContainer.withdraw(item.type, null, toTakeFromSlot);
+        
+        totalTaken += toTakeFromSlot;
+        remaining -= toTakeFromSlot;
+    }
+    
     await chestContainer.close();
-    log(bot, `Successfully took ${to_take} ${itemName} from the chest.`);
-    return true;
+    log(bot, `Successfully took ${totalTaken} ${itemName} from the chest.`);
+    return totalTaken > 0;
 }
 
 export async function viewChest(bot) {

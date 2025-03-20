@@ -76,7 +76,7 @@ def analyze_json_file(file_path):
             if 'turns' in data and isinstance(data['turns'], list):
                 for turn in reversed(data['turns']):  # Check turns from the end
                     if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
-                        if "Task successful ended with code : 2" in turn['content'] or "Task ended in score: 1" in turn["content"]:
+                        if "Task successful ended with code : 2" in turn['content'] or "Task ended with score : 1" in turn["content"] or "Task ended in score: 1" in turn["content"]:
                             return True
         return False
     except FileNotFoundError:
@@ -155,7 +155,7 @@ def aggregate_results(local_folders):
             success = int(extract_result(folder_path))
             successful += success
 
-            if "missing" in folder_path:
+            if "missing" in folder_path and not is_base(folder_path):
                 missing_successful += success
                 missing_total += 1
             if is_base(folder_path):
