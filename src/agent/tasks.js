@@ -413,7 +413,6 @@ export class Task {
             //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
             if (this.blueprint){
                 const result = this.blueprint.autoDelete();
-                // const result = clearHouse(blueprint)
                 const commands = result.commands;
                 const nearbyPosition = result.nearbyPosition;
                 console.log("nearby position", nearbyPosition);
