@@ -20,9 +20,9 @@ andy_*.json
 jill_*.json
 src/models/logs/*
 server_data/*
-server_data_*/*
 results/*
 tasks/construction_tasks/test_multiagent_construction_tasks.json
 tasks/construction_tasks/train_multiagent_construction_tasks.json
 tasks/construction_tasks/test/**
 tasks/construction_tasks/train/**
+server_data*

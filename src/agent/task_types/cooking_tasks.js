@@ -256,10 +256,11 @@ export class CookingTaskInitiator {
                 // Entrance features
                 const doorZ = startZ + Math.floor(width / 2);
                 await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ} stone_brick_stairs[facing=west]`);
-                await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ - 1} stone_bricks`);
-                await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ + 1} stone_bricks`);
-                await bot.chat(`/setblock ${startX + depth} ${startY} ${doorZ} oak_door[half=lower,hinge=left,facing=west,powered=false]`);
-                await bot.chat(`/setblock ${startX + depth} ${startY + 1} ${doorZ} oak_door[half=upper,hinge=left,facing=west,powered=false]`);
+                await bot.chat(`/setblock ${startX + depth} ${startY} ${doorZ} air`);
+                // await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ - 1} stone_bricks`);
+                // await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ + 1} stone_bricks`);
+                // await bot.chat(`/setblock ${startX + depth} ${startY} ${doorZ} oak_door[half=lower,hinge=left,facing=west,powered=false]`);
+                // await bot.chat(`/setblock ${startX + depth} ${startY + 1} ${doorZ} oak_door[half=upper,hinge=left,facing=west,powered=false]`);
 
                 // Roof construction
                 for (let i = 0; i < 3; i++) {
