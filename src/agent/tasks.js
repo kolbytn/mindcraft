@@ -289,7 +289,6 @@ export class Task {
         } else {
             this.initiator = null;
         }
-        await this.teleportBots();
 
         //wait for a bit so bots are teleported
         await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -323,6 +322,8 @@ export class Task {
         if (this.initiator) {
             await this.initiator.init();
         }
+
+        await this.teleportBots();
 
         if (this.data.agent_count && this.data.agent_count > 1) {
             // TODO wait for other bots to join
@@ -379,6 +380,11 @@ export class Task {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
+        else {
+            console.log(`Teleporting ${this.name} to ${this.available_agents[0]}`)
+            bot.chat(`/tp ${this.name} ${this.available_agents[0]}`);
+        }
+
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         // now all bots are teleport on top of each other (which kinda looks ugly)
