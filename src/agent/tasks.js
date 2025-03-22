@@ -422,7 +422,7 @@ export class Task {
                 const commands = result.commands;
                 const nearbyPosition = result.nearbyPosition;
                 console.log("nearby position", nearbyPosition);
-                bot.chat(`/tp ${this.name} ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+                bot.chat(`/tp @a ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
                 for (const command of commands) {
                     bot.chat(command);
                 }
