@@ -357,6 +357,7 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
     set_environment_variable_tmux_session(session_name, "MAX_MESSAGES", str(max_messages))
     set_environment_variable_tmux_session(session_name, "NUM_EXAMPLES", str(num_examples))
+    set_environment_variable_tmux_session(session_name, "LOG_ALL", "true")
     if insecure_coding:
         set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
     make_ops(agent_names, session_name)
