@@ -15,6 +15,16 @@ import glob
 This script is intended to run the evaluation script multiple times and then automatically aggregate the 
 successful logs into a subfolder for each run, based on the success marked in the experiment folder. Then 
 at the end it will aggregate everything into a json file, ready for training. 
+
+Example usage: 
+python3 ./multi_data_collection_script.py --api vllm --model meta-llama/Meta-Llama-3-8B-Instruct --num_agents 2 --num_parallel 2 \
+    --tasks "tasks/crafting_tasks/test_tasks/tasks_2_agents.json:3" "tasks/crafting_tasks/test_tasks/tasks_3_agents.json:3"
+
+Meaning run those two tasks each 2 times, with num agents. The results will be in 
+./full_run_logs_{date}
+and ./successful_run_logs_{date}
+Use the successful run logs to train the next model.
+
 """
 
 
