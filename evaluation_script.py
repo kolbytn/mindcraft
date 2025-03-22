@@ -37,7 +37,7 @@ BLOCKED_ACTIONS_CONSTRUCTION = [
     '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel', '!goToBed',
     '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
     '!restart', '!searchForBlock', '!searchForEntity', '!setMode', '!stay', '!stfu',
-    '!stop', '!takeFromChest', '!viewChest'
+    '!stop', '!takeFromChest', '!viewChest', '!craftRecipe', '!smeltItem'
 ]
 
 def analyze_json_file(file_path):

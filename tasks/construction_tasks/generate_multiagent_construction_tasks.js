@@ -69,6 +69,10 @@ function createInitialInventory(blueprint, agents, evenlySplit = true) {
         }
     }
 
+    for (let i = 0; i < agents; i++) {
+        inventories[i]['dirt'] = 128;
+    }
+
     return inventories;
 }
 

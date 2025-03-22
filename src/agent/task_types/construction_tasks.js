@@ -278,12 +278,12 @@ export class Blueprint {
             const placement = level.placement;
 
             // Update bounds
-            minX = Math.min(minX, baseX);
-            maxX = Math.max(maxX, baseX + placement[0].length - 1);
+            minX = Math.min(minX, baseX) - 15;
+            maxX = Math.max(maxX, baseX + placement[0].length - 1) + 15;
             minY = Math.min(minY, baseY);
             maxY = Math.max(maxY, baseY);
-            minZ = Math.min(minZ, baseZ);
-            maxZ = Math.max(maxZ, baseZ + placement.length - 1);
+            minZ = Math.min(minZ, baseZ) - 15;
+            maxZ = Math.max(maxZ, baseZ + placement.length - 1) + 15;
 
             // Loop through the 2D placement array
             for (let z = 0; z < placement.length; z++) {
@@ -299,9 +299,9 @@ export class Blueprint {
 
         // Calculate a position nearby the blueprint but not in it
         const nearbyPosition = {
-            x: maxX + 5, // Move 5 blocks to the right
+            x: Math.floor((maxX + minX)/2), // Move 5 blocks to the right
             y: minY,     // Stay on the lowest level of the blueprint
-            z: minZ      // Stay aligned with the front of the blueprint
+            z: Math.floor((maxZ + minZ)/2)     // Stay aligned with the front of the blueprint
         };
 
         return { commands, nearbyPosition };
