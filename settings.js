@@ -42,10 +42,10 @@ export default
     "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
     "max_messages": process.env.MAX_MESSAGES || 15, // max number of messages to keep in context
-    "num_examples": 2, // number of examples to give to the model
+    "num_examples": process.env.NUM_EXAMPLES || 2, // number of examples to give to the model
     "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
-    "log_all_prompts": false, // log all prompts to file
+    "log_all_prompts": process.env.LOG_ALL || true, // log all prompts to file
 }
