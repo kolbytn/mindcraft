@@ -4,3 +4,4 @@ javascript==1!1.2.2
 numpy==1.22.2
 opencv_python==4.10.0.84
 tqdm==4.62.3
+prettytable==2.2.0

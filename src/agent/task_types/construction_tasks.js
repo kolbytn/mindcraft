@@ -278,12 +278,12 @@ export class Blueprint {
             const placement = level.placement;
 
             // Update bounds
-            minX = Math.min(minX, baseX) - 15;
-            maxX = Math.max(maxX, baseX + placement[0].length - 1) + 15;
+            minX = Math.min(minX, baseX) - 30;
+            maxX = Math.max(maxX, baseX + placement[0].length - 1) + 30;
             minY = Math.min(minY, baseY);
             maxY = Math.max(maxY, baseY);
-            minZ = Math.min(minZ, baseZ) - 15;
-            maxZ = Math.max(maxZ, baseZ + placement.length - 1) + 15;
+            minZ = Math.min(minZ, baseZ) - 30;
+            maxZ = Math.max(maxZ, baseZ + placement.length - 1) + 30;
 
             // Loop through the 2D placement array
             for (let z = 0; z < placement.length; z++) {
