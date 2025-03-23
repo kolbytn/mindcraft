@@ -56,8 +56,13 @@ def analyze_json_file(file_path):
             if 'turns' in data and isinstance(data['turns'], list):
                 for turn in reversed(data['turns']):  # Check turns from the end
                     if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
-                        if "Task successful ended with code : 2" in turn['content'] or "Task ended with score : 1" in turn["content"] or "Task ended in score: 1" in turn["content"]:
+                        code = turn["content"].split(":")[-1].strip()
+                        if code in ["2", "1"]:  # Check for success codes
                             return True
+                        elif 0 < float(code) < 1:  # Check for other success indicators
+                            return code
+                        else:
+                            return False
         return False
     except FileNotFoundError:
         print(f"Error: File not found: {file_path}")
@@ -105,7 +110,7 @@ def aggregate_results(local_folders):
             result = extract_result(folder_path)
             if result is not None:
                 total += 1
-                successful += int(result)
+                successful += float(result)
         except Exception as e:
             print(f"Error processing {folder_name}: {e}")
     
@@ -554,9 +559,9 @@ def delete_server_files(dest_path):
         print(f"Error deleting server files: {e}")
     if not os.path.exists(dest_path):
         print("Server files deleted successfully.")
-    else:
-        print("Error deleting server files.")
-        delete_server_files(dest_path)
+    # else:
+    #     print("Error deleting server files.")
+    #     delete_server_files(dest_path)
     
 
 def launch_world(server_path="./server_data/", agent_names=["andy", "jill"], session_name="server", port=55916):
