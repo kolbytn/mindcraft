@@ -4,86 +4,170 @@ from collections import defaultdict
 from prettytable import PrettyTable
 import re
 
-def extract_success_scores(root_dir):
-    task_scores = {}  # Stores task-wise scores
-    material_groups = defaultdict(list)
-    room_groups = defaultdict(list)
+def extract_success_scores(folders, model_names):
+    assert len(folders) == len(model_names), "Folders and model names lists must have the same length."
     
-    # Regex pattern to extract material and room numbers
+    all_task_scores = defaultdict(dict)  # Stores task-wise scores per model
+    zero_score_tasks = defaultdict(list)  # Stores tasks with 0 score per model
+    null_score_tasks = defaultdict(list)  # Stores tasks with null score per model
+    material_groups = defaultdict(lambda: defaultdict(list))
+    room_groups = defaultdict(lambda: defaultdict(list))
+    material_room_groups = defaultdict(lambda: defaultdict(list))
+    overall_scores = defaultdict(list)  # New dict to store all scores for each model
+    
     pattern = re.compile(r"materials_(\d+)_rooms_(\d+)")
-
-    # Iterate through each task folder
-    for task_folder in os.listdir(root_dir):
-        task_path = os.path.join(root_dir, task_folder)
-        if os.path.isdir(task_path):
-            logs_found = False  # Flag to track if logs exist
-            
-            # Check for JSON files
-            for file_name in os.listdir(task_path):
-                if file_name.endswith(".json"): 
-                    logs_found = True  # JSON file exists
-                    file_path = os.path.join(task_path, file_name)
-                    
-                    # Read JSON file
-                    try:
-                        with open(file_path, 'r') as file:
-                            data = json.load(file)
-                            
-                            # Extract success score from the last system message
-                            for turn in reversed(data.get("turns", [])):
-                                if turn["role"] == "system" and "Task ended with score" in turn["content"]:
-                                    score = float(turn["content"].split(":")[-1].strip())
-                                    task_scores[task_folder] = score  # Store per-task score
-                                    break  # Stop searching if found
-                            
-                            # Stop checking other files in the folder if score is found
-                            if task_folder in task_scores:
+    
+    for root_dir, model_name in zip(folders, model_names):
+        for task_folder in os.listdir(root_dir):
+            task_path = os.path.join(root_dir, task_folder)
+            if os.path.isdir(task_path):
+                logs_found = False
+                score_found = False
+                
+                for file_name in os.listdir(task_path):
+                    if file_name.endswith(".json"): 
+                        logs_found = True
+                        file_path = os.path.join(task_path, file_name)
+                        
+                        try:
+                            with open(file_path, 'r') as file:
+                                data = json.load(file)
+                                
+                                for turn in reversed(data.get("turns", [])):
+                                    if turn["role"] == "system" and "Task ended with score" in turn["content"]:
+                                        score = float(turn["content"].split(":")[-1].strip())
+                                        all_task_scores[task_folder][model_name] = score
+                                        overall_scores[model_name].append(score)  # Add to overall scores
+                                        score_found = True
+                                        
+                                        if score == 0:
+                                            zero_score_tasks[model_name].append(task_folder)
+                                        break 
+                                
+                            if score_found:
                                 break 
-                    except Exception as e:
-                        print(f"Error reading {file_path}: {e}")
-            
-            # If no logs were found, print a message
-            if not logs_found:
-                print(f"No log files found in {task_folder}")
-
-    # Group scores by material and room
-    for task, score in task_scores.items():
+                        except Exception as e:
+                            print(f"Error reading {file_path}: {e}")
+                
+                if logs_found and not score_found:
+                    # Score not found but logs exist - mark as null
+                    all_task_scores[task_folder][model_name] = None
+                    null_score_tasks[model_name].append(task_folder)
+                
+                if not logs_found:
+                    print(f"No log files found in {task_folder}")
+    
+    # Calculate model completion rates (ignore null scores)
+    model_completion_rates = {}
+    for model_name in model_names:
+        valid_tasks = [task for task in all_task_scores.keys() if model_name in all_task_scores[task] and all_task_scores[task][model_name] is not None]
+        total_tasks = len(valid_tasks)
+        completed_tasks = len([task for task in valid_tasks if all_task_scores[task][model_name] > 0])
+        model_completion_rates[model_name] = (completed_tasks / total_tasks) if total_tasks > 0 else 0
+    
+    # Process task scores into groups (ignore null and 0 scores)
+    for task, model_scores in all_task_scores.items():
         match = pattern.search(task)
         if match:
-            material = int(match.group(1))  # Extract material number
-            room = int(match.group(2))  # Extract room number
-            material_groups[material].append(score)
-            room_groups[room].append(score)
-        else:
-            print(f"Warning: Task folder '{task}' does not match expected format.")
-
-    # Calculate average scores
+            material = int(match.group(1))
+            room = int(match.group(2))
+            
+            for model, score in model_scores.items():
+                if score is not None and score > 0:  # Ignore null and 0 scores
+                    material_groups[material][model].append(score)
+                    room_groups[room][model].append(score)
+                    material_room_groups[(material, room)][model].append(score)
+    
     def calculate_average(group):
-        return {key: sum(values) / len(values) for key, values in group.items()}
-
+        return {key: {model: sum(scores) / len(scores) for model, scores in models.items() if scores} 
+                for key, models in group.items() if models}
+    
     avg_material_scores = calculate_average(material_groups)
     avg_room_scores = calculate_average(room_groups)
-
-    # Display results using PrettyTable
-    def display_table(title, data):
-        table = PrettyTable(["Category", "Average Score"])
-        for key, value in sorted(data.items()):
-            table.add_row([key, round(value, 2)])
+    avg_material_room_scores = calculate_average(material_room_groups)
+    
+    def display_table(title, data, tuple_keys=False):
+        table = PrettyTable(["Category"] + model_names)
+        for key, model_scores in sorted(data.items()):
+            key_display = key if not tuple_keys else f"({key[0]}, {key[1]})"
+            row = [key_display] + [round(model_scores.get(model, 0), 2) for model in model_names]
+            table.add_row(row)
         print(f"\n{title}")
         print(table)
-
+    
     def display_task_scores():
-        table = PrettyTable(["Task", "Success Score"])
-        for task, score in sorted(task_scores.items()):
-            table.add_row([task, round(score, 2)])
+        table = PrettyTable(["Task"] + model_names)
+        for task in sorted(all_task_scores.keys()):
+            row = [task]
+            for model in model_names:
+                score = all_task_scores[task].get(model)
+                if score is None:
+                    row.append("null")
+                else:
+                    row.append(round(score, 2))
+            table.add_row(row)
         print("\nTask-wise Success Scores")
         print(table)
-
-    # Print all tables
+    
+    def display_zero_and_null_score_tasks():
+        for model in model_names:
+            if zero_score_tasks[model]:
+                table = PrettyTable([f"{model} - Tasks with 0 Score"])
+                for task in zero_score_tasks[model]:
+                    table.add_row([task])
+                print(f"\n{model} - Tasks with 0 Success Score")
+                print(table)
+            
+            if null_score_tasks[model]:
+                table = PrettyTable([f"{model} - Tasks with Null Score"])
+                for task in null_score_tasks[model]:
+                    table.add_row([task])
+                print(f"\n{model} - Tasks with Null Success Score")
+                print(table)
+    
+    def display_overall_averages():
+        table = PrettyTable(["Metric"] + model_names)
+        
+        # Overall average score (including zeros, excluding nulls)
+        row_with_zeros = ["Average Score (All Tasks)"]
+        for model in model_names:
+            valid_scores = [s for s in overall_scores[model] if s is not None]
+            avg = sum(valid_scores) / len(valid_scores) if valid_scores else 0
+            row_with_zeros.append(round(avg, 2))
+        table.add_row(row_with_zeros)
+        
+        # Overall average score (excluding zeros and nulls)
+        row_without_zeros = ["Average Score (Completed Tasks)"]
+        for model in model_names:
+            completed_scores = [s for s in overall_scores[model] if s is not None and s > 0]
+            avg = sum(completed_scores) / len(completed_scores) if completed_scores else 0
+            row_without_zeros.append(round(avg, 2))
+        table.add_row(row_without_zeros)
+        
+        # Task completion rate
+        completion_row = ["Task Completion Rate (%)"]
+        for model in model_names:
+            completion_row.append(round(model_completion_rates[model] * 100, 2))
+        table.add_row(completion_row)
+        
+        # Total number of tasks (excluding nulls)
+        task_count_row = ["Total Tasks"]
+        for model in model_names:
+            valid_tasks = [task for task in all_task_scores.keys() if model in all_task_scores[task] and all_task_scores[task][model] is not None]
+            task_count_row.append(len(valid_tasks))
+        table.add_row(task_count_row)
+        
+        print("\nOverall Performance Metrics")
+        print(table)
+    
+    display_overall_averages()  # Display overall averages first
     display_task_scores()
-    display_table("Average Success Score by Material (Grouped by Number)", avg_material_scores)
-    display_table("Average Success Score by Room (Grouped by Number)", avg_room_scores)
+    display_zero_and_null_score_tasks()
+    display_table("Average Success Score by Material", avg_material_scores)
+    display_table("Average Success Score by Room", avg_room_scores)
+    display_table("Average Success Score by (Material, Room) Tuples", avg_material_room_scores, tuple_keys=True)
 
-# Example usage (replace 'root_directory' with actual path)
-root_directory = "experiments/exp_03-22_19-29"
-extract_success_scores(root_directory)
+# Example usage
+folders = ["experiments/gpt-4o_construction_tasks", "experiments/exp_03-23_12-31"]
+model_names = ["GPT-4o","Claude 3.5 sonnet"]
+extract_success_scores(folders, model_names)
