@@ -18,7 +18,7 @@ import boto3
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
-    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard',
     '!endGoal', '!entities', '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
     '!goToBed', '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
     '!restart', '!setMode', '!stay', '!stfu', '!stop'
