@@ -203,7 +203,19 @@ export class Task {
         let add_string = '';
 
         if (this.task_type === 'cooking') {
-            add_string = '\nIn the end, all the food items should be given to one single bot.';
+
+            if (this.data.agent_count > 2) {
+
+                if (this.name.toLowerCase().startsWith('andy')) {
+                    add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                } 
+                else {
+                    add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                }   
+            } 
+            else {
+                add_string = '\nIn the end, all the food items should be given to one single bot.';
+            }
         }
 
         // If goal is a string, all agents share the same goal
