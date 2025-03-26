@@ -1,13 +1,19 @@
 export function stringifyTurns(turns) {
     let res = '';
     for (let turn of turns) {
-        if (turn.role === 'assistant') {
-            res += `\nYour output:\n${turn.content}`;
-        } else if (turn.role === 'system') {
-            res += `\nSystem output: ${turn.content}`;
-        } else {
-            res += `\nUser input: ${turn.content}`;
+        // Extract timestamp without year using regex
+        let timeDisplay = '';
+        if (turn.created_at) {
+            const match = turn.created_at.match(/\d+-(\d+-\d+)\s+(\d+:\d+:\d+)/);
+            timeDisplay = match ? `[${match[1]} ${match[2]}] ` : `[${turn.created_at}] `;
+        }
         
+        if (turn.role === 'assistant') {
+            res += `\n${timeDisplay}Your output:\n${turn.content}`;
+        } else if (turn.role === 'system') {
+            res += `\n${timeDisplay}System output: ${turn.content}`;
+        } else {
+            res += `\n${timeDisplay}User input: ${turn.content}`;
         }
     }
     return res.trim();

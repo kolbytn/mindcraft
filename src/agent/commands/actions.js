@@ -19,7 +19,7 @@ function runAsAction (actionFn, resume = false, timeout = -1) {
         if (code_return.interrupted && !code_return.timedout)
             return;
         return code_return.message;
-    }
+    };
 
     return wrappedAction;
 }
@@ -412,8 +412,76 @@ export const actionsList = [
         description: 'Digs down a specified distance.',
         params: {'distance': { type: 'int', description: 'Distance to dig down'}},
         perform: runAsAction(async (agent, distance) => {
-            await skills.digDown(agent.bot, distance)
+            await skills.digDown(agent.bot, distance);
         })
+    },
+    {
+        name: '!reflectionToMem',
+        description: 'Reflects on recent conversation and stores it as a memory. If no number is specified, default is 5 recent messages. Example: !reflectionToMem or !reflectionToMem(10)',
+        params: {
+            'num': { type: 'int', description: 'The number of messages to reflect on (optional, default is 5).', domain: [1, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: async function (agent, num = 5) {
+            if (agent.history.turns.length === 0) {
+                return "No conversations to reflect on and store in memory.";
+            }
+            
+            const totalTurns = agent.history.turns.length;
+            const userRequestedTurns = Math.min(num, totalTurns);
+            const earlierUnprocessedCount = totalTurns - userRequestedTurns;
+            let memoriesCreated = 0;
+            
+            // Process earlier messages in chunks
+            if (earlierUnprocessedCount > 0) {
+                const summary_chunk_size = agent.history.summary_chunk_size;
+                let earlierProcessed = 0;
+                
+                while (earlierProcessed < earlierUnprocessedCount) {
+                    const chunkSize = Math.min(summary_chunk_size, earlierUnprocessedCount - earlierProcessed);
+                    let chunk = agent.history.turns.splice(0, chunkSize);
+                    
+                    if (earlierProcessed > 0) {
+                        while (agent.history.turns.length > 0 && agent.history.turns[0].role === 'assistant') {
+                            chunk.push(agent.history.turns.shift());
+                        }
+                    }
+                    
+                    if (chunk.length > 0) {
+                        await agent.history.summarizeMemories(chunk, 'auto');
+                        await agent.history.appendFullHistory(chunk);
+                        memoriesCreated++;
+                        earlierProcessed += chunk.length;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            // Process recent messages
+            if (agent.history.turns.length > 0) {
+                let recentChunk;
+                if (agent.history.turns.length <= userRequestedTurns) {
+                    recentChunk = agent.history.turns.splice(0, agent.history.turns.length);
+                } else {
+                    recentChunk = agent.history.turns.splice(agent.history.turns.length - userRequestedTurns, userRequestedTurns);
+                    while (agent.history.turns.length > 0 && agent.history.turns[0].role === 'assistant') {
+                        recentChunk.unshift(agent.history.turns.shift());
+                    }
+                }
+                
+                if (recentChunk.length > 0) {
+                    await agent.history.summarizeMemories(recentChunk, 'user_flagged');
+                    await agent.history.appendFullHistory(recentChunk);
+                    memoriesCreated++;
+                }
+            }
+            
+            await agent.history.save();
+            
+            return memoriesCreated > 1
+                ? `Created ${memoriesCreated} memories: ${memoriesCreated - 1} from earlier conversations (auto-triggered) and 1 from recent messages (user-flagged). All processed messages have been removed from the active conversation.`
+                : `Reflected on ${userRequestedTurns} messages and stored as user-flagged memory. These messages have been removed from the active conversation.`;
+        }
     },
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
