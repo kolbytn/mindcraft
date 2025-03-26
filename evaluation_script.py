@@ -18,7 +18,7 @@ import boto3
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
-    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard', '!endConversation',
+    '!clearChat', '!clearFurnace', '!consume', '!craftable', '!discard',
     '!endGoal', '!entities', '!equip', '!followPlayer', '!getBlueprint', '!getBlueprintLevel',
     '!goToBed', '!help', '!modes', '!moveAway', '!newAction', '!placeHere', '!putInChest',
     '!restart', '!setMode', '!stay', '!stfu', '!stop'
@@ -331,11 +331,15 @@ def launch_server_experiment(task_path,
         models = [model] * 2
         apis = [api] * 2
     else:
+        # Lets use an ordered list of 10 human names.
+        human_names = ["Andy", "Jill", "Bob", "Sally", "Mike", "Laura", "John", "Emma", "Tom", "Kate"]
         agent_names = []
         for i in range(num_agents):
-            agent_names.append(f"Agent_{i}_{session_name}")
+            name = human_names[i % len(human_names)]
+            agent_names.append(f"{name}_{session_name}")
         models = [model] * num_agents
         apis = [api] * num_agents
+        
     make_profiles(agent_names, models, apis, template_profile=template_profile, url=url)
 
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
