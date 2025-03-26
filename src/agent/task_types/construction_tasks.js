@@ -18,7 +18,8 @@ export class ConstructionTaskValidator {
             }
             let total_blocks = result.mismatches.length + result.matches.length;
             score = (result.matches.length / total_blocks) * 100;
-            console.log(`Task is ${score}% complete`);
+            console.log(`Agent name is ${this.agent.name}`);
+            console.log(`Task is ${score}% complete \n\n`);
             return {
                 "valid": valid, 
                 "score": score
@@ -47,13 +48,19 @@ export function resetConstructionWorld(bot, blueprint) {
 export function checkLevelBlueprint(agent, levelNum) {
     const blueprint = agent.task.blueprint;
     const bot = agent.bot;
-    const result = blueprint.checkLevel(bot, levelNum);
-    if (result.mismatches.length === 0) {
-        return `Level ${levelNum} is correct`;
-    } else {
-        let explanation = blueprint.explainLevelDifference(bot, levelNum);
-        return explanation;
+    try {
+        const result = blueprint.checkLevel(bot, levelNum);
+        if (result.mismatches.length === 0) {
+            return `Level ${levelNum} is correct`;
+        } else {
+            let explanation = blueprint.explainLevelDifference(bot, levelNum);
+            return explanation;
+        }
+    } catch (error) {
+        console.error('Error checking level blueprint:', error);
+        return `Error checking level ${levelNum}: ${error.message}`;
     }
+    
 }
 
 export function checkBlueprint(agent) {
@@ -158,6 +165,9 @@ export class Blueprint {
     }
     checkLevel(bot, levelNum) {
         const levelData = this.data.levels[levelNum];
+        if (!levelData) {
+            throw new Error(`Level ${levelNum} does not exist in the blueprint.`);
+        }
         const startCoords = levelData.coordinates;
         const placement = levelData.placement;
         const mismatches = [];
