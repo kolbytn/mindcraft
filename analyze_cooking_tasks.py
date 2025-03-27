@@ -36,6 +36,9 @@ def analyze_experiments(root_dir, model_name):
     # Keep track of all unique cooking items
     all_cooking_items = set()
     
+    # Track skipped experiments
+    skipped_experiments = []
+    
     # Get a list of all experiment directories
     experiment_dirs = [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d)) 
                       and d.startswith("multiagent_cooking_")]
@@ -61,6 +64,7 @@ def analyze_experiments(root_dir, model_name):
         
         # Check if the task was successful
         is_successful = False
+        score_found = False
         full_exp_path = os.path.join(root_dir, exp_dir)
         
         # Get all JSON files in the experiment directory
@@ -78,18 +82,26 @@ def analyze_experiments(root_dir, model_name):
                 if "turns" in agent_data:
                     for turn in agent_data["turns"]:
                         if turn.get("role") == "system" and "content" in turn:
-                            if isinstance(turn["content"], str) and "Task ended with score : 1" in turn["content"]:
-                                is_successful = True
+                            if isinstance(turn["content"], str) and "Task ended with score" in turn["content"]:
+                                score_found = True
+                                if "Task ended with score : 1" in turn["content"]:
+                                    is_successful = True
                                 break
                 
-                # If we found success, no need to check other files
-                if is_successful:
+                # If we found score information, no need to check other files
+                if score_found:
                     break
                     
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error reading {agent_file_path}: {e}")
                 # Continue to check other agent files instead of failing
                 continue
+        
+        # Skip experiments with no score information
+        if not score_found:
+            skipped_experiments.append(exp_dir)
+            print(f"Warning: No task score found in experiment {exp_dir} - skipping")
+            continue
         
         # Update cooking item results
         for item in cooking_items:
@@ -102,7 +114,7 @@ def analyze_experiments(root_dir, model_name):
         if is_successful:
             blocked_access_results[blocked_key]["success"] += 1
     
-    return blocked_access_results, cooking_item_results, all_cooking_items
+    return blocked_access_results, cooking_item_results, all_cooking_items, skipped_experiments
 
 def print_model_comparison_blocked(models_results):
     print("\nModel Comparison by Number of Agents with Blocked Access:")
@@ -272,6 +284,9 @@ def generate_item_blocked_data(experiments_root):
     # Organize data by item and blocked agent count
     item_blocked_data = defaultdict(lambda: defaultdict(lambda: {"success": 0, "total": 0}))
     
+    # Track skipped experiments
+    skipped_experiments = []
+    
     # Populate the data structure
     for exp_dir in os.listdir(experiments_root):
         if not os.path.isdir(os.path.join(experiments_root, exp_dir)) or not exp_dir.startswith("multiagent_cooking_"):
@@ -291,6 +306,7 @@ def generate_item_blocked_data(experiments_root):
         
         # Check if the task was successful
         is_successful = False
+        score_found = False
         full_exp_path = os.path.join(experiments_root, exp_dir)
         agent_files = [f for f in os.listdir(full_exp_path) if f.endswith(".json")]
         
@@ -302,14 +318,21 @@ def generate_item_blocked_data(experiments_root):
                 if "turns" in agent_data:
                     for turn in agent_data["turns"]:
                         if turn.get("role") == "system" and "content" in turn:
-                            if isinstance(turn["content"], str) and "Task ended with score : 1" in turn["content"]:
-                                is_successful = True
+                            if isinstance(turn["content"], str) and "Task ended with score" in turn["content"]:
+                                score_found = True
+                                if "Task ended with score : 1" in turn["content"]:
+                                    is_successful = True
                                 break
                 
-                if is_successful:
+                if score_found:
                     break
             except:
                 continue
+        
+        # Skip experiments with no score information
+        if not score_found:
+            skipped_experiments.append(exp_dir)
+            continue
         
         # Update the item-blocked data
         for item in cooking_items:
@@ -317,7 +340,7 @@ def generate_item_blocked_data(experiments_root):
             if is_successful:
                 item_blocked_data[item][blocked_key]["success"] += 1
     
-    return item_blocked_data
+    return item_blocked_data, skipped_experiments
 
 def main():
     base_dir = "experiments"
@@ -325,7 +348,7 @@ def main():
     # Get the model directories
     all_model_dirs = [d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))]
     gpt_dirs = [d for d in all_model_dirs if d.startswith("gpt-4o_30_cooking_tasks")]
-    claude_dirs = [d for d in all_model_dirs if d.startswith("llama_70b_30_cooking_tasks")]
+    claude_dirs = [d for d in all_model_dirs if d.startswith("claude-3-5-sonnet-latest_30_cooking_tasks")]
     
     if not gpt_dirs or not claude_dirs:
         print("Error: Could not find both model directories. Please check your paths.")
@@ -339,15 +362,15 @@ def main():
     print(f"Analyzing Claude-3.5-Sonnet experiments in: {claude_dir}")
     
     # Analyze each model directory
-    gpt_blocked_results, gpt_item_results, gpt_unique_items = analyze_experiments(gpt_dir, "GPT-4o")
-    claude_blocked_results, claude_item_results, claude_unique_items = analyze_experiments(claude_dir, "Claude-3.5")
+    gpt_blocked_results, gpt_item_results, gpt_unique_items, gpt_skipped = analyze_experiments(gpt_dir, "GPT-4o")
+    claude_blocked_results, claude_item_results, claude_unique_items, claude_skipped = analyze_experiments(claude_dir, "Claude-3.5")
     
     # Combine unique cooking items
     all_cooking_items = gpt_unique_items.union(claude_unique_items)
     
     # Generate item-blocked data for each model
-    gpt_item_blocked_data = generate_item_blocked_data(gpt_dir)
-    claude_item_blocked_data = generate_item_blocked_data(claude_dir)
+    gpt_item_blocked_data, gpt_skipped_detailed = generate_item_blocked_data(gpt_dir)
+    claude_item_blocked_data, claude_skipped_detailed = generate_item_blocked_data(claude_dir)
     
     # Create model comparison data structures
     models_blocked_results = {
@@ -375,6 +398,23 @@ def main():
     print("=" * 60)
     print(", ".join(sorted(all_cooking_items)))
     print(f"Total unique items: {len(all_cooking_items)}")
+    
+    # Print skipped experiment information
+    print("\nSkipped Experiments (No Score Information):")
+    print("=" * 60)
+    print(f"GPT-4o: {len(gpt_skipped)} experiments skipped")
+    print(f"Claude-3.5: {len(claude_skipped)} experiments skipped")
+    
+    if gpt_skipped or claude_skipped:
+        print("\nSkipped experiment directories:")
+        if gpt_skipped:
+            print("GPT-4o:")
+            for exp in gpt_skipped:
+                print(f"  - {exp}")
+        if claude_skipped:
+            print("Claude-3.5:")
+            for exp in claude_skipped:
+                print(f"  - {exp}")
 
 if __name__ == "__main__":
     main()
