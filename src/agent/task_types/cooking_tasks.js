@@ -64,14 +64,14 @@ export class CookingTaskInitiator {
 
             // Define all regions with their sizes
             const regionsToPlace = [
-                { type: 'wheat', width: 5, depth: 5 },
-                { type: 'beetroots', width: 2, depth: 5 },
-                { type: 'mushrooms', width: 2, depth: 5 },
-                { type: 'potatoes', width: 2, depth: 5 },
-                { type: 'carrots', width: 2, depth: 5 },
+                { type: 'wheat', width: 6, depth: 6 },
+                { type: 'beetroots', width: 4, depth: 5 },
+                { type: 'mushrooms', width: 4, depth: 5 },
+                { type: 'potatoes', width: 4, depth: 5 },
+                { type: 'carrots', width: 4, depth: 5 },
                 { type: 'sugar_cane', width: 3, depth: 3 },
                 { type: 'sugar_cane', width: 3, depth: 3 },
-                { type: 'pumpkins', width: 5, depth: 1 },
+                { type: 'pumpkins', width: 10, depth: 1 },
                 { type: 'house', width: 11, depth: 11 }
             ];
 
@@ -115,8 +115,8 @@ export class CookingTaskInitiator {
 
             // Planting functions with dynamic positions
             const plantWheat = async (xStart, zStart) => {
-                for (let i = 0; i < 5; i++) {
-                    for (let j = 0; j < 5; j++) {
+                for (let i = 0; i < 6; i++) {
+                    for (let j = 0; j < 6; j++) {
                         const x = xStart + i;
                         const z = zStart + j;
                         await bot.chat(`/setblock ${x} ${position.y - 1} ${z} farmland`);
@@ -127,7 +127,7 @@ export class CookingTaskInitiator {
             };
 
             const plantBeetroots = async (xStart, zStart) => {
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 4; i++) {
                     for (let j = 0; j < 5; j++) {
                         const x = xStart + i;
                         const z = zStart + j;
@@ -138,7 +138,7 @@ export class CookingTaskInitiator {
             };
 
             const plantMushrooms = async (xStart, zStart) => {
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 4; i++) {
                     for (let j = 0; j < 5; j++) {
                         const x = xStart + i;
                         const z = zStart + j;
@@ -150,7 +150,7 @@ export class CookingTaskInitiator {
             };
 
             const plantPotatoes = async (xStart, zStart) => {
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 4; i++) {
                     for (let j = 0; j < 5; j++) {
                         const x = xStart + i;
                         const z = zStart + j;
@@ -161,7 +161,7 @@ export class CookingTaskInitiator {
             };
 
             const plantCarrots = async (xStart, zStart) => {
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 4; i++) {
                     for (let j = 0; j < 5; j++) {
                         const x = xStart + i;
                         const z = zStart + j;
@@ -184,7 +184,7 @@ export class CookingTaskInitiator {
             };
 
             const plantPumpkins = async (xStart, zStart) => {
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 10; i++) {
                     const x = xStart + i;
                     const z = zStart;
                     await bot.chat(`/setblock ${x} ${position.y} ${z} pumpkin`);
@@ -377,7 +377,7 @@ export class CookingTaskInitiator {
             const summonAnimals = async () => {
                 const animals = ['chicken', 'cow', 'llama', 'mooshroom', 'pig', 'rabbit', 'sheep'];
                 for (const animal of animals) {
-                    for (let i = 0; i < 4; i++) {
+                    for (let i = 0; i < 8; i++) {
                         const x = position.x - 25 + Math.random() * 50;
                         const z = position.z - 25 + Math.random() * 50;
                         await bot.chat(`/summon ${animal} ${Math.floor(x)} ${position.y} ${Math.floor(z)}`);
