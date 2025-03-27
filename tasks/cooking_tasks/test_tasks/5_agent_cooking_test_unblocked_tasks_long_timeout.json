@@ -1,0 +1,442 @@
+{
+    "multiagent_cooking_5_1_baked_potato_1_cooked_chicken_1_cooked_mutton_1_cooked_rabbit": {
+      "conversation": "Let's work together to make baked_potato, cooked_chicken, cooked_rabbit, cooked_mutton.",
+      "agent_count": 5,
+      "target": {
+        "baked_potato": 1,
+        "cooked_chicken": 1,
+        "cooked_rabbit": 1,
+        "cooked_mutton": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "baked_potato": [
+          "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+          "Step 2: Go to the furnace and bake the potato."
+        ],
+        "cooked_chicken": [
+          "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+          "Step 2: Go to furnace and use it to cook the raw chicken."
+        ],
+        "cooked_rabbit": [
+          "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 2: Go to furnace and use it to cook the raw rabbit."
+        ],
+        "cooked_mutton": [
+          "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+          "Step 2: Go to furnace and use it to cook the mutton."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 baked_potato, 1 cooked_chicken, 1 cooked_rabbit, 1 cooked_mutton. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.",
+        "1": "Collaborate with agents around you to make 1 baked_potato, 1 cooked_chicken, 1 cooked_rabbit, 1 cooked_mutton. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.",
+        "2": "Collaborate with agents around you to make 1 baked_potato, 1 cooked_chicken, 1 cooked_rabbit, 1 cooked_mutton. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.",
+        "3": "Collaborate with agents around you to make 1 baked_potato, 1 cooked_chicken, 1 cooked_rabbit, 1 cooked_mutton. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.",
+        "4": "Collaborate with agents around you to make 1 baked_potato, 1 cooked_chicken, 1 cooked_rabbit, 1 cooked_mutton. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton."
+      }
+    },
+    "multiagent_cooking_5_1_cooked_porkchop_1_cooked_rabbit_1_golden_apple_1_mushroom_stew_1_suspicious_stew": {
+      "conversation": "Let's work together to make golden_apple, cooked_rabbit, cooked_porkchop, mushroom_stew, suspicious_stew.",
+      "agent_count": 5,
+      "target": {
+        "golden_apple": 1,
+        "cooked_rabbit": 1,
+        "cooked_porkchop": 1,
+        "mushroom_stew": 1,
+        "suspicious_stew": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "golden_apple": [
+          "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+          "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+        ],
+        "cooked_rabbit": [
+          "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 2: Go to furnace and use it to cook the raw rabbit."
+        ],
+        "cooked_porkchop": [
+          "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+          "Step 2: Go to furnace and use it to cook the porkchop."
+        ],
+        "mushroom_stew": [
+          "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+        ],
+        "suspicious_stew": [
+          "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+          "Step 2: Go to the chest and grab a bowl and 1 dandelion",
+          "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit, 1 cooked_porkchop, 1 mushroom_stew, 1 suspicious_stew. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl and 1 dandelion\nStep 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.",
+        "1": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit, 1 cooked_porkchop, 1 mushroom_stew, 1 suspicious_stew. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl and 1 dandelion\nStep 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.",
+        "2": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit, 1 cooked_porkchop, 1 mushroom_stew, 1 suspicious_stew. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl and 1 dandelion\nStep 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.",
+        "3": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit, 1 cooked_porkchop, 1 mushroom_stew, 1 suspicious_stew. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl and 1 dandelion\nStep 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.",
+        "4": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_rabbit, 1 cooked_porkchop, 1 mushroom_stew, 1 suspicious_stew. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl and 1 dandelion\nStep 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      }
+    },
+    "multiagent_cooking_5_1_beetroot_soup_1_bread_1_golden_apple_1_rabbit_stew": {
+      "conversation": "Let's work together to make bread, rabbit_stew, beetroot_soup, golden_apple.",
+      "agent_count": 5,
+      "target": {
+        "bread": 1,
+        "rabbit_stew": 1,
+        "beetroot_soup": 1,
+        "golden_apple": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "bread": [
+          "Step 1: Go to the farm and collect 3 wheat.",
+          "Step 2: Go to the crafting table and use the wheat to craft bread."
+        ],
+        "rabbit_stew": [
+          "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+          "Step 2: Go to the furnace and bake the potato.",
+          "Step 3: Go to the chest and grab a bowl",
+          "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 6: Go to the furnace and cook the raw rabbit.",
+          "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        ],
+        "beetroot_soup": [
+          "Step 1: Go to the farm and collect 6 beetroot.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+        ],
+        "golden_apple": [
+          "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+          "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 bread, 1 rabbit_stew, 1 beetroot_soup, 1 golden_apple. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "1": "Collaborate with agents around you to make 1 bread, 1 rabbit_stew, 1 beetroot_soup, 1 golden_apple. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "2": "Collaborate with agents around you to make 1 bread, 1 rabbit_stew, 1 beetroot_soup, 1 golden_apple. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "3": "Collaborate with agents around you to make 1 bread, 1 rabbit_stew, 1 beetroot_soup, 1 golden_apple. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "4": "Collaborate with agents around you to make 1 bread, 1 rabbit_stew, 1 beetroot_soup, 1 golden_apple. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      }
+    },
+    "multiagent_cooking_5_1_beetroot_soup_1_cake_1_cooked_chicken_1_rabbit_stew": {
+      "conversation": "Let's work together to make cake, rabbit_stew, beetroot_soup, cooked_chicken.",
+      "agent_count": 5,
+      "target": {
+        "cake": 1,
+        "rabbit_stew": 1,
+        "beetroot_soup": 1,
+        "cooked_chicken": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "cake": [
+          "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+          "Step 2: Go to the chest and grab 3 milk buckets.",
+          "Step 3: Go to the chest and grab an egg.",
+          "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+          "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+        ],
+        "rabbit_stew": [
+          "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+          "Step 2: Go to the furnace and bake the potato.",
+          "Step 3: Go to the chest and grab a bowl",
+          "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 6: Go to the furnace and cook the raw rabbit.",
+          "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        ],
+        "beetroot_soup": [
+          "Step 1: Go to the farm and collect 6 beetroot.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+        ],
+        "cooked_chicken": [
+          "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+          "Step 2: Go to furnace and use it to cook the raw chicken."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 cake, 1 rabbit_stew, 1 beetroot_soup, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "1": "Collaborate with agents around you to make 1 cake, 1 rabbit_stew, 1 beetroot_soup, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "2": "Collaborate with agents around you to make 1 cake, 1 rabbit_stew, 1 beetroot_soup, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "3": "Collaborate with agents around you to make 1 cake, 1 rabbit_stew, 1 beetroot_soup, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "4": "Collaborate with agents around you to make 1 cake, 1 rabbit_stew, 1 beetroot_soup, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken."
+      }
+    },
+    "multiagent_cooking_5_1_cake_1_cooked_mutton_1_mushroom_stew_1_rabbit_stew": {
+      "conversation": "Let's work together to make cake, cooked_mutton, rabbit_stew, mushroom_stew.",
+      "agent_count": 5,
+      "target": {
+        "cake": 1,
+        "cooked_mutton": 1,
+        "rabbit_stew": 1,
+        "mushroom_stew": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "cake": [
+          "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+          "Step 2: Go to the chest and grab 3 milk buckets.",
+          "Step 3: Go to the chest and grab an egg.",
+          "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+          "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+        ],
+        "cooked_mutton": [
+          "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+          "Step 2: Go to furnace and use it to cook the mutton."
+        ],
+        "rabbit_stew": [
+          "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+          "Step 2: Go to the furnace and bake the potato.",
+          "Step 3: Go to the chest and grab a bowl",
+          "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 6: Go to the furnace and cook the raw rabbit.",
+          "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        ],
+        "mushroom_stew": [
+          "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 cake, 1 cooked_mutton, 1 rabbit_stew, 1 mushroom_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "1": "Collaborate with agents around you to make 1 cake, 1 cooked_mutton, 1 rabbit_stew, 1 mushroom_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "2": "Collaborate with agents around you to make 1 cake, 1 cooked_mutton, 1 rabbit_stew, 1 mushroom_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "3": "Collaborate with agents around you to make 1 cake, 1 cooked_mutton, 1 rabbit_stew, 1 mushroom_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "4": "Collaborate with agents around you to make 1 cake, 1 cooked_mutton, 1 rabbit_stew, 1 mushroom_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      }
+    },
+    "multiagent_cooking_5_1_cake_1_cookie_1_golden_apple_1_rabbit_stew": {
+      "conversation": "Let's work together to make cake, golden_apple, cookie, rabbit_stew.",
+      "agent_count": 5,
+      "target": {
+        "cake": 1,
+        "golden_apple": 1,
+        "cookie": 1,
+        "rabbit_stew": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "cake": [
+          "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+          "Step 2: Go to the chest and grab 3 milk buckets.",
+          "Step 3: Go to the chest and grab an egg.",
+          "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+          "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+        ],
+        "golden_apple": [
+          "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+          "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+        ],
+        "cookie": [
+          "Step 1: Go to the farm and collect 2 wheat.",
+          "Step 2: Go to the chest and grab 1 cocoa bean.",
+          "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+        ],
+        "rabbit_stew": [
+          "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+          "Step 2: Go to the furnace and bake the potato.",
+          "Step 3: Go to the chest and grab a bowl",
+          "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 6: Go to the furnace and cook the raw rabbit.",
+          "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 cake, 1 golden_apple, 1 cookie, 1 rabbit_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Go to the chest and grab 1 cocoa bean.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.",
+        "1": "Collaborate with agents around you to make 1 cake, 1 golden_apple, 1 cookie, 1 rabbit_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Go to the chest and grab 1 cocoa bean.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.",
+        "2": "Collaborate with agents around you to make 1 cake, 1 golden_apple, 1 cookie, 1 rabbit_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Go to the chest and grab 1 cocoa bean.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.",
+        "3": "Collaborate with agents around you to make 1 cake, 1 golden_apple, 1 cookie, 1 rabbit_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Go to the chest and grab 1 cocoa bean.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.",
+        "4": "Collaborate with agents around you to make 1 cake, 1 golden_apple, 1 cookie, 1 rabbit_stew. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Go to the chest and grab 1 cocoa bean.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      }
+    },
+    "multiagent_cooking_5_1_cake_1_cooked_beef_1_pumpkin_pie_1_rabbit_stew": {
+      "conversation": "Let's work together to make cake, cooked_beef, rabbit_stew, pumpkin_pie.",
+      "agent_count": 5,
+      "target": {
+        "cake": 1,
+        "cooked_beef": 1,
+        "rabbit_stew": 1,
+        "pumpkin_pie": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "cake": [
+          "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+          "Step 2: Go to the chest and grab 3 milk buckets.",
+          "Step 3: Go to the chest and grab an egg.",
+          "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+          "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+        ],
+        "cooked_beef": [
+          "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+          "Step 2: Go to furnace and use it to cook the beef."
+        ],
+        "rabbit_stew": [
+          "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+          "Step 2: Go to the furnace and bake the potato.",
+          "Step 3: Go to the chest and grab a bowl",
+          "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 6: Go to the furnace and cook the raw rabbit.",
+          "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        ],
+        "pumpkin_pie": [
+          "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+          "Step 2: Go to the chest and grab 1 egg.",
+          "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+          "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 cake, 1 cooked_beef, 1 rabbit_stew, 1 pumpkin_pie. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Go to the chest and grab 1 egg.\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.",
+        "1": "Collaborate with agents around you to make 1 cake, 1 cooked_beef, 1 rabbit_stew, 1 pumpkin_pie. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Go to the chest and grab 1 egg.\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.",
+        "2": "Collaborate with agents around you to make 1 cake, 1 cooked_beef, 1 rabbit_stew, 1 pumpkin_pie. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Go to the chest and grab 1 egg.\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.",
+        "3": "Collaborate with agents around you to make 1 cake, 1 cooked_beef, 1 rabbit_stew, 1 pumpkin_pie. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Go to the chest and grab 1 egg.\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.",
+        "4": "Collaborate with agents around you to make 1 cake, 1 cooked_beef, 1 rabbit_stew, 1 pumpkin_pie. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Go to the chest and grab 1 egg.\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      }
+    },
+    "multiagent_cooking_5_1_baked_potato_1_bread_1_golden_apple_1_mushroom_stew": {
+      "conversation": "Let's work together to make baked_potato, mushroom_stew, bread, golden_apple.",
+      "agent_count": 5,
+      "target": {
+        "baked_potato": 1,
+        "mushroom_stew": 1,
+        "bread": 1,
+        "golden_apple": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "baked_potato": [
+          "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+          "Step 2: Go to the furnace and bake the potato."
+        ],
+        "mushroom_stew": [
+          "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+        ],
+        "bread": [
+          "Step 1: Go to the farm and collect 3 wheat.",
+          "Step 2: Go to the crafting table and use the wheat to craft bread."
+        ],
+        "golden_apple": [
+          "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+          "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 baked_potato, 1 mushroom_stew, 1 bread, 1 golden_apple. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "1": "Collaborate with agents around you to make 1 baked_potato, 1 mushroom_stew, 1 bread, 1 golden_apple. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "2": "Collaborate with agents around you to make 1 baked_potato, 1 mushroom_stew, 1 bread, 1 golden_apple. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "3": "Collaborate with agents around you to make 1 baked_potato, 1 mushroom_stew, 1 bread, 1 golden_apple. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.",
+        "4": "Collaborate with agents around you to make 1 baked_potato, 1 mushroom_stew, 1 bread, 1 golden_apple. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      }
+    },
+    "multiagent_cooking_5_1_cooked_beef_1_cooked_chicken_1_cooked_mutton_1_mushroom_stew": {
+      "conversation": "Let's work together to make cooked_beef, cooked_chicken, cooked_mutton, mushroom_stew.",
+      "agent_count": 5,
+      "target": {
+        "cooked_beef": 1,
+        "cooked_chicken": 1,
+        "cooked_mutton": 1,
+        "mushroom_stew": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "cooked_beef": [
+          "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+          "Step 2: Go to furnace and use it to cook the beef."
+        ],
+        "cooked_chicken": [
+          "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+          "Step 2: Go to furnace and use it to cook the raw chicken."
+        ],
+        "cooked_mutton": [
+          "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+          "Step 2: Go to furnace and use it to cook the mutton."
+        ],
+        "mushroom_stew": [
+          "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 cooked_beef, 1 cooked_chicken, 1 cooked_mutton, 1 mushroom_stew. \n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "1": "Collaborate with agents around you to make 1 cooked_beef, 1 cooked_chicken, 1 cooked_mutton, 1 mushroom_stew. \n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "2": "Collaborate with agents around you to make 1 cooked_beef, 1 cooked_chicken, 1 cooked_mutton, 1 mushroom_stew. \n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "3": "Collaborate with agents around you to make 1 cooked_beef, 1 cooked_chicken, 1 cooked_mutton, 1 mushroom_stew. \n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.",
+        "4": "Collaborate with agents around you to make 1 cooked_beef, 1 cooked_chicken, 1 cooked_mutton, 1 mushroom_stew. \n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.\n\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Go to furnace and use it to cook the mutton.\n\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      }
+    },
+    "multiagent_cooking_5_1_beetroot_soup_1_cake_1_cooked_chicken_1_cooked_porkchop_1_rabbit_stew": {
+      "conversation": "Let's work together to make cake, beetroot_soup, cooked_porkchop, rabbit_stew, cooked_chicken.",
+      "agent_count": 5,
+      "target": {
+        "cake": 1,
+        "beetroot_soup": 1,
+        "cooked_porkchop": 1,
+        "rabbit_stew": 1,
+        "cooked_chicken": 1
+      },
+      "type": "cooking",
+      "timeout": 1500,
+      "recipes": {
+        "cake": [
+          "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+          "Step 2: Go to the chest and grab 3 milk buckets.",
+          "Step 3: Go to the chest and grab an egg.",
+          "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+          "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+        ],
+        "beetroot_soup": [
+          "Step 1: Go to the farm and collect 6 beetroot.",
+          "Step 2: Go to the chest and grab a bowl.",
+          "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+        ],
+        "cooked_porkchop": [
+          "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+          "Step 2: Go to furnace and use it to cook the porkchop."
+        ],
+        "rabbit_stew": [
+          "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+          "Step 2: Go to the furnace and bake the potato.",
+          "Step 3: Go to the chest and grab a bowl",
+          "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+          "Step 6: Go to the furnace and cook the raw rabbit.",
+          "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        ],
+        "cooked_chicken": [
+          "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+          "Step 2: Go to furnace and use it to cook the raw chicken."
+        ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+        "0": "Collaborate with agents around you to make 1 cake, 1 beetroot_soup, 1 cooked_porkchop, 1 rabbit_stew, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "1": "Collaborate with agents around you to make 1 cake, 1 beetroot_soup, 1 cooked_porkchop, 1 rabbit_stew, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "2": "Collaborate with agents around you to make 1 cake, 1 beetroot_soup, 1 cooked_porkchop, 1 rabbit_stew, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "3": "Collaborate with agents around you to make 1 cake, 1 beetroot_soup, 1 cooked_porkchop, 1 rabbit_stew, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken.",
+        "4": "Collaborate with agents around you to make 1 cake, 1 beetroot_soup, 1 cooked_porkchop, 1 rabbit_stew, 1 cooked_chicken. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: Go to the chest and grab a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Go to furnace and use it to cook the porkchop.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Go to furnace and use it to cook the raw chicken."
+      }
+    }
+  }
