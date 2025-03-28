@@ -9,11 +9,11 @@ def extract_success_scores(folders, model_names):
     
     all_task_scores = defaultdict(dict)  # Stores task-wise scores per model
     zero_score_tasks = defaultdict(list)  # Stores tasks with 0 score per model
-    null_score_tasks = defaultdict(list)  # Stores tasks with null score per model
     material_groups = defaultdict(lambda: defaultdict(list))
     room_groups = defaultdict(lambda: defaultdict(list))
     material_room_groups = defaultdict(lambda: defaultdict(list))
     overall_scores = defaultdict(list)  # New dict to store all scores for each model
+    skipped_tasks = defaultdict(list)  # Stores tasks with no score message per model
     
     pattern = re.compile(r"materials_(\d+)_rooms_(\d+)")
     
@@ -50,22 +50,22 @@ def extract_success_scores(folders, model_names):
                             print(f"Error reading {file_path}: {e}")
                 
                 if logs_found and not score_found:
-                    # Score not found but logs exist - mark as null
-                    all_task_scores[task_folder][model_name] = None
-                    null_score_tasks[model_name].append(task_folder)
+                    # Score not found but logs exist - skip this task
+                    skipped_tasks[model_name].append(task_folder)
+                    print(f"Error: No score message found for task '{task_folder}' with model '{model_name}'. Skipping this task.")
                 
                 if not logs_found:
                     print(f"No log files found in {task_folder}")
     
-    # Calculate model completion rates (ignore null scores)
+    # Calculate model completion rates (only consider tasks with scores)
     model_completion_rates = {}
     for model_name in model_names:
-        valid_tasks = [task for task in all_task_scores.keys() if model_name in all_task_scores[task] and all_task_scores[task][model_name] is not None]
+        valid_tasks = [task for task in all_task_scores.keys() if model_name in all_task_scores[task]]
         total_tasks = len(valid_tasks)
         completed_tasks = len([task for task in valid_tasks if all_task_scores[task][model_name] > 0])
         model_completion_rates[model_name] = (completed_tasks / total_tasks) if total_tasks > 0 else 0
     
-    # Process task scores into groups (ignore null and 0 scores)
+    # Process task scores into groups (ignore 0 scores)
     for task, model_scores in all_task_scores.items():
         match = pattern.search(task)
         if match:
@@ -73,7 +73,7 @@ def extract_success_scores(folders, model_names):
             room = int(match.group(2))
             
             for model, score in model_scores.items():
-                if score is not None and score > 0:  # Ignore null and 0 scores
+                if score > 0:  # Ignore 0 scores
                     material_groups[material][model].append(score)
                     room_groups[room][model].append(score)
                     material_room_groups[(material, room)][model].append(score)
@@ -102,14 +102,14 @@ def extract_success_scores(folders, model_names):
             for model in model_names:
                 score = all_task_scores[task].get(model)
                 if score is None:
-                    row.append("null")
+                    row.append("-")
                 else:
                     row.append(round(score, 2))
             table.add_row(row)
         print("\nTask-wise Success Scores")
         print(table)
     
-    def display_zero_and_null_score_tasks():
+    def display_zero_and_skipped_tasks():
         for model in model_names:
             if zero_score_tasks[model]:
                 table = PrettyTable([f"{model} - Tasks with 0 Score"])
@@ -118,28 +118,28 @@ def extract_success_scores(folders, model_names):
                 print(f"\n{model} - Tasks with 0 Success Score")
                 print(table)
             
-            if null_score_tasks[model]:
-                table = PrettyTable([f"{model} - Tasks with Null Score"])
-                for task in null_score_tasks[model]:
+            if skipped_tasks[model]:
+                table = PrettyTable([f"{model} - Skipped Tasks (No Score Message)"])
+                for task in skipped_tasks[model]:
                     table.add_row([task])
-                print(f"\n{model} - Tasks with Null Success Score")
+                print(f"\n{model} - Skipped Tasks (No Score Message)")
                 print(table)
     
     def display_overall_averages():
         table = PrettyTable(["Metric"] + model_names)
         
-        # Overall average score (including zeros, excluding nulls)
+        # Overall average score (including zeros)
         row_with_zeros = ["Average Score (All Tasks)"]
         for model in model_names:
-            valid_scores = [s for s in overall_scores[model] if s is not None]
+            valid_scores = overall_scores[model]
             avg = sum(valid_scores) / len(valid_scores) if valid_scores else 0
             row_with_zeros.append(round(avg, 2))
         table.add_row(row_with_zeros)
         
-        # Overall average score (excluding zeros and nulls)
+        # Overall average score (excluding zeros)
         row_without_zeros = ["Average Score (Completed Tasks)"]
         for model in model_names:
-            completed_scores = [s for s in overall_scores[model] if s is not None and s > 0]
+            completed_scores = [s for s in overall_scores[model] if s > 0]
             avg = sum(completed_scores) / len(completed_scores) if completed_scores else 0
             row_without_zeros.append(round(avg, 2))
         table.add_row(row_without_zeros)
@@ -150,24 +150,30 @@ def extract_success_scores(folders, model_names):
             completion_row.append(round(model_completion_rates[model] * 100, 2))
         table.add_row(completion_row)
         
-        # Total number of tasks (excluding nulls)
+        # Total number of tasks
         task_count_row = ["Total Tasks"]
         for model in model_names:
-            valid_tasks = [task for task in all_task_scores.keys() if model in all_task_scores[task] and all_task_scores[task][model] is not None]
+            valid_tasks = [task for task in all_task_scores.keys() if model in all_task_scores[task]]
             task_count_row.append(len(valid_tasks))
         table.add_row(task_count_row)
+        
+        # Number of skipped tasks
+        skipped_count_row = ["Skipped Tasks"]
+        for model in model_names:
+            skipped_count_row.append(len(skipped_tasks[model]))
+        table.add_row(skipped_count_row)
         
         print("\nOverall Performance Metrics")
         print(table)
     
     display_overall_averages()  # Display overall averages first
     display_task_scores()
-    display_zero_and_null_score_tasks()
+    display_zero_and_skipped_tasks()
     display_table("Average Success Score by Material", avg_material_scores)
     display_table("Average Success Score by Room", avg_room_scores)
     display_table("Average Success Score by (Material, Room) Tuples", avg_material_room_scores, tuple_keys=True)
 
 # Example usage
-folders = ["experiments/gpt-4o_construction_tasks", "experiments/exp_03-23_12-31"]
-model_names = ["GPT-4o","Claude 3.5 sonnet"]
+folders = ["experiments/gpt-4o_construction_tasks", "experiments/claude-3-5-sonnet-latest_construction_tasks"]
+model_names = ["GPT-4o", "Claude 3.5 sonnet"]
 extract_success_scores(folders, model_names)
