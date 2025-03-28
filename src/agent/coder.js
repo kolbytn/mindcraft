@@ -226,6 +226,6 @@ export class Coder {
                 content: code_return.message + '\nCode failed. Please try again:'
             });
         }
-        return { success: false, message: null, interrupted: false, timedout: true };
+        return { success: false, message: "Code generation failed.", interrupted: false, timedout: true };
     }
 }
