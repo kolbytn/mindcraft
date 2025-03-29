@@ -406,7 +406,6 @@ export class Task {
         Note : We don't want randomness for construction task as the reference point matters a lot.
         Another reason for no randomness for construction task is because, often times the user would fly in the air,
         then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
-        This was done by MaxRobinson in one of the youtube videos.
         */
 
 
