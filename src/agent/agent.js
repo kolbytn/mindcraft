@@ -459,7 +459,7 @@ export class Agent {
     }
 
     isIdle() {
-        return !this.actions.executing && !this.coder.generating;
+        return !this.actions.executing;
     }
     
     cleanKill(msg='Killing agent process...', code=1) {

@@ -90,13 +90,13 @@ export class ActionManager {
             clearTimeout(TIMEOUT);
 
             // get bot activity summary
-            let output = this._getBotOutputSummary();
+            let output = this.getBotOutputSummary();
             let interrupted = this.agent.bot.interrupt_code;
             let timedout = this.timedout;
             this.agent.clearBotLogs();
 
             // if not interrupted and not generating, emit idle event
-            if (!interrupted && !this.agent.coder.generating) {
+            if (!interrupted) {
                 this.agent.bot.emit('idle');
             }
 
@@ -114,32 +114,33 @@ export class ActionManager {
             await this.stop();
             err = err.toString();
 
-            let message = this._getBotOutputSummary() +
+            let message = this.getBotOutputSummary() +
                 '!!Code threw exception!!\n' +
                 'Error: ' + err + '\n' +
                 'Stack trace:\n' + err.stack+'\n';
 
             let interrupted = this.agent.bot.interrupt_code;
             this.agent.clearBotLogs();
-            if (!interrupted && !this.agent.coder.generating) {
+            if (!interrupted) {
                 this.agent.bot.emit('idle');
             }
             return { success: false, message, interrupted, timedout: false };
         }
     }
 
-    _getBotOutputSummary() {
+    getBotOutputSummary() {
         const { bot } = this.agent;
         if (bot.interrupt_code && !this.timedout) return '';
         let output = bot.output;
         const MAX_OUT = 500;
         if (output.length > MAX_OUT) {
-            output = `Code output is very long (${output.length} chars) and has been shortened.\n
+            output = `Action output is very long (${output.length} chars) and has been shortened.\n
           First outputs:\n${output.substring(0, MAX_OUT / 2)}\n...skipping many lines.\nFinal outputs:\n ${output.substring(output.length - MAX_OUT / 2)}`;
         }
         else {
-            output = 'Code output:\n' + output.toString();
+            output = 'Action output:\n' + output.toString();
         }
+        bot.output = '';
         return output;
     }
 
