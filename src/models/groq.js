@@ -24,35 +24,27 @@ export class GroqCloudAPI {
 
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
 
+
     }
 
-    async sendRequest(turns, systemMessage, stop_seq=null) {
+    async sendRequest(turns, systemMessage, stop_seq = null) {
+        // Construct messages array
+        let messages = [{"role": "system", "content": systemMessage}].concat(turns);
 
-        let messages = [{"role": "system", "content": systemMessage}].concat(turns); // The standard for GroqCloud is just appending to a messages array starting with the system prompt, but
-                                                                                     // this is perfectly acceptable too, and I recommend it. 
-                                                                                     // I still feel as though I should note it for any future revisions of MindCraft, though.
-
-        // These variables look odd, but they're for the future. Please keep them intact.
-        let raw_res = null;
         let res = null;
-        let tool_calls = null;
 
         try {
-
             console.log("Awaiting Groq response...");
 
+            // Handle deprecated max_tokens parameter
             if (this.params.max_tokens) {
-
                 console.warn("GROQCLOUD WARNING: A profile is using `max_tokens`. This is deprecated. Please move to `max_completion_tokens`.");
                 this.params.max_completion_tokens = this.params.max_tokens;
                 delete this.params.max_tokens;
-
             }
 
             if (!this.params.max_completion_tokens) {
-
-                this.params.max_completion_tokens = 8000; // Set it lower. This is a common theme.
-
+                this.params.max_completion_tokens = 4000;
             }
 
             let completion = await this.groq.chat.completions.create({
@@ -63,19 +55,38 @@ export class GroqCloudAPI {
                 ...(this.params || {})
             });
 
-            raw_res = completion.choices[0].message;
-            res = raw_res.content;
+            res = completion.choices[0].message;
 
+            res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         }
-
         catch(err) {
-
+            if (err.message.includes("content must be a string")) {
+                res = "Vision is only supported by certain models.";
+            } else {
+                console.log(this.model_name);
+                res = "My brain disconnected, try again.";
+            }
             console.log(err);
-            res = "My brain just kinda stopped working. Try again.";
-
         }
-
         return res;
+    }
+
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = messages.filter(message => message.role !== 'system');
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages);
     }
 
     async embed(_) {
