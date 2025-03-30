@@ -1,7 +1,8 @@
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs';
 import { NPCData } from './npc/data.js';
 import settings from '../../settings.js';
-
+import { cosineSimilarity } from '../utils/math.js';
+import { wordOverlapScore } from '../utils/text.js';
 
 export class History {
     constructor(agent) {
@@ -9,6 +10,8 @@ export class History {
         this.name = agent.name;
         this.memory_fp = `./bots/${this.name}/memory.json`;
         this.full_history_fp = undefined;
+        this.embedding_model = this.agent.prompter.embedding_model;
+        this.memory_embeddings = {};
 
         mkdirSync(`./bots/${this.name}/histories`, { recursive: true });
 
@@ -30,45 +33,61 @@ export class History {
     getHistory() { // expects an Examples object
         return JSON.parse(JSON.stringify(this.turns));
     }
-
+    
+    turnsToText(turns) {
+        if(turns === undefined || turns.length === 0)
+            return '';
+        let messages = '';
+        for (let turn of turns) {
+            if (turn.role !== 'assistant')
+                messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
+        }
+        return messages.trim();
+    }
     // Get formatted memory string for prompts
-    getMemories() {
+    async getMemories(messages) {
         if (this.memories.length === 0) return '';
         
-        // Sort by creation date descending (newest first)
-        const relevantMemories = [...this.memories]
-            .sort((a, b) => {
-                return new Date(b.created_at) - new Date(a.created_at);
-            })
-            .slice(0, this.relevant_memory_size);
+        // 获取相关记忆
+        const relevantMemories = await this.getRelevant(messages);
         
-        return relevantMemories.map(item => {
-            // Get timestamps from memory entry
-            const earliest = item.message_timeframe?.earliest || item.created_at || '';
-            const latest = item.message_timeframe?.latest || item.created_at || '';
+        // 处理每条记忆
+        const formattedMemories = relevantMemories.map((item, index) => {
+            // 添加记忆ID
+            const memId = String(index + 1).padStart(2, '0');
             
-            // Extract date parts using regex (MM-DD HH:MM:SS)
-            const earliestMatch = earliest.match(/\d+-(\d+-\d+)\s+(\d+:\d+:\d+)/);
-            const latestMatch = latest.match(/\d+-(\d+-\d+)\s+(\d+:\d+:\d+)/);
+            // 计算时间差异
+            const now = new Date();
+            const timestamp = new Date(item.message_timeframe.latest);
+            const diffMs = now - timestamp;
             
-            if (!earliestMatch) return `[${earliest}] ${item.memory}`;
+            // 构建时间显示字符串
+            const timeDisplay = this.formatTimeDifference(diffMs);
             
-            const earliestDate = earliestMatch[1];
-            const earliestTime = earliestMatch[2];
-            const latestDate = latestMatch ? latestMatch[1] : '';
-            const latestTime = latestMatch ? latestMatch[2] : '';
-            
-            // Create display string based on comparison
-            let timeDisplay = `${earliestDate} ${earliestTime}`;
-            
-            if (latest && earliest !== latest) {
-                timeDisplay = earliestDate === latestDate
-                    ? `${earliestDate} ${earliestTime}~${latestTime}`
-                    : `${earliestDate} ${earliestTime}~${latestDate} ${latestTime}`;
-            }
-            
-            return `[${timeDisplay}] ${item.memory}`;
-        }).join('\n');
+            // 返回格式化的记忆字符串
+            return `[mem_id:${memId}] [${timeDisplay} ago] ${item.memory}`;
+        });
+        
+        // 合并所有记忆并返回
+        return formattedMemories.join('\n');
+    }
+
+    // 辅助方法：格式化时间差异
+    formatTimeDifference(diffMs) {
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        
+        let timeDisplay = [];
+        if (hours > 0) {
+            timeDisplay.push(`${hours}${hours === 1 ? 'hr' : 'hrs'}`);
+            if (minutes > 0) timeDisplay.push(`${minutes}${minutes === 1 ? 'min' : 'mins'}`);
+        } else {
+            if (minutes > 0) timeDisplay.push(`${minutes}${minutes === 1 ? 'min' : 'mins'}`);
+            timeDisplay.push(`${seconds}${seconds === 1 ? 'sec' : 'secs'}`);
+        }
+        
+        return timeDisplay.join(' ');
     }
 
     // Get current formatted timestamp
@@ -82,13 +101,65 @@ export class History {
                String(now.getSeconds()).padStart(2, '0');
     }
 
+    // 添加一个新的辅助方法：提取JSON操作
+    extractJsonOperations(rawText) {
+        // Default values
+        let result = {
+            memory: rawText,
+            operations: null
+        };
+        
+        // Look for code blocks with regex (case insensitive for "json")
+        const codeBlockRegex = /```(?:json|JSON)?\n([\s\S]*?)\n```/;
+        const match = rawText.match(codeBlockRegex);
+        
+        if (match && match[1]) {
+            try {
+                // Parse the JSON content
+                const jsonContent = JSON.parse(match[1]);
+                
+                // Look for newMem operation (case insensitive)
+                if (jsonContent.operations) {
+                    for (const op of jsonContent.operations) {
+                        // Check for newMem operation (case insensitive)
+                        if (op.method && op.method.toLowerCase() === "newmem" && 
+                            op.params && op.params.memory) {
+                            // Use this as our memory content
+                            result.memory = op.params.memory;
+                            console.log('-------------------------------- extractJsonOperations --------------------------------');
+                            console.log('result.memory', result.memory);
+                            console.log('-------------------------------- extractJsonOperations --------------------------------');
+                            result.operations = jsonContent;
+                            break;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('Error parsing JSON from code block:', error.message);
+                // We'll keep the default memory content (original text)
+            }
+        }
+        
+        return result;
+    }
+
     async summarizeMemories(turns, triggerType = 'auto') {
         console.log("Storing memories...");
         
-        // Get memory summary and truncate if needed
-        let memory = await this.agent.prompter.promptMemSaving(turns);
-        if (memory.length > 500) {
-            memory = memory.slice(0, 500) + '...(Memory truncated to 500 chars)';
+        // Get memory summary from the prompter
+        let rawResponse = await this.agent.prompter.promptMemSaving(turns);
+        
+        console.log("===========================");
+        console.log(rawResponse);
+        console.log("===========================");
+        
+        // Extract JSON operations using our helper function
+        const { memory, operations } = this.extractJsonOperations(rawResponse);
+        
+        // Truncate if needed
+        let finalMemory = memory;
+        if (finalMemory.length > 500) {
+            finalMemory = finalMemory.slice(0, 500) + '...(Memory truncated to 500 chars)';
         }
 
         // Get timestamps
@@ -108,12 +179,23 @@ export class History {
         // Create and store memory entry
         const entry = {
             created_at: timestamp,
-            memory,
+            memory: finalMemory,
             trigger_type: triggerType,
-            message_timeframe: timeframe
+            message_timeframe: timeframe,
         };
         
         this.memories.push(entry);
+        
+        // Create embedding for new memory if embedding model is available
+        if (this.embedding_model) {
+            try {
+                // Use memory content as the key instead of timestamp
+                this.memory_embeddings[finalMemory] = await this.embedding_model.embed(finalMemory);
+            } catch (error) {
+                console.warn('Error creating embedding for new memory:', error.message);
+            }
+        }
+        
         console.log(`Memory added: ${timestamp}, type: ${triggerType}`);
         return entry;
     }
@@ -179,72 +261,15 @@ export class History {
         }
     }
 
-    load() {
+    async load() {
         try {
             if (!existsSync(this.memory_fp)) {
                 console.log('No memory file found.');
                 return null;
             }
             const data = JSON.parse(readFileSync(this.memory_fp, 'utf8'));
-            
-            // Handle both old and new memory format
-            if (data.memory && typeof data.memory === 'string') {
-                // Convert old format to new format with readable timestamp
-                const formattedDate = this.getFormattedTimestamp();
-                
-                this.memories = [{
-                    created_at: formattedDate,
-                    memory: data.memory,
-                    trigger_type: 'auto',
-                    message_timeframe: {
-                        earliest: formattedDate,
-                        latest: formattedDate
-                    }
-                }];
-                console.log('Converted old memory format to new timestamped format');
-            } else {
-                // Process existing memories
-                this.memories = data.memories || [];
-                
-                // Convert any numeric timestamps, rename timestamp to created_at, or add missing fields
-                this.memories = this.memories.map(item => {
-                    let updatedItem = { ...item };
-                    
-                    // Rename timestamp to created_at if it exists
-                    if (item.timestamp !== undefined) {
-                        updatedItem.created_at = item.timestamp;
-                        delete updatedItem.timestamp;
-                    }
-                    
-                    // Convert numeric created_at (or old timestamp)
-                    if (typeof updatedItem.created_at === 'number') {
-                        const date = new Date(updatedItem.created_at);
-                        updatedItem.created_at = date.getFullYear() + '-' + 
-                                             String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-                                             String(date.getDate()).padStart(2, '0') + ' ' + 
-                                             String(date.getHours()).padStart(2, '0') + ':' + 
-                                             String(date.getMinutes()).padStart(2, '0') + ':' + 
-                                             String(date.getSeconds()).padStart(2, '0');
-                    }
-                    
-                    // Add trigger_type if missing
-                    if (!updatedItem.trigger_type) {
-                        updatedItem.trigger_type = 'auto';
-                    }
-                    
-                    // Add message_timeframe if missing
-                    if (!updatedItem.message_timeframe) {
-                        updatedItem.message_timeframe = {
-                            earliest: updatedItem.created_at,
-                            latest: updatedItem.created_at
-                        };
-                    }
-                    
-                    return updatedItem;
-                });
-            }
-            
-            // Process turns
+            this.memories = data.memories || [];
+            // console.log(`#########Loaded memory \n${JSON.stringify(this.memories, null, 2)}`);
             this.turns = data.turns || [];
             
             // Add created_at to turns if missing
@@ -259,6 +284,12 @@ export class History {
             });
             
             console.log('Loaded memories:', this.memories.length);
+            
+            // Initialize memory embeddings after loading
+            if (this.memories.length > 0) {
+                await this.initMemoryEmbeddings();
+            }
+            
             return data;
         } catch (error) {
             console.error('Failed to load history:', error);
@@ -266,8 +297,73 @@ export class History {
         }
     }
 
+    async initMemoryEmbeddings() {
+        if (this.memories.length === 0) {
+            console.log('No memories to embed.');
+            return;
+        }
+
+        if (this.embedding_model) {
+            try {
+                console.log('Initializing memory embeddings...');
+                const embeddingPromises = this.memories.map((memoryItem) => {
+                    return (async () => {
+                        // Create a content string that captures the essence of the memory
+                        const memoryContent = memoryItem.memory;
+                        // Use the memory content as the key instead of timestamp
+                        this.memory_embeddings[memoryContent] = await this.embedding_model.embed(memoryContent);
+                    })();
+                });
+                await Promise.all(embeddingPromises);
+                console.log(`Successfully embedded ${this.memories.length} memories.`);
+            } catch (error) {
+                console.warn('Error with embedding model during memory initialization, using word-overlap instead:', error.message);
+                this.embedding_model = null;
+                this.memory_embeddings = {};
+            }
+        } else {
+            console.log('No embedding model available, skipping memory embedding.');
+        }
+    }
+
     clear() {
         this.turns = [];
         this.memories = [];
+    }
+
+    // Get relevant memories based on semantic similarity
+    async getRelevant(turns) {
+        if (this.relevant_memory_size === 0)
+            return [];
+        
+        // 创建副本，不管哪种情况都用副本
+        const memoriesCopy = [...this.memories];
+        
+        if(!turns || turns.length === 0) {
+            // 按最近时间排序返回记忆
+            console.log('// 按最近时间排序返回记忆');
+            memoriesCopy.sort((a, b) => new Date(b.message_timeframe.latest) - new Date(a.message_timeframe.latest));
+            return memoriesCopy.slice(0, this.relevant_memory_size);
+        }
+        
+        let turn_text = this.turnsToText(turns);
+        
+        if (this.embedding_model !== null) {
+            let embedding = await this.embedding_model.embed(turn_text);
+            // 在副本上排序，不修改原始数据
+            memoriesCopy.sort((a, b) => 
+                cosineSimilarity(embedding, this.memory_embeddings[b.memory]) -
+                cosineSimilarity(embedding, this.memory_embeddings[a.memory])
+            );
+        }
+        else {
+            // 在副本上排序，不修改原始数据
+            memoriesCopy.sort((a, b) => 
+                wordOverlapScore(turn_text, b.memory) - wordOverlapScore(turn_text, a.memory)
+            );
+        }
+        console.log('// 按相关性排序返回记忆：', turn_text);
+        let selected = memoriesCopy.slice(0, this.relevant_memory_size);
+        return JSON.parse(JSON.stringify(selected)); // deep copy
     }
 }
