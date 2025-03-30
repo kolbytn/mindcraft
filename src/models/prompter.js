@@ -248,8 +248,12 @@ export class Prompter {
         }
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
-        if (prompt.includes('$MEMORY'))
-            prompt = prompt.replaceAll('$MEMORY', this.agent.history.memory);
+        if (prompt.includes('$MEMORY')){
+            console.log('++++++++++++++++++++++++++FOR YOU DEBUGGING+++++++++++++++++++++++++++++++++++++++++');
+            console.log('MEMORY', this.agent.history.getMemories());
+            console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+            prompt = prompt.replaceAll('$MEMORY', this.agent.history.getMemories());
+        }
         if (prompt.includes('$TO_SUMMARIZE'))
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
         if (prompt.includes('$CONVO'))
@@ -338,7 +342,12 @@ export class Prompter {
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
         let prompt = this.profile.saving_memory;
+        console.log('++++++++++++++++++++++++++FOR YOU DEBUGGING+++++++++++++++++++++++++++++++++++++++++');
+        console.log('to_summarize', to_summarize);
+        console.log('promptMemSaving', prompt);
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
+        console.log('prompt', prompt);
+        console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
         return await this.chat_model.sendRequest([], prompt);
     }
 
