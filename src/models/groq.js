@@ -1,4 +1,5 @@
 import Groq from 'groq-sdk'
+import fs from "fs";
 import { getKey } from '../utils/keys.js';
 
 // THIS API IS NOT TO BE CONFUSED WITH GROK!
@@ -92,4 +93,22 @@ export class GroqCloudAPI {
     async embed(_) {
         throw new Error('Embeddings are not supported by Groq.');
     }
+}
+
+export class GroqCloudTTS {
+  constructor() {
+    this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
+  }
+
+  async transcribe(filePath, options = {}) {
+    const transcription = await this.groq.audio.transcriptions.create({
+      file: fs.createReadStream(filePath),
+      model: options.model || "distil-whisper-large-v3-en", // or "whisper-large-v3-turbo"
+      prompt: options.prompt || "",
+      response_format: options.response_format || "json",
+      language: options.language || "en",
+      temperature: options.temperature !== undefined ? options.temperature : 0.0,
+    });
+    return transcription.text;
+  }
 }
