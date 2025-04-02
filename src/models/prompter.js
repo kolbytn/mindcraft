@@ -345,6 +345,11 @@ export class Prompter {
             if (current_msg_time !== this.most_recent_msg_time) {
                 console.warn(`${this.agent.name} received new message while generating, discarding old response.`);
                 return '';
+            } 
+
+            if (generation?.includes('</think>')) {
+                const [_, afterThink] = generation.split('</think>')
+                generation = afterThink
             }
 
             return generation;
@@ -374,7 +379,11 @@ export class Prompter {
         let prompt = this.profile.saving_memory;
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         let resp = await this.chat_model.sendRequest([], prompt);
-        await this._saveLog(prompt, null, resp, 'memSaving');
+        await this._saveLog(prompt, to_summarize, resp, 'memSaving');
+        if (resp?.includes('</think>')) {
+            const [_, afterThink] = resp.split('</think>')
+            resp = afterThink
+        }
         return resp;
     }
 
