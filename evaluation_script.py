@@ -53,16 +53,19 @@ def analyze_json_file(file_path):
     try:
         with open(file_path, 'r') as f:
             data = json.load(f)
-            if 'turns' in data and isinstance(data['turns'], list):
-                for turn in reversed(data['turns']):  # Check turns from the end
-                    if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
-                        code = turn["content"].split(":")[-1].strip()
-                        if code in ["2", "1"]:  # Check for success codes
-                            return True
-                        elif 0 < float(code) < 1:  # Check for other success indicators
-                            return code
-                        else:
-                            return False
+            if "turns" in data:
+                for turn in data["turns"]:
+                    if turn.get("role") == "system" and "content" in turn:
+                        if isinstance(turn["content"], str) and "Task ended with score : " in turn["content"]:
+                            score_found = True
+                            if "Task ended with score : 1" in turn["content"]:
+                                return 1
+                            elif "Task ended with score : 0" in turn["content"]:
+                                return 0
+                            else:
+                                score = float(turn["content"].split(":")[-1].strip())
+                                return score
+                            
         return False
     except FileNotFoundError:
         print(f"Error: File not found: {file_path}")
@@ -82,12 +85,12 @@ def extract_result(folder_path):
     if not json_files:
         return None
     else: 
-        outcome = False
+        score = None
         for json_file in json_files:
-            outcome = analyze_json_file(json_file)
-            if outcome:
-                return True
-        return False
+            score = analyze_json_file(json_file)
+            if score is not None:
+                return score
+        return 0
     
 def aggregate_results(local_folders):
     """
@@ -110,7 +113,7 @@ def aggregate_results(local_folders):
             result = extract_result(folder_path)
             if result is not None:
                 total += 1
-                successful += float(result)
+                successful += result
         except Exception as e:
             print(f"Error processing {folder_name}: {e}")
     
@@ -161,28 +164,6 @@ def update_keys_json():
     with open("keys.json", 'w', encoding='utf-8') as file:
         json.dump(data, file, indent=4)
 
-def check_task_completion(agents):
-    """Check memory.json files of all agents to determine task success/failure."""
-    for agent in agents:
-        memory_path = f"bots/{agent}/memory.json"
-        try:
-            with open(memory_path, 'r') as f:
-                memory = json.load(f)
-                
-            # Check the last system message in turns
-            for turn in reversed(memory['turns']):
-                if turn['role'] == 'system' and 'code' in turn['content']:
-                    # Extract completion code
-                    if 'code : 2' in turn['content']:
-                        return True  # Task successful
-                    elif 'code : 4' in turn['content']:
-                        return False  # Task failed
-            
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Error reading memory for agent {agent}: {e}")
-            continue
-    return False  # Default to failure if no conclusive result found
-
 def set_environment_variable_tmux_session(session_name, key, value):
     """Set an environment variable for the current process."""
     subprocess.run(["tmux", "send-keys", "-t", session_name, f"export {key}={value}", "C-m"])
@@ -202,7 +183,8 @@ def launch_parallel_experiments(task_path,
                                 max_messages=15,
                                 num_examples=2, 
                                 no_pruning=False,
-                                block_conversation=False):
+                                block_conversation=False, 
+                                run_in_tmux=True):
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -211,8 +193,6 @@ def launch_parallel_experiments(task_path,
     task_ids = json_data.keys()
 
     task_type = json_data[list(task_ids)[0]]["type"]
-    
-
     # split the task_ids into num_parallel groups
     task_ids = list(task_ids)
     task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
@@ -224,7 +204,10 @@ def launch_parallel_experiments(task_path,
     elif task_type == "construction":
         world_name = "Superflat"
 
-    servers = create_server_files("./server_data/", num_parallel, world_name=world_name)
+    if run_in_tmux:
+        servers = create_server_files("./server_data/", num_parallel, world_name=world_name)
+    else:
+        servers = [(f"./server_data_{i}/", 55916 + i) for i in range(num_parallel)]
     date_time = datetime.now().strftime("%m-%d_%H-%M")
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
@@ -259,7 +242,8 @@ def launch_parallel_experiments(task_path,
                                  max_messages=max_messages,
                                  num_examples=num_examples, 
                                  no_pruning=no_pruning,
-                                 block_conversation=block_conversation)
+                                 block_conversation=block_conversation, 
+                                 run_in_tmux=run_in_tmux)
         time.sleep(5)
     
     total_num_tasks = len(task_ids)
@@ -307,7 +291,8 @@ def launch_server_experiment(task_path,
                              max_messages=15, 
                              num_examples=2, 
                              no_pruning=False,
-                             block_conversation=False):
+                             block_conversation=False, 
+                             run_in_tmux=True):
     
     """
     Launch a Minecraft server and run experiments on it.
@@ -360,39 +345,107 @@ def launch_server_experiment(task_path,
             agent_profiles_str += f'\"{agent}\", '
         agent_profiles_str += f"\"{agent_profiles[-1]}\"]'"
     print(agent_profiles_str)
-    launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names, port=server_port)
+    if run_in_tmux:
+        print("run in tmux is true")
+        launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names, port=server_port)
 
-    subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
-
-    
-
+        subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
     # set environment variables
-    set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
-    set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
-    set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
-    set_environment_variable_tmux_session(session_name, "MAX_MESSAGES", str(max_messages))
-    set_environment_variable_tmux_session(session_name, "NUM_EXAMPLES", str(num_examples))
-    set_environment_variable_tmux_session(session_name, "LOG_ALL", "true")
-    if insecure_coding:
-        set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
-    make_ops(agent_names, session_name)
+    if run_in_tmux:
+        set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
+        set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
+        set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
+        set_environment_variable_tmux_session(session_name, "MAX_MESSAGES", str(max_messages))
+        set_environment_variable_tmux_session(session_name, "NUM_EXAMPLES", str(num_examples))
+        set_environment_variable_tmux_session(session_name, "LOG_ALL", "true")
+        if insecure_coding:
+            set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
+        make_ops(agent_names, session_name)
+    else: 
+        agent_profiles_str = "["
+        for agent in agent_profiles[:-1]:
+            agent_profiles_str += f"\"{agent}\", " 
+        agent_profiles_str += f"\"{agent_profiles[-1]}\"]"
+        # print(agent_profiles_str)
+        os.environ["PROFILES"] = agent_profiles_str
+        os.environ["MAX_MESSAGES"] = str(max_messages)
+        os.environ["NUM_EXAMPLES"] = str(num_examples)
+        os.environ["LOG_ALL"] = "true"
+    
+    run_script(task_path, 
+               task_ids, 
+               num_exp, 
+               experiments_folder, 
+               agent_names, 
+               server_path, 
+               s3=s3, 
+               s3_path=s3_path, 
+               session_name=session_name, 
+               run_in_tmux=run_in_tmux)
 
     # add the bots as op
     # op_script_content = "sleep 5\n\op @p" * 20
     # op_script_file = f"./tmp/op_script_{session_name}.sh"
     # make_script_file_and_run(op_script_content, "server_" + session_name, op_script_file)
-    blocked_actions = []
-    if not no_pruning:
-        if task_type == "cooking":
-            blocked_actions = BLOCKED_ACTIONS_COOKING
-        elif task_type == "techtree":
-            blocked_actions = BLOCKED_ACTIONS_CRAFTING
-        elif task_type == "construction":
-            blocked_actions = BLOCKED_ACTIONS_CONSTRUCTION
-    if block_conversation:
-        blocked_actions += ["!endConversation", "!startConversation"]
-    set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", blocked_actions)
+    # blocked_actions = []
+    # if not no_pruning:
+    #     if task_type == "cooking":
+    #         blocked_actions = BLOCKED_ACTIONS_COOKING
+    #     elif task_type == "techtree":
+    #         blocked_actions = BLOCKED_ACTIONS_CRAFTING
+    #     elif task_type == "construction":
+    #         blocked_actions = BLOCKED_ACTIONS_CONSTRUCTION
+    # if block_conversation:
+    #     blocked_actions += ["!endConversation", "!startConversation"]
+    # set_environment_variable_tmux_session(session_name, "BLOCKED_ACTIONS", blocked_actions)
 
+    
+
+    # script_content = ""
+    # for task_id in task_ids:
+    #     # Create a separate folder for each task_id
+    #     task_folder = os.path.join(experiments_folder, str(task_id))
+    #     os.makedirs(task_folder, exist_ok=True)
+    #     assert os.path.exists(task_folder), f"Directory {task_folder} was not created"
+    #     print(f"Created directory: {task_folder}")
+        
+    #     cmd = f"node main.js --task_path \'{task_path}\' --task_id {task_id}"
+    #     cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
+    #     for _ in range(num_exp):
+    #         script_content += f"{cmd}\n"
+    #         script_content += "sleep 2\n"
+    #         for agent in agent_names:
+    #             agent_file_path = os.path.join(task_folder, f"{agent}_{_}.json")
+    #             script_content += f"echo 'Saving to {agent_file_path}'\n"
+    #             cp_cmd = f"cp bots/{agent}/memory.json {agent_file_path}"
+    #             script_content += f"echo '{cp_cmd}'\n"
+    #             script_content += f"{cp_cmd}\n"
+    #             script_content += "sleep 1\n"
+    #             if s3:
+    #                 s3_cmd = f"aws s3 cp {agent_file_path} s3://{s3_path}/{task_id}/{agent}_{_}.json"
+    #                 script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
+    #                 script_content += f"echo '{s3_cmd}'\n"
+    #                 script_content += f"{s3_cmd}\n"
+    #                 script_content += "sleep 1\n"
+    #     script_content += f"sleep 10\n"
+    #     if s3:
+    #         for agent in agent_names:
+    #             script_content += f"aws s3 cp bots/{agent} s3://{s3_path}/bots/{agent} --recursive\n"
+
+    # # Create a temporary shell script file
+    # script_file = f"./tmp/experiment_script_{session_name}.sh"
+    # make_script_file_and_run(script_content, script_file, session_name=session_name, run_in_tmux=True)
+
+def run_script(task_path, 
+               task_ids, 
+               num_exp,
+               experiments_folder, 
+               agent_names,
+               server_path,
+               s3=False,
+               s3_path="mindcraft-experiments",
+               session_name="0",
+               run_in_tmux=True,):
     script_content = ""
     for task_id in task_ids:
         # Create a separate folder for each task_id
@@ -426,7 +479,8 @@ def launch_server_experiment(task_path,
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
-    make_script_file_and_run(script_content, session_name, script_file)
+    make_script_file_and_run(script_content, script_file, session_name=session_name, run_in_tmux=run_in_tmux)
+
 
 def make_ops(agent_names, session_name):
     """Make the agents operators in the Minecraft world."""
@@ -458,7 +512,10 @@ def check_agent_ops(agent_names, ops_file="ops.json"):
             return False 
     return True
 
-def make_script_file_and_run(script_content, session_name, file_name):
+def make_script_file_and_run(script_content, 
+                             file_name, 
+                             session_name="0",
+                             run_in_tmux=True):
     script_dir = os.path.dirname(file_name)
     os.makedirs(script_dir, exist_ok=True)
     assert os.path.exists(script_dir), f"Script directory {script_dir} was not created"
@@ -472,9 +529,10 @@ def make_script_file_and_run(script_content, session_name, file_name):
     script_file_run = "bash " + file_name
 
     # Execute the shell script using subprocess
-    subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
-
-    # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
+    if run_in_tmux:
+        subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
+    else:
+        subprocess.run(script_file_run.split())
 
 def make_profiles(agent_names, models, apis, template_profile="profiles/collab_profile.json", url="http://127.0.0.1:8000/v1"):
     assert len(agent_names) == len(models)
@@ -645,6 +703,7 @@ def main():
     # edit_server_properties_file("../server_data/", 55917)
 
     parser = argparse.ArgumentParser(description='Run Minecraft AI agent experiments')
+    parser.add_argument('--no_launch_world', action='store_true', help='Do not launch the Minecraft world')
     parser.add_argument('--task_path', default="multiagent_crafting_tasks.json", help='Path to the task file')
     parser.add_argument('--num_agents', default=2, type=int, help='Number of agents to run')
     parser.add_argument('--num_exp', default=1, type=int, help='Number of experiments to run')
@@ -666,14 +725,15 @@ def main():
 
     args = parser.parse_args()
     print(args)
-
-    try: 
-        subprocess.run(['tmux', 'kill-server'], check=True)
-    except: 
-        print("No tmux session to kill")
+    if not args.no_launch_world:
+        try: 
+            subprocess.run(['tmux', 'kill-server'], check=True)
+        except: 
+            print("No tmux session to kill")
     
     # delete all server files
-    clean_up_server_files(args.num_parallel)
+    if not args.no_launch_world:
+        clean_up_server_files(args.num_parallel)
     if args.add_keys:
         update_keys_json()
     
@@ -692,7 +752,8 @@ def main():
                                 max_messages=args.max_messages,
                                 num_examples=args.num_examples, 
                                 no_pruning=args.no_pruning, 
-                                block_conversation=args.block_conversation)
+                                block_conversation=args.block_conversation,
+                                run_in_tmux=not args.no_launch_world)
 
 if __name__ == "__main__":
     main()
