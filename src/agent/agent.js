@@ -485,7 +485,7 @@ export class Agent {
             if (res) {
                 await this.history.add('system', `Task ended with score : ${res.score}`);
                 await this.history.save();
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 second for save to complete
+                // await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 second for save to complete
                 console.log('Task finished:', res.message);
                 this.killAll();
             }

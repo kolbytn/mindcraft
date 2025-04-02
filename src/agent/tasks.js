@@ -1,10 +1,65 @@
-import { readFileSync } from 'fs';
+import { readFileSync , writeFileSync, existsSync} from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
 import { Vec3 } from 'vec3';
 import { ConstructionTaskValidator, Blueprint } from './task_types/construction_tasks.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
+
+const PROGRESS_FILE = './hells_kitchen_progress.json';
+
+const hellsKitchenProgressManager = {
+  readProgress: function() {
+    try {
+      if (existsSync(PROGRESS_FILE)) {
+        const data = readFileSync(PROGRESS_FILE, 'utf8');
+        return JSON.parse(data);
+      }
+    } catch (err) {
+      console.error('Error reading progress file:', err);
+    }
+    return { taskId: null, agent0Complete: false, agent1Complete: false };
+  },
+  
+  writeProgress: function(progress) {
+    try {
+      writeFileSync(PROGRESS_FILE, JSON.stringify(progress), 'utf8');
+    } catch (err) {
+      console.error('Error writing progress file:', err);
+    }
+  },
+  
+  resetTask: function(taskId) {
+    const progress = { taskId, agent0Complete: false, agent1Complete: false };
+    this.writeProgress(progress);
+    return progress;
+  },
+  
+  updateAgentProgress: function(taskId, agentId, isComplete) {
+    const progress = this.readProgress();
+    
+    // If it's a different task, reset first
+    if (progress.taskId !== taskId) {
+      progress.taskId = taskId;
+      progress.agent0Complete = false;
+      progress.agent1Complete = false;
+    }
+    
+    // Update the specific agent's status
+    if (agentId === 0) progress.agent0Complete = isComplete;
+    if (agentId === 1) progress.agent1Complete = isComplete;
+    
+    this.writeProgress(progress);
+    return progress;
+  },
+  
+  isTaskComplete: function(taskId) {
+    const progress = this.readProgress();
+    if (progress.taskId !== taskId) return false;
+    return progress.agent0Complete && progress.agent1Complete;
+  }
+};
+
 
 //todo: modify validator code to return an object with valid and score -> do more testing hahah
 //todo: figure out how to log these things to the same place as bots/histories
@@ -14,7 +69,6 @@ import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
 //         this.number_of_target = data.number_of_target;
 //         this.agent = agent;
 
-
 /**
  * Validates the presence of required items in an agent's inventory
  * @param {Object} data - Task data containing target and quantity information
@@ -22,95 +76,48 @@ import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
  * @returns {Object} Validation result with success status and missing items
  */
 function checkItemPresence(data, agent) {
-    // Helper function to check if target is a dictionary with quantities
-    function isTargetDictionaryWithQuantities(target) {
-        return typeof target === 'object' && 
-               !Array.isArray(target) && 
-
-               target !== null &&
-               Object.values(target).every(value => typeof value === 'number');
-    }
-
-    // Convert any target format into a standardized dictionary
-    function normalizeTargets(target) {
-        if (typeof target === 'string') {
-            // Single target case
-            return { [target]: 1 };
-        } else if (Array.isArray(target)) {
-            // Array case - convert to dictionary with default quantity 1
-            return target.reduce((acc, item) => {
-                acc[item] = 1;
-                return acc;
-            }, {});
-        } else if (typeof target === 'object' && target !== null) {
-            // Already a dictionary - return as is
-            return target;
-        }
-        throw new Error('Invalid target format');
-    }
-
-    // Normalize quantities to match target format
-    function normalizeQuantities(targets, quantities) {
-        if (quantities === undefined) {
-            // If no quantities specified, default to 1 for each target
-            return Object.keys(targets).reduce((acc, key) => {
-                acc[key] = 1;
-                return acc;
-            }, {});
-        } else if (typeof quantities === 'number') {
-            // If single number provided, apply to all targets
-            return Object.keys(targets).reduce((acc, key) => {
-                acc[key] = quantities;
-                return acc;
-            }, {});
-        } else if (typeof quantities === 'object' && quantities !== null) {
-            // If quantities dictionary provided, use it directly
-            return quantities;
-        }
-        throw new Error('Invalid number_of_target format');
-    }
 
     try {
-        // First normalize targets to always have a consistent format
-        const targets = normalizeTargets(data.target);
-        
-        // Determine the required quantities
-        const requiredQuantities = isTargetDictionaryWithQuantities(data.target) 
-            ? data.target 
-            : normalizeQuantities(targets, data.number_of_target);
-
-        // Count items in inventory
-        const inventoryCount = {};
-        agent.bot.inventory.slots.forEach((slot) => {
-            if (slot) {
-                const itemName = slot.name.toLowerCase();
-                inventoryCount[itemName] = (inventoryCount[itemName] || 0) + slot.count;
-            }
-        });
-
-        // Check if all required items are present in sufficient quantities
-        const missingItems = [];
-        let allTargetsMet = true;
-
-        for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
-            const itemName = item.toLowerCase();
-            const currentCount = inventoryCount[itemName] || 0;
-            if (currentCount < requiredCount) {
-                allTargetsMet = false;
-                missingItems.push({
-                    item: itemName,
-                    required: requiredCount,
-                    current: currentCount,
-                    missing: requiredCount - currentCount
-                });
+        // Special handling for hells_kitchen tasks
+        if (data.task_id && data.task_id.endsWith('hells_kitchen') && Array.isArray(data.target) && data.target.length === 2) {
+            
+            // Get agent ID and target for this agent
+            const agentId = agent.count_id;
+            
+            if (agentId === 0 || agentId === 1) {
+                // Use only the corresponding element from the target list
+                const targetForThisAgent = data.target[agentId];
+                const modifiedData = {
+                    ...data,
+                    target: targetForThisAgent
+                };
+                
+                // Check if this agent has their required item
+                const agentResult = checkItemForSingleAgent(modifiedData, agent);
+                
+                // Update the file-based progress tracker
+                const progress = hellsKitchenProgressManager.updateAgentProgress(
+                    data.task_id, 
+                    agentId, 
+                    agentResult.success
+                );
+                
+                // // Log the current state
+                // console.log(`Agent ${agentId} has item: ${agentResult.success}`);
+                // console.log(`Task state: Agent0=${progress.agent0Complete}, Agent1=${progress.agent1Complete}`);
+                
+                // Return combined result - success only if both agents have their items
+                return {
+                    success: progress.agent0Complete && progress.agent1Complete,
+                    missingItems: agentResult.missingItems,
+                    agentComplete: agentResult.success  // Individual agent status for debugging
+                };
             }
         }
-
-        return {
-            success: allTargetsMet,
-            missingItems: missingItems
-        };
-
+        
+        // Non-hells_kitchen tasks use the standard check
+        return checkItemForSingleAgent(data, agent);
+        
     } catch (error) {
         console.error('Error checking item presence:', error);
         return {
@@ -120,6 +127,93 @@ function checkItemPresence(data, agent) {
         };
     }
 }
+
+
+/**
+ * Helper function to check a single agent's inventory
+ * Extracted from the original checkItemPresence logic
+ */
+function checkItemForSingleAgent(data, agent) {
+    function isTargetDictionaryWithQuantities(target) {
+        return typeof target === 'object' && 
+               !Array.isArray(target) && 
+               target !== null &&
+               Object.values(target).every(value => typeof value === 'number');
+    }
+    
+    function normalizeTargets(target) {
+        if (typeof target === 'string') {
+            return { [target]: 1 };
+        } else if (Array.isArray(target)) {
+            return target.reduce((acc, item) => {
+                acc[item] = 1;
+                return acc;
+            }, {});
+        } else if (typeof target === 'object' && target !== null) {
+            return target;
+        }
+        throw new Error('Invalid target format');
+    }
+    
+    function normalizeQuantities(targets, quantities) {
+        if (quantities === undefined) {
+            return Object.keys(targets).reduce((acc, key) => {
+                acc[key] = 1;
+                return acc;
+            }, {});
+        } else if (typeof quantities === 'number') {
+            return Object.keys(targets).reduce((acc, key) => {
+                acc[key] = quantities;
+                return acc;
+            }, {});
+        } else if (typeof quantities === 'object' && quantities !== null) {
+            return quantities;
+        }
+        throw new Error('Invalid number_of_target format');
+    }
+    
+    // First normalize targets to always have a consistent format
+    const targets = normalizeTargets(data.target);
+    
+    // Determine the required quantities
+    const requiredQuantities = isTargetDictionaryWithQuantities(data.target) 
+        ? data.target 
+        : normalizeQuantities(targets, data.number_of_target);
+
+    // Count items in inventory
+    const inventoryCount = {};
+    agent.bot.inventory.slots.forEach((slot) => {
+        if (slot) {
+            const itemName = slot.name.toLowerCase();
+            inventoryCount[itemName] = (inventoryCount[itemName] || 0) + slot.count;
+        }
+    });
+
+    // Check if all required items are present in sufficient quantities
+    const missingItems = [];
+    let allTargetsMet = true;
+
+    for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
+        const itemName = item.toLowerCase();
+        const currentCount = inventoryCount[itemName] || 0;
+        if (currentCount < requiredCount) {
+            allTargetsMet = false;
+            missingItems.push({
+                item: itemName,
+                required: requiredCount,
+                current: currentCount,
+                missing: requiredCount - currentCount
+            });
+        }
+    }
+
+    return {
+        success: allTargetsMet,
+        missingItems: missingItems
+    };
+}
+
+
 
 class CookingCraftingTaskValidator {
     constructor(data, agent) {
@@ -155,6 +249,14 @@ export class Task {
         this.blocked_actions = [];
         this.task_id = task_id;
         console.log('Task ID:', task_id);
+
+        // Reset hells_kitchen progress when a new task starts
+        if (task_id && task_id.endsWith('hells_kitchen')) {
+            hellsKitchenProgressManager.resetTask(task_id);
+            console.log('Reset Hells Kitchen progress for new task');
+        }
+
+
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
             this.task_type = this.data.type;
@@ -195,6 +297,14 @@ export class Task {
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
     }
 
+    // Add this method if you want to manually reset the hells_kitchen progress
+    resetHellsKitchenProgress() {
+        if (this.task_id && this.task_id.endsWith('hells_kitchen')) {
+            hellsKitchenProgressManager.resetTask(this.task_id);
+            console.log('Hells Kitchen progress reset manually');
+        }
+    }
+
     getAgentGoal() {
         if (!this.data || !this.data.goal) {
             return null;
@@ -204,18 +314,23 @@ export class Task {
 
         if (this.task_type === 'cooking') {
 
-            if (this.data.agent_count > 2) {
+                if (this.data.agent_count > 2) {
 
-                if (this.name.toLowerCase().startsWith('andy')) {
-                    add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                    if (this.name.toLowerCase().startsWith('andy')) {
+                        add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                    } 
+                    else {
+                        add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                    }   
                 } 
                 else {
-                    add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
-                }   
-            } 
-            else {
-                add_string = '\nIn the end, all the food items should be given to one single bot.';
-            }
+                    if (this.data.task_id && this.data.task_id.endsWith('hells_kitchen')) {
+                        add_string = '';
+                    } 
+                    else {
+                    add_string = '\nIn the end, all the food items should be given to one single bot.';
+                    }
+                }
         }
 
         // If goal is a string, all agents share the same goal
@@ -237,6 +352,7 @@ export class Task {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
             let task = tasks[task_id];
+            task['task_id'] = task_id;
             console.log(task);
             console.log(this.agent.count_id);
             if (!task) {
