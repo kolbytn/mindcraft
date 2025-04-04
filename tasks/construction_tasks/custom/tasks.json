@@ -6,12 +6,12 @@
     "agent_count": 2,
     "blueprint": {
       "materials": {
-        "oak_planks": 120,
-        "stone_bricks": 64,
+        "oak_planks": 140,
+        "stone_bricks": 108,
         "oak_door": 2,
         "oak_stairs": 16,
         "quartz_block": 1,
-        "glass_pane": 7,
+        "glass_pane": 12,
         "torch": 4
       },
       "levels": [
@@ -29,25 +29,11 @@
               "oak_planks",
               "oak_planks",
               "oak_planks",
-              "oak_planks"
-            ],
-            [
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
               "oak_planks",
               "oak_planks"
             ],
             [
               "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks"
-            ],
-            [
               "oak_planks",
               "oak_planks",
               "oak_planks",
@@ -61,25 +47,11 @@
               "oak_planks",
               "oak_planks",
               "oak_planks",
-              "oak_planks"
-            ],
-            [
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
               "oak_planks",
               "oak_planks"
             ],
             [
               "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks"
-            ],
-            [
               "oak_planks",
               "oak_planks",
               "oak_planks",
@@ -93,9 +65,47 @@
               "oak_planks",
               "oak_planks",
               "oak_planks",
+              "oak_planks",
               "oak_planks"
             ],
             [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
               "oak_planks",
               "oak_planks",
               "oak_planks",
@@ -119,31 +129,17 @@
               "stone_bricks",
               "oak_door",
               "stone_bricks",
-              "air"
-            ],
-            [
-              "stone_bricks",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "stone_bricks",
-              "oak_stairs",
-              "oak_stairs",
-              "air",
-              "oak_stairs",
-              "oak_stairs"
-            ],
-            [
-              "stone_bricks",
               "air",
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -151,7 +147,8 @@
               "oak_stairs",
               "air",
               "oak_stairs",
-              "oak_stairs"
+              "oak_stairs",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -159,7 +156,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -167,7 +165,8 @@
               "oak_stairs",
               "air",
               "oak_stairs",
-              "oak_stairs"
+              "oak_stairs",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -175,7 +174,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -183,7 +183,26 @@
               "oak_stairs",
               "air",
               "oak_stairs",
-              "oak_stairs"
+              "oak_stairs",
+              "stone_bricks"
+            ],
+            [
+              "stone_bricks",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "stone_bricks"
+            ],
+            [
+              "stone_bricks",
+              "oak_stairs",
+              "oak_stairs",
+              "air",
+              "oak_stairs",
+              "oak_stairs",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -191,7 +210,8 @@
               "air",
               "quartz_block",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ]
           ]
         },
@@ -209,15 +229,35 @@
               "stone_bricks",
               "oak_door",
               "stone_bricks",
+              "glass_pane",
+              "stone_bricks"
+            ],
+            [
+              "glass_pane",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
               "glass_pane"
             ],
             [
+              "stone_bricks",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "stone_bricks"
+            ],
+            [
               "glass_pane",
               "air",
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "glass_pane"
             ],
             [
               "stone_bricks",
@@ -225,7 +265,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "glass_pane",
@@ -233,7 +274,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "glass_pane"
             ],
             [
               "stone_bricks",
@@ -241,7 +283,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "glass_pane",
@@ -249,7 +292,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "glass_pane"
             ],
             [
               "stone_bricks",
@@ -257,7 +301,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "glass_pane",
@@ -265,23 +310,8 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "stone_bricks",
               "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
-              "glass_pane",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
+              "glass_pane"
             ]
           ]
         },
@@ -299,6 +329,7 @@
               "stone_bricks",
               "stone_bricks",
               "stone_bricks",
+              "stone_bricks",
               "stone_bricks"
             ],
             [
@@ -307,7 +338,8 @@
               "air",
               "air",
               "air",
-              "torch"
+              "torch",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -315,7 +347,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -323,7 +356,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -331,7 +365,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -339,7 +374,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -347,7 +383,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -355,7 +392,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -363,7 +401,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -371,7 +410,8 @@
               "air",
               "air",
               "air",
-              "torch"
+              "torch",
+              "stone_bricks"
             ]
           ]
         },
@@ -389,6 +429,7 @@
               "stone_bricks",
               "stone_bricks",
               "stone_bricks",
+              "stone_bricks",
               "stone_bricks"
             ],
             [
@@ -397,7 +438,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -405,7 +447,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -413,7 +456,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -421,7 +465,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -429,7 +474,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -437,7 +483,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -445,7 +492,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -453,7 +501,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -461,7 +510,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ]
           ]
         },
@@ -479,6 +529,7 @@
               "stone_bricks",
               "stone_bricks",
               "stone_bricks",
+              "stone_bricks",
               "stone_bricks"
             ],
             [
@@ -487,7 +538,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -495,7 +547,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -503,7 +556,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -511,7 +565,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -519,7 +574,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -527,7 +583,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -535,7 +592,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -543,7 +601,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ],
             [
               "stone_bricks",
@@ -551,7 +610,8 @@
               "air",
               "air",
               "air",
-              "air"
+              "air",
+              "stone_bricks"
             ]
           ]
         },
@@ -569,25 +629,11 @@
               "oak_planks",
               "oak_planks",
               "oak_planks",
-              "oak_planks"
-            ],
-            [
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
               "oak_planks",
               "oak_planks"
             ],
             [
               "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks"
-            ],
-            [
               "oak_planks",
               "oak_planks",
               "oak_planks",
@@ -601,25 +647,11 @@
               "oak_planks",
               "oak_planks",
               "oak_planks",
-              "oak_planks"
-            ],
-            [
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
               "oak_planks",
               "oak_planks"
             ],
             [
               "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks",
-              "oak_planks"
-            ],
-            [
               "oak_planks",
               "oak_planks",
               "oak_planks",
@@ -633,9 +665,47 @@
               "oak_planks",
               "oak_planks",
               "oak_planks",
+              "oak_planks",
               "oak_planks"
             ],
             [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks",
+              "oak_planks"
+            ],
+            [
+              "oak_planks",
               "oak_planks",
               "oak_planks",
               "oak_planks",
@@ -659,25 +729,11 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "air",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "air",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
               "air",
               "air",
               "air",
@@ -691,25 +747,11 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "air",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "air",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
               "air",
               "air",
               "air",
@@ -723,9 +765,47 @@
               "air",
               "air",
               "air",
+              "air",
               "air"
             ],
             [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
               "air",
               "air",
               "air",
@@ -749,25 +829,11 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "air",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "air",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
               "air",
               "air",
               "air",
@@ -781,25 +847,11 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "air",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "air",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
               "air",
               "air",
               "air",
@@ -813,9 +865,47 @@
               "air",
               "air",
               "air",
+              "air",
               "air"
             ],
             [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
               "air",
               "air",
               "air",
@@ -839,25 +929,11 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "air",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "air",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
               "air",
               "air",
               "air",
@@ -871,25 +947,11 @@
               "air",
               "air",
               "air",
-              "air"
-            ],
-            [
-              "air",
-              "air",
-              "air",
-              "air",
               "air",
               "air"
             ],
             [
               "air",
-              "air",
-              "air",
-              "air",
-              "air",
-              "air"
-            ],
-            [
               "air",
               "air",
               "air",
@@ -903,9 +965,47 @@
               "air",
               "air",
               "air",
+              "air",
               "air"
             ],
             [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air",
+              "air"
+            ],
+            [
+              "air",
               "air",
               "air",
               "air",
@@ -919,15 +1019,15 @@
     },
     "initial_inventory": {
       "0": {
-        "oak_planks": 120,
+        "oak_planks": 140,
         "oak_door": 2,
         "quartz_block": 1,
         "torch": 4
       },
       "1": {
-        "stone_bricks": 64,
+        "stone_bricks": 108,
         "oak_stairs": 16,
-        "glass_pane": 7
+        "glass_pane": 12
       }
     }
   }
