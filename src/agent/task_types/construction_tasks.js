@@ -1070,8 +1070,8 @@ export function blueprintToTask(blueprint_data, num_agents) {
 
     const task = {
         type: "construction",
-        goal: "Make a house with the blueprint below",
-        conversation: "Let's share materials and make a house with the blueprint",
+        goal: "Make a structure with the blueprint below",
+        conversation: "Let's share materials and make a structure with the blueprint",
         agent_count: 2,
         blueprint: blueprint_data,
         initial_inventory: initialInventory,
