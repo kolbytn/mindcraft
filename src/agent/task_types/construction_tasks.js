@@ -12,14 +12,12 @@ export class ConstructionTaskValidator {
             let valid = false;
             let score = 0;
             let result = this.blueprint.check(this.agent.bot);
-            if (result.mismatches.length === 0) {
+            if (result.mismatches.y_amount === 0) {
                 valid = true;
                 console.log('Task is complete');
             }
-            let total_blocks = result.mismatches.length + result.matches.length;
-            score = (result.matches.length / total_blocks) * 100;
-            console.log(`Agent name is ${this.agent.name}`);
-            console.log(`Task is ${score}% complete \n\n`);
+            let total_blocks = result.mismatches.y_amount + result.matches.y_amount;
+            score = (result.matches.y_amount / total_blocks) * 100;
             return {
                 "valid": valid, 
                 "score": score
@@ -37,10 +35,10 @@ export class ConstructionTaskValidator {
 export function resetConstructionWorld(bot, blueprint) {
     console.log('Resetting world...');
     const starting_position = blueprint.levels[0].coordinates;
-    const length = blueprint.levels[0].placement.length + 5;
-    const height = blueprint.levels.length + 5;
-    const width = blueprint.levels[0].placement[0].length + 5;
-    const command = `/fill ${starting_position[0]} ${starting_position[1]} ${starting_position[2]} ${starting_position[0] + width} ${starting_position[1] + height} ${starting_position[2] + length} air`;
+    const y_amount = blueprint.levels[0].placement.y_amount + 5;
+    const height = blueprint.levels.y_amount + 5;
+    const width = blueprint.levels[0].placement[0].y_amount + 5;
+    const command = `/fill ${starting_position[0]} ${starting_position[1]} ${starting_position[2]} ${starting_position[0] + width} ${starting_position[1] + height} ${starting_position[2] + y_amount} air`;
     bot.chat(command);
     console.log('World reset');
 }
@@ -50,7 +48,7 @@ export function checkLevelBlueprint(agent, levelNum) {
     const bot = agent.bot;
     try {
         const result = blueprint.checkLevel(bot, levelNum);
-        if (result.mismatches.length === 0) {
+        if (result.mismatches.y_amount === 0) {
             return `Level ${levelNum} is correct`;
         } else {
             let explanation = blueprint.explainLevelDifference(bot, levelNum);
@@ -69,7 +67,7 @@ export function checkBlueprint(agent) {
     const blueprint = agent.task.blueprint;
     const bot = agent.bot;
     const result = blueprint.check(bot);
-    if (result.mismatches.length === 0) {
+    if (result.mismatches.y_amount === 0) {
         return "Blueprint is correct";
     } else {
         let explanation = blueprint.explainBlueprintDifference(bot);
@@ -97,11 +95,11 @@ export class Blueprint {
         var placement_string = "[\n";
         for (let row of placement) {
             placement_string += "[";
-            for (let i = 0; i < row.length - 1; i++) {
+            for (let i = 0; i < row.y_amount - 1; i++) {
                 let item = row[i];
                 placement_string += `${item}, `;
             }
-            let final_item = row[row.length - 1];
+            let final_item = row[row.y_amount - 1];
             placement_string += `${final_item}],\n`;
         }
         placement_string += "]";
@@ -118,7 +116,7 @@ export class Blueprint {
     explainBlueprintDifference(bot) {
         var explanation = "";
         const levels = this.data.levels;
-        for (let i = 0; i < levels.length; i++) {
+        for (let i = 0; i < levels.y_amount; i++) {
             let level_explanation = this.explainLevelDifference(bot, i);
             explanation += level_explanation + "\n";
         }
@@ -129,7 +127,7 @@ export class Blueprint {
         const mismatches = results.mismatches;
         const levelData = this.data.levels[levelNum];
 
-        if (mismatches.length === 0) {
+        if (mismatches.y_amount === 0) {
             return `Level ${levelData.level} is complete`;
         }
         var explanation = `Level ${levelData.level} `;
@@ -153,7 +151,7 @@ export class Blueprint {
         const levels = this.data.levels;
         const mismatches = [];
         const matches = [];
-        for (let i = 0; i < levels.length; i++) {
+        for (let i = 0; i < levels.y_amount; i++) {
             const result = this.checkLevel(bot, i);
             mismatches.push(...result.mismatches);
             matches.push(...result.matches);
@@ -173,9 +171,9 @@ export class Blueprint {
         const mismatches = [];
         const matches = [];
     
-        for (let zOffset = 0; zOffset < placement.length; zOffset++) {
+        for (let zOffset = 0; zOffset < placement.y_amount; zOffset++) {
             const row = placement[zOffset];
-            for (let xOffset = 0; xOffset < row.length; xOffset++) {
+            for (let xOffset = 0; xOffset < row.y_amount; xOffset++) {
                 const blockName = row[xOffset];
     
                 const x = startCoords[0] + xOffset;
@@ -240,15 +238,15 @@ export class Blueprint {
 
             // Update bounds
             minX = Math.min(minX, baseX);
-            maxX = Math.max(maxX, baseX + placement[0].length - 1);
+            maxX = Math.max(maxX, baseX + placement[0].y_amount - 1);
             minY = Math.min(minY, baseY);
             maxY = Math.max(maxY, baseY);
             minZ = Math.min(minZ, baseZ);
-            maxZ = Math.max(maxZ, baseZ + placement.length - 1);
+            maxZ = Math.max(maxZ, baseZ + placement.y_amount - 1);
 
             // Loop through the 2D placement array
-            for (let z = 0; z < placement.length; z++) {
-                for (let x = 0; x < placement[z].length; x++) {
+            for (let z = 0; z < placement.y_amount; z++) {
+                for (let x = 0; x < placement[z].y_amount; x++) {
                     const blockType = placement[z][x];
                     if (blockType) {
                         const setblockCommand = `/setblock ${baseX + x} ${baseY} ${baseZ + z} ${blockType}`;
@@ -289,15 +287,15 @@ export class Blueprint {
 
             // Update bounds
             minX = Math.min(minX, baseX) - 30;
-            maxX = Math.max(maxX, baseX + placement[0].length - 1) + 30;
+            maxX = Math.max(maxX, baseX + placement[0].y_amount - 1) + 30;
             minY = Math.min(minY, baseY);
             maxY = Math.max(maxY, baseY);
             minZ = Math.min(minZ, baseZ) - 30;
-            maxZ = Math.max(maxZ, baseZ + placement.length - 1) + 30;
+            maxZ = Math.max(maxZ, baseZ + placement.y_amount - 1) + 30;
 
             // Loop through the 2D placement array
-            for (let z = 0; z < placement.length; z++) {
-                for (let x = 0; x < placement[z].length; x++) {
+            for (let z = 0; z < placement.y_amount; z++) {
+                for (let x = 0; x < placement[z].y_amount; x++) {
                     const blockType = placement[z][x];
                     if (blockType) {
                         const setblockCommand = `/setblock ${baseX + x} ${baseY} ${baseZ + z} air`;
@@ -350,8 +348,8 @@ export function proceduralGeneration(m = 20,
                                      complexity = 4,
                                      startCoord = [148,-60,-170]) {
     // Build 3D space
-    const matrix = Array.from({length: p}, () =>
-        Array.from({length: m}, () =>
+    const matrix = Array.from({y_amount: p}, () =>
+        Array.from({y_amount: m}, () =>
             Array(n).fill('air')
         )
     );
@@ -359,7 +357,7 @@ export function proceduralGeneration(m = 20,
     // todo: extrapolate into another param? then have set materials be dynamic? 
     let roomMaterials = ["stone", "terracotta", "quartz_block", "copper_block", "purpur_block"]
 
-    if (complexity < roomMaterials.length) {
+    if (complexity < roomMaterials.y_amount) {
         roomMaterials = roomMaterials.slice(0, complexity + 1);
     }
 
@@ -510,9 +508,9 @@ export function proceduralGeneration(m = 20,
     // Takes in a room and randomly converts some faces to be windows
     function addWindowsAsSquares(matrix, x, y, z, newLength, newWidth, newDepth, material) {
         // Matrix dimensions
-        const matrixDepth = matrix.length;
-        const matrixLength = matrix[0].length;
-        const matrixWidth = matrix[0][0].length;
+        const matrixDepth = matrix.y_amount;
+        const matrixLength = matrix[0].y_amount;
+        const matrixWidth = matrix[0][0].y_amount;
         const windowX = Math.ceil(minRoomWidth / 2)
         const windowY = Math.ceil(minRoomLength / 2)
         const windowZ = Math.ceil(minRoomDepth / 2)
@@ -593,9 +591,9 @@ export function proceduralGeneration(m = 20,
 
     function addWindowsAsPlane(matrix, x, y, z, newLength, newWidth, newDepth, material) {
         // Ensure the new dimensions are within bounds
-        const maxX = matrix[0].length;
-        const maxY = matrix[0][0].length;
-        const maxZ = matrix.length;
+        const maxX = matrix[0].y_amount;
+        const maxY = matrix[0][0].y_amount;
+        const maxZ = matrix.y_amount;
 
         // Each face has a 30% chance of becoming a window
         if (Math.random() < 0.8) {
@@ -643,21 +641,21 @@ export function proceduralGeneration(m = 20,
 
 
     //still a little buggy
-    function addStairs(matrix, x, y, z, length, width, material) {
+    function addStairs(matrix, x, y, z, y_amount, width, material) {
         let currentZ = z;
         let currentX = x + 1;
         let currentY = y + 1;
         let direction = 0;
         let stepCount = 0;
-        const maxSteps = length * width; // Safety limit
+        const maxSteps = y_amount * width; // Safety limit
 
-        while (currentZ >= 0 && currentX < x + length - 1 && currentY < y + width - 1 && stepCount < maxSteps) {
+        while (currentZ >= 0 && currentX < x + y_amount - 1 && currentY < y + width - 1 && stepCount < maxSteps) {
             // Place stair block
             matrix[currentZ][currentX][currentY] = material || 'stone';
 
             // Clear 3 blocks above for headroom
             for (let i = 1; i <= 3; i++) {
-                if (currentZ + i < matrix.length) {
+                if (currentZ + i < matrix.y_amount) {
                     matrix[currentZ + i][currentX][currentY] = 'air';
                 }
             }
@@ -665,8 +663,8 @@ export function proceduralGeneration(m = 20,
             // Move to next position based on direction
             if (direction === 0) {
                 currentX++;
-                if (currentX >= x + length - 1) {
-                    currentX = x + length - 2;
+                if (currentX >= x + y_amount - 1) {
+                    currentX = x + y_amount - 2;
                     direction = 1;
                 } else {
                     currentZ--;
@@ -700,7 +698,7 @@ export function proceduralGeneration(m = 20,
                     // Consider a random probability of adding a carpet
                     if (Math.random() < probability) {
                         // Choose a random color for the carpet
-                        let randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        let randomColor = colors[Math.floor(Math.random() * colors.y_amount)];
                         // Add carpet one z position above the floor with a random color
                         matrix[z + 1][x][y] = `${randomColor}_carpet`;
                     }
@@ -773,7 +771,7 @@ export function proceduralGeneration(m = 20,
 
         for (let attempt = 0; attempt < 150; attempt++) {
 
-            const material = roomMaterials[Math.floor(Math.random() * roomMaterials.length)];
+            const material = roomMaterials[Math.floor(Math.random() * roomMaterials.y_amount)];
 
 
             // dimensions of room
@@ -790,7 +788,7 @@ export function proceduralGeneration(m = 20,
                 newZ = 0; // Ground floor
 
                 if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p, material)) {
-                    lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
+                    lastRoom = {x: newX, y: newY, z: newZ, y_amount: newLength, width: newWidth, depth: newDepth};
                     roomPlaced = true;
                     placedRooms++;
 
@@ -820,14 +818,14 @@ export function proceduralGeneration(m = 20,
 
                             embellishments(carpetStyle, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material)
 
-                            // addLadder(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                            // addLadder(matrix, lastRoom.x + Math.floor(lastRoom.y_amount / 2),
                             //     lastRoom.y + Math.floor(lastRoom.width / 2),
                             //     newZ); // Adding the ladder
 
                             addStairs(matrix, newX, newY, newZ, newLength, newWidth, material)
 
 
-                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
+                            lastRoom = {x: newX, y: newY, z: newZ, y_amount: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -847,7 +845,7 @@ export function proceduralGeneration(m = 20,
                             addDoor(matrix, lastRoom.x, lastRoom.y + Math.floor(lastRoom.width / 2), lastRoom.z, material);
 
 
-                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
+                            lastRoom = {x: newX, y: newY, z: newZ, y_amount: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -855,7 +853,7 @@ export function proceduralGeneration(m = 20,
                         break;
 
                     case 'right':
-                        newX = lastRoom.x + lastRoom.length - 1;
+                        newX = lastRoom.x + lastRoom.y_amount - 1;
                         newY = lastRoom.y;
                         newZ = lastRoom.z;
                         if (validateAndBuildBorder(matrix, newX, newY, newZ, newLength, newWidth, newDepth, m, n, p, material)) {
@@ -863,12 +861,12 @@ export function proceduralGeneration(m = 20,
                             embellishments(carpetStyle, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material)
 
 
-                            addDoor(matrix, lastRoom.x + lastRoom.length - 1,
+                            addDoor(matrix, lastRoom.x + lastRoom.y_amount - 1,
                                 lastRoom.y + Math.floor(lastRoom.width / 2),
                                 lastRoom.z, material);
 
 
-                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
+                            lastRoom = {x: newX, y: newY, z: newZ, y_amount: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -884,12 +882,12 @@ export function proceduralGeneration(m = 20,
                             embellishments(carpetStyle, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material)
 
 
-                            addDoor(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                            addDoor(matrix, lastRoom.x + Math.floor(lastRoom.y_amount / 2),
                                 lastRoom.y + lastRoom.width - 1,
                                 lastRoom.z, material);
 
 
-                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
+                            lastRoom = {x: newX, y: newY, z: newZ, y_amount: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -905,12 +903,12 @@ export function proceduralGeneration(m = 20,
                             embellishments(carpetStyle, windowStyle, matrix, newX, newY, newZ, newLength, newWidth, newDepth, material)
 
 
-                            addDoor(matrix, lastRoom.x + Math.floor(lastRoom.length / 2),
+                            addDoor(matrix, lastRoom.x + Math.floor(lastRoom.y_amount / 2),
                                 lastRoom.y,
                                 lastRoom.z, material);
 
 
-                            lastRoom = {x: newX, y: newY, z: newZ, length: newLength, width: newWidth, depth: newDepth};
+                            lastRoom = {x: newX, y: newY, z: newZ, y_amount: newLength, width: newWidth, depth: newDepth};
                             roomPlaced = true;
                             placedRooms++;
                             break;
@@ -978,7 +976,7 @@ function printMatrix(matrix) {
  */
 function matrixToBlueprint(matrix, startCoord) {
     // Validate inputs
-    if (!Array.isArray(matrix) || !Array.isArray(startCoord) || startCoord.length !== 3) {
+    if (!Array.isArray(matrix) || !Array.isArray(startCoord) || startCoord.y_amount !== 3) {
         console.log(matrix)
         throw new Error('Invalid input format');
     }
@@ -1002,6 +1000,85 @@ function matrixToBlueprint(matrix, startCoord) {
         }))
     };
 }
+
+async function getBlockName(bot, coordinate) {
+    const blockAtLocation = bot.blockAt(new Vec3(coordinate.x, coordinate.y, coordinate.z));
+    const blockName = blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : "air";
+    return blockName;
+}
+
+/**
+ * Converts a world location to a blueprint. takes some time to ensure that the chunks are loaded before conversion.
+ * @param startCoord - [x,y,z] that signifies the start of the blueprint
+ * @param y_amount - how many spaces you want to register from the start coordinate in the y dimension
+ * @param x_amount - how many spaces in the x direction on minecraft
+ * @param z_amount - how many spaces from the start coordinate in the z direction in minecraft
+ * @param bot - the mineflayer agent (ex. andy)
+ * @returns - a Blueprint object of the converted blueprint
+ */
+export async function worldToBlueprint(startCoord, y_amount, x_amount, z_amount, bot) {
+    await bot.waitForChunksToLoad();
+
+    const materials = {};
+
+    const levels = [];
+    for (let y = 0; y < y_amount; y++) {
+        const placement = [];
+        const coordinates = [startCoord.x, startCoord.y + y, startCoord.z];
+        for (let z = 0; z < z_amount; z++) {
+            const row = [];
+            for (let x = 0; x < x_amount; x++) {
+                const worldCoord = {
+                    x: startCoord.x + x,
+                    y: startCoord.y + y,
+                    z: startCoord.z + z
+                };
+                await bot.waitForChunksToLoad(worldCoord);
+                const blockName = await getBlockName(bot, worldCoord);
+                row.push(blockName);
+                if (blockName !== 'air') {
+                    materials[blockName] = (materials[blockName] || 0) + 1;
+                }
+            }
+            placement.push(row);
+        }
+        levels.push({
+            level: y,
+            coordinates: coordinates,
+            placement: placement
+        })
+    }
+    console.log(levels);
+    const blueprint_data = {
+        materials: materials,
+        levels: levels
+    }
+    return blueprint_data
+}
+
+export function blueprintToTask(blueprint_data, num_agents) {
+    let initialInventory = {}
+    for (let j = 0; j < num_agents; j++) {
+        initialInventory[JSON.stringify(j)] = {};
+    }
+
+    let give_agent = 0;
+    for (const key of Object.keys(blueprint_data.materials)) {
+        initialInventory[JSON.stringify(give_agent)][key] = blueprint_data.materials[key];
+        give_agent = (give_agent + 1) % num_agents;
+    }
+
+    const task = {
+        type: "construction",
+        goal: "Make a house with the blueprint below",
+        conversation: "Let's share materials and make a house with the blueprint",
+        agent_count: 2,
+        blueprint: blueprint_data,
+        initial_inventory: initialInventory,
+    };
+    return task;
+}
+
 
 
 
