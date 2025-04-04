@@ -19,7 +19,7 @@
           "level": 0,
           "coordinates": [
             -18,
-            1,
+            -60,
             30
           ],
           "placement": [
@@ -109,7 +109,7 @@
           "level": 1,
           "coordinates": [
             -18,
-            2,
+            -60,
             30
           ],
           "placement": [
@@ -199,7 +199,7 @@
           "level": 2,
           "coordinates": [
             -18,
-            3,
+            -60,
             30
           ],
           "placement": [
@@ -289,7 +289,7 @@
           "level": 3,
           "coordinates": [
             -18,
-            4,
+            -60,
             30
           ],
           "placement": [
@@ -379,7 +379,7 @@
           "level": 4,
           "coordinates": [
             -18,
-            5,
+            -60,
             30
           ],
           "placement": [
@@ -469,7 +469,7 @@
           "level": 5,
           "coordinates": [
             -18,
-            6,
+            -60,
             30
           ],
           "placement": [
@@ -559,7 +559,7 @@
           "level": 6,
           "coordinates": [
             -18,
-            7,
+            -60,
             30
           ],
           "placement": [
@@ -649,7 +649,7 @@
           "level": 7,
           "coordinates": [
             -18,
-            8,
+            -60,
             30
           ],
           "placement": [
@@ -739,7 +739,7 @@
           "level": 8,
           "coordinates": [
             -18,
-            9,
+            -60,
             30
           ],
           "placement": [
@@ -829,7 +829,7 @@
           "level": 9,
           "coordinates": [
             -18,
-            10,
+            -60,
             30
           ],
           "placement": [
