@@ -12,6 +12,7 @@ const bot = mineflayer.createBot({
 
 bot.on('spawn', async () => {
     console.log("Bot spawned. Starting blueprint check...");
+    // set this to be minX, minY, minZ
     const startCoord = {
         x: -60, 
         y: 1, 
