@@ -333,6 +333,12 @@ export class Task {
                 }
         }
 
+        if (this.task_type === 'techtree') {
+            if (this.data.agent_count > 2) {
+                add_string = '\nMake sure to share resources among all agents and to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.'
+            }
+        }
+
         // If goal is a string, all agents share the same goal
         if (typeof this.data.goal === 'string') {
             return this.data.goal + add_string;
