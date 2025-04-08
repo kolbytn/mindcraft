@@ -37,7 +37,7 @@ export default
 
     "allow_insecure_coding": process.env.INSECURE_CODING || false, // allows newAction command and model can write/run code on your computer. enable at own risk
     "blocked_actions" : process.env.BLOCKED_ACTIONS || [] , // commands to disable and remove from docs. Ex: ["!setMode"]
-    "blocked_actions" : process.env.BLOCKED_ACTIONS || ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"] , // commands to disable and remove from docs. Ex: ["!setMode"]
+    // "blocked_actions" : process.env.BLOCKED_ACTIONS || ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"] , // commands to disable and remove from docs. Ex: ["!setMode"]
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
     "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
