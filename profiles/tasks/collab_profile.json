@@ -42,6 +42,30 @@
             {"role": "assistant", "content": "Hmm, seems like we don't have enough to craft a cyan bed. Let me reach out to the third agent and ask for help! !startConversation(\"jacob\", Hey jacob, can you help us craft a cyan bed? We need cyan_dye and oak_planks.)"},
             {"role": "user", "content": "jacob: (FROM OTHER BOT) Sure! Let me give those to you !givePlayer(\"andy\", \"cyan_dye\", 1) !givePlayer(\"andy\", \"oak_planks\", 1)"},
             {"role": "assistant", "content": "Thanks for the items, now I can craft the cyan bed. !craftItem(\"cyan_bed\", 1)"}
+        ],
+        [
+            {"role": "user", "content": "maya: (FROM OTHER BOT) Let's work together to craft an ender_chest!"},
+            {"role": "assistant", "content": "Sounds good! Let me check what I have. !inventory\nI have 2 obsidian and 1 ender_eye. What do you have?"},
+            {"role": "user", "content": "maya: (FROM OTHER BOT) I have 4 obsidian. !inventory"},
+            {"role": "assistant", "content": "Great! Let's see if we need more materials. !getCraftingPlan(\"ender_chest\", 1)"},
+            {"role": "system", "content": "To craft 1 ender_chest, you need:\n- 8 obsidian\n- 1 ender_eye\n\nCraft 8 obsidian + 1 ender_eye -> 1 ender_chest"},
+            {"role": "assistant", "content": "We need 8 obsidian total and 1 ender_eye. Between us we have 6 obsidian and 1 ender_eye. Let's ask lucas if he has the remaining obsidian! !startConversation(\"lucas\", \"Hey lucas, we're trying to craft an ender_chest. We need 2 more obsidian. Do you have any?\")"},
+            {"role": "user", "content": "lucas: (FROM OTHER BOT) Yes, I have exactly 2 obsidian! I'll give them to you. !givePlayer(\"andy\", \"obsidian\", 2)"},
+            {"role": "assistant", "content": "Perfect! Maya, can you send me your 4 obsidian as well?"},
+            {"role": "user", "content": "maya: (FROM OTHER BOT) Sure thing! !givePlayer(\"andy\", \"obsidian\", 4)"},
+            {"role": "assistant", "content": "Thanks both of you! Now I have everything I need. !craftItem(\"ender_chest\", 1)"}
+        ],
+        [
+            {"role": "user", "content": "finn: (FROM OTHER BOT) Hey everyone, let's craft a hopper together!"},
+            {"role": "assistant", "content": "I'm in! Let me check what I have first. !inventory\nI have 3 iron_ingot and 2 oak_planks. What about you?"},
+            {"role": "user", "content": "finn: (FROM OTHER BOT) I have 1 iron_ingot and 4 oak_planks. !inventory"},
+            {"role": "assistant", "content": "Let me see what we need for a hopper. !getCraftingPlan(\"hopper\", 1)"},
+            {"role": "system", "content": "To craft 1 hopper, you need:\n- 5 iron_ingot\n- 1 chest\n\nTo craft 1 chest, you need:\n- 8 oak_planks\n\nYour crafting plan:\nCraft 8 oak_planks -> 1 chest\nCraft 5 iron_ingot + 1 chest -> 1 hopper"},
+            {"role": "assistant", "content": "We need 5 iron_ingot total and 8 oak_planks to make a chest first. Together we have 4 iron_ingot and 6 oak_planks. Let's see if zoe has the rest! !startConversation(\"zoe\", \"Hey zoe, we're making a hopper. We need 1 more iron_ingot and 2 more oak_planks. Can you help?\")"},
+            {"role": "user", "content": "zoe: (FROM OTHER BOT) I have exactly what you need! 1 iron_ingot and 2 oak_planks. !givePlayer(\"andy\", \"iron_ingot\", 1) !givePlayer(\"andy\", \"oak_planks\", 2)"},
+            {"role": "assistant", "content": "Thanks zoe! Finn, can you send me your materials too?"},
+            {"role": "user", "content": "finn: (FROM OTHER BOT) Here you go! !givePlayer(\"andy\", \"iron_ingot\", 1) !givePlayer(\"andy\", \"oak_planks\", 4)"},
+            {"role": "assistant", "content": "Perfect! Now I'll craft the chest first, then the hopper. !craftItem(\"chest\", 1) !craftItem(\"hopper\", 1)"}
         ]
     ]
 }
