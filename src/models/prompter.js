@@ -18,6 +18,8 @@ import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
+import { Hyperbolic } from './hyperbolic.js';
+import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 import { VLLM } from './vllm.js';
 import { promises as fs } from 'fs';
@@ -47,7 +49,6 @@ export class Prompter {
         }
         // base overrides default, individual overrides base
 
-
         this.convo_examples = null;
         this.coding_examples = null;
         
@@ -70,6 +71,14 @@ export class Prompter {
         }
         else {
             this.code_model = this.chat_model;
+        }
+
+        if (this.profile.vision_model) {
+            let vision_model_profile = this._selectAPI(this.profile.vision_model);
+            this.vision_model = this._createModel(vision_model_profile);
+        }
+        else {
+            this.vision_model = this.chat_model;
         }
 
         let embedding = this.profile.embedding;
@@ -127,10 +136,12 @@ export class Prompter {
             profile = {model: profile};
         }
         if (!profile.api) {
-            if (profile.model.includes('gemini'))
+            if (profile.model.includes('openrouter/'))
+                profile.api = 'openrouter'; // must do first because shares names with other models
+            else if (profile.model.includes('ollama/'))
+                profile.api = 'ollama'; // also must do early because shares names with other models
+            else if (profile.model.includes('gemini'))
                 profile.api = 'google';
-            else if (profile.model.includes('openrouter/'))
-                profile.api = 'openrouter'; // must do before others bc shares model names
             else if (profile.model.includes('vllm/'))
                 profile.api = 'vllm';
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
@@ -145,6 +156,10 @@ export class Prompter {
                 model_profile.api = 'mistral';
             else if (profile.model.includes("groq/") || profile.model.includes("groqcloud/"))
                 profile.api = 'groq';
+            else if (profile.model.includes("glhf/"))
+                profile.api = 'glhf';
+            else if (profile.model.includes("hyperbolic/"))
+                profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
             else if (profile.model.includes('qwen'))
@@ -152,17 +167,14 @@ export class Prompter {
             else if (profile.model.includes('grok'))
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
-                profile.api = 'deepseek';     
-	    else if (profile.model.includes('mistral'))
+                profile.api = 'deepseek';
+	        else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
-            else if (profile.model.includes('llama3'))
-                profile.api = 'ollama';
             else 
                 throw new Error('Unknown model:', profile.model);
         }
         return profile;
     }
-
     _createModel(profile) {
         let model = null;
         if (profile.api === 'google')
@@ -174,13 +186,17 @@ export class Prompter {
         else if (profile.api === 'replicate')
             model = new ReplicateAPI(profile.model.replace('replicate/', ''), profile.url, profile.params);
         else if (profile.api === 'ollama')
-            model = new Local(profile.model, profile.url, profile.params);
+            model = new Local(profile.model.replace('ollama/', ''), profile.url, profile.params);
         else if (profile.api === 'mistral')
             model = new Mistral(profile.model, profile.url, profile.params);
         else if (profile.api === 'groq')
             model = new GroqCloudAPI(profile.model.replace('groq/', '').replace('groqcloud/', ''), profile.url, profile.params);
         else if (profile.api === 'huggingface')
             model = new HuggingFace(profile.model, profile.url, profile.params);
+        else if (profile.api === 'glhf')
+            model = new GLHF(profile.model.replace('glhf/', ''), profile.url, profile.params);
+        else if (profile.api === 'hyperbolic')
+            model = new Hyperbolic(profile.model.replace('hyperbolic/', ''), profile.url, profile.params);
         else if (profile.api === 'novita')
             model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
         else if (profile.api === 'qwen')
@@ -197,7 +213,6 @@ export class Prompter {
             throw new Error('Unknown API:', profile.api);
         return model;
     }
-
     getName() {
         return this.profile.name;
     }
@@ -395,6 +410,13 @@ export class Prompter {
         prompt = await this.replaceStrings(prompt, null, null, messages);
         let res = await this.chat_model.sendRequest([], prompt);
         return res.trim().toLowerCase() === 'respond';
+    }
+
+    async promptVision(messages, imageBuffer) {
+        await this.checkCooldown();
+        let prompt = this.profile.image_analysis;
+        prompt = await this.replaceStrings(prompt, messages, null, null, null);
+        return await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
     }
 
     async promptGoalSetting(messages, last_goals) {

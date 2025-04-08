@@ -32,13 +32,22 @@ export const actionsList = [
         params: {
             'prompt': { type: 'string', description: 'A natural language prompt to guide code generation. Make a detailed step-by-step plan.' }
         },
-        perform: async function (agent, prompt) {
+        perform: async function(agent, prompt) {
             // just ignore prompt - it is now in context in chat history
             if (!settings.allow_insecure_coding) { 
                 agent.openChat('newAction is disabled. Enable with allow_insecure_coding=true in settings.js');
-                return 'newAction not allowed! Code writing is disabled in settings. Notify the user.';
-             }
-            return await agent.coder.generateCode(agent.history);
+                return "newAction not allowed! Code writing is disabled in settings. Notify the user.";
+            }
+            let result = "";
+            const actionFn = async () => {
+                try {
+                    result = await agent.coder.generateCode(agent.history);
+                } catch (e) {
+                    result = 'Error generating code: ' + e.toString();
+                }
+            };
+            await agent.actions.runAction('action:newAction', actionFn);
+            return result;
         }
     },
     {
@@ -87,7 +96,7 @@ export const actionsList = [
             'closeness': {type: 'float', description: 'How close to get to the player.', domain: [0, Infinity]}
         },
         perform: runAsAction(async (agent, player_name, closeness) => {
-            return await skills.goToPlayer(agent.bot, player_name, closeness);
+            await skills.goToPlayer(agent.bot, player_name, closeness);
         })
     },
     {
@@ -407,18 +416,52 @@ export const actionsList = [
             convoManager.endConversation(player_name);
             return `Converstaion with ${player_name} ended.`;
         }
-    }, 
-    // { // commented for now, causes confusion with goal command
-    //     name: '!npcGoal',
-    //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',
-    //     params: {
-    //         'name': { type: 'string', description: 'The name of the goal to set. Can be item or building name. If empty will automatically choose a goal.' },
-    //         'quantity': { type: 'int', description: 'The quantity of the goal to set. Default is 1.', domain: [1, Number.MAX_SAFE_INTEGER] }
-    //     },
-    //     perform: async function (agent, name=null, quantity=1) {
-    //         await agent.npc.setGoal(name, quantity);
-    //         agent.bot.emit('idle');  // to trigger the goal
-    //         return 'Set npc goal: ' + agent.npc.data.curr_goal.name;
-    //     }
-    // },
+    },
+    {
+        name: '!lookAtPlayer',
+        description: 'Look at a player or look in the same direction as the player.',
+        params: {
+            'player_name': { type: 'string', description: 'Name of the target player' },
+            'direction': {
+                type: 'string',
+                description: 'How to look ("at": look at the player, "with": look in the same direction as the player)',
+            }
+        },
+        perform: async function(agent, player_name, direction) {
+            if (direction !== 'at' && direction !== 'with') {
+                return "Invalid direction. Use 'at' or 'with'.";
+            }
+            let result = "";
+            const actionFn = async () => {
+                result = await agent.vision_interpreter.lookAtPlayer(player_name, direction);
+            };
+            await agent.actions.runAction('action:lookAtPlayer', actionFn);
+            return result;
+        }
+    },
+    {
+        name: '!lookAtPosition',
+        description: 'Look at specified coordinates.',
+        params: {
+            'x': { type: 'int', description: 'x coordinate' },
+            'y': { type: 'int', description: 'y coordinate' },
+            'z': { type: 'int', description: 'z coordinate' }
+        },
+        perform: async function(agent, x, y, z) {
+            let result = "";
+            const actionFn = async () => {
+                result = await agent.vision_interpreter.lookAtPosition(x, y, z);
+            };
+            await agent.actions.runAction('action:lookAtPosition', actionFn);
+            return result;
+        }
+    },
+    {
+        name: '!digDown',
+        description: 'Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.',
+        params: {'distance': { type: 'int', description: 'Distance to dig down', domain: [1, Number.MAX_SAFE_INTEGER] }},
+        perform: runAsAction(async (agent, distance) => {
+            await skills.digDown(agent.bot, distance)
+        })
+    },
 ];
