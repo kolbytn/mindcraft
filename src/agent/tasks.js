@@ -551,6 +551,7 @@ export class Task {
         if (this.data.type === 'construction'){
             //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
             if (this.blueprint){
+                console.log('Cleaning out construction blueprint');
                 const result = this.blueprint.autoDelete();
                 const commands = result.commands;
                 const nearbyPosition = result.nearbyPosition;
