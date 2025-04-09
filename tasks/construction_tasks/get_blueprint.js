@@ -23,23 +23,24 @@ bot.on('spawn', async () => {
     const xOffset = 10;
     const zOffset = 10;
 
-    const taskFilePath = '/Users/isadorawhite/izzy_mindcraft/mindcraft/tasks/construction_tasks/custom/pyramid.json';
-    const task_name = "pyramid";
+    const taskFilePath = '/Users/isadorawhite/izzy_mindcraft/mindcraft/tasks/construction_tasks/custom/pyramid_three_agents.json';
+    const task_name = "pyramid_three_agents";
     
 
     setTimeout(async () => {
         let task_blueprint = await worldToBlueprint(startCoord, yOffset, xOffset, zOffset, bot);
 
-        for (const level of task_blueprint.levels) {
+        for (let i = 0; i < task_blueprint.levels.length; i++) {
             // Perform operations on each level
+            const level = task_blueprint.levels[i];
             console.log("Level coordinates:", level.coordinates);
-            const new_coordinates = [level.coordinates[0], -60, level.coordinates[2]];
+            const new_coordinates = [level.coordinates[0], -60 + i, level.coordinates[2]];
             level.coordinates = new_coordinates;
             console.log("New coordinates:", level.coordinates);
         }
         console.log("Blueprint generated:", task_blueprint.levels[0].coordinates);
 
-        const task = blueprintToTask(task_blueprint, 2);
+        const task = blueprintToTask(task_blueprint, 3);
         const task_collection = {}
         task_collection[task_name] = task;
 
