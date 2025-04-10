@@ -187,13 +187,15 @@
         function getProfilesFromPath() {
             socket.emit('get-profile-dir', (response) => {
                 pathProfiles = response;
-                console.log(response);
             })
         }
 
         function toggleSettings() {
             document.getElementById("settingsContainer").style.display = document.getElementById("settingsContainer").style.display === "none" ? "block" : "none";
             document.getElementById("settingsToggler").innerText = document.getElementById("settingsToggler").innerText === "Show Settings" ? "Hide Settings" : "Show Settings";
+            if (document.getElementById("settingsContainer").style.display = "block") {
+                getSettings();
+            }
         }
 
         let settings;
@@ -226,13 +228,18 @@
                         const item = Array.from(list.querySelectorAll('.list-item'))
                             .find(item => item.querySelector('input[type="text"]').value === element);
                         if (item) {
-                            console.log(`Setting this to ${enabled}: `)
                             const checkbox = item.querySelector('input[type="checkbox"]');
-                            console.log(checkbox)
-                            console.log(checkbox.checked)
+                            console.log(`Setting this to ${enabled}: `, checkbox);
+                            console.log("Checkbox in DOM?", document.body.contains(checkbox));
+                            console.log("Before: ", checkbox.checked);
                             checkbox.checked = enabled;
-                            console.log("After: ")
-                            console.log(checkbox.checked)
+                            console.log("After: ", checkbox.checked);
+                            const itemName = item.querySelector('.name');
+                            if (checkbox.checked) {
+                                itemName.classList.remove('not-selected');
+                            } else {
+                                itemName.classList.add('not-selected');
+                            }
                         } else {
                             addProfileItem(listId, element, enabled);
                         }
@@ -287,10 +294,9 @@
                 if (pathProfiles !== undefined) {
                     clearInterval(intervalId);
                     updateListItem("mcProfileList", pathProfiles, enabled=false);
+                    updateListItem("mcProfileList", settings["profiles"], enabled=true, clear = false);
                 }
             }, 50);
-            updateListItem("mcProfileList", settings["profiles"], enabled=true, clear = false);
-            console.log(`updated with ${settings["profiles"]}`);
         }
 
         function getNewSettings() {
@@ -374,9 +380,6 @@
                 .map(item => item.querySelector('input[type="text"]').value);
             return names;
         }
-
-
-        getSettings();
     </script>
 </body>
 </html>

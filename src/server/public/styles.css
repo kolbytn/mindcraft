@@ -69,6 +69,7 @@ code {
 
 .list-item .name.not-selected {
     text-decoration: line-through;
+    color: #929292
 }
 
 .agent {
