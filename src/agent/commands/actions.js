@@ -31,13 +31,22 @@ export const actionsList = [
         params: {
             'prompt': { type: 'string', description: 'A natural language prompt to guide code generation. Make a detailed step-by-step plan.' }
         },
-        perform: async function (agent, prompt) {
+        perform: async function(agent, prompt) {
             // just ignore prompt - it is now in context in chat history
             if (!settings.allow_insecure_coding) { 
                 agent.openChat('newAction is disabled. Enable with allow_insecure_coding=true in settings.js');
-                return 'newAction not allowed! Code writing is disabled in settings. Notify the user.';
-             }
-            return await agent.coder.generateCode(agent.history);
+                return "newAction not allowed! Code writing is disabled in settings. Notify the user.";
+            }
+            let result = "";
+            const actionFn = async () => {
+                try {
+                    result = await agent.coder.generateCode(agent.history);
+                } catch (e) {
+                    result = 'Error generating code: ' + e.toString();
+                }
+            };
+            await agent.actions.runAction('action:newAction', actionFn);
+            return result;
         }
     },
     {
@@ -86,7 +95,7 @@ export const actionsList = [
             'closeness': {type: 'float', description: 'How close to get to the player.', domain: [0, Infinity]}
         },
         perform: runAsAction(async (agent, player_name, closeness) => {
-            return await skills.goToPlayer(agent.bot, player_name, closeness);
+            await skills.goToPlayer(agent.bot, player_name, closeness);
         })
     },
     {

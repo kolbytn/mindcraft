@@ -582,12 +582,18 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
      * await skills.placeBlock(bot, "oak_log", p.x + 2, p.y, p.x);
      * await skills.placeBlock(bot, "torch", p.x + 1, p.y, p.x, 'side');
      **/
-    if (!mc.getBlockId(blockType)) {
+    if (!mc.getBlockId(blockType) && blockType !== 'air') {
         log(bot, `Invalid block type: ${blockType}.`);
         return false;
     }
 
     const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
+
+    if (blockType === 'air') {
+        log(bot, `Placing air (removing block) at ${target_dest}.`);
+        return await breakBlockAt(bot, x, y, z);
+    }
+
     if (bot.modes.isOn('cheat') && !dontCheat) {
         if (bot.restrict_to_inventory) {
             let block = bot.inventory.items().find(item => item.name === blockType);

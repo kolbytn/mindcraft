@@ -242,13 +242,13 @@ export class Agent {
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
         
-        let behavior_log = this.bot.modes.flushBehaviorLog();
-        if (behavior_log.trim().length > 0) {
+        let behavior_log = this.bot.modes.flushBehaviorLog().trim();
+        if (behavior_log.length > 0) {
             const MAX_LOG = 500;
             if (behavior_log.length > MAX_LOG) {
                 behavior_log = '...' + behavior_log.substring(behavior_log.length - MAX_LOG);
             }
-            behavior_log = 'Recent behaviors log: \n' + behavior_log.substring(behavior_log.indexOf('\n'));
+            behavior_log = 'Recent behaviors log: \n' + behavior_log;
             await this.history.add('system', behavior_log);
         }
 
@@ -459,7 +459,7 @@ export class Agent {
     }
 
     isIdle() {
-        return !this.actions.executing && !this.coder.generating;
+        return !this.actions.executing;
     }
     
     cleanKill(msg='Killing agent process...', code=1) {

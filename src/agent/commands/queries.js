@@ -239,7 +239,7 @@ export const queryList = [
                 return divContent.trim();
               } catch (error) {
                 console.error("Error fetching or parsing HTML:", error);
-                return `The following error occured: ${error}`
+                return `The following error occurred: ${error}`
               }
         }
     },
