@@ -14,17 +14,17 @@ bot.on('spawn', async () => {
     console.log("Bot spawned. Starting blueprint check...");
     // set this to be minX, minY, minZ
     const startCoord = {
-        x: -60, 
+        x: -124, 
         y: 1, 
-        z: 6,
+        z: 133,
     }
     bot.chat(`/tp andy ${startCoord.x} ${startCoord.y} ${startCoord.z}`);
-    const yOffset = 5;
-    const xOffset = 10;
-    const zOffset = 10;
+    const yOffset = 2;
+    const xOffset = 30;
+    const zOffset = 20;
 
-    const taskFilePath = '/Users/isadorawhite/izzy_mindcraft/mindcraft/tasks/construction_tasks/custom/pyramid_three_agents.json';
-    const task_name = "pyramid_three_agents";
+    const taskFilePath = '/Users/isadorawhite/izzy_mindcraft/mindcraft/tasks/construction_tasks/custom/flower_three_agents.json';
+    const task_name = "flower_three_agents";
     
 
     setTimeout(async () => {
