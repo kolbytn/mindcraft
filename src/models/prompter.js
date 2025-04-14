@@ -264,10 +264,11 @@ export class Prompter {
         if (prompt.includes('$EXAMPLES') && examples !== null)
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY')){
-            console.log('++++++++++++++++++++++++++FOR YOU DEBUGGING+++++++++++++++++++++++++++++++++++++++++');
-            console.log('MEMORY', this.agent.history.getMemories());
-            console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
-            prompt = prompt.replaceAll('$MEMORY', this.agent.history.getMemories());
+            
+            prompt = prompt.replaceAll('$MEMORY', await this.agent.history.getMemories(messages));
+            // console.log('++++++++++++++++++++++++++[src/models/prompter.js] $MEMORY prompt +++++++++++++++++++++++++++++++++++++++++'); 
+            // console.log("[src/models/prompter.js] prompt: \n", prompt);
+            // console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^[src/models/prompter.js] $MEMORY prompt ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'); 
         }
         if (prompt.includes('$TO_SUMMARIZE'))
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
@@ -357,12 +358,12 @@ export class Prompter {
     async promptMemSaving(to_summarize) {
         await this.checkCooldown();
         let prompt = this.profile.saving_memory;
-        console.log('++++++++++++++++++++++++++FOR YOU DEBUGGING+++++++++++++++++++++++++++++++++++++++++');
-        console.log('to_summarize', to_summarize);
-        console.log('promptMemSaving', prompt);
-        prompt = await this.replaceStrings(prompt, null, null, to_summarize);
-        console.log('prompt', prompt);
-        console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+        console.log('++++++++++++++++++++++++++[src/models/prompter.js] promptMemSaving +++++++++++++++++++++++++++++++++++++++++');
+        console.log('[src/models/prompter.js] to_summarize:\n', to_summarize);
+        let messages = to_summarize;
+        prompt = await this.replaceStrings(prompt, messages, null, to_summarize);
+        console.log('[src/models/prompter.js] prompt:\n', prompt);
+        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^[src/models/prompter.js] promptMemSaving ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
         return await this.chat_model.sendRequest([], prompt);
     }
 

@@ -1,4 +1,4 @@
-import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync, appendFileSync } from 'fs';
 import { NPCData } from './npc/data.js';
 import settings from '../../settings.js';
 import { cosineSimilarity } from '../utils/math.js';
@@ -33,7 +33,7 @@ export class History {
     getHistory() { // expects an Examples object
         return JSON.parse(JSON.stringify(this.turns));
     }
-    
+
     turnsToText(turns) {
         if(turns === undefined || turns.length === 0)
             return '';
@@ -51,43 +51,48 @@ export class History {
         // 获取相关记忆
         const relevantMemories = await this.getRelevant(messages);
         
+        // 创建表格头部，添加类型列
+        const tableHeader = '| Memory ID | Type | Time(ago) | Content |\n| --- | --- | --- | --- |';
+        
         // 处理每条记忆
-        const formattedMemories = relevantMemories.map((item, index) => {
-            // 添加记忆ID
-            const memId = String(index + 1).padStart(2, '0');
+        const formattedMemories = relevantMemories.map((item) => {
+            const memId = item.id;
+            const memoryType = item.memory_type || 'event'; // 默认为事件类型
             
-            // 计算时间差异
-            const now = new Date();
-            const timestamp = new Date(item.message_timeframe.latest);
-            const diffMs = now - timestamp;
+            // 计算时间差异，仅对event类型显示时间
+            let timeDisplay = '';
+            if (typeof memoryType === 'string' && memoryType.toLowerCase() === 'event') {
+                const now = new Date();
+                const timestamp = new Date(item.message_timeframe.latest);
+                const diffMs = now - timestamp;
+                timeDisplay = this.formatTimeDifference(diffMs);
+            } else {
+                // 对knowledge类型，不显示时间
+                timeDisplay = '-';
+            }
             
-            // 构建时间显示字符串
-            const timeDisplay = this.formatTimeDifference(diffMs);
-            
-            // 返回格式化的记忆字符串
-            return `[mem_id:${memId}] [${timeDisplay} ago] ${item.memory}`;
+            // 返回格式化的表格行
+            const safeMemory = item.memory.replace(/\|/g, '\\|');
+            return `| ${memId} | ${memoryType} | ${timeDisplay} | ${safeMemory} |`;
         });
         
-        // 合并所有记忆并返回
-        return formattedMemories.join('\n');
+        // 合并表格头部和内容并返回
+        return tableHeader + '\n' + formattedMemories.join('\n');
     }
 
-    // 辅助方法：格式化时间差异
+    // 辅助方法：格式化时间差异，简化版本
     formatTimeDifference(diffMs) {
         const hours = Math.floor(diffMs / (1000 * 60 * 60));
         const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
         
-        let timeDisplay = [];
         if (hours > 0) {
-            timeDisplay.push(`${hours}${hours === 1 ? 'hr' : 'hrs'}`);
-            if (minutes > 0) timeDisplay.push(`${minutes}${minutes === 1 ? 'min' : 'mins'}`);
+            return `${hours}h${minutes}m`;
+        } else if (minutes > 0) {
+            return `${minutes}m`;
         } else {
-            if (minutes > 0) timeDisplay.push(`${minutes}${minutes === 1 ? 'min' : 'mins'}`);
-            timeDisplay.push(`${seconds}${seconds === 1 ? 'sec' : 'secs'}`);
+            return `${seconds}s`;
         }
-        
-        return timeDisplay.join(' ');
     }
 
     // Get current formatted timestamp
@@ -117,7 +122,8 @@ export class History {
             try {
                 // Parse the JSON content
                 const jsonContent = JSON.parse(match[1]);
-                
+                 // 记录原始LLM响应
+                this.logOperation('raw_llm_response', jsonContent);
                 // Look for newMem operation (case insensitive)
                 if (jsonContent.operations) {
                     for (const op of jsonContent.operations) {
@@ -126,9 +132,9 @@ export class History {
                             op.params && op.params.memory) {
                             // Use this as our memory content
                             result.memory = op.params.memory;
-                            console.log('-------------------------------- extractJsonOperations --------------------------------');
-                            console.log('result.memory', result.memory);
-                            console.log('-------------------------------- extractJsonOperations --------------------------------');
+                            console.log('++++++++++++++++++++++++++[src/agent/history.js] extractJsonOperations +++++++++++++++++++++++++++++++++++++++++');
+                            console.log("[src/agent/history.js] extractJsonOperations: \n", result.memory);
+                            console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^[src/agent/history.js] extractJsonOperations ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
                             result.operations = jsonContent;
                             break;
                         }
@@ -143,74 +149,72 @@ export class History {
         return result;
     }
 
+    // 添加新的辅助方法：生成6位Base36编码的ID
+    generateMemoryId(timestamp) {
+        // 将ISO时间字符串转换为Unix时间戳（秒）
+        const unixTime = Math.floor(new Date(timestamp).getTime() / 1000);
+        
+        // 转换为Base36并取后6位
+        const base36 = unixTime.toString(36);
+        const id = base36.slice(-6).padStart(6, '0');
+        
+        return id;
+    }
+
     async summarizeMemories(turns, triggerType = 'auto') {
         console.log("Storing memories...");
         
         // Get memory summary from the prompter
         let rawResponse = await this.agent.prompter.promptMemSaving(turns);
         
-        console.log("===========================");
-        console.log(rawResponse);
-        console.log("===========================");
+        console.log('++++++++++++++++++++++++++[src/agent/history.js] summarizeMemories +++++++++++++++++++++++++++++++++++++++++');
+        console.log("[src/agent/history.js] rawResponse: \n", rawResponse);
+        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^[src/agent/history.js] summarizeMemories ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');       
         
         // Extract JSON operations using our helper function
-        const { memory, operations } = this.extractJsonOperations(rawResponse);
+        const { operations } = this.extractJsonOperations(rawResponse);
         
-        // Truncate if needed
-        let finalMemory = memory;
-        if (finalMemory.length > 500) {
-            finalMemory = finalMemory.slice(0, 500) + '...(Memory truncated to 500 chars)';
+        if (!operations || !operations.operations) {
+            console.warn("No valid operations found in AI response");
+            return null;
         }
 
-        // Get timestamps
-        const timestamp = this.getFormattedTimestamp();
-        
-        // Extract time range from turns (if available)
-        const timeframe = turns.length > 0 
-            ? (() => {
-                const sorted = [...turns].sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
-                return {
-                    earliest: sorted[0].created_at || timestamp,
-                    latest: sorted[sorted.length - 1].created_at || timestamp
-                };
-              })()
-            : { earliest: timestamp, latest: timestamp };
-
-        // Create and store memory entry
-        const entry = {
-            created_at: timestamp,
-            memory: finalMemory,
-            trigger_type: triggerType,
-            message_timeframe: timeframe,
-        };
-        
-        this.memories.push(entry);
-        
-        // Create embedding for new memory if embedding model is available
-        if (this.embedding_model) {
-            try {
-                // Use memory content as the key instead of timestamp
-                this.memory_embeddings[finalMemory] = await this.embedding_model.embed(finalMemory);
-            } catch (error) {
-                console.warn('Error creating embedding for new memory:', error.message);
+        // 执行所有操作
+        const results = [];
+        for (const operation of operations.operations) {
+            const result = await this.executeMemoryOperation(operation);
+            if (result) {
+                results.push(result);
             }
         }
-        
-        console.log(`Memory added: ${timestamp}, type: ${triggerType}`);
-        return entry;
+
+        return results;
     }
 
     async appendFullHistory(to_store) {
         if (this.full_history_fp === undefined) {
             const string_timestamp = new Date().toLocaleString().replace(/[/:]/g, '-').replace(/ /g, '').replace(/,/g, '_');
             this.full_history_fp = `./bots/${this.name}/histories/${string_timestamp}.json`;
+            await new Promise((resolve) => {
             writeFileSync(this.full_history_fp, '[]', 'utf8');
+                resolve();
+            });
         }
         try {
-            const data = readFileSync(this.full_history_fp, 'utf8');
+            const data = await new Promise((resolve, reject) => {
+                try {
+                    const content = readFileSync(this.full_history_fp, 'utf8');
+                    resolve(content);
+                } catch (err) {
+                    reject(err);
+                }
+            });
             let full_history = JSON.parse(data);
             full_history.push(...to_store);
+            await new Promise((resolve) => {
             writeFileSync(this.full_history_fp, JSON.stringify(full_history, null, 4), 'utf8');
+                resolve();
+            });
         } catch (err) {
             console.error(`Error reading ${this.name}'s full history file: ${err.message}`);
         }
@@ -253,7 +257,10 @@ export class History {
                 self_prompt: this.agent.self_prompter.isStopped() ? null : this.agent.self_prompter.prompt,
                 last_sender: this.agent.last_sender
             };
+            await new Promise((resolve) => {
             writeFileSync(this.memory_fp, JSON.stringify(data, null, 2));
+                resolve();
+            });
             console.log('Saved memories to:', this.memory_fp);
         } catch (error) {
             console.error('Failed to save history:', error);
@@ -365,5 +372,225 @@ export class History {
         console.log('// 按相关性排序返回记忆：', turn_text);
         let selected = memoriesCopy.slice(0, this.relevant_memory_size);
         return JSON.parse(JSON.stringify(selected)); // deep copy
+    }
+
+    // 执行记忆操作的主函数
+    async executeMemoryOperation(operation) {
+        const { method, params } = operation;
+        
+        // 记录执行的操作命令
+        this.logOperation('memory_operation', operation);
+        
+        let result = null;
+        let memoriesToMerge = null;
+        
+        switch (method.toLowerCase()) {
+            case 'newmem':
+                result = await this.createMemory(params.memory, 'auto', params.memoryType ? params.memoryType.toLowerCase() : 'event');
+                break;
+            case 'mergemem':
+                // 在合并之前先找到要合并的记忆
+                memoriesToMerge = this.memories.filter(mem => params.mem_ids.includes(mem.id));
+                if (memoriesToMerge.length !== params.mem_ids.length) {
+                    console.warn("Some memory IDs not found");
+                    return null;
+                }
+                // 执行合并操作
+                result = await this.mergeMemories(params.mem_ids, params.mergeResult, params.memoryType ? params.memoryType.toLowerCase() : 'event');
+                // 记录合并操作
+                if (result) {
+                    this.logOperation('merge_memory', result, memoriesToMerge);
+                }
+                break;
+            case 'nomerge':
+                // 记录不需要合并的决定
+                this.logOperation('no_merge_decision', {
+                    message: "AI决定不需要合并记忆",
+                    timestamp: this.getFormattedTimestamp()
+                });
+                return { status: 'success', message: 'No merge needed' };
+            default:
+                console.warn(`Unknown memory operation: ${method}`);
+                this.logOperation('unknown_operation', operation);
+                return null;
+        }
+        
+        // 记录操作结果（除了合并操作，因为合并操作已经单独记录了）
+        if (result && method.toLowerCase() !== 'mergemem') {
+            this.logOperation('operation_result', {
+                operation: method.toLowerCase(),
+                params: params,
+                result: result
+            });
+        }
+        
+        return result;
+    }
+
+    // 创建新记忆
+    async createMemory(memoryContent, triggerType = 'auto', memoryType = 'event') {
+        console.log("Creating new memory...");
+        
+        // Truncate if needed
+        let finalMemory = memoryContent;
+        if (finalMemory.length > 500) {
+            finalMemory = finalMemory.slice(0, 500) + '...(Memory truncated to 500 chars)';
+        }
+
+        // Get timestamps
+        const timestamp = this.getFormattedTimestamp();
+        
+        // 生成记忆ID
+        const memoryId = this.generateMemoryId(timestamp);
+
+        // Create memory entry
+        const entry = {
+            id: memoryId,
+            created_at: timestamp,
+            memory: finalMemory,
+            trigger_type: triggerType,
+            memory_type: typeof memoryType === 'string' ? memoryType.toLowerCase() : 'event',
+            message_timeframe: {
+                earliest: timestamp,
+                latest: timestamp
+            }
+        };
+        
+        this.memories.push(entry);
+        
+        // 记录创建记忆操作
+        this.logOperation('create_memory', entry);
+        
+        // Create embedding for new memory if embedding model is available
+        if (this.embedding_model) {
+            try {
+                this.memory_embeddings[finalMemory] = await this.embedding_model.embed(finalMemory);
+            } catch (error) {
+                console.warn('Error creating embedding for new memory:', error.message);
+            }
+        }
+        
+        console.log(`Memory created: ${timestamp}, id: ${memoryId}, type: ${entry.memory_type}`);
+        return entry;
+    }
+
+    // 合并记忆
+    async mergeMemories(memoryIds, mergedContent, memoryType = 'event') {
+        console.log("Merging memories...", memoryIds);
+        
+        // 处理记忆类型，确保是小写字符串
+        const processedMemoryType = typeof memoryType === 'string' ? memoryType.toLowerCase() : 'event';
+        
+        // 找到要合并的记忆
+        const memoriesToMerge = this.memories.filter(mem => memoryIds.includes(mem.id));
+        const notFoundIds = memoryIds.filter(id => !memoriesToMerge.some(mem => mem.id === id));
+        
+        if (memoriesToMerge.length === 0) {
+            console.warn("No memories found for merging");
+            return null;
+        }
+
+        if (notFoundIds.length > 0) {
+            console.warn(`Some memory IDs not found: ${notFoundIds.join(', ')}`);
+            console.log(`Proceeding with merging ${memoriesToMerge.length} found memories...`);
+        }
+
+        // 获取最早和最晚的时间戳
+        const timeframes = memoriesToMerge.map(mem => mem.message_timeframe);
+        const earliest = timeframes.reduce((min, tf) => 
+            tf.earliest < min ? tf.earliest : min, timeframes[0].earliest);
+        const latest = timeframes.reduce((max, tf) => 
+            tf.latest > max ? tf.latest : max, timeframes[0].latest);
+
+        // 创建新的合并记忆
+        const mergedMemory = await this.createMemory(mergedContent, 'merge', processedMemoryType);
+        
+        // 更新时间范围
+        mergedMemory.message_timeframe = {
+            earliest,
+            latest
+        };
+
+        // 记录哪些ID未找到
+        if (notFoundIds.length > 0) {
+            mergedMemory.merge_info = {
+                attempted_ids: memoryIds,
+                not_found_ids: notFoundIds,
+                merged_ids: memoriesToMerge.map(mem => mem.id)
+            };
+        }
+
+        // 从记忆列表中移除旧记忆
+        this.memories = this.memories.filter(mem => !memoriesToMerge.map(m => m.id).includes(mem.id));
+        
+        // 从embeddings中移除旧记忆
+        memoriesToMerge.forEach(mem => {
+            delete this.memory_embeddings[mem.memory];
+        });
+
+        return mergedMemory;
+    }
+
+    // 用于记录操作日志到文件
+    logOperation(operationType, data, originalData = null) {
+        try {
+            const timestamp = this.getFormattedTimestamp();
+            const logFilePath = `./bots/${this.name}/history_logger.txt`;
+            
+            let logMessage = `\n\n[${timestamp}] ${operationType.toUpperCase()}\n`;
+            logMessage += '-----------------------------------------------------\n';
+            
+            switch (operationType) {
+                case 'raw_llm_response':
+                    logMessage += `LLM返回的原始响应:\n${JSON.stringify(data, null, 2)}\n`;
+                    break;
+                case 'create_memory':
+                    logMessage += `创建新记忆:\n${JSON.stringify(data, null, 2)}\n`;
+                    break;
+                case 'merge_memory':
+                    logMessage += `合并记忆操作:\n`;
+                    logMessage += `原记忆数据:\n${JSON.stringify(originalData, null, 2)}\n\n`;
+                    logMessage += `合并后的记忆:\n${JSON.stringify(data, null, 2)}\n\n`;
+                    logMessage += `内容对照:\n`;
+                    logMessage += `原来:\n${originalData.map(mem => mem.memory).join('\n')}\n`;
+                    logMessage += `合并: ${data.memory}\n`;
+                    break;
+                case 'memory_operation':
+                    logMessage += `执行记忆操作指令:\n${JSON.stringify(data, null, 2)}\n`;
+                    break;
+                case 'operation_result':
+                    logMessage += `操作结果:\n`;
+                    logMessage += `操作类型: ${data.operation}\n`;
+                    logMessage += `参数: ${JSON.stringify(data.params, null, 2)}\n`;
+                    logMessage += `结果: ${JSON.stringify(data.result, null, 2)}\n`;
+                    break;
+                case 'no_merge_decision':
+                    logMessage += `不需要合并记忆的决定:\n`;
+                    logMessage += `时间: ${data.timestamp}\n`;
+                    logMessage += `消息: ${data.message}\n`;
+                    break;
+                case 'unknown_operation':
+                    logMessage += `未知操作类型:\n${JSON.stringify(data, null, 2)}\n`;
+                    break;
+                default:
+                    logMessage += `${operationType}:\n${JSON.stringify(data, null, 2)}\n`;
+                    if (originalData) {
+                        logMessage += `原始数据:\n${JSON.stringify(originalData, null, 2)}\n`;
+                    }
+            }
+            
+            logMessage += '-----------------------------------------------------\n';
+            
+            // 如果文件不存在，创建它
+            if (!existsSync(logFilePath)) {
+                writeFileSync(logFilePath, '', 'utf8');
+            }
+            
+            // 追加日志到文件
+            appendFileSync(logFilePath, logMessage, 'utf8');
+            console.log(`操作日志已写入: ${logFilePath}`);
+        } catch (error) {
+            console.error('写入操作日志失败:', error);
+        }
     }
 }
