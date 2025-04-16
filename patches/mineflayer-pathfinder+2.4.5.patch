@@ -1,20 +1,2829 @@
+diff --git a/node_modules/mineflayer-pathfinder/.gitignore b/node_modules/mineflayer-pathfinder/.gitignore
+new file mode 100644
+index 0000000..7b838ec
+--- /dev/null
++++ b/node_modules/mineflayer-pathfinder/.gitignore
+@@ -0,0 +1,4 @@
++node_modules
++package-lock.json
++yarn.lock
++.vscode
+diff --git a/node_modules/mineflayer-pathfinder/.npmrc b/node_modules/mineflayer-pathfinder/.npmrc
+new file mode 100644
+index 0000000..43c97e7
+--- /dev/null
++++ b/node_modules/mineflayer-pathfinder/.npmrc
+@@ -0,0 +1 @@
++package-lock=false
+diff --git a/node_modules/mineflayer-pathfinder/examples/bench.js b/node_modules/mineflayer-pathfinder/examples/bench.js
+deleted file mode 100644
+index 33d8192..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/bench.js
++++ /dev/null
+@@ -1,35 +0,0 @@
+-// Simple test to evaluate how much time it takes to find a path of 100 blocks
+-
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const { GoalXZ } = require('mineflayer-pathfinder').goals
+-const { performance } = require('perf_hooks')
+-
+-if (process.argv.length > 6) {
+-  console.log('Usage : node bench.js [<host>] [<port>] [<name>] [<password>]')
+-  process.exit(1)
+-}
+-
+-const bot = mineflayer.createBot({
+-  host: process.argv[2] || 'localhost',
+-  port: parseInt(process.argv[3]) || 25565,
+-  username: process.argv[4] || 'bench',
+-  password: process.argv[5]
+-})
+-
+-bot.loadPlugin(pathfinder)
+-
+-bot.on('error', (err) => console.log(err))
+-
+-const createTime = performance.now()
+-bot.once('spawn', () => {
+-  console.log('Spawning took ' + (performance.now() - createTime).toFixed(2) + ' ms.')
+-
+-  const defaultMove = new Movements(bot)
+-  const goal = new GoalXZ(bot.entity.position.x + 100, bot.entity.position.z)
+-  const results = bot.pathfinder.getPathTo(defaultMove, goal, 10000)
+-  console.log('I can get there in ' + results.path.length + ' moves. Computation took ' + results.time.toFixed(2) + ' ms.')
+-
+-  bot.quit()
+-  process.exit()
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/blockInteraction.js b/node_modules/mineflayer-pathfinder/examples/blockInteraction.js
+deleted file mode 100644
+index b642f7e..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/blockInteraction.js
++++ /dev/null
+@@ -1,151 +0,0 @@
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const { GoalNear, GoalBlock, GoalXZ, GoalY, GoalFollow, GoalPlaceBlock, GoalLookAtBlock } = require('mineflayer-pathfinder').goals
+-const Vec3 = require('vec3').Vec3
+-
+-if (process.argv.length > 6) {
+-  console.log('Usage : node blockInteraction.js [<host>] [<port>] [<name>] [<password>]')
+-  process.exit(1)
+-}
+-
+-const bot = mineflayer.createBot({
+-  host: process.argv[2] || 'localhost',
+-  port: parseInt(process.argv[3]) || 25565,
+-  username: process.argv[4] || 'blockPlacer',
+-  password: process.argv[5]
+-})
+-
+-bot.once('spawn', () => {
+-  console.info('Joined the server')
+-
+-  bot.loadPlugin(pathfinder)
+-  const defaultMove = new Movements(bot)
+-  bot.pathfinder.setMovements(defaultMove)
+-
+-  bot.on('chat', async (username, message) => {
+-    const target = bot.players[username].entity
+-
+-    if (message.startsWith('place')) {
+-      const [, itemName] = message.split(' ')
+-      if (!target) {
+-        bot.chat('I can\'t see you')
+-        return
+-      }
+-      const itemsInInventory = bot.inventory.items().filter(item => item.name.includes(itemName))
+-      if (itemsInInventory.length === 0) {
+-        bot.chat('I dont have ' + itemName)
+-        return
+-      }
+-
+-      try {
+-        const rayBlock = rayTraceEntitySight(target)
+-        if (!rayBlock) {
+-          bot.chat('Block is out of reach')
+-          return
+-        }
+-        const face = directionToVector(rayBlock.face)
+-        await bot.pathfinder.goto(new GoalPlaceBlock(rayBlock.position.offset(face.x, face.y, face.z), bot.world, {
+-          range: 4
+-        }))
+-        await bot.equip(itemsInInventory[0], 'hand')
+-        await bot.lookAt(rayBlock.position.offset(face.x * 0.5 + 0.5, face.y * 0.5 + 0.5, face.z * 0.5 + 0.5))
+-        await bot.placeBlock(rayBlock, face)
+-      } catch (e) {
+-        console.error(e)
+-      }
+-    } else if (message.startsWith('break')) {
+-      if (!target) {
+-        bot.chat('I can\'t see you')
+-        return
+-      }
+-
+-      try {
+-        const rayBlock = rayTraceEntitySight(target)
+-        if (!rayBlock) {
+-          bot.chat('Block is out of reach')
+-          return
+-        }
+-        await bot.pathfinder.goto(new GoalLookAtBlock(rayBlock.position, bot.world, { range: 4 }))
+-        const bestHarvestTool = bot.pathfinder.bestHarvestTool(bot.blockAt(rayBlock.position))
+-        if (bestHarvestTool) await bot.equip(bestHarvestTool, 'hand')
+-        await bot.dig(bot.blockAt(rayBlock.position), true, 'raycast')
+-      } catch (e) {
+-        console.error(e)
+-      }
+-    } else if (message === 'come') {
+-      if (!target) {
+-        bot.chat('I don\'t see you !')
+-        return
+-      }
+-      const p = target.position
+-
+-      bot.pathfinder.setMovements(defaultMove)
+-      bot.pathfinder.setGoal(new GoalNear(p.x, p.y, p.z, 1))
+-    } else if (message === 'stop') {
+-      bot.pathfinder.stop()
+-    } else if (message === 'follow') {
+-      bot.pathfinder.setMovements(defaultMove)
+-      bot.pathfinder.setGoal(new GoalFollow(target, 1), true)
+-      // follow is a dynamic goal: setGoal(goal, dynamic=true)
+-      // when reached, the goal will stay active and will not
+-      // emit an event
+-    } else if (message.startsWith('goto')) {
+-      const cmd = message.split(' ')
+-
+-      if (cmd.length === 4) { // goto x y z
+-        const x = parseInt(cmd[1], 10)
+-        const y = parseInt(cmd[2], 10)
+-        const z = parseInt(cmd[3], 10)
+-
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalBlock(x, y, z))
+-      } else if (cmd.length === 3) { // goto x z
+-        const x = parseInt(cmd[1], 10)
+-        const z = parseInt(cmd[2], 10)
+-
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalXZ(x, z))
+-      } else if (cmd.length === 2) { // goto y
+-        const y = parseInt(cmd[1], 10)
+-
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalY(y))
+-      }
+-    }
+-  })
+-
+-  const rayTraceEntitySight = function (entity) {
+-    if (bot.world?.raycast) {
+-      const { height, position, yaw, pitch } = entity
+-      const x = -Math.sin(yaw) * Math.cos(pitch)
+-      const y = Math.sin(pitch)
+-      const z = -Math.cos(yaw) * Math.cos(pitch)
+-      const rayBlock = bot.world.raycast(position.offset(0, height, 0), new Vec3(x, y, z), 120)
+-      if (rayBlock) {
+-        return rayBlock
+-      }
+-    } else {
+-      throw Error('bot.world.raycast does not exists. Try updating prismarine-world.')
+-    }
+-  }
+-})
+-
+-bot.on('error', console.error)
+-bot.on('kicked', console.error)
+-
+-function directionToVector (dir) {
+-  if (dir > 5 || dir < 0) return null
+-  if (dir === 0) {
+-    return new Vec3(0, -1, 0)
+-  } else if (dir === 1) {
+-    return new Vec3(0, 1, 0)
+-  } else if (dir === 2) {
+-    return new Vec3(0, 0, -1)
+-  } else if (dir === 3) {
+-    return new Vec3(0, 0, 1)
+-  } else if (dir === 4) {
+-    return new Vec3(-1, 0, 0)
+-  } else if (dir === 5) {
+-    return new Vec3(1, 0, 0)
+-  }
+-}
+diff --git a/node_modules/mineflayer-pathfinder/examples/callback.js b/node_modules/mineflayer-pathfinder/examples/callback.js
+deleted file mode 100644
+index 5483973..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/callback.js
++++ /dev/null
+@@ -1,37 +0,0 @@
+-// This example uses promises instead of events like "goal_reached" for a cleaner look
+-
+-const mineflayer = require('mineflayer')
+-const pathfinder = require('mineflayer-pathfinder').pathfinder
+-const Movements = require('mineflayer-pathfinder').Movements
+-const { GoalNear } = require('mineflayer-pathfinder').goals
+-const bot = mineflayer.createBot({ username: 'Player' })
+-
+-// Load plugins
+-bot.loadPlugin(pathfinder)
+-
+-bot.once('spawn', () => {
+-  // Set pathfinder movements
+-  const defaultMove = new Movements(bot)
+-  bot.pathfinder.setMovements(defaultMove)
+-
+-  bot.on('chat', async (username, message) => {
+-    // If username is the same as the Bot's username, don't continue
+-    if (username === bot.username) return
+-
+-    // Only continue when the message is "come"
+-    if (message === 'come') {
+-      const target = bot.players[username] ? bot.players[username].entity : null
+-
+-      // If Player doesn't exist, don't continue
+-      if (!target) return bot.chat("I don't see you !")
+-
+-      // Await pathfinder to complete the goal, then move to bot.chat and print "I've arrived !"
+-      bot.pathfinder.goto(new GoalNear(target.position.x, target.position.y, target.position.z, 1)).then(announceArrived)
+-    }
+-  })
+-
+-  function announceArrived () {
+-    const botPosition = bot.entity.position
+-    bot.chat(`I've arrived, I'm at ${botPosition.x}, ${botPosition.y}, ${botPosition.z}!`)
+-  }
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/chaining-goals.js b/node_modules/mineflayer-pathfinder/examples/chaining-goals.js
+deleted file mode 100644
+index e458cb0..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/chaining-goals.js
++++ /dev/null
+@@ -1,147 +0,0 @@
+-/* Pathfinder Chaining Goals example
+-
+-This example shows how to chain goals together.
+-Run this example with:
+-
+-node examples/chaining-goals.js [host] [port] [mail/username] [is online `true`]
+-
+-If you want to connect to an offline server use a username instead of an email
+-and no password. If you want to join a online server use your email and follow
+-the instructions in the command line to authenticated with microsoft auth.
+-
+-In Game Chat commands:
+-come
+-  - Path finds to the chatting player's position when in render distance.
+-
+-follow
+-  - Follows the chatting player's entity until `stop` is chatted
+-
+-stop
+-  - Stops the bot from following or path finding
+-
+-point
+-  - Set a checkpoint at the chatting player's position
+-
+-walk
+-  - Walk to all set checkpoints
+-*/
+-
+-// Import all the modules we need
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const {
+-  GoalNear, GoalBlock, GoalFollow
+-} = require('mineflayer-pathfinder').goals
+-
+-if (process.argv.length > 6) {
+-  console.log('Usage : node chaining-goals.js [<host>] [<port>] ' +
+-    '[<microsoft email/name>] [<is online `true`>]')
+-  process.exit(1)
+-}
+-
+-// Create the bot
+-const bot = mineflayer.createBot({
+-  host: process.argv[2] || 'localhost',
+-  port: parseInt(process.argv[3]) || 25565,
+-  username: process.argv[4] || 'checkpointBot',
+-  // to join offline servers auth type has to be 'mojang' (???)
+-  auth: process.argv[5] === 'true' ? 'microsoft' : 'mojang',
+-  // Skip validation when joining a offline server
+-  skipValidation: process.argv[5] !== 'true'
+-})
+-
+-// Load the pathfinder plugin
+-bot.loadPlugin(pathfinder)
+-
+-// Wait for the bot to spawn in the world
+-bot.once('spawn', () => {
+-  // We create different movement generators for different type of activity
+-  const defaultMove = new Movements(bot)
+-  bot.pathfinder.setMovements(defaultMove)
+-
+-  // Print debug messages when the path changes
+-  bot.on('path_update', (r) => {
+-    const nodesPerTick = (r.visitedNodes * 50 / r.time).toFixed(2)
+-    console.log(`I can get there in ${r.path.length} moves. ` +
+-      `Computation took ${r.time.toFixed(2)} ms (${r.visitedNodes} nodes` +
+-      `, ${nodesPerTick} nodes/tick)`)
+-  })
+-
+-  bot.on('goal_reached', (goal) => {
+-    console.log('Here I am !')
+-  })
+-
+-  bot.on('path_reset', (reason) => {
+-    console.log(`Path was reset for reason: ${reason}`)
+-  })
+-
+-  let checkpoints = []
+-
+-  // Make pathfinder walk to all checkpoints in order
+-  async function walkCheckpoints () {
+-    if (checkpoints.length === 0) {
+-      bot.chat('There are no checkpoints')
+-      return
+-    }
+-
+-    // Remove all checkpoints when starting to walking
+-    const checkPointCopy = [...checkpoints]
+-    checkpoints = []
+-    for (const checkpoint of checkPointCopy) {
+-      // Make a new goal to goto. GoalBlock will make the bot walk to the
+-      // block position off checkpoint.
+-      const goal = new GoalBlock(checkpoint.x, checkpoint.y, checkpoint.z)
+-      try {
+-        // Use await to make sure the bot is at the checkpoint before moving on
+-        await bot.pathfinder.goto(goal)
+-      } catch (error) {
+-        console.log('Got error from goto', error.message)
+-        // If we get an error we quit the loop
+-        return
+-      }
+-    }
+-  }
+-
+-  // Listen for chat messages chatted by other players
+-  // Note: This may not work on every server as mineflayer uses regex to match
+-  // chat messages. Some servers may use chat messages that do not match the
+-  // regex.
+-  bot.on('chat', (username, message) => {
+-    if (username === bot.username) return // Ignore our own messages
+-
+-    // Get the player entity from the username.
+-    // Note: This might not work on some servers where the players nametag name
+-    // dose not match the chat message name.
+-    const target = bot.players[username] ? bot.players[username].entity : null
+-    if (message === 'come') {
+-      if (!target) {
+-        bot.chat('I don\'t see you !')
+-        return
+-      }
+-      const p = target.position
+-
+-      bot.pathfinder.setGoal(new GoalNear(p.x, p.y, p.z, 1))
+-    } else if (message === 'follow') {
+-      bot.pathfinder.setGoal(new GoalFollow(target, 3), true)
+-      // follow is a dynamic goal: setGoal(goal, dynamic=true)
+-      // when reached, the goal will stay active and will not
+-      // emit an event
+-    } else if (message === 'stop') {
+-      bot.pathfinder.stop() // Also resets the current goal
+-    } else if (message === 'point') {
+-      if (!target) {
+-        bot.chat('I don\'t see you !')
+-        return
+-      }
+-      const pos = target.position.floored()
+-      checkpoints.push(pos)
+-      bot.chat(`Checkpoint ${pos} set`)
+-    } else if (message === 'walk') {
+-      walkCheckpoints()
+-        .then(() => {
+-          bot.chat('Done')
+-        })
+-        .catch(console.error)
+-    }
+-  })
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/example.js b/node_modules/mineflayer-pathfinder/examples/example.js
+deleted file mode 100644
+index 16e7589..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/example.js
++++ /dev/null
+@@ -1,98 +0,0 @@
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const { GoalNear, GoalBlock, GoalXZ, GoalY, GoalInvert, GoalFollow, GoalBreakBlock } = require('mineflayer-pathfinder').goals
+-
+-if (process.argv.length > 6) {
+-  console.log('Usage : node example.js [<host>] [<port>] [<name>] [<password>]')
+-  process.exit(1)
+-}
+-
+-const bot = mineflayer.createBot({
+-  host: process.argv[2] || 'localhost',
+-  port: parseInt(process.argv[3]) || 25565,
+-  username: process.argv[4] || 'pathfinder',
+-  password: process.argv[5]
+-})
+-
+-bot.loadPlugin(pathfinder)
+-
+-bot.once('spawn', () => {
+-  // We create different movement generators for different type of activity
+-  const defaultMove = new Movements(bot)
+-
+-  bot.on('path_update', (r) => {
+-    const nodesPerTick = (r.visitedNodes * 50 / r.time).toFixed(2)
+-    console.log(`I can get there in ${r.path.length} moves. Computation took ${r.time.toFixed(2)} ms (${r.visitedNodes} nodes, ${nodesPerTick} nodes/tick)`)
+-  })
+-
+-  bot.on('goal_reached', (goal) => {
+-    console.log('Here I am !')
+-  })
+-
+-  bot.on('path_reset', (reason) => {
+-    console.log(`Path was reset for reason: ${reason}`)
+-  })
+-
+-  bot.on('chat', (username, message) => {
+-    if (username === bot.username) return
+-
+-    const target = bot.players[username] ? bot.players[username].entity : null
+-    if (message === 'come') {
+-      if (!target) {
+-        bot.chat('I don\'t see you !')
+-        return
+-      }
+-      const p = target.position
+-
+-      bot.pathfinder.setMovements(defaultMove)
+-      bot.pathfinder.setGoal(new GoalNear(p.x, p.y, p.z, 1))
+-    } else if (message.startsWith('goto')) {
+-      const cmd = message.split(' ')
+-
+-      if (cmd.length === 4) { // goto x y z
+-        const x = parseInt(cmd[1], 10)
+-        const y = parseInt(cmd[2], 10)
+-        const z = parseInt(cmd[3], 10)
+-
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalBlock(x, y, z))
+-      } else if (cmd.length === 3) { // goto x z
+-        const x = parseInt(cmd[1], 10)
+-        const z = parseInt(cmd[2], 10)
+-
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalXZ(x, z))
+-      } else if (cmd.length === 2) { // goto y
+-        const y = parseInt(cmd[1], 10)
+-
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalY(y))
+-      }
+-    } else if (message === 'follow') {
+-      bot.pathfinder.setMovements(defaultMove)
+-      bot.pathfinder.setGoal(new GoalFollow(target, 3), true)
+-      // follow is a dynamic goal: setGoal(goal, dynamic=true)
+-      // when reached, the goal will stay active and will not
+-      // emit an event
+-    } else if (message === 'avoid') {
+-      bot.pathfinder.setMovements(defaultMove)
+-      bot.pathfinder.setGoal(new GoalInvert(new GoalFollow(target, 5)), true)
+-    } else if (message === 'stop') {
+-      bot.pathfinder.stop()
+-    } else if (message === 'break') {
+-      if (!target) {
+-        bot.chat('I can\'t see you!')
+-        return
+-      }
+-      const p = target.position.offset(0, -1, 0)
+-      const goal = new GoalBreakBlock(p.x, p.y, p.z, bot)
+-      bot.pathfinder.goto(goal)
+-        .then(() => {
+-          bot.dig(bot.blockAt(p), 'raycast')
+-            .catch(err => console.error('digging error', err))
+-        }, (err) => {
+-          console.error('Pathfing error', err)
+-        })
+-    }
+-  })
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/exclusionArea.js b/node_modules/mineflayer-pathfinder/examples/exclusionArea.js
+deleted file mode 100644
+index 7db618d..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/exclusionArea.js
++++ /dev/null
+@@ -1,135 +0,0 @@
+-/* Pathfinder Exclusion Area example
+-
+-This example shows the use of exclusion areas with the Movement Class.
+-
+-In Game Chat commands:
+-come
+-  - Path finds to the chatting player's position when in render distance.
+-exclude this (break | step | place) <radius>
+-  - Exclude a spherical area off size <radius> of type break, step or place at the chatting
+-  player's position  when in render distance
+-goto (x y z) | (x z) | y
+-  - Goto a specific coordinate
+-follow
+-  - Follows the chatting player's entity until stop is chatted
+-stop
+-  - Stops the bot from following or path finding
+-*/
+-
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const { GoalNear, GoalBlock, GoalXZ, GoalY, GoalFollow } = require('mineflayer-pathfinder').goals
+-
+-if (process.argv.length > 6) {
+-  console.log('Usage : node example.js [<host>] [<port>] [<name>] [<password>]')
+-  process.exit(1)
+-}
+-
+-const bot = mineflayer.createBot({
+-  host: process.argv[2] || 'localhost',
+-  port: parseInt(process.argv[3]) || 25565,
+-  username: process.argv[4] || 'exclusionAreaBot',
+-  password: process.argv[5]
+-})
+-
+-bot.loadPlugin(pathfinder)
+-
+-bot.once('spawn', () => {
+-  // We create different movement generators for different type of activity
+-  const defaultMove = new Movements(bot)
+-  bot.pathfinder.setMovements(defaultMove)
+-
+-  bot.on('path_update', (r) => {
+-    const nodesPerTick = (r.visitedNodes * 50 / r.time).toFixed(2)
+-    console.log(`I can get there in ${r.path.length} moves. ` +
+-      `Computation took ${r.time.toFixed(2)} ms (${r.visitedNodes} nodes` +
+-      `, ${nodesPerTick} nodes/tick)`)
+-  })
+-
+-  bot.on('goal_reached', (goal) => {
+-    console.log('Here I am !')
+-  })
+-
+-  bot.on('path_reset', (reason) => {
+-    console.log(`Path was reset for reason: ${reason}`)
+-  })
+-
+-  bot.on('chat', (username, message) => {
+-    if (username === bot.username) return
+-
+-    const target = bot.players[username] ? bot.players[username].entity : null
+-    if (message === 'come') {
+-      if (!target) {
+-        bot.chat('I don\'t see you !')
+-        return
+-      }
+-      const p = target.position
+-
+-      bot.pathfinder.setGoal(new GoalNear(p.x, p.y, p.z, 1))
+-    } else if (message.startsWith('exclude')) {
+-      const cmd = message.split(' ')
+-      if (cmd[1] === 'this') {
+-        if (!target) {
+-          bot.chat('I can\'t see you')
+-          return
+-        }
+-        const type = cmd[2].trim()
+-        if (!['break', 'step', 'place'].includes(type.toLowerCase())) {
+-          return bot.chat('type must be "break", "step" or "place"')
+-        }
+-        const radius = Number(cmd[3])
+-        const center = target.position.floored()
+-        if (isNaN(radius)) return bot.chat('Radius must be a number')
+-        // Import typings for intellisense
+-        /**
+-         * @param {import('mineflayer-pathfinder').SafeBlock} block block */
+-        const isExcluded = (block) => {
+-          return block.position.distanceTo(center) <= radius ? 0 : 100
+-        }
+-        switch (type.toLowerCase()) {
+-          case 'step':
+-            bot.pathfinder.movements.exclusionAreasStep.push(isExcluded)
+-            break
+-          case 'break':
+-            bot.pathfinder.movements.exclusionAreasBreak.push(isExcluded)
+-            break
+-          case 'place':
+-            bot.pathfinder.movements.exclusionAreasPlace.push(isExcluded)
+-            break
+-        }
+-        // At 5. The bot avoids the area most of the time but can still move into and out of it.
+-        bot.pathfinder.movements.exclusionAreaPower = 5
+-        bot.pathfinder.setMovements(bot.pathfinder.movements)
+-        bot.chat(`Added exclusion area circle around ${center.toString()} with radius ${radius}`)
+-      } else {
+-        bot.chat('Usage: exclude this (break | step | place) <radius>')
+-      }
+-    } else if (message.startsWith('goto')) {
+-      const cmd = message.split(' ')
+-
+-      if (cmd.length === 4) { // goto x y z
+-        const x = parseInt(cmd[1], 10)
+-        const y = parseInt(cmd[2], 10)
+-        const z = parseInt(cmd[3], 10)
+-
+-        bot.pathfinder.setGoal(new GoalBlock(x, y, z))
+-      } else if (cmd.length === 3) { // goto x z
+-        const x = parseInt(cmd[1], 10)
+-        const z = parseInt(cmd[2], 10)
+-
+-        bot.pathfinder.setGoal(new GoalXZ(x, z))
+-      } else if (cmd.length === 2) { // goto y
+-        const y = parseInt(cmd[1], 10)
+-
+-        bot.pathfinder.setGoal(new GoalY(y))
+-      }
+-    } else if (message === 'follow') {
+-      bot.pathfinder.setGoal(new GoalFollow(target, 3), true)
+-      // follow is a dynamic goal: setGoal(goal, dynamic=true)
+-      // when reached, the goal will stay active and will not
+-      // emit an event
+-    } else if (message === 'stop') {
+-      bot.pathfinder.stop() // Also resets the current goal
+-    }
+-  })
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/movements.js b/node_modules/mineflayer-pathfinder/examples/movements.js
+deleted file mode 100644
+index c65c734..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/movements.js
++++ /dev/null
+@@ -1,56 +0,0 @@
+-/*
+- * This example demonstrates how easy it is to change the default movement
+- *
+- * Below are a few options you can edit in the Movement Class
+- * but remember to check out the API documentation to find even more!
+- *
+- * This bot also follows a player when called called out to it.
+- */
+-
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const { GoalNear } = require('mineflayer-pathfinder').goals
+-
+-const bot = mineflayer.createBot({
+-  host: process.argv[2],
+-  port: parseInt(process.argv[3]),
+-  username: process.argv[4] ? process.argv[4] : 'movementsbot',
+-  password: process.argv[5]
+-})
+-
+-bot.loadPlugin(pathfinder)
+-
+-bot.once('spawn', () => {
+-  /*
+-   * pathfinder comes with default moves preinitialized (a instance of the movement class)
+-   * the moves come with default logic, like how much it can fall
+-   * what blocks are used to scaffold, and what blocks to avoid.
+-   */
+-
+-  // To get started create a instance of the Movements class
+-  const customMoves = new Movements(bot)
+-  // To make changes to the behaviour, customize the properties of the instance
+-  customMoves.canDig = false
+-  customMoves.allow1by1towers = false
+-  customMoves.scafoldingBlocks.push(bot.registry.itemsByName.stone.id)
+-  // Thing to note scaffoldingBlocks are an array while other namespaces are usually sets
+-  customMoves.blocksToAvoid.add(bot.registry.blocksByName.carrot.id)
+-
+-  // To initialize the new movements use the .setMovements method.
+-  bot.pathfinder.setMovements(customMoves)
+-
+-  bot.on('chat', function (username, message) {
+-    if (username === bot.username) return
+-
+-    if (message === 'come') {
+-      const target = bot.players[username]?.entity
+-      if (!target) {
+-        bot.chat('I don\'t see you !')
+-        return
+-      }
+-      const p = target.position
+-
+-      bot.pathfinder.setGoal(new GoalNear(p.x, p.y, p.z, 1))
+-    }
+-  })
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/multiple.js b/node_modules/mineflayer-pathfinder/examples/multiple.js
+deleted file mode 100644
+index 4ae6e3b..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/multiple.js
++++ /dev/null
+@@ -1,56 +0,0 @@
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements } = require('mineflayer-pathfinder')
+-const { GoalInvert, GoalFollow } = require('mineflayer-pathfinder').goals
+-
+-mineflayer.multiple = (bots, constructor) => {
+-  const { Worker, isMainThread, workerData } = require('worker_threads')
+-  if (isMainThread) {
+-    const threads = []
+-    for (const i in bots) {
+-      threads.push(new Worker(__filename, { workerData: bots[i] }))
+-    }
+-  } else {
+-    constructor(workerData)
+-  }
+-}
+-
+-const bots = []
+-for (let i = 0; i < 40; i++) {
+-  bots.push({ username: `Bot${i}` })
+-}
+-
+-mineflayer.multiple(bots, ({ username }) => {
+-  const bot = mineflayer.createBot({ username, viewDistance: 'tiny' })
+-
+-  bot.loadPlugin(pathfinder)
+-
+-  bot.once('spawn', () => {
+-    // We create different movement generators for different type of activity
+-    const defaultMove = new Movements(bot)
+-    defaultMove.allowFreeMotion = true
+-    bot.pathfinder.searchRadius = 10
+-
+-    bot.on('path_update', (results) => {
+-      console.log('[' + username + '] I can get there in ' + results.path.length + ' moves. Computation took ' + results.time.toFixed(2) + ' ms.')
+-    })
+-
+-    bot.on('goal_reached', (goal) => {
+-      console.log('[' + username + '] Here I am !')
+-    })
+-
+-    bot.on('chat', (username, message) => {
+-      if (username === bot.username) return
+-
+-      const target = bot.players[username].entity
+-      if (message === 'follow') {
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalFollow(target, 5), true)
+-      } else if (message === 'avoid') {
+-        bot.pathfinder.setMovements(defaultMove)
+-        bot.pathfinder.setGoal(new GoalInvert(new GoalFollow(target, 5)), true)
+-      } else if (message === 'stop') {
+-        bot.pathfinder.setGoal(null)
+-      }
+-    })
+-  })
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/promise.js b/node_modules/mineflayer-pathfinder/examples/promise.js
+deleted file mode 100644
+index f9c9623..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/promise.js
++++ /dev/null
+@@ -1,33 +0,0 @@
+-// This example uses promises instead of events like "goal_reached" for a cleaner look
+-
+-const mineflayer = require('mineflayer')
+-const pathfinder = require('mineflayer-pathfinder').pathfinder
+-const Movements = require('mineflayer-pathfinder').Movements
+-const { GoalNear } = require('mineflayer-pathfinder').goals
+-const bot = mineflayer.createBot({ username: 'Player' })
+-
+-// Load pathfinder
+-bot.loadPlugin(pathfinder)
+-
+-bot.once('spawn', () => {
+-  // Set pathfinder movements
+-  const defaultMove = new Movements(bot)
+-  bot.pathfinder.setMovements(defaultMove)
+-
+-  bot.on('chat', async (username, message) => {
+-    // If username is the same as the Bot's username, don't continue
+-    if (username === bot.username) return
+-
+-    // Only continue when the message is "come"
+-    if (message === 'come') {
+-      const target = bot.players[username] ? bot.players[username].entity : null
+-
+-      // If Player doesn't exist, don't continue
+-      if (!target) return bot.chat("I don't see you !")
+-
+-      // Await pathfinder to complete the goal, then move to bot.chat and print "I've arrived !"
+-      await bot.pathfinder.goto(new GoalNear(target.position.x, target.position.y, target.position.z, 1))
+-      bot.chat("I've arrived!")
+-    }
+-  })
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/tutorial/basic.js b/node_modules/mineflayer-pathfinder/examples/tutorial/basic.js
+deleted file mode 100644
+index 9a8397c..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/tutorial/basic.js
++++ /dev/null
+@@ -1,36 +0,0 @@
+-/*
+- * This example shows the usage of the GoalBlock
+- * goal for mineflayer-pathfinder
+- *
+- * See a more detailed explanation here:
+- * https://github.com/PrismarineJS/mineflayer-pathfinder/blob/master/examples/tutorial/goalsExplained.md
+- *
+- * Made by Jovan04 06/07/2023
+-*/
+-
+-const mineflayer = require('mineflayer') // import mineflayer, pathfinder, the Movements class, and our goal(s)
+-const { pathfinder, Movements, goals: { GoalBlock } } = require('mineflayer-pathfinder')
+-
+-const bot = mineflayer.createBot({ // create our bot
+-  host: 'localhost',
+-  port: 25565,
+-  username: 'Pathfinder',
+-  auth: 'offline'
+-})
+-
+-bot.once('spawn', () => {
+-  bot.loadPlugin(pathfinder) // load pathfinder plugin into the bot
+-  const defaultMovements = new Movements(bot) // create a new instance of the `Movements` class
+-  bot.pathfinder.setMovements(defaultMovements) // set the bot's movements to the `Movements` we just created
+-})
+-
+-bot.on('chat', async (username, message) => {
+-  if (username === bot.username) return // make bot ignore its own messages
+-
+-  if (message === 'go') { // this is our trigger message (only works on servers with vanilla chat)
+-    bot.chat('Going to my goal!')
+-    const myGoal = new GoalBlock(15, 3, 75)
+-    await bot.pathfinder.goto(myGoal)
+-    bot.chat('Arrived at my goal!')
+-  }
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/tutorial/goalComposite-goals.png b/node_modules/mineflayer-pathfinder/examples/tutorial/goalComposite-goals.png
+deleted file mode 100644
+index 8d92655..0000000
+Binary files a/node_modules/mineflayer-pathfinder/examples/tutorial/goalComposite-goals.png and /dev/null differ
+diff --git a/node_modules/mineflayer-pathfinder/examples/tutorial/goalComposite.js b/node_modules/mineflayer-pathfinder/examples/tutorial/goalComposite.js
+deleted file mode 100644
+index 209fff1..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/tutorial/goalComposite.js
++++ /dev/null
+@@ -1,58 +0,0 @@
+-/*
+- * This example shows the usage of the
+- * GoalCompositeAny and GoalCompositeAll
+- * goals for mineflayer-pathfinder
+- *
+- * See a more detailed explanation here:
+- * https://github.com/PrismarineJS/mineflayer-pathfinder/blob/master/examples/tutorial/goalsExplained.md
+- *
+- * Made by Jovan04 06/07/2023
+-*/
+-
+-// import mineflayer & related libraries
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements, goals: { GoalNear, GoalCompositeAny, GoalCompositeAll } } = require('mineflayer-pathfinder')
+-
+-// create mineflayer bot
+-const bot = mineflayer.createBot({
+-  host: 'localhost',
+-  port: 25565,
+-  version: '1.18.2',
+-  auth: 'offline',
+-  username: 'biffed'
+-})
+-
+-// load pathfinder plugin and set our bot's Movements
+-bot.once('spawn', () => {
+-  bot.loadPlugin(pathfinder)
+-  bot.pathfinder.setMovements(new Movements(bot))
+-})
+-
+-bot.on('chat', async (username, message) => {
+-  if (username === bot.username) return
+-
+-  // create three separate GoalNear goals at different locations, with a range of 5; the bot needs to be within 5 blocks of a given goal to satisfy it
+-  const LapisGoal = new GoalNear(0, 1, 3, 5)
+-  const GoldGoal = new GoalNear(3, 1, -2, 5)
+-  const DiamondGoal = new GoalNear(-3, 1, -2, 5)
+-
+-  const goalsArray = [LapisGoal, GoldGoal, DiamondGoal]
+-
+-  if (message === 'GoalCompositeAny') {
+-    bot.chat('Traveling with GoalCompositeAny')
+-    // create a new GoalCompositeAny: see documentation for a more detailed explanation
+-    const goalAny = new GoalCompositeAny(goalsArray)
+-    // and travel to it
+-    await bot.pathfinder.goto(goalAny)
+-    bot.chat('Done traveling with GoalCompositeAny')
+-  }
+-
+-  if (message === 'GoalCompositeAll') {
+-    bot.chat('Traveling with GoalCompositeAll')
+-    // create a new GoalCompositeAll: see documentation for a more detailed explanation
+-    const goalAll = new GoalCompositeAll(goalsArray)
+-    // and travel to it
+-    await bot.pathfinder.goto(goalAll)
+-    bot.chat('Done traveling with GoalCompositeAll')
+-  }
+-})
+diff --git a/node_modules/mineflayer-pathfinder/examples/tutorial/goalsExplained.md b/node_modules/mineflayer-pathfinder/examples/tutorial/goalsExplained.md
+deleted file mode 100644
+index 4daad6a..0000000
+--- a/node_modules/mineflayer-pathfinder/examples/tutorial/goalsExplained.md
++++ /dev/null
+@@ -1,142 +0,0 @@
+-<!-- Explanation of how to use goals in mineflayer-pathfinder. Made by Jovan04 06/07/2023 -->
+-
+-# Mineflayer-Pathfinder: Goals
+-## A (more) detailed explanation by Jovan04
+-
+-This page is an explanation about goals in mineflayer-pathfinder. A `Goal` is an instance of a class that allows the user to specify a location that they want a mineflayer bot to go to. Goals are the backbone of mineflayer because they provide an easy way to control your mineflayer bot with mineflayer-pathfinder.  
+-
+-### General Goals
+-It's useful to think about goals in pathfinder as conditions that need to be fulfilled. For example, one of the most common goals is `GoalBlock`. As the [documentation](../../readme.md#goals) for the `GoalBlock` goal says:
+-
+-> One specific block that the player should stand inside at foot level
+-
+-Thus, we have our condition. In order to complete the `GoalBlock` goal, our bot needs to get its feet inside the specified block. Simple as that.  
+-That's great and all, but how do we use it?  
+-[Here's](./basic.js) a quick example. Let's walk through everything it does.
+-
+-First, we need to import mineflayer, as well as pathfinder and things related to it:  
+-```js
+-const mineflayer = require('mineflayer')
+-const { pathfinder, Movements, goals:{ GoalBlock } } = require('mineflayer-pathfinder')
+-```
+-Here, we import a few things from pathfinder:
+-* the pathfinder plugin itself
+-* the Movements() class, which defines how our bot is allowed to move
+-* the `goals` object, and from it the `GoalBlock` goal  
+-
+-Next, we'll create our bot. This is just like creating any other Mineflayer bot:  
+-```js
+-const bot = mineflayer.createBot({
+-  host: 'localhost',
+-  port: 25565,
+-  username: 'Pathfinder',
+-  auth: 'offline'
+-})
+-```
+-
+-We'll also add a `spawn` event listener to load the pathfinder plugin and create the bot's Movements class:  
+-```js
+-bot.once('spawn', () => {
+-  bot.loadPlugin(pathfinder) // load pathfinder plugin into the bot
+-  const defaultMovements = new Movements(bot) // create a new instance of the `Movements` class
+-  bot.pathfinder.setMovements(defaultMovements) // set the bot's movements to the `Movements` we just created
+-})
+-```
+-The `Movements` class essentially tells the bot what moves it's allowed to make. This includes, but isn't limited to: What blocks (if any) it can place/break, whether it can pillar straight up, and how far it's allowed to fall.  
+-What we've done so far is mostly boilerplate; you'll probably use it every time you use pathfinder.  
+-
+-Now, we'll create a chat listener that we'll use to make pathfinder move:  
+-```js
+-bot.on('chat', async (username, message) => {
+-  if (username === bot.username) return // make bot ignore its own messages
+-
+-  if (message === 'go') { // this is our trigger message (only works on servers with vanilla chat)
+-    // our pathfinder code goes here!
+-  }
+-})
+-```
+-
+-Now, let's go back to the `GoalBlock` goal. If we look at the documentation again, we can see that the GoalBlock takes three arguments: an `x` coordinate, a `y` coordinate, and a `z` coordinate, all integers. In order to use the `GoalBlock` goal, we would need to create a new instance of the `GoalBlock` class with those coordinates. If we wanted our bot to pathfind to the coordinates **15, 3, 75**, we could do that like this:
+-```js
+-const myGoal = new GoalBlock(15, 3, 75)
+-```
+-
+-Now that we have our goal, how do we use it? Simple! Pathfinder has a method for traveling to a goal, `goto`. We can access it through `bot.pathfinder.goto(goal)`, and we'll use the `await` Javascript keyword to make our code wait for the bot to finish walking to the goal beore continuing:
+-```js
+-await bot.pathfinder.goto(myGoal)
+-```
+-
+-We can also use `bot.chat` to have the bot tell us when it starts and finishes going to the goal. If we add that to the lines we just wrote, it can look something like this:
+-```js
+-bot.chat('Going to my goal!')
+-const myGoal = new GoalBlock(15, 3, 75)
+-await bot.pathfinder.goto(myGoal)
+-bot.chat('Arrived at my goal!')
+-```
+-
+-Let's put those four lines inside our chat listener, likeso:
+-```js
+-bot.on('chat', async (username, message) => {
+-  if (username === bot.username) return // make bot ignore its own messages
+-
+-  if (message === 'go') { // this is our trigger message (only works on servers with vanilla chat)
+-    bot.chat('Going to my goal!')
+-    const myGoal = new GoalBlock(15, 3, 75)
+-    await bot.pathfinder.goto(myGoal)
+-    bot.chat('Arrived at my goal!')
+-  }
+-})
+-```
+-
+-And now we're done! We can type `go` in chat, and the bot will walk to the coordinates we specified. Remember that `GoalBlock` makes the bot put its feet in the block we specified. You can view and download the full example script [here](./basic.js).
+-
+-And, there you have it. That's how you use the `GoalBlock` goal! Most of the other goals are used in a similar way, but with different arguments. You can look at [the documentation](../../readme.md#goals) for those. However, there are a few goals that are a little confusing.  
+-
+-### Composite Goals
+-The Composite goals, `GoalCompositeAny` and `GoalCompositeAll`, are both quite different from most other goals. Instead of being standalone goals themselves, they allow you to combine other goals in interesting ways. They're called *compos*ite goals because they're *compos*ed of (or made up of) other goals. But before we can talk about the composite goals in more detail, we should talk about the `GoalNear` goal. The composite goals are made up of other goals, and `GoalNear` is a good example.  
+-
+-`GoalNear` is almost the same as `GoalBlock`, but with one extra argument. Where `GoalBlock` only has `x, y, z`, `GoalNear` has `x, y, z, range`. The additional argument, `range`, specifies how far away from the target block the bot can be in order to still satisfy the goal. For example, the goal `GoalNear(15, 3, 75, 5)` would be satisfied once the bot is within 5 blocks of **15, 3, 75**.  
+-
+-Now, let's set up our program to use composite goals.  
+-
+-In the [composite goal example](./goalComposite.js), we make three goals: `LapisGoal`, `GoldGoal`, and `DiamondGoal`. They correspond to standing within 5 blocks of a Lapis block, a Gold block, and a Diamond block, respectively (see picture below):  
+-```js
+-  const LapisGoal = new GoalNear(0, 1, 3, 5) // our bot needs to stand within 5 blocks of the point (0, 1, 3) in order to satisfy this goal (blue circle below)
+-  const GoldGoal = new GoalNear(3, 1, -2, 5) // our bot needs to stand within 5 blocks of the point (3, 1, -2) in order to satisfy this goal (yellow circle below)
+-  const DiamondGoal = new GoalNear(-3, 1, -2, 5) // our bot needs to stand within 5 blocks of the point (-3, 1, -2) in order to satisfy this goal (white circle below)
+-```
+-![Diagram of the three goals](goalComposite-goals.png)
+-
+-#### GoalCompositeAny
+-The first type of composite goal is called `GoalCompositeAny`. Being a composite goal, `GoalCompositeAny` is a goal made up of other goals. In order for your bot to complete `GoalCompositeAny`, it needs to satisfy *any one* of the contained goals. Above, we made three goals (`LapisGoal`, `GoldGoal`, and `DiamondGoal`).  
+-Let's put them into an array:  
+-```js
+-const goalsArray = [LapisGoal, GoldGoal, DiamondGoal] // array containing all three of our goals; we'll use this array in our `GoalCompositeAny` goal
+-```
+-And create a new `GoalCompositeAny` with that array:  
+-```js
+-const goalAny = new GoalCompositeAny(goalsArray)
+-```
+-Now, just like any other goal, we can tell pathfinder to `goto` our new `GoalCompositeAny`:  
+-```js
+-await bot.pathfinder.goto(goalAny)
+-```
+-The `GoalCompositeAny` is completed when the bot completes any one of the goals it was created with. For our example above, `goalAny` will be completed when the bot completes any one of `LapisGoal`, `GoldGoal`, or `DiamondGoal`. In other words, `goalAny` will be completed when the bot's location is inside the blue circle *or* the yellow circle *or* the white circle (see image above).  
+-
+-#### GoalCompositeAll
+-The other type of composite goal is called `GoalCompositeAll`. Being a composite goal, `GoalCompositeAll` is a goal made up of other goals. In order for your bot to complete `GoalCompositeAll`, it needs to satisfy *all* of the contained goals. Above, we made three goals (`LapisGoal`, `GoldGoal`, and `DiamondGoal`).  
+-Let's put them into an array:  
+-```js
+-const goalsArray = [LapisGoal, GoldGoal, DiamondGoal] // array containing all three of our goals; we'll use this array in our `GoalCompositeAll` goal
+-```
+-And create a new `GoalCompositeAll` with that array:  
+-```js
+-const goalAll = new GoalCompositeAll(goalsArray)
+-```
+-Now, just like any other goal, we can tell pathfinder to `goto` our new `GoalCompositeAll`:  
+-```js
+-await bot.pathfinder.goto(goalAll)
+-```
+-The `GoalCompositeAll` is completed when the bot completes all of the goals it was created with. For our example above, `goalAll` will be completed when the bot completes all of `LapisGoal`, `GoldGoal`, or `DiamondGoal`. In other words, `goalAll` will be completed when the bot's location is inside the blue circle *and* the yellow circle *and* the white circle (see image above). It's important to clarify that the bot needs to be in all three circles at the same time. Going from one circle to another to the last is not a valid path to complete the goal.  
+-
+-And there you have it! That's a basic introduction to using goals in mineflayer-pathfinder. If any of this was confusing, or you'd like help with something more complicated, feel free to join the [PrismarineJS Discord server](https://discord.gg/GsEFRM8). We're always happy to provide help for mineflayer and other PrismarineJS libraries.
+diff --git a/node_modules/mineflayer-pathfinder/history.md b/node_modules/mineflayer-pathfinder/history.md
+index f43367c..7b1820b 100644
+--- a/node_modules/mineflayer-pathfinder/history.md
++++ b/node_modules/mineflayer-pathfinder/history.md
+@@ -1,5 +1,7 @@
+ # History
+ 
++# Leo ver.
++
+ # 2.4.5
+ * [Fix block update resets for optimized paths (@m000z0rz)](https://github.com/PrismarineJS/mineflayer-pathfinder/pull/330)
+ * [reword .stop() for more clarity (@Jovan-04)](https://github.com/PrismarineJS/mineflayer-pathfinder/pull/327)
 diff --git a/node_modules/mineflayer-pathfinder/index.js b/node_modules/mineflayer-pathfinder/index.js
-index b38bd30..bf16a63 100644
+index b38bd30..5f26e67 100644
 --- a/node_modules/mineflayer-pathfinder/index.js
 +++ b/node_modules/mineflayer-pathfinder/index.js
-@@ -550,6 +550,7 @@ function inject (bot) {
-             lockEquipItem.release()
-             const refBlock = bot.blockAt(new Vec3(placingBlock.x, placingBlock.y, placingBlock.z), false)
-             if (!lockPlaceBlock.tryAcquire()) return
-+            bot.world.setBlockStateId(refBlock.position.offset(placingBlock.dx, placingBlock.dy, placingBlock.dz), 1)
-             if (interactableBlocks.includes(refBlock.name)) {
-               bot.setControlState('sneak', true)
-             }
-@@ -557,6 +558,7 @@ function inject (bot) {
-               .then(function () {
-                 // Dont release Sneak if the block placement was not successful
-                 bot.setControlState('sneak', false)
-+                bot.setControlState('jump', false)
-                 if (bot.pathfinder.LOSWhenPlacingBlocks && placingBlock.returnPos) returningPos = placingBlock.returnPos.clone()
-               })
-               .catch(_ignoreError => {
+@@ -1,262 +1,326 @@
+-const { performance } = require('perf_hooks')
+-
+-const AStar = require('./lib/astar')
+-const Move = require('./lib/move')
+-const Movements = require('./lib/movements')
+-const gotoUtil = require('./lib/goto')
+-const Lock = require('./lib/lock')
+-
+-const Vec3 = require('vec3').Vec3
+-
+-const Physics = require('./lib/physics')
+-const nbt = require('prismarine-nbt')
+-const interactableBlocks = require('./lib/interactable.json')
+-
+-function inject (bot) {
+-  const waterType = bot.registry.blocksByName.water.id
+-  const ladderId = bot.registry.blocksByName.ladder.id
+-  const vineId = bot.registry.blocksByName.vine.id
+-  let stateMovements = new Movements(bot)
+-  let stateGoal = null
+-  let astarContext = null
+-  let astartTimedout = false
+-  let dynamicGoal = false
+-  let path = []
+-  let pathUpdated = false
+-  let digging = false
+-  let placing = false
+-  let placingBlock = null
+-  let lastNodeTime = performance.now()
+-  let returningPos = null
+-  let stopPathing = false
+-  const physics = new Physics(bot)
+-  const lockPlaceBlock = new Lock()
+-  const lockEquipItem = new Lock()
+-  const lockUseBlock = new Lock()
+-
+-  bot.pathfinder = {}
+-
+-  bot.pathfinder.thinkTimeout = 5000 // ms
+-  bot.pathfinder.tickTimeout = 40 // ms, amount of thinking per tick (max 50 ms)
+-  bot.pathfinder.searchRadius = -1 // in blocks, limits of the search area, -1: don't limit the search
+-  bot.pathfinder.enablePathShortcut = false // disabled by default as it can cause bugs in specific configurations
+-  bot.pathfinder.LOSWhenPlacingBlocks = true
++// @ts-nocheck
++const { performance } = require("perf_hooks");
++
++const AStar = require("./lib/astar");
++const Move = require("./lib/move");
++const Movements = require("./lib/movements");
++const gotoUtil = require("./lib/goto");
++const Lock = require("./lib/lock");
++const { GoalNear } = require('./lib/goals');
++
++const Vec3 = require("vec3").Vec3;
++
++const Physics = require("./lib/physics");
++const nbt = require("prismarine-nbt");
++const interactableBlocks = require("./lib/interactable.json");
++
++function inject(bot) {
++  const waterType = bot.registry.blocksByName.water.id;
++  const ladderId = bot.registry.blocksByName.ladder.id;
++  const vineId = bot.registry.blocksByName.vine.id;
++  let stateMovements = new Movements(bot);
++  let stateGoal = null;
++  let astarContext = null;
++  let astartTimedout = false;
++  let dynamicGoal = false;
++  let path = [];
++  let pathUpdated = false;
++  let digging = false;
++  let placing = false;
++  let placingBlock = null;
++  let lastNodeTime = performance.now();
++  let returningPos = null;
++  let stopPathing = false;
++  const physics = new Physics(bot);
++  const lockPlaceBlock = new Lock();
++  const lockEquipItem = new Lock();
++  const lockUseBlock = new Lock();
++
++  bot.pathfinder = {};
++
++  bot.pathfinder.thinkTimeout = 5000; // ms
++  bot.pathfinder.tickTimeout = 40; // ms, amount of thinking per tick (max 50 ms)
++  bot.pathfinder.searchRadius = -1; // in blocks, limits of the search area, -1: don't limit the search
++  bot.pathfinder.enablePathShortcut = false; // disabled by default as it can cause bugs in specific configurations
++  bot.pathfinder.LOSWhenPlacingBlocks = true;
++  bot.pathfinder.sneak = false;
+ 
+   bot.pathfinder.bestHarvestTool = (block) => {
+-    const availableTools = bot.inventory.items()
+-    const effects = bot.entity.effects
++    const availableTools = bot.inventory.items();
++    const effects = bot.entity.effects;
+ 
+-    let fastest = Number.MAX_VALUE
+-    let bestTool = null
++    let fastest = Number.MAX_VALUE;
++    let bestTool = null;
+     for (const tool of availableTools) {
+-      const enchants = (tool && tool.nbt) ? nbt.simplify(tool.nbt).Enchantments : []
+-      const digTime = block.digTime(tool ? tool.type : null, false, false, false, enchants, effects)
++      const enchants =
++        tool && tool.nbt ? nbt.simplify(tool.nbt).Enchantments : [];
++      const digTime = block.digTime(
++        tool ? tool.type : null,
++        false,
++        false,
++        false,
++        enchants,
++        effects
++      );
+       if (digTime < fastest) {
+-        fastest = digTime
+-        bestTool = tool
++        fastest = digTime;
++        bestTool = tool;
+       }
+     }
+ 
+-    return bestTool
+-  }
++    return bestTool;
++  };
+ 
+   bot.pathfinder.getPathTo = (movements, goal, timeout) => {
+-    const generator = bot.pathfinder.getPathFromTo(movements, bot.entity.position, goal, { timeout })
+-    const { value: { result, astarContext: context } } = generator.next()
+-    astarContext = context
+-    return result
+-  }
+-
+-  bot.pathfinder.getPathFromTo = function * (movements, startPos, goal, options = {}) {
+-    const optimizePath = options.optimizePath ?? true
+-    const resetEntityIntersects = options.resetEntityIntersects ?? true
+-    const timeout = options.timeout ?? bot.pathfinder.thinkTimeout
+-    const tickTimeout = options.tickTimeout ?? bot.pathfinder.tickTimeout
+-    const searchRadius = options.searchRadius ?? bot.pathfinder.searchRadius
+-    let start
++    const generator = bot.pathfinder.getPathFromTo(
++      movements,
++      bot.entity.position,
++      goal,
++      { timeout }
++    );
++    const {
++      value: { result, astarContext: context },
++    } = generator.next();
++    astarContext = context;
++    return result;
++  };
++
++  bot.pathfinder.getPathFromTo = function* (
++    movements,
++    startPos,
++    goal,
++    options = {}
++  ) {
++    const optimizePath = options.optimizePath ?? true;
++    const resetEntityIntersects = options.resetEntityIntersects ?? true;
++    const timeout = options.timeout ?? bot.pathfinder.thinkTimeout;
++    const tickTimeout = options.tickTimeout ?? bot.pathfinder.tickTimeout;
++    const searchRadius = options.searchRadius ?? bot.pathfinder.searchRadius;
++    let start;
+     if (options.startMove) {
+-      start = options.startMove
++      start = options.startMove;
+     } else {
+-      const p = startPos.floored()
+-      const dy = startPos.y - p.y
+-      const b = bot.blockAt(p) // The block we are standing in
++      const p = startPos.floored();
++      const dy = startPos.y - p.y;
++      const b = bot.blockAt(p); // The block we are standing in
+       // Offset the floored bot position by one if we are standing on a block that has not the full height but is solid
+-      const offset = (b && dy > 0.001 && bot.entity.onGround && !stateMovements.emptyBlocks.has(b.type)) ? 1 : 0
+-      start = new Move(p.x, p.y + offset, p.z, movements.countScaffoldingItems(), 0)
++      const offset =
++        b &&
++        dy > 0.001 &&
++        bot.entity.onGround &&
++        !stateMovements.emptyBlocks.has(b.type)
++          ? 1
++          : 0;
++      start = new Move(
++        p.x,
++        p.y + offset,
++        p.z,
++        movements.countScaffoldingItems(),
++        0
++      );
+     }
+     if (movements.allowEntityDetection) {
+       if (resetEntityIntersects) {
+-        movements.clearCollisionIndex()
++        movements.clearCollisionIndex();
+       }
+-      movements.updateCollisionIndex()
++      movements.updateCollisionIndex();
+     }
+-    const astarContext = new AStar(start, movements, goal, timeout, tickTimeout, searchRadius)
+-    let result = astarContext.compute()
+-    if (optimizePath) result.path = postProcessPath(result.path)
+-    yield { result, astarContext }
+-    while (result.status === 'partial') {
+-      result = astarContext.compute()
+-      if (optimizePath) result.path = postProcessPath(result.path)
+-      yield { result, astarContext }
++    const astarContext = new AStar(
++      start,
++      movements,
++      goal,
++      timeout,
++      tickTimeout,
++      searchRadius
++    );
++    let result = astarContext.compute();
++    if (optimizePath) result.path = postProcessPath(result.path);
++    yield { result, astarContext };
++    while (result.status === "partial") {
++      result = astarContext.compute();
++      if (optimizePath) result.path = postProcessPath(result.path);
++      yield { result, astarContext };
+     }
+-  }
++  };
+ 
+   Object.defineProperties(bot.pathfinder, {
+     goal: {
+-      get () {
+-        return stateGoal
+-      }
++      get() {
++        return stateGoal;
++      },
+     },
+     movements: {
+-      get () {
+-        return stateMovements
+-      }
+-    }
+-  })
++      get() {
++        return stateMovements;
++      },
++    },
++  });
+ 
+-  function detectDiggingStopped () {
+-    digging = false
+-    bot.removeAllListeners('diggingAborted', detectDiggingStopped)
+-    bot.removeAllListeners('diggingCompleted', detectDiggingStopped)
++  function detectDiggingStopped() {
++    digging = false;
++    bot.removeAllListeners("diggingAborted", detectDiggingStopped);
++    bot.removeAllListeners("diggingCompleted", detectDiggingStopped);
+   }
+ 
+-  function resetPath (reason, clearStates = true) {
+-    if (!stopPathing && path.length > 0) bot.emit('path_reset', reason)
+-    path = []
++  function resetPath(reason, clearStates = true) {
++    if (!stopPathing && path.length > 0) bot.emit("path_reset", reason);
++    path = [];
+     if (digging) {
+-      bot.on('diggingAborted', detectDiggingStopped)
+-      bot.on('diggingCompleted', detectDiggingStopped)
+-      bot.stopDigging()
+-    }
+-    placing = false
+-    pathUpdated = false
+-    astarContext = null
+-    lockEquipItem.release()
+-    lockPlaceBlock.release()
+-    lockUseBlock.release()
+-    stateMovements.clearCollisionIndex()
+-    if (clearStates) bot.clearControlStates()
+-    if (stopPathing) return stop()
++      bot.on("diggingAborted", detectDiggingStopped);
++      bot.on("diggingCompleted", detectDiggingStopped);
++      bot.stopDigging();
++    }
++    placing = false;
++    pathUpdated = false;
++    astarContext = null;
++    lockEquipItem.release();
++    lockPlaceBlock.release();
++    lockUseBlock.release();
++    stateMovements.clearCollisionIndex();
++    if (clearStates) bot.clearControlStates();
++    if (stopPathing) return stop();
+   }
+ 
+   bot.pathfinder.setGoal = (goal, dynamic = false) => {
+-    stateGoal = goal
+-    dynamicGoal = dynamic
+-    bot.emit('goal_updated', goal, dynamic)
+-    resetPath('goal_updated')
+-  }
++    stateGoal = goal;
++    dynamicGoal = dynamic;
++    bot.emit("goal_updated", goal, dynamic);
++    resetPath("goal_updated");
++  };
+ 
+   bot.pathfinder.setMovements = (movements) => {
+-    stateMovements = movements
+-    resetPath('movements_updated')
+-  }
++    stateMovements = movements;
++    resetPath("movements_updated");
++  };
+ 
+-  bot.pathfinder.isMoving = () => path.length > 0
+-  bot.pathfinder.isMining = () => digging
+-  bot.pathfinder.isBuilding = () => placing
++  bot.pathfinder.isMoving = () => path.length > 0;
++  bot.pathfinder.isMining = () => digging;
++  bot.pathfinder.isBuilding = () => placing;
+ 
+   bot.pathfinder.goto = (goal) => {
+-    return gotoUtil(bot, goal)
+-  }
++    return gotoUtil(bot, goal);
++  };
+ 
+   bot.pathfinder.stop = () => {
+-    stopPathing = true
+-  }
++    stopPathing = true;
++  };
+ 
+-  bot.on('physicsTick', monitorMovement)
++  bot.on("physicsTick", monitorMovement);
+ 
+-  function postProcessPath (path) {
++  function postProcessPath(path) {
+     for (let i = 0; i < path.length; i++) {
+-      const curPoint = path[i]
+-      if (curPoint.toBreak.length > 0 || curPoint.toPlace.length > 0) break
+-      const b = bot.blockAt(new Vec3(curPoint.x, curPoint.y, curPoint.z))
+-      if (b && (b.type === waterType || ((b.type === ladderId || b.type === vineId) && i + 1 < path.length && path[i + 1].y < curPoint.y))) {
+-        curPoint.x = Math.floor(curPoint.x) + 0.5
+-        curPoint.y = Math.floor(curPoint.y)
+-        curPoint.z = Math.floor(curPoint.z) + 0.5
+-        continue
++      const curPoint = path[i];
++      if (curPoint.toBreak.length > 0 || curPoint.toPlace.length > 0) break;
++      const b = bot.blockAt(new Vec3(curPoint.x, curPoint.y, curPoint.z));
++      if (
++        b &&
++        (b.type === waterType ||
++          ((b.type === ladderId || b.type === vineId) &&
++            i + 1 < path.length &&
++            path[i + 1].y < curPoint.y))
++      ) {
++        curPoint.x = Math.floor(curPoint.x) + 0.5;
++        curPoint.y = Math.floor(curPoint.y);
++        curPoint.z = Math.floor(curPoint.z) + 0.5;
++        continue;
+       }
+-      let np = getPositionOnTopOf(b)
+-      if (np === null) np = getPositionOnTopOf(bot.blockAt(new Vec3(curPoint.x, curPoint.y - 1, curPoint.z)))
++      let np = getPositionOnTopOf(b);
++      if (np === null)
++        np = getPositionOnTopOf(
++          bot.blockAt(new Vec3(curPoint.x, curPoint.y - 1, curPoint.z))
++        );
+       if (np) {
+-        curPoint.x = np.x
+-        curPoint.y = np.y
+-        curPoint.z = np.z
++        curPoint.x = np.x;
++        curPoint.y = np.y;
++        curPoint.z = np.z;
+       } else {
+-        curPoint.x = Math.floor(curPoint.x) + 0.5
+-        curPoint.y = curPoint.y - 1
+-        curPoint.z = Math.floor(curPoint.z) + 0.5
++        curPoint.x = Math.floor(curPoint.x) + 0.5;
++        curPoint.y = curPoint.y - 1;
++        curPoint.z = Math.floor(curPoint.z) + 0.5;
+       }
+     }
+ 
+-    if (!bot.pathfinder.enablePathShortcut || stateMovements.exclusionAreasStep.length !== 0 || path.length === 0) return path
++    if (
++      !bot.pathfinder.enablePathShortcut ||
++      stateMovements.exclusionAreasStep.length !== 0 ||
++      path.length === 0
++    )
++      return path;
+ 
+-    const newPath = []
+-    let lastNode = bot.entity.position
++    const newPath = [];
++    let lastNode = bot.entity.position;
+     for (let i = 1; i < path.length; i++) {
+-      const node = path[i]
+-      if (Math.abs(node.y - lastNode.y) > 0.5 || node.toBreak.length > 0 || node.toPlace.length > 0 || !physics.canStraightLineBetween(lastNode, node)) {
+-        newPath.push(path[i - 1])
+-        lastNode = path[i - 1]
++      const node = path[i];
++      if (
++        Math.abs(node.y - lastNode.y) > 0.5 ||
++        node.toBreak.length > 0 ||
++        node.toPlace.length > 0 ||
++        !physics.canStraightLineBetween(lastNode, node)
++      ) {
++        newPath.push(path[i - 1]);
++        lastNode = path[i - 1];
+       }
+     }
+-    newPath.push(path[path.length - 1])
+-    return newPath
++    newPath.push(path[path.length - 1]);
++    return newPath;
+   }
+ 
+-  function pathFromPlayer (path) {
+-    if (path.length === 0) return
+-    let minI = 0
+-    let minDistance = 1000
++  function pathFromPlayer(path) {
++    if (path.length === 0) return;
++    let minI = 0;
++    let minDistance = 1000;
+     for (let i = 0; i < path.length; i++) {
+-      const node = path[i]
+-      if (node.toBreak.length !== 0 || node.toPlace.length !== 0) break
+-      const dist = bot.entity.position.distanceSquared(node)
++      const node = path[i];
++      if (node.toBreak.length !== 0 || node.toPlace.length !== 0) break;
++      const dist = bot.entity.position.distanceSquared(node);
+       if (dist < minDistance) {
+-        minDistance = dist
+-        minI = i
++        minDistance = dist;
++        minI = i;
+       }
+     }
+     // check if we are between 2 nodes
+-    const n1 = path[minI]
++    const n1 = path[minI];
+     // check if node already reached
+-    const dx = n1.x - bot.entity.position.x
+-    const dy = n1.y - bot.entity.position.y
+-    const dz = n1.z - bot.entity.position.z
+-    const reached = Math.abs(dx) <= 0.35 && Math.abs(dz) <= 0.35 && Math.abs(dy) < 1
+-    if (minI + 1 < path.length && n1.toBreak.length === 0 && n1.toPlace.length === 0) {
+-      const n2 = path[minI + 1]
+-      const d2 = bot.entity.position.distanceSquared(n2)
+-      const d12 = n1.distanceSquared(n2)
+-      minI += d12 > d2 || reached ? 1 : 0
+-    }
+-
+-    path.splice(0, minI)
++    const dx = n1.x - bot.entity.position.x;
++    const dy = n1.y - bot.entity.position.y;
++    const dz = n1.z - bot.entity.position.z;
++    const reached =
++      Math.abs(dx) <= 0.35 && Math.abs(dz) <= 0.35 && Math.abs(dy) < 1;
++    if (
++      minI + 1 < path.length &&
++      n1.toBreak.length === 0 &&
++      n1.toPlace.length === 0
++    ) {
++      const n2 = path[minI + 1];
++      const d2 = bot.entity.position.distanceSquared(n2);
++      const d12 = n1.distanceSquared(n2);
++      minI += d12 > d2 || reached ? 1 : 0;
++    }
++
++    path.splice(0, minI);
+   }
+ 
+-  function isPositionNearPath (pos, path) {
+-    let prevNode = null
++  function isPositionNearPath(pos, path) {
++    let prevNode = null;
+     for (const node of path) {
+-      let comparisonPoint = null
++      let comparisonPoint = null;
+       if (
+         prevNode === null ||
+-        (
+-          Math.abs(prevNode.x - node.x) <= 2 &&
++        (Math.abs(prevNode.x - node.x) <= 2 &&
+           Math.abs(prevNode.y - node.y) <= 2 &&
+-          Math.abs(prevNode.z - node.z) <= 2
+-        )
++          Math.abs(prevNode.z - node.z) <= 2)
+       ) {
+         // Unoptimized path, or close enough to last point
+         // to just check against the current point
+-        comparisonPoint = node
++        comparisonPoint = node;
+       } else {
+         // Optimized path - the points are far enough apart
+         //   that we need to check the space between them too
+ 
+         // First, a quick check - if point it outside the path
+         // segment's AABB, then it isn't near.
+-        const minBound = prevNode.min(node)
+-        const maxBound = prevNode.max(node)
++        const minBound = prevNode.min(node);
++        const maxBound = prevNode.max(node);
+         if (
+           pos.x - 0.5 < minBound.x - 1 ||
+           pos.x - 0.5 > maxBound.x + 1 ||
+@@ -265,379 +329,511 @@ function inject (bot) {
+           pos.z - 0.5 < minBound.z - 1 ||
+           pos.z - 0.5 > maxBound.z + 1
+         ) {
+-          continue
++          continue;
+         }
+ 
+-        comparisonPoint = closestPointOnLineSegment(pos, prevNode, node)
++        comparisonPoint = closestPointOnLineSegment(pos, prevNode, node);
+       }
+ 
+-      const dx = Math.abs(comparisonPoint.x - pos.x - 0.5)
+-      const dy = Math.abs(comparisonPoint.y - pos.y - 0.5)
+-      const dz = Math.abs(comparisonPoint.z - pos.z - 0.5)
+-      if (dx <= 1 && dy <= 2 && dz <= 1) return true
++      const dx = Math.abs(comparisonPoint.x - pos.x - 0.5);
++      const dy = Math.abs(comparisonPoint.y - pos.y - 0.5);
++      const dz = Math.abs(comparisonPoint.z - pos.z - 0.5);
++      if (dx <= 1 && dy <= 2 && dz <= 1) return true;
+ 
+-      prevNode = node
++      prevNode = node;
+     }
+ 
+-    return false
++    return false;
+   }
+ 
+-  function closestPointOnLineSegment (point, segmentStart, segmentEnd) {
+-    const segmentLength = segmentEnd.minus(segmentStart).norm()
++  function closestPointOnLineSegment(point, segmentStart, segmentEnd) {
++    const segmentLength = segmentEnd.minus(segmentStart).norm();
+ 
+     if (segmentLength === 0) {
+-      return segmentStart
++      return segmentStart;
+     }
+ 
+     // t is like an interpolation from segmentStart to segmentEnd
+     //  for the closest point on the line
+-    let t = (point.minus(segmentStart)).dot(segmentEnd.minus(segmentStart)) / segmentLength
++    let t =
++      point.minus(segmentStart).dot(segmentEnd.minus(segmentStart)) /
++      segmentLength;
+ 
+     // bound t to be on the segment
+-    t = Math.max(0, Math.min(1, t))
++    t = Math.max(0, Math.min(1, t));
+ 
+-    return segmentStart.plus(segmentEnd.minus(segmentStart).scaled(t))
++    return segmentStart.plus(segmentEnd.minus(segmentStart).scaled(t));
+   }
+ 
+   // Return the average x/z position of the highest standing positions
+   // in the block.
+-  function getPositionOnTopOf (block) {
+-    if (!block || block.shapes.length === 0) return null
+-    const p = new Vec3(0.5, 0, 0.5)
+-    let n = 1
++  function getPositionOnTopOf(block) {
++    if (!block || block.shapes.length === 0) return null;
++    const p = new Vec3(0.5, 0, 0.5);
++    let n = 1;
+     for (const shape of block.shapes) {
+-      const h = shape[4]
++      const h = shape[4];
+       if (h === p.y) {
+-        p.x += (shape[0] + shape[3]) / 2
+-        p.z += (shape[2] + shape[5]) / 2
+-        n++
++        p.x += (shape[0] + shape[3]) / 2;
++        p.z += (shape[2] + shape[5]) / 2;
++        n++;
+       } else if (h > p.y) {
+-        n = 2
+-        p.x = 0.5 + (shape[0] + shape[3]) / 2
+-        p.y = h
+-        p.z = 0.5 + (shape[2] + shape[5]) / 2
++        n = 2;
++        p.x = 0.5 + (shape[0] + shape[3]) / 2;
++        p.y = h;
++        p.z = 0.5 + (shape[2] + shape[5]) / 2;
+       }
+     }
+-    p.x /= n
+-    p.z /= n
+-    return block.position.plus(p)
++    p.x /= n;
++    p.z /= n;
++    return block.position.plus(p);
+   }
+ 
+   /**
+    * Stop the bot's movement and recenter to the center off the block when the bot's hitbox is partially beyond the
+    * current blocks dimensions.
+    */
+-  function fullStop () {
+-    bot.clearControlStates()
++  function fullStop() {
++    bot.clearControlStates();
+ 
+     // Force horizontal velocity to 0 (otherwise inertia can move us too far)
+     // Kind of cheaty, but the server will not tell the difference
+-    bot.entity.velocity.x = 0
+-    bot.entity.velocity.z = 0
++    bot.entity.velocity.x = 0;
++    bot.entity.velocity.z = 0;
+ 
+-    const blockX = Math.floor(bot.entity.position.x) + 0.5
+-    const blockZ = Math.floor(bot.entity.position.z) + 0.5
++    const blockX = Math.floor(bot.entity.position.x) + 0.5;
++    const blockZ = Math.floor(bot.entity.position.z) + 0.5;
+ 
+     // Make sure our bounding box don't collide with neighboring blocks
+     // otherwise recenter the position
+-    if (Math.abs(bot.entity.position.x - blockX) > 0.2) { bot.entity.position.x = blockX }
+-    if (Math.abs(bot.entity.position.z - blockZ) > 0.2) { bot.entity.position.z = blockZ }
++    if (Math.abs(bot.entity.position.x - blockX) > 0.2) {
++      bot.entity.position.x = blockX;
++    }
++    if (Math.abs(bot.entity.position.z - blockZ) > 0.2) {
++      bot.entity.position.z = blockZ;
++    }
+   }
+ 
+-  function moveToEdge (refBlock, edge) {
++  function moveToEdge(refBlock, edge) {
+     // If allowed turn instantly should maybe be a bot option
+-    const allowInstantTurn = false
+-    function getViewVector (pitch, yaw) {
+-      const csPitch = Math.cos(pitch)
+-      const snPitch = Math.sin(pitch)
+-      const csYaw = Math.cos(yaw)
+-      const snYaw = Math.sin(yaw)
+-      return new Vec3(-snYaw * csPitch, snPitch, -csYaw * csPitch)
++    const allowInstantTurn = false;
++    function getViewVector(pitch, yaw) {
++      const csPitch = Math.cos(pitch);
++      const snPitch = Math.sin(pitch);
++      const csYaw = Math.cos(yaw);
++      const snYaw = Math.sin(yaw);
++      return new Vec3(-snYaw * csPitch, snPitch, -csYaw * csPitch);
+     }
+     // Target viewing direction while approaching edge
+     // The Bot approaches the edge while looking in the opposite direction from where it needs to go
+     // The target Pitch angle is roughly the angle the bot has to look down for when it is in the position
+     // to place the next block
+-    const targetBlockPos = refBlock.offset(edge.x + 0.5, edge.y, edge.z + 0.5)
+-    const targetPosDelta = bot.entity.position.clone().subtract(targetBlockPos)
+-    const targetYaw = Math.atan2(-targetPosDelta.x, -targetPosDelta.z)
+-    const targetPitch = -1.421
+-    const viewVector = getViewVector(targetPitch, targetYaw)
++    const targetBlockPos = refBlock.offset(edge.x + 0.5, edge.y, edge.z + 0.5);
++    const targetPosDelta = bot.entity.position.clone().subtract(targetBlockPos);
++    const targetYaw = Math.atan2(-targetPosDelta.x, -targetPosDelta.z);
++    const targetPitch = -1.421;
++    const viewVector = getViewVector(targetPitch, targetYaw);
+     // While the bot is not in the right position rotate the view and press back while crouching
+-    if (bot.entity.position.distanceTo(refBlock.clone().offset(edge.x + 0.5, 1, edge.z + 0.5)) > 0.4) {
+-      bot.lookAt(bot.entity.position.offset(viewVector.x, viewVector.y, viewVector.z), allowInstantTurn)
+-      bot.setControlState('sneak', true)
+-      bot.setControlState('back', true)
+-      return false
+-    }
+-    bot.setControlState('back', false)
+-    return true
++    if (
++      bot.entity.position.distanceTo(
++        refBlock.clone().offset(edge.x + 0.5, 1, edge.z + 0.5)
++      ) > 0.4
++    ) {
++      bot.lookAt(
++        bot.entity.position.offset(viewVector.x, viewVector.y, viewVector.z),
++        allowInstantTurn
++      );
++      bot.setControlState("sneak", true);
++      bot.setControlState("back", true);
++      return false;
++    }
++    bot.setControlState("back", false);
++    return true;
+   }
+ 
+-  function moveToBlock (pos) {
++  function moveToBlock(pos) {
+     // minDistanceSq = Min distance sqrt to the target pos were the bot is centered enough to place blocks around him
+-    const minDistanceSq = 0.2 * 0.2
+-    const targetPos = pos.clone().offset(0.5, 0, 0.5)
++    const minDistanceSq = 0.2 * 0.2;
++    const targetPos = pos.clone().offset(0.5, 0, 0.5);
+     if (bot.entity.position.distanceSquared(targetPos) > minDistanceSq) {
+-      bot.lookAt(targetPos)
+-      bot.setControlState('forward', true)
+-      return false
++      bot.lookAt(targetPos);
++      bot.setControlState("forward", true);
++      return false;
+     }
+-    bot.setControlState('forward', false)
+-    return true
++    bot.setControlState("forward", false);
++    return true;
+   }
+ 
+-  function stop () {
+-    stopPathing = false
+-    stateGoal = null
+-    path = []
+-    bot.emit('path_stop')
+-    fullStop()
++  function stop() {
++    stopPathing = false;
++    stateGoal = null;
++    path = [];
++    bot.emit("path_stop");
++    fullStop();
+   }
+ 
+-  bot.on('blockUpdate', (oldBlock, newBlock) => {
+-    if (!oldBlock || !newBlock) return
+-    if (isPositionNearPath(oldBlock.position, path) && oldBlock.type !== newBlock.type) {
+-      resetPath('block_updated', false)
++  bot.on("blockUpdate", (oldBlock, newBlock) => {
++    if (!oldBlock || !newBlock) return;
++    if (
++      isPositionNearPath(oldBlock.position, path) &&
++      oldBlock.type !== newBlock.type
++    ) {
++      resetPath("block_updated", false);
+     }
+-  })
++  });
+ 
+-  bot.on('chunkColumnLoad', (chunk) => {
++  bot.on("chunkColumnLoad", (chunk) => {
+     // Reset only if the new chunk is adjacent to a visited chunk
+     if (astarContext) {
+-      const cx = chunk.x >> 4
+-      const cz = chunk.z >> 4
+-      if (astarContext.visitedChunks.has(`${cx - 1},${cz}`) ||
+-          astarContext.visitedChunks.has(`${cx},${cz - 1}`) ||
+-          astarContext.visitedChunks.has(`${cx + 1},${cz}`) ||
+-          astarContext.visitedChunks.has(`${cx},${cz + 1}`)) {
+-        resetPath('chunk_loaded', false)
++      const cx = chunk.x >> 4;
++      const cz = chunk.z >> 4;
++      if (
++        astarContext.visitedChunks.has(`${cx - 1},${cz}`) ||
++        astarContext.visitedChunks.has(`${cx},${cz - 1}`) ||
++        astarContext.visitedChunks.has(`${cx + 1},${cz}`) ||
++        astarContext.visitedChunks.has(`${cx},${cz + 1}`)
++      ) {
++        resetPath("chunk_loaded", false);
+       }
+     }
+-  })
++  });
+ 
+-  function monitorMovement () {
+-    // Test freemotion
++  function monitorMovement() {
++    // Check if the bot is allowed free motion and if the goal is an entity
+     if (stateMovements && stateMovements.allowFreeMotion && stateGoal && stateGoal.entity) {
+-      const target = stateGoal.entity
++      const target = stateGoal.entity;
++      // Check if the bot can move in a straight line to the target
+       if (physics.canStraightLine([target.position])) {
+-        bot.lookAt(target.position.offset(0, 1.6, 0))
++        bot.lookAt(target.position.offset(0, 1.6, 0));
+ 
++        // Check if the target is within range
+         if (target.position.distanceSquared(bot.entity.position) > stateGoal.rangeSq) {
+-          bot.setControlState('forward', true)
++          if (bot.vehicle) {
++            console.log("Vehicle move forward");
++            bot.moveVehicle(0, 1); // Move forward
++          } else {
++            console.log("Foot move forward");
++            bot.setControlState("forward", true);
++          }
+         } else {
+-          bot.clearControlStates()
++          if (bot.vehicle) {
++            console.log("Vehicle stop");
++            bot.moveVehicle(0, 0); // Stop
++          } else {
++            console.log("Foot stop");
++            bot.clearControlStates();
++          }
+         }
+-        return
++        return;
+       }
+     }
++
++    // Check if the goal is still valid
+     if (stateGoal) {
+       if (!stateGoal.isValid()) {
+-        stop()
++        stop();
+       } else if (stateGoal.hasChanged()) {
+-        resetPath('goal_moved', false)
++        resetPath("goal_moved", false);
+       }
+     }
+ 
++    // Check if the A* context exists and if it has timed out
+     if (astarContext && astartTimedout) {
+-      const results = astarContext.compute()
+-      results.path = postProcessPath(results.path)
+-      pathFromPlayer(results.path)
+-      bot.emit('path_update', results)
+-      path = results.path
+-      astartTimedout = results.status === 'partial'
++      const results = astarContext.compute();
++      results.path = postProcessPath(results.path);
++      pathFromPlayer(results.path);
++      bot.emit("path_update", results);
++      path = results.path;
++      astartTimedout = results.status === "partial";
+     }
+ 
++    // Check if the bot needs to return to a specific position for placing blocks
+     if (bot.pathfinder.LOSWhenPlacingBlocks && returningPos) {
+-      if (!moveToBlock(returningPos)) return
+-      returningPos = null
++      if (!moveToBlock(returningPos)) return;
++      returningPos = null;
+     }
+ 
++    // Check if the path is empty
+     if (path.length === 0) {
+-      lastNodeTime = performance.now()
++      lastNodeTime = performance.now();
+       if (stateGoal && stateMovements) {
+         if (stateGoal.isEnd(bot.entity.position.floored())) {
+           if (!dynamicGoal) {
+-            bot.emit('goal_reached', stateGoal)
+-            stateGoal = null
+-            fullStop()
++            bot.emit("goal_reached", stateGoal);
++            stateGoal = null;
++            fullStop();
+           }
+         } else if (!pathUpdated) {
+-          const results = bot.pathfinder.getPathTo(stateMovements, stateGoal)
+-          bot.emit('path_update', results)
+-          path = results.path
+-          astartTimedout = results.status === 'partial'
+-          pathUpdated = true
++          const results = bot.pathfinder.getPathTo(stateMovements, stateGoal);
++          bot.emit("path_update", results);
++          path = results.path;
++          astartTimedout = results.status === "partial";
++          pathUpdated = true;
+         }
+       }
+     }
+ 
++    // Check if the path is still empty after attempting to update it
+     if (path.length === 0) {
+-      return
++      return;
++    }
++
++    let nextPoint = path[0];
++    const p = bot.entity.position;
++
++    // Ensure nextPoint is defined
++    if (!nextPoint) {
++      resetPath("nextPoint_undefined");
++      return;
+     }
+ 
+-    let nextPoint = path[0]
+-    const p = bot.entity.position
++    function sleep(ms) {
++      return new Promise(resolve => setTimeout(resolve, ms));
++    }
++
++    async function walkTo(x, y, z, range = 3) {
++      bot.pathfinder.setGoal(new GoalNear(x, y, z, range));
++      await sleep(1000);
++      while (bot.pathfinder.isMoving()) {
++        await sleep(100);
++      }
++    }
++
++    async function walkThroughDoor(doorToOpen) {
++      if (!doorToOpen._properties.open) {
++        await bot.activateBlock(doorToOpen);
++      } else {
++        await bot.lookAt(doorToOpen.position.offset(0.5, 0.5, 0.5), false)
++      }
++      bot.setControlState("forward", true);
++      await sleep(600);
++      bot.setControlState("forward", false);
++      if (!doorToOpen._properties.open) {
++        await bot.activateBlock(doorToOpen);
++      }
++      resetPath("door_walked_through");
++      lastNodeTime = performance.now();
++      digging = false;
++    }
+ 
+     // Handle digging
+     if (digging || nextPoint.toBreak.length > 0) {
+       if (!digging && bot.entity.onGround) {
+-        digging = true
+-        const b = nextPoint.toBreak.shift()
+-        const block = bot.blockAt(new Vec3(b.x, b.y, b.z), false)
+-        const tool = bot.pathfinder.bestHarvestTool(block)
+-        fullStop()
++        digging = true;
++        const b = nextPoint.toBreak.shift();
++        const block = bot.blockAt(new Vec3(b.x, b.y, b.z), false);
++        const tool = bot.pathfinder.bestHarvestTool(block);
++        fullStop();
+ 
+         const digBlock = () => {
+-          bot.dig(block, true)
+-            .catch(_ignoreError => {
+-              resetPath('dig_error')
++          bot
++            .dig(block, true)
++            .catch((_ignoreError) => {
++              resetPath("dig_error");
+             })
+             .then(function () {
+-              lastNodeTime = performance.now()
+-              digging = false
+-            })
+-        }
+-
+-        if (!tool) {
+-          digBlock()
++              lastNodeTime = performance.now();
++              digging = false;
++            });
++        };
++
++        if (block.name.includes('door') || block.name.includes('gate') && !block.name.includes('iron')) {
++          walkThroughDoor(block);
++        } else if (!tool) {
++          digBlock();
+         } else {
+-          bot.equip(tool, 'hand')
+-            .catch(_ignoreError => {})
+-            .then(() => digBlock())
++          bot
++            .equip(tool, "hand")
++            .catch((_ignoreError) => {})
++            .then(() => digBlock());
+         }
+       }
+-      return
++      return;
+     }
++
+     // Handle block placement
+-    // TODO: sneak when placing or make sure the block is not interactive
+     if (placing || nextPoint.toPlace.length > 0) {
+       if (!placing) {
+-        placing = true
+-        placingBlock = nextPoint.toPlace.shift()
+-        fullStop()
++        placing = true;
++        placingBlock = nextPoint.toPlace.shift();
++        fullStop();
+       }
+ 
+-      // Open gates or doors
+-      if (placingBlock?.useOne) {
+-        if (!lockUseBlock.tryAcquire()) return
+-        bot.activateBlock(bot.blockAt(new Vec3(placingBlock.x, placingBlock.y, placingBlock.z))).then(() => {
+-          lockUseBlock.release()
+-          placingBlock = nextPoint.toPlace.shift()
+-        }, err => {
+-          console.error(err)
+-          lockUseBlock.release()
+-        })
+-        return
+-      }
+-      const block = stateMovements.getScaffoldingItem()
+-      if (!block) {
+-        resetPath('no_scaffolding_blocks')
+-        return
+-      }
+-      if (bot.pathfinder.LOSWhenPlacingBlocks && placingBlock.y === bot.entity.position.floored().y - 1 && placingBlock.dy === 0) {
+-        if (!moveToEdge(new Vec3(placingBlock.x, placingBlock.y, placingBlock.z), new Vec3(placingBlock.dx, 0, placingBlock.dz))) return
+-      }
+-      let canPlace = true
+-      if (placingBlock.jump) {
+-        bot.setControlState('jump', true)
+-        canPlace = placingBlock.y + 1 < bot.entity.position.y
+-      }
+-      if (canPlace) {
+-        if (!lockEquipItem.tryAcquire()) return
+-        bot.equip(block, 'hand')
+-          .then(function () {
+-            lockEquipItem.release()
+-            const refBlock = bot.blockAt(new Vec3(placingBlock.x, placingBlock.y, placingBlock.z), false)
+-            if (!lockPlaceBlock.tryAcquire()) return
+-            if (interactableBlocks.includes(refBlock.name)) {
+-              bot.setControlState('sneak', true)
+-            }
+-            bot.placeBlock(refBlock, new Vec3(placingBlock.dx, placingBlock.dy, placingBlock.dz))
+-              .then(function () {
+-                // Dont release Sneak if the block placement was not successful
+-                bot.setControlState('sneak', false)
+-                if (bot.pathfinder.LOSWhenPlacingBlocks && placingBlock.returnPos) returningPos = placingBlock.returnPos.clone()
+-              })
+-              .catch(_ignoreError => {
+-                resetPath('place_error')
+-              })
+-              .then(() => {
+-                lockPlaceBlock.release()
+-                placing = false
+-                lastNodeTime = performance.now()
+-              })
+-          })
+-          .catch(_ignoreError => {})
++      if (placingBlock) {
++        // Open gates or doors
++        if (placingBlock.useOne) {
++          if (!lockUseBlock.tryAcquire()) return;
++          bot
++            .activateBlock(
++              bot.blockAt(
++                new Vec3(placingBlock.x, placingBlock.y, placingBlock.z)
++              )
++            )
++            .then(
++              () => {
++                lockUseBlock.release();
++                placing = false; // Add this line to stop spamming
++                lastNodeTime = performance.now(); // Add this line to update the last node time
++              },
++              (err) => {
++                console.error(err);
++                lockUseBlock.release();
++              }
++            );
++          return;
++        }
++        const block = stateMovements.getScaffoldingItem();
++        if (!block) {
++          resetPath("no_scaffolding_blocks");
++          return;
++        }
++        if (
++          bot.pathfinder.LOSWhenPlacingBlocks &&
++          placingBlock.y === bot.entity.position.floored().y - 1 &&
++          placingBlock.dy === 0
++        ) {
++          if (
++            !moveToEdge(
++              new Vec3(placingBlock.x, placingBlock.y, placingBlock.z),
++              new Vec3(placingBlock.dx, 0, placingBlock.dz)
++            )
++          )
++            return;
++        }
++        let canPlace = true;
++        if (placingBlock.jump) {
++          bot.setControlState("jump", true);
++          canPlace = placingBlock.y + 1 < bot.entity.position.y;
++        }
++        if (canPlace) {
++          if (!lockEquipItem.tryAcquire()) return;
++          bot
++            .equip(block, "hand")
++            .then(function () {
++              lockEquipItem.release();
++              const refBlock = bot.blockAt(
++                new Vec3(placingBlock.x, placingBlock.y, placingBlock.z),
++                false
++              );
++              if (!lockPlaceBlock.tryAcquire()) return;
++              if (interactableBlocks.includes(refBlock.name)) {
++                bot.setControlState("sneak", true);
++              }
++
++              // Spam placeBlock while jumping
++              const placeBlockInterval = setInterval(() => {
++                bot
++                  .placeBlock(
++                    refBlock,
++                    new Vec3(placingBlock.dx, placingBlock.dy, placingBlock.dz)
++                  )
++                  .then(function () {
++                    clearInterval(placeBlockInterval); // Stop spamming once successful
++                    bot.setControlState("sneak", false);
++                    if (
++                      bot.pathfinder.LOSWhenPlacingBlocks &&
++                      placingBlock.returnPos
++                    )
++                      returningPos = placingBlock.returnPos.clone();
++                    
++                    // Emit blockPlaced event
++                    const newBlock = bot.blockAt(
++                      new Vec3(placingBlock.x, placingBlock.y, placingBlock.z)
++                    );
++                    bot.emit('blockPlaced', refBlock, newBlock);
++                  })
++                  .catch((_ignoreError) => {
++                    // Keep trying until successful
++                  });
++              }, 50); // Adjust the interval as needed
++
++            })
++            .catch((_ignoreError) => {});
++        }
++        return;
+       }
+-      return
+     }
+ 
+-    let dx = nextPoint.x - p.x
+-    const dy = nextPoint.y - p.y
+-    let dz = nextPoint.z - p.z
++    let dx = nextPoint.x - p.x;
++    const dy = nextPoint.y - p.y;
++    let dz = nextPoint.z - p.z;
+     if (Math.abs(dx) <= 0.35 && Math.abs(dz) <= 0.35 && Math.abs(dy) < 1) {
+       // arrived at next point
+-      lastNodeTime = performance.now()
++      lastNodeTime = performance.now();
+       if (stopPathing) {
+-        stop()
+-        return
++        stop();
++        return;
+       }
+-      path.shift()
+-      if (path.length === 0) { // done
++      path.shift();
++      if (path.length === 0) {
++        // done
+         // If the block the bot is standing on is not a full block only checking for the floored position can fail as
+         // the distance to the goal can get greater then 0 when the vector is floored.
+-        if (!dynamicGoal && stateGoal && (stateGoal.isEnd(p.floored()) || stateGoal.isEnd(p.floored().offset(0, 1, 0)))) {
+-          bot.emit('goal_reached', stateGoal)
+-          stateGoal = null
++        if (
++          !dynamicGoal &&
++          stateGoal &&
++          (stateGoal.isEnd(p.floored()) ||
++            stateGoal.isEnd(p.floored().offset(0, 1, 0)))
++        ) {
++          bot.emit("goal_reached", stateGoal);
++          stateGoal = null;
+         }
+-        fullStop()
+-        return
++        fullStop();
++        return;
+       }
+       // not done yet
+-      nextPoint = path[0]
++      nextPoint = path[0];
+       if (nextPoint.toBreak.length > 0 || nextPoint.toPlace.length > 0) {
+-        fullStop()
+-        return
++        fullStop();
++        return;
+       }
+-      dx = nextPoint.x - p.x
+-      dz = nextPoint.z - p.z
+-    }
+-
+-    bot.look(Math.atan2(-dx, -dz), 0)
+-    bot.setControlState('forward', true)
+-    bot.setControlState('jump', false)
+-
+-    if (bot.entity.isInWater) {
+-      bot.setControlState('jump', true)
+-      bot.setControlState('sprint', false)
+-    } else if (stateMovements.allowSprinting && physics.canStraightLine(path, true)) {
+-      bot.setControlState('jump', false)
+-      bot.setControlState('sprint', true)
+-    } else if (stateMovements.allowSprinting && physics.canSprintJump(path)) {
+-      bot.setControlState('jump', true)
+-      bot.setControlState('sprint', true)
+-    } else if (physics.canStraightLine(path)) {
+-      bot.setControlState('jump', false)
+-      bot.setControlState('sprint', false)
+-    } else if (physics.canWalkJump(path)) {
+-      bot.setControlState('jump', true)
+-      bot.setControlState('sprint', false)
++      dx = nextPoint.x - p.x;
++      dz = nextPoint.z - p.z;
++    }
++
++    if (bot.vehicle) {
++      console.log("Vehicle movement");
++      bot.moveVehicle(dx > 0 ? 1 : -1, dz > 0 ? 1 : -1);
+     } else {
+-      bot.setControlState('forward', false)
+-      bot.setControlState('sprint', false)
++      bot.look(Math.atan2(-dx, -dz), 0);
++      bot.setControlState("forward", true);
++      bot.setControlState("jump", false);
++      bot.setControlState('sneak', bot.pathfinder.sneak);
++
++      if (bot.entity.isInWater) {
++        bot.setControlState("jump", true);
++        bot.setControlState("sprint", false);
++      } else if (
++        stateMovements.allowSprinting &&
++        physics.canStraightLine(path, true)
++      ) {
++        bot.setControlState("jump", false);
++        bot.setControlState("sprint", true);
++      } else if (stateMovements.allowSprinting && physics.canSprintJump(path)) {
++        bot.setControlState("jump", true);
++        bot.setControlState("sprint", true);
++      } else if (physics.canStraightLine(path)) {
++        bot.setControlState("jump", false);
++        bot.setControlState("sprint", false);
++      } else if (physics.canWalkJump(path)) {
++        bot.setControlState("jump", true);
++        bot.setControlState("sprint", false);
++      } else {
++        bot.setControlState("forward", false);
++        bot.setControlState("sprint", false);
++      }
+     }
+ 
+     // check for futility
+     if (performance.now() - lastNodeTime > 3500) {
+       // should never take this long to go to the next node
+-      resetPath('stuck')
++      resetPath("stuck");
+     }
+   }
+ }
+ 
+ module.exports = {
+   pathfinder: inject,
+-  Movements: require('./lib/movements'),
+-  goals: require('./lib/goals')
+-}
++  Movements: require("./lib/movements"),
++  goals: require("./lib/goals"),
++};
+diff --git a/node_modules/mineflayer-pathfinder/lib/astar.js b/node_modules/mineflayer-pathfinder/lib/astar.js
+index e7a82cb..608a55a 100644
+--- a/node_modules/mineflayer-pathfinder/lib/astar.js
++++ b/node_modules/mineflayer-pathfinder/lib/astar.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { performance } = require('perf_hooks')
+ 
+ const Heap = require('./heap.js')
+@@ -64,52 +65,92 @@ class AStar {
+     }
+   }
+ 
++  /**
++   * Computes the path for the bot to follow using the A* algorithm.
++   * 
++   * This method controls the bot's pathfinding by processing nodes in the open heap
++   * until a path to the goal is found, the computation times out, or no path is available.
++   * 
++   * The method operates in a loop, performing the following steps:
++   * 1. Checks if the current tick has exceeded the allowed time (`tickTimeout`).
++   * 2. Checks if the total computation time has exceeded the overall timeout (`timeout`).
++   * 3. Pops the node with the lowest cost from the open heap.
++   * 4. Checks if the current node is the goal.
++   * 5. Moves the current node from the open set to the closed set.
++   * 6. Retrieves all valid neighboring nodes.
++   * 7. For each neighbor:
++   *    - Skips neighbors already in the closed set.
++   *    - Calculates the cost from the start node to this neighbor.
++   *    - Adds the neighbor to the open set if it's not already there, or updates it if it has a lower cost.
++   * 
++   * The method returns a result object containing the status of the pathfinding operation,
++   * the cost, time taken, number of visited and generated nodes, the path, and the context.
++   * 
++   * @returns {Object} The result of the pathfinding operation.
++   */
+   compute () {
++    // Start the compute timer
+     const computeStartTime = performance.now()
++
++    // Main loop: process nodes until the open heap is empty
+     while (!this.openHeap.isEmpty()) {
+-      if (performance.now() - computeStartTime > this.tickTimeout) { // compute time per tick
++      // Check if the current tick has exceeded the allowed time
++      if (performance.now() - computeStartTime > this.tickTimeout) {
+         return this.makeResult('partial', this.bestNode)
+       }
+-      if (performance.now() - this.startTime > this.timeout) { // total compute time
++
++      // Check if the total computation time has exceeded the timeout
++      if (performance.now() - this.startTime > this.timeout) {
+         return this.makeResult('timeout', this.bestNode)
+       }
++
++      // Get the node with the lowest cost from the open heap
+       const node = this.openHeap.pop()
++
++      // Check if the current node is the goal
+       if (this.goal.isEnd(node.data)) {
+         return this.makeResult('success', node)
+       }
+-      // not done yet
++
++      // Move the current node from the open set to the closed set
+       this.openDataMap.delete(node.data.hash)
+       this.closedDataSet.add(node.data.hash)
+       this.visitedChunks.add(`${node.data.x >> 4},${node.data.z >> 4}`)
+ 
++      // Get all valid neighboring nodes
+       const neighbors = this.movements.getNeighbors(node.data)
+       for (const neighborData of neighbors) {
++        // Skip neighbors that are already in the closed set
+         if (this.closedDataSet.has(neighborData.hash)) {
+-          continue // skip closed neighbors
++          continue
+         }
++
++        // Calculate the cost from the start node to this neighbor
+         const gFromThisNode = node.g + neighborData.cost
+         let neighborNode = this.openDataMap.get(neighborData.hash)
+         let update = false
+ 
++        // Calculate the heuristic cost to the goal
+         const heuristic = this.goal.heuristic(neighborData)
+         if (this.maxCost > 0 && gFromThisNode + heuristic > this.maxCost) continue
+ 
++        // If the neighbor is not in the open set, add it
+         if (neighborNode === undefined) {
+-          // add neighbor to the open set
+           neighborNode = new PathNode()
+-          // properties will be set later
+           this.openDataMap.set(neighborData.hash, neighborNode)
+         } else {
++          // If the neighbor is already in the open set with a lower cost, skip it
+           if (neighborNode.g < gFromThisNode) {
+-            // skip this one because another route is faster
+             continue
+           }
+           update = true
+         }
+-        // found a new or better route.
+-        // update this neighbor with this node as its new parent
++
++        // Update the neighbor with the new cost and parent node
+         neighborNode.set(neighborData, gFromThisNode, heuristic, node)
+         if (neighborNode.h < this.bestNode.h) this.bestNode = neighborNode
++
++        // Update the open heap with the new or updated neighbor node
+         if (update) {
+           this.openHeap.update(neighborNode)
+         } else {
+@@ -117,7 +158,8 @@ class AStar {
+         }
+       }
+     }
+-    // all the neighbors of every accessible node have been exhausted
++
++    // If all nodes have been processed and no path was found
+     return this.makeResult('noPath', this.bestNode)
+   }
+ }
+diff --git a/node_modules/mineflayer-pathfinder/lib/goals.js b/node_modules/mineflayer-pathfinder/lib/goals.js
+index cc6d875..df846d4 100644
+--- a/node_modules/mineflayer-pathfinder/lib/goals.js
++++ b/node_modules/mineflayer-pathfinder/lib/goals.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { Vec3 } = require('vec3')
+ const { getShapeFaceCenters } = require('./shapes')
+ 
+@@ -212,8 +213,8 @@ class GoalBreakBlock extends Goal {
+     this.goal = new GoalLookAtBlock(new Vec3(x, y, z), bot, options)
+   }
+ 
+-  isEnd () {
+-    return this.goal.isEnd()
++  isEnd (node) {
++    return this.goal.isEnd(node)
+   }
+ 
+   heuristic (node) {
+diff --git a/node_modules/mineflayer-pathfinder/lib/goto.js b/node_modules/mineflayer-pathfinder/lib/goto.js
+index 0b8b9de..97236f5 100644
+--- a/node_modules/mineflayer-pathfinder/lib/goto.js
++++ b/node_modules/mineflayer-pathfinder/lib/goto.js
+@@ -1,3 +1,5 @@
++// @ts-nocheck
++
+ function error (name, message) {
+   const err = new Error(message)
+   err.name = name
+@@ -31,7 +33,8 @@ function goto (bot, goal) {
+ 
+     function goalChangedListener (newGoal) {
+       if (newGoal !== goal) {
+-        cleanup(error('GoalChanged', 'The goal was changed before it could be completed!'))
++        console.log('GoalChanged: The goal was changed before it could be completed!')
++        cleanup()
+       }
+     }
+ 
+@@ -60,6 +63,7 @@ function goto (bot, goal) {
+     bot.on('goal_reached', goalReached)
+     bot.on('path_update', noPathListener)
+     bot.on('goal_updated', goalChangedListener)
++    
+     bot.pathfinder.setGoal(goal)
+   })
+ }
+diff --git a/node_modules/mineflayer-pathfinder/lib/heap.js b/node_modules/mineflayer-pathfinder/lib/heap.js
+index a762b27..9e5bbb7 100644
+--- a/node_modules/mineflayer-pathfinder/lib/heap.js
++++ b/node_modules/mineflayer-pathfinder/lib/heap.js
+@@ -1,3 +1,5 @@
++// @ts-nocheck
++
+ class BinaryHeapOpenSet {
+   constructor () {
+     // Initialing the array heap and adding a dummy element at index 0
+diff --git a/node_modules/mineflayer-pathfinder/lib/lock.js b/node_modules/mineflayer-pathfinder/lib/lock.js
+index a70251d..38271dc 100644
+--- a/node_modules/mineflayer-pathfinder/lib/lock.js
++++ b/node_modules/mineflayer-pathfinder/lib/lock.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { EventEmitter, on } = require('events')
+ 
+ class Lock {
+diff --git a/node_modules/mineflayer-pathfinder/lib/move.js b/node_modules/mineflayer-pathfinder/lib/move.js
+index 5c4facb..a3bf3fd 100644
+--- a/node_modules/mineflayer-pathfinder/lib/move.js
++++ b/node_modules/mineflayer-pathfinder/lib/move.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { Vec3 } = require('vec3')
+ 
+ class Move extends Vec3 {
+diff --git a/node_modules/mineflayer-pathfinder/lib/movements.js b/node_modules/mineflayer-pathfinder/lib/movements.js
+index a7e3505..a24c01c 100644
+--- a/node_modules/mineflayer-pathfinder/lib/movements.js
++++ b/node_modules/mineflayer-pathfinder/lib/movements.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { Vec3 } = require('vec3')
+ const nbt = require('prismarine-nbt')
+ const Move = require('./move')
+@@ -41,6 +42,18 @@ class Movements {
+     this.blocksCantBreak = new Set()
+     this.blocksCantBreak.add(registry.blocksByName.chest.id)
+ 
++    // Define the set of blocks that pathfinding is allowed to break opportunistically.
++    // This is primarily for clearing minor obstacles like grass, vines, etc.
++    this.allowedPathfindingBreaks = new Set([
++      "sand", "gravel", "dirt", "grass_block", "grass", "tall_grass",
++      "dead_bush", "fern", "large_fern", "leaves", "leaves2", "cobweb",
++      "snow_layer", "vine", "seagrass", "kelp", "poppy", "dandelion",
++      "red_mushroom", "brown_mushroom", "bamboo", "lily_pad", "sugar_cane",
++      "cactus"
++      // Note: 'leaves' and 'leaves2' might represent specific types or require checking names ending in '_leaves'.
++      // This implementation strictly uses the provided names.
++    ].map(name => registry.blocksByName[name]?.id).filter(id => id !== undefined)); // Map names to IDs
++
+     registry.blocksArray.forEach(block => {
+       if (block.diggable) return
+       this.blocksCantBreak.add(block.id)
+@@ -92,13 +105,15 @@ class Movements {
+       }
+     })
+     registry.blocksArray.forEach(block => {
+-      if (this.interactableBlocks.has(block.name) && block.name.toLowerCase().includes('gate') && !block.name.toLowerCase().includes('iron')) {
+-        // console.info(block)
++      const name = block.name.toLowerCase()
++      if (this.interactableBlocks.has(block.name) && 
++          (name.includes('gate') || name.includes('door') || name.includes('trapdoor')) && 
++          !name.includes('iron')) {
+         this.openable.add(block.id)
+       }
+     })
+ 
+-    this.canOpenDoors = false // Causes issues. Probably due to none paper servers.
++    this.canOpenDoors = false
+ 
+     this.exclusionAreasStep = []
+     this.exclusionAreasBreak = []
+@@ -143,7 +158,11 @@ class Movements {
+     for (const id of this.scafoldingBlocks) {
+       for (const j in items) {
+         const item = items[j]
+-        if (item.type === id) count += item.count
++        if (item.type === id) {
++          count += item.count
++          if (this.bot.game.gameMode === 'creative')
++            count = 1000
++        }
+       }
+     }
+     return count
+@@ -284,17 +303,33 @@ class Movements {
+     cost += this.exclusionStep(block) // Is excluded so can't move or break
+     cost += this.getNumEntitiesAt(block.position, 0, 0, 0) * this.entityCost
+     if (block.safe) return cost
++
++    // Check fundamental safety first (handles falling blocks, liquids, cantBreak, exclusion zones)
+     if (!this.safeToBreak(block)) return 100 // Can't break, so can't move
++
++    // Add the block to be broken *before* calculating cost, as it's valid to break
+     toBreak.push(block.position)
+ 
+-    if (block.physical) cost += this.getNumEntitiesAt(block.position, 0, 1, 0) * this.entityCost // Add entity cost if there is an entity above (a breakable block) that will fall
++    // Add entity cost if there is an entity above a breakable block that will fall
++    if (block.physical) cost += this.getNumEntitiesAt(block.position, 0, 1, 0) * this.entityCost
++
++    const name = block.name.toLowerCase()
++    const isDoorGateOrTrapdoor = name.includes('gate') || name.includes('door') || name.includes('trapdoor');
++
++    // If the block is not specifically allowed for pathfinding breaks and isn't a door/gate/trapdoor,
++    // assign a very high cost to discourage breaking it during pathfinding.
++    // Otherwise, calculate the normal dig cost.
++    if (block.type && !this.allowedPathfindingBreaks.has(block.type) && !isDoorGateOrTrapdoor) {
++      cost += 10000; // High cost for non-allowed blocks
++    } else {
++      const tool = this.bot.pathfinder.bestHarvestTool(block)
++      const enchants = (tool && tool.nbt) ? nbt.simplify(tool.nbt).Enchantments : []
++      const effects = this.bot.entity.effects
++      const digTime = block.digTime(tool ? tool.type : null, false, false, false, enchants, effects)
++      const laborCost = (1 + 3 * digTime / 1000) * this.digCost
++      cost += laborCost
++    }
+ 
+-    const tool = this.bot.pathfinder.bestHarvestTool(block)
+-    const enchants = (tool && tool.nbt) ? nbt.simplify(tool.nbt).Enchantments : []
+-    const effects = this.bot.entity.effects
+-    const digTime = block.digTime(tool ? tool.type : null, false, false, false, enchants, effects)
+-    const laborCost = (1 + 3 * digTime / 1000) * this.digCost
+-    cost += laborCost
+     return cost
+   }
+ 
+@@ -358,22 +393,33 @@ class Movements {
+     neighbors.push(new Move(blockB.position.x, blockB.position.y, blockB.position.z, node.remainingBlocks - toPlace.length, cost, toBreak, toPlace))
+   }
+ 
++  /**
++   * Calculates the cost and feasibility of moving forward in a given direction.
++   * @param {Move} node - The current node.
++   * @param {Vec3} dir - The direction to move in.
++   * @param {Move[]} neighbors - Array to store valid neighbor moves.
++   */
+   getMoveForward (node, dir, neighbors) {
++    // Get relevant blocks
+     const blockB = this.getBlock(node, dir.x, 1, dir.z)
+     const blockC = this.getBlock(node, dir.x, 0, dir.z)
+     const blockD = this.getBlock(node, dir.x, -1, dir.z)
+ 
+-    let cost = 1 // move cost
+-    cost += this.exclusionStep(blockC)
++    // Log block names for B, C, and D
++    // console.log(`Block B: ${blockB.name}, Block C: ${blockC.name}, Block D: ${blockD.name}`);
+ 
++    // Initialize cost and arrays for block operations
++    let cost = 1 // Base move cost
++    cost += this.exclusionStep(blockC)
+     const toBreak = []
+     const toPlace = []
+ 
++    // Check if we need to place a block to walk on
+     if (!blockD.physical && !blockC.liquid) {
+-      if (node.remainingBlocks === 0) return // not enough blocks to place
+-
++      if (node.remainingBlocks === 0) return // Not enough blocks to place
+       if (this.getNumEntitiesAt(blockD.position, 0, 0, 0) > 0) return // D intersects an entity hitbox
+ 
++      // Handle block D (below the target position)
+       if (!blockD.replaceable) {
+         if (!this.safeToBreak(blockD)) return
+         cost += this.exclusionBreak(blockD)
+@@ -381,22 +427,37 @@ class Movements {
+       }
+       cost += this.exclusionPlace(blockC)
+       toPlace.push({ x: node.x, y: node.y - 1, z: node.z, dx: dir.x, dy: 0, dz: dir.z })
+-      cost += this.placeCost // additional cost for placing a block
++      cost += this.placeCost // Additional cost for placing a block
+     }
+ 
++    // Handle block B (above the target position)
+     cost += this.safeOrBreak(blockB, toBreak)
+     if (cost > 100) return
+ 
+-    // Open fence gates
+-    if (this.canOpenDoors && blockC.openable && blockC.shapes && blockC.shapes.length !== 0) {
+-      toPlace.push({ x: node.x + dir.x, y: node.y, z: node.z + dir.z, dx: 0, dy: 0, dz: 0, useOne: true }) // Indicate that a block should be used on this block not placed
++    // Handle block B and C for openable blocks
++    if (this.canOpenDoors) {
++      const blocksToCheck = blockB === blockC ? [blockB] : [blockB, blockC];
++      console.log(`Blocks to check: ${blocksToCheck.map(block => block.name).join(', ')}`);
++      for (const block of blocksToCheck) {
++        if (block.openable && block.shapes && block.shapes.length !== 0) {
++          // Open fence gates or doors
++          console.log(`Open door action for ${block.name}`)
++          toPlace.push({ x: block.position.x, y: block.position.y, z: block.position.z, dx: 0, dy: 0, dz: 0, useOne: true })
++        } else {
++          console.log(`Not openable: ${block.name}`)
++          cost += this.safeOrBreak(block, toBreak)
++          if (cost > 100) return
++        }
++      }
+     } else {
+       cost += this.safeOrBreak(blockC, toBreak)
+       if (cost > 100) return
+     }
+ 
++    // Add liquid cost if applicable
+     if (this.getBlock(node, 0, 0, 0).liquid) cost += this.liquidCost
+ 
++    // Add the new move to neighbors
+     neighbors.push(new Move(blockC.position.x, blockC.position.y, blockC.position.z, node.remainingBlocks - toPlace.length, cost, toBreak, toPlace))
+   }
+ 
+diff --git a/node_modules/mineflayer-pathfinder/lib/physics.js b/node_modules/mineflayer-pathfinder/lib/physics.js
+index ef9e389..e53a4bf 100644
+--- a/node_modules/mineflayer-pathfinder/lib/physics.js
++++ b/node_modules/mineflayer-pathfinder/lib/physics.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { PlayerState } = require('prismarine-physics')
+ 
+ class Physics {
+diff --git a/node_modules/mineflayer-pathfinder/lib/shapes.js b/node_modules/mineflayer-pathfinder/lib/shapes.js
+index 79ccbf2..5c12936 100644
+--- a/node_modules/mineflayer-pathfinder/lib/shapes.js
++++ b/node_modules/mineflayer-pathfinder/lib/shapes.js
+@@ -1,3 +1,4 @@
++// @ts-nocheck
+ const { Vec3 } = require('vec3')
+ 
+ function getShapeFaceCenters (shapes, direction, half = null) {
+diff --git a/node_modules/mineflayer-pathfinder/test/internalTest.js b/node_modules/mineflayer-pathfinder/test/internalTest.js
+index 518cb14..337a71b 100644
+--- a/node_modules/mineflayer-pathfinder/test/internalTest.js
++++ b/node_modules/mineflayer-pathfinder/test/internalTest.js
+@@ -1,3 +1,5 @@
++// @ts-nocheck
++
+ /* eslint-env mocha */
+ 
+ const mineflayer = require('mineflayer')
+@@ -426,11 +428,11 @@ describe('pathfinder util functions', function () {
+       bot.pathfinder.setGoal(new goals.GoalGetToBlock(targetBlock.x, targetBlock.y, targetBlock.z))
+       const foo = () => {
+         if (bot.pathfinder.isMoving()) {
+-          bot.removeListener('physicTick', foo)
++          bot.removeListener('physicsTick', foo)
+           done()
+         }
+       }
+-      bot.on('physicTick', foo)
++      bot.on('physicsTick', foo)
+     })
+ 
+     // Note: Ordering seams to matter when running the isBuilding test. If run after isMining isBuilding does not seam to work.
+@@ -441,12 +443,12 @@ describe('pathfinder util functions', function () {
+       bot.pathfinder.setGoal(new goals.GoalBlock(targetBlock.x, targetBlock.y + 2, targetBlock.z))
+       const foo = () => {
+         if (bot.pathfinder.isBuilding()) {
+-          bot.removeListener('physicTick', foo)
++          bot.removeListener('physicsTick', foo)
+           bot.stopDigging()
+           done()
+         }
+       }
+-      bot.on('physicTick', foo)
++      bot.on('physicsTick', foo)
+     })
+ 
+     it('isMining', function (done) {
+@@ -456,12 +458,12 @@ describe('pathfinder util functions', function () {
+       bot.pathfinder.setGoal(new goals.GoalBlock(targetBlock.x, targetBlock.y, targetBlock.z))
+       const foo = () => {
+         if (bot.pathfinder.isMining()) {
+-          bot.removeListener('physicTick', foo)
++          bot.removeListener('physicsTick', foo)
+           bot.stopDigging()
+           done()
+         }
+       }
+-      bot.on('physicTick', foo)
++      bot.on('physicsTick', foo)
+     })
+   })
+ 
+@@ -706,8 +708,8 @@ describe('Physics test', function () {
+ 
+     // Wait for the bot to be on the ground so bot.entity.onGround == true
+     bot.clearControlStates()
+-    await once(bot, 'physicTick')
+-    await once(bot, 'physicTick')
++    await once(bot, 'physicsTick')
++    await once(bot, 'physicsTick')
+ 
+     const physics = new Physics(bot)
+ 
+@@ -722,11 +724,11 @@ describe('Physics test', function () {
+     const state = physics.simulateUntil(() => false, controller, ticksToSimulate)
+     simulatedSteps.push(state.pos.toString() + ' Input:false')
+ 
+-    // We have to be carful to not mess up the event scheduling. for await on(bot, 'physicTick') seams to work.
+-    // A for loop with just await once(bot, 'physicTick') does not always seam to work. What also works is attaching
+-    // a listener to bot with bot.on('physicTick', listener) but this is a lot nicer.
++    // We have to be carful to not mess up the event scheduling. for await on(bot, 'physicsTick') seams to work.
++    // A for loop with just await once(bot, 'physicsTick') does not always seam to work. What also works is attaching
++    // a listener to bot with bot.on('physicsTick', listener) but this is a lot nicer.
+     let tick = 0
+-    for await (const _ of on(bot, 'physicTick')) { // eslint-disable-line no-unused-vars
++    for await (const _ of on(bot, 'physicsTick')) { // eslint-disable-line no-unused-vars
+       bot.setControlState('forward', tick <= ticksPressForward)
+       bot.setControlState('jump', tick <= ticksPressForward)
+       realSteps.push(bot.entity.position.toString() + ' Input:' + String(tick <= ticksPressForward))
