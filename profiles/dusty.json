@@ -1,0 +1,7 @@
+{
+    "name": "Dusty",
+    "model": {
+        "api" : "doubao",
+        "model" : "deepseek-v3-250324"
+    }
+}

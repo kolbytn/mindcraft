@@ -1,6 +1,5 @@
 {
     "name": "andy",
-
-    "model": "gpt-4o-mini"
-
+    "api" : "ollama",
+    "model": "llama3.1"
 }

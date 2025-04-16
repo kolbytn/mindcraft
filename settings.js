@@ -10,9 +10,12 @@ const settings = {
     "mindserver_port": 8080,
     
     // the base profile is shared by all bots for default prompts/examples/modes
-    "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
+    "base_profile": "./profiles/defaults/creative.json", // also see creative.json, god_mode.json
     "profiles": [
-        "./andy.json",
+        // "./andy.json",
+        // "./profiles/casey.json",
+        "./profiles/dobson.json",
+        "./profiles/dusty.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
@@ -30,7 +33,7 @@ const settings = {
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
     "speak": false, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
-    "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
+    "show_bot_views": true, // show bot's view in browser at localhost:3000, 3001...
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
     "allow_vision": false, // allows vision model to interpret screenshots as inputs

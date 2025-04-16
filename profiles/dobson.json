@@ -1,0 +1,7 @@
+{
+    "name": "Dobson",
+    "model" : {
+        "api" : "doubao",
+        "model": "doubao-1-5-pro-32k-250115"
+    }
+}

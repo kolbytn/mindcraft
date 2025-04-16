@@ -1,3 +1,6 @@
+._*
+.fslckout
+key.json
 .vscode/
 .idea/
 node_modules/

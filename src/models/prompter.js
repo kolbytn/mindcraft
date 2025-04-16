@@ -16,6 +16,7 @@ import { Novita } from './novita.js';
 import { GroqCloudAPI } from './groq.js';
 import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
+import { Doubao } from "./doubao.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
@@ -97,6 +98,8 @@ export class Prompter {
                 this.embedding_model = new Local(embedding.model, embedding.url);
             else if (embedding.api === 'qwen')
                 this.embedding_model = new Qwen(embedding.model, embedding.url);
+            else if (embedding.api === 'doubao')
+                this.embedding_model = new Doubao(embedding.model, embedding.url);
             else if (embedding.api === 'mistral')
                 this.embedding_model = new Mistral(embedding.model, embedding.url);
             else if (embedding.api === 'huggingface')
@@ -133,11 +136,11 @@ export class Prompter {
                 profile.api = 'openrouter'; // must do first because shares names with other models
             else if (profile.model.includes('ollama/'))
                 profile.api = 'ollama'; // also must do early because shares names with other models
-            else if (profile.model.includes('gemini'))
+            else if (profile.model.includes('gemini/'))
                 profile.api = 'google';
-            else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
+            else if (profile.model.includes('gpt/') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
-            else if (profile.model.includes('claude'))
+            else if (profile.model.includes('claude/'))
                 profile.api = 'anthropic';
             else if (profile.model.includes('huggingface/'))
                 profile.api = "huggingface";
@@ -153,13 +156,15 @@ export class Prompter {
                 profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
-            else if (profile.model.includes('qwen'))
+            else if (profile.model.includes('qwen/'))
                 profile.api = 'qwen';
-            else if (profile.model.includes('grok'))
+            else if (profile.model.includes('doubao/'))
+                profile.api = 'doubao';
+            else if (profile.model.includes('grok/'))
                 profile.api = 'xai';
-            else if (profile.model.includes('deepseek'))
+            else if (profile.model.includes('deepseek/'))
                 profile.api = 'deepseek';
-	          else if (profile.model.includes('mistral'))
+	          else if (profile.model.includes('mistral/'))
                 profile.api = 'mistral';
             else 
                 throw new Error('Unknown model:', profile.model);
@@ -192,6 +197,8 @@ export class Prompter {
             model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
         else if (profile.api === 'qwen')
             model = new Qwen(profile.model, profile.url, profile.params);
+        else if (profile.api === 'doubao')
+            model = new Doubao(profile.model, profile.url, profile.params);
         else if (profile.api === 'xai')
             model = new Grok(profile.model, profile.url, profile.params);
         else if (profile.api === 'deepseek')
