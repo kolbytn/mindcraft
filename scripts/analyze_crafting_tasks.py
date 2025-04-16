@@ -69,15 +69,16 @@ def analyze_json_file(file_path):
         file_path (str): Path to the JSON file.
 
     Returns:
-        str or None: The task outcome string if found, otherwise None.
+        bool: True if task was successful, False otherwise.
     """
     try:
         with open(file_path, 'r') as f:
             data = json.load(f)
             if 'turns' in data and isinstance(data['turns'], list):
-                for turn in reversed(data['turns']):  # Check turns from the end
+                for turn in data['turns']:  # Check all turns, not just from the end
                     if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
                         if "Task successful ended with code : 2" in turn['content'] or "Task ended with score : 1" in turn["content"] or "Task ended in score: 1" in turn["content"]:
+                            # print(f"Success found in {file_path}")
                             return True
         return False
     except FileNotFoundError:
@@ -93,18 +94,17 @@ def analyze_json_file(file_path):
 def extract_result(folder_path):
     folder_name = os.path.basename(folder_path)
     json_files = glob.glob(os.path.join(folder_path, "*.json"))
-    assert len(json_files) == 2, f"Expected 2 json files in {folder_name}, found {len(json_files)}"
-
+    
     if not json_files:
         print(f"No JSON files found in {folder_name}")
         return None
     else: 
-        outcome = False
+        # Check each JSON file in the folder for success indication
         for json_file in json_files:
             outcome = analyze_json_file(json_file)
-            if outcome:
+            if outcome:  # If any file indicates success, return True
                 return True
-        return False
+        return False  # Return False only if no files indicate success
     
 def is_base(folder_path):
     return "full_plan" in folder_path and "depth_0" in folder_path and "missing" not in folder_path
@@ -307,7 +307,7 @@ if __name__ == "__main__":
         folders = download_s3_folders(args.aws_bucket_name, args.s3_folder_prefix, args.local_download_dir)
     else: 
         folders = get_immediate_subdirectories(args.local_download_dir)
-        print(folders)
+        # print(folders)
     
     results = aggregate_results(folders)
     print(results)
