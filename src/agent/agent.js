@@ -51,7 +51,7 @@ export class Agent {
         const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(blocked_actions);
 
-        this.idle_updates_before_self_driven_thinking = null;
+        this.idle_updates_before_self_driven_thinking = -1;
 
         serverProxy.connect(this);
 
@@ -222,10 +222,10 @@ export class Agent {
             max_responses = Infinity;
         }
 
-        if (this.idle_updates_before_self_driven_thinking !== null) {
-            this.idle_updates_before_self_driven_thinking = settings.idle_updates_before_self_driven_thinking;
+        if (this.idle_updates_before_self_driven_thinking >= 0) {
+            this.idle_updates_before_self_driven_thinking = this.prompter.profile.generative.idle_updates;
         } else { 
-            this.idle_updates_before_self_driven_thinking = 20;
+            this.idle_updates_before_self_driven_thinking = Math.min(20, this.prompter.profile.generative.idle_updates);
         }
 
         const self_driven_thinking = message.startsWith("[[Self-Driven Thinking]]");
@@ -480,7 +480,7 @@ export class Agent {
                 this.killAll();
             }
         } else {
-            if (this.isIdle() && this.idle_updates_before_self_driven_thinking !== null) {
+            if (this.isIdle() && this.idle_updates_before_self_driven_thinking >= 0) {
                 if (this.idle_updates_before_self_driven_thinking < 1) {
                     console.log('Self-driven thinking.');
                     const generative_configs = this.prompter.getGenerativeConfigs();

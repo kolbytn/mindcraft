@@ -8,6 +8,8 @@ bots/Casey/*
 profiles/dobson.json
 profiles/dusty.json
 profiles/casey.json
+profiles/gary.json
+profiles/quinn.json
 .vscode/
 .idea/
 node_modules/

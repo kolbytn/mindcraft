@@ -2,7 +2,7 @@
     "name": "Dobson",
     "skin": {
         "model" : "classic",
-        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/herobrine.png"
+        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/batman.png"
     },
     "model" : {
         "api" : "doubao",

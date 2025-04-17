@@ -1,4 +1,11 @@
 {
     "name": "Casey",
-    "model": "anthropic/claude-3.7-sonnet"
+    "skin": {
+        "model" : "classic",
+        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/captain_america.png"
+    },
+    "model": {
+        "api" : "openrouter",
+        "model" : "openrouter/anthropic/claude-3.7-sonnet"
+    }
 }

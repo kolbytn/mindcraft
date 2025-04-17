@@ -251,6 +251,7 @@
         
     ], 
     "generative" : {
+        "idle_updates" : -1,
         "init_goal" : "Walk around nearby to xplore the world, but don't go too far."
     }
 }

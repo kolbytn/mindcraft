@@ -2,7 +2,7 @@
     "name": "Dusty",
     "skin": {
         "model" : "classic",
-        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/link.png"
+        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/flash.png"
     },
     "model": {
         "api" : "doubao",
