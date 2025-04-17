@@ -110,6 +110,15 @@ def aggregate_results(local_folders):
     total = 0
     successful = 0
     successful_tasks = []
+
+    task_type = local_folders[0].split("/")[-2]
+    if "cooking" in task_type:
+        task_type = "cooking"
+    elif "techtree" in task_type:
+        task_type = "techtree"
+    elif "construction" in task_type:
+        task_type = "construction"
+
     for folder_path in tqdm(local_folders):
         folder_name = os.path.basename(folder_path)
 
@@ -126,8 +135,8 @@ def aggregate_results(local_folders):
 
     successful_tasks.sort()
 
-    for i in successful_tasks:
-        print(f"Successful task: {i}")
+    if task_type == "construction":
+        successful = successful / total
     
     return {
         "total": total,
@@ -172,8 +181,14 @@ def check_folder_results(folder_path):
         # Print summary
         print("\n=== Evaluation Results ===")
         print(f"Total tasks evaluated: {results['total']}")
-        print(f"Successful tasks: {results['successful']}")
-        print(f"Success rate: {results['success_rate']:.2%}")
+
+        if "construction" not in folder_path:
+            print(f"Successful tasks: {results['successful']}")
+
+        if "construction" not in folder_path:
+            print(f"Success rate: {results['success_rate']:.2f}")
+        else:
+            print(f"Success rate: {results['successful']:.2f}")
         
         return results
     else:
