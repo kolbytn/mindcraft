@@ -1,6 +1,13 @@
 ._*
 .fslckout
 key.json
+skins/*
+bots/Dobson/*
+bots/Dusty/*
+bots/Casey/*
+profiles/dobson.json
+profiles/dusty.json
+profiles/casey.json
 .vscode/
 .idea/
 node_modules/

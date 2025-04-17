@@ -27,7 +27,7 @@ export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
-        let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
+        let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default_generative.json', 'utf8'));
         let base_fp = settings.base_profile;
         let base_profile = JSON.parse(readFileSync(base_fp, 'utf8'));
 
@@ -209,8 +209,13 @@ export class Prompter {
             throw new Error('Unknown API:', profile.api);
         return model;
     }
+
     getName() {
         return this.profile.name;
+    }
+    
+    getGenerativeConfigs() {
+        return this.profile.generative;
     }
 
     getInitModes() {

@@ -1,5 +1,9 @@
 {
     "name": "Dobson",
+    "skin": {
+        "model" : "classic",
+        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/herobrine.png"
+    },
     "model" : {
         "api" : "doubao",
         "model": "doubao-1-5-pro-32k-250115"

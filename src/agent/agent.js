@@ -51,6 +51,8 @@ export class Agent {
         const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(blocked_actions);
 
+        this.idle_updates_before_self_driven_thinking = null;
+
         serverProxy.connect(this);
 
         console.log(this.name, 'logging into minecraft...');
@@ -69,10 +71,14 @@ export class Agent {
             serverProxy.login();
             
             // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
-            if (this.prompter.profile.skin)
-                this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
-            else
+            if (this.prompter.profile.skin) {
+                if (this.prompter.profile.skin.path) 
+                    this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
+                if (this.prompter.profile.skin.file) 
+                    this.bot.chat(`/skin set upload ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.file}`);
+            } else {
                 this.bot.chat(`/skin clear`);
+            }
         });
 
         const spawnTimeout = setTimeout(() => {
@@ -116,6 +122,12 @@ export class Agent {
             "Gamerule "
         ];
         
+        const respondAtAllFunc = async (username, message) => {
+            if (settings.profiles.length === 1 || message.startsWith("@all")) {
+                this.respondFunc(username, message)
+            }
+        }
+
         const respondFunc = async (username, message) => {
             if (username === this.name) return;
             if (settings.only_chat_with.length > 0 && !settings.only_chat_with.includes(username)) return;
@@ -138,11 +150,11 @@ export class Agent {
             }
         }
 		
+		this.respondAtAllFunc = respondAtAllFunc
 		this.respondFunc = respondFunc
 
+        this.bot.on('chat', respondAtAllFunc);
         this.bot.on('whisper', respondFunc);
-        if (settings.profiles.length === 1)
-            this.bot.on('chat', respondFunc);
 
         // Set up auto-eat
         this.bot.autoEat.options = {
@@ -210,10 +222,21 @@ export class Agent {
             max_responses = Infinity;
         }
 
-        const self_prompt = source === 'system' || source === this.name;
+        if (this.idle_updates_before_self_driven_thinking !== null) {
+            this.idle_updates_before_self_driven_thinking = settings.idle_updates_before_self_driven_thinking;
+        } else { 
+            this.idle_updates_before_self_driven_thinking = 20;
+        }
+
+        const self_driven_thinking = message.startsWith("[[Self-Driven Thinking]]");
+        if (self_driven_thinking) {
+            message = message.slice("[[Self-Driven Thinking]]".length); 
+        }
+
+        const self_prompt = source === 'system' || (source === this.name && !self_driven_thinking) ;
         const from_other_bot = convoManager.isOtherAgent(source);
 
-        if (!self_prompt && !from_other_bot) { // from user, check for forced commands
+        if (!self_prompt && !self_driven_thinking && !from_other_bot) { // from user, check for forced commands
             const user_command_name = containsCommand(message);
             if (user_command_name) {
                 if (!commandExists(user_command_name)) {
@@ -233,7 +256,7 @@ export class Agent {
             }
         }
 
-        if (from_other_bot)
+        if (from_other_bot && !self_driven_thinking)
             this.last_sender = source;
 
         // Now translate the message
@@ -256,8 +279,9 @@ export class Agent {
         await this.history.add(source, message);
         this.history.save();
 
-        if (!self_prompt && this.self_prompter.isActive()) // message is from user during self-prompting
+        if (!self_prompt && !self_driven_thinking && this.self_prompter.isActive()) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
+
         for (let i=0; i<max_responses; i++) {
             if (checkInterrupt()) break;
             let history = this.history.getHistory();
@@ -357,9 +381,9 @@ export class Agent {
             }
         }
         else {
-	    if (settings.speak) {
-            say(to_translate);
-	    }
+            if (settings.speak) {
+                say(to_translate);
+            }
             this.bot.chat(message);
         }
     }
@@ -454,6 +478,19 @@ export class Agent {
                 await this.history.save();
                 console.log('Task finished:', res.message);
                 this.killAll();
+            }
+        } else {
+            if (this.isIdle() && this.idle_updates_before_self_driven_thinking !== null) {
+                if (this.idle_updates_before_self_driven_thinking < 1) {
+                    console.log('Self-driven thinking.');
+                    const generative_configs = this.prompter.getGenerativeConfigs();
+                    const prompt = generative_configs.init_goal;
+                    if (prompt) {
+                        this.handleMessage(this.name, prompt)
+                    }
+                } else {
+                    this.idle_updates_before_self_driven_thinking--;
+                }
             }
         }
     }

@@ -1,5 +1,9 @@
 {
     "name": "Dusty",
+    "skin": {
+        "model" : "classic",
+        "file" : "/Users/nil/Projects/mindcraft-generative-agents/skins/link.png"
+    },
     "model": {
         "api" : "doubao",
         "model" : "deepseek-v3-250324"
