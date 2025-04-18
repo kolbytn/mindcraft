@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { getKey, hasKey } from '../utils/keys.js';
 import express from 'express';
 import http from 'http';
 import path from 'path';
@@ -27,6 +28,7 @@ export function createMindServer(port = 8080) {
         console.log('Client connected');
 
         agentsUpdate(socket);
+        keysUpdate(socket);
 
         socket.on('register-agents', (agentNames) => {
             console.log(`Registering agents: ${agentNames}`);
@@ -146,6 +148,17 @@ function agentsUpdate(socket) {
         agents.push({name, in_game: !!inGameAgents[name]});
     });
     socket.emit('agents-update', agents);
+}
+
+function keysUpdate(socket) {
+    if (!socket) {
+        socket = io;
+    }
+    let keys = {
+        "BYTEDANCE_APP_ID" : getKey("BYTEDANCE_APP_ID"),
+        "BYTEDANCE_APP_TOKEN" : getKey("BYTEDANCE_APP_TOKEN"),
+    };
+    socket.emit('keys-update', keys);
 }
 
 function stopAllAgents() {

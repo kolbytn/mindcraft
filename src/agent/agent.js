@@ -16,6 +16,7 @@ import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
 import { Task } from './tasks.js';
 import { say } from './speak.js';
+import { textToSpeech } from './tts-service.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
@@ -371,7 +372,8 @@ export class Agent {
             to_translate = to_translate.substring(0, translate_up_to);
             remaining = message.substring(translate_up_to);
         }
-        message = (await handleTranslation(to_translate)).trim() + " " + remaining;
+        let translated_msg = (await handleTranslation(to_translate)).trim();
+        message =  translated_msg + " " + remaining;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
 
@@ -385,6 +387,23 @@ export class Agent {
                 say(to_translate);
             }
             this.bot.chat(message);
+            speak(translated_msg);
+        }
+    }
+
+    async speak(text) {
+        try {
+            const filePath = await textToSpeech(text, {
+              appid: 'YOUR_APP_ID', 
+              token: 'YOUR_ACCESS_TOKEN', 
+              voiceType: 'BV700_streaming', 
+              emotion: 'happy', 
+              speedRatio: 1.0, 
+              autoPlay: true 
+            });
+            console.log(`Voice file saved to: ${filePath}`);
+        } catch (error) {
+            console.error('TTS Failed:', error);
         }
     }
 
