@@ -3,7 +3,7 @@
 
 
 The setup process of Mincraft Generative Agents is identical to the setup of Mindcraft, while
-there are some distinguishable features which you should pay attention.
+there are some notable features which you should pay attention.
 
 🦾 This project is under development, more functions are added and optimized. If you have any question, welcome to join the our Discord server for more communications! 
 

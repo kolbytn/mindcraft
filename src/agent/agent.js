@@ -16,7 +16,6 @@ import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
 import { Task } from './tasks.js';
 import { say } from './speak.js';
-import { textToSpeech } from './tts-service.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
@@ -224,9 +223,9 @@ export class Agent {
         }
 
         if (this.idle_updates_before_self_driven_thinking >= 0) {
-            this.idle_updates_before_self_driven_thinking = this.prompter.profile.generative.idle_updates;
+            this.idle_updates_before_self_driven_thinking = this.prompter.profile.generative_idle_updates;
         } else { 
-            this.idle_updates_before_self_driven_thinking = Math.min(20, this.prompter.profile.generative.idle_updates);
+            this.idle_updates_before_self_driven_thinking = Math.min(20, this.prompter.profile.generative_idle_updates);
         }
 
         const self_driven_thinking = message.startsWith("[[Self-Driven Thinking]]");
@@ -384,26 +383,11 @@ export class Agent {
         }
         else {
             if (settings.speak) {
-                say(to_translate);
+                if (!settings.speak_agents || settings.profiles.length === 1 || settings.speak_agents.includes(this.bot.username)) {
+                    say(to_translate, this.prompter.profile.tts_voice_type);
+                }
             }
             this.bot.chat(message);
-            speak(translated_msg);
-        }
-    }
-
-    async speak(text) {
-        try {
-            const filePath = await textToSpeech(text, {
-              appid: 'YOUR_APP_ID', 
-              token: 'YOUR_ACCESS_TOKEN', 
-              voiceType: 'BV700_streaming', 
-              emotion: 'happy', 
-              speedRatio: 1.0, 
-              autoPlay: true 
-            });
-            console.log(`Voice file saved to: ${filePath}`);
-        } catch (error) {
-            console.error('TTS Failed:', error);
         }
     }
 
@@ -502,8 +486,7 @@ export class Agent {
             if (this.isIdle() && this.idle_updates_before_self_driven_thinking >= 0) {
                 if (this.idle_updates_before_self_driven_thinking < 1) {
                     console.log('Self-driven thinking.');
-                    const generative_configs = this.prompter.getGenerativeConfigs();
-                    const prompt = generative_configs.init_goal;
+                    const prompt = this.prompter.profile.generative_configs.init_goal;
                     if (prompt) {
                         this.handleMessage(this.name, prompt)
                     }

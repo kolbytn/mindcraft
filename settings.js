@@ -13,11 +13,11 @@ const settings = {
     "base_profile": "./profiles/defaults/creative.json", // also see creative.json, god_mode.json
     "profiles": [
         // "./andy.json",
-        // "./profiles/casey.json",
-        "./profiles/dobson.json",
-        "./profiles/dusty.json",
-        // "./profiles/gary.json",
-        // "./profiles/quinn.json",
+        // "./gen_profiles/casey.json",
+        // "./gen_profiles/dobson.json",
+        // "./gen_profiles/dusty.json",
+        // "./gen_profiles/gary.json",
+        // "./gen_profiles/quinn.json",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
@@ -33,7 +33,8 @@ const settings = {
     "load_memory": false, // load memory from previous session
     "init_message": "Respond with hello world and your name", // sends to all on spawn
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
-    "speak": false, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
+    "speak": true, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
+    "speak_agents" : ["Dusty"],
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 

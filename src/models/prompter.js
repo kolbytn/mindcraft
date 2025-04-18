@@ -136,11 +136,11 @@ export class Prompter {
                 profile.api = 'openrouter'; // must do first because shares names with other models
             else if (profile.model.includes('ollama/'))
                 profile.api = 'ollama'; // also must do early because shares names with other models
-            else if (profile.model.includes('gemini/'))
+            else if (profile.model.includes('gemini'))
                 profile.api = 'google';
-            else if (profile.model.includes('gpt/') || profile.model.includes('o1')|| profile.model.includes('o3'))
+            else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
-            else if (profile.model.includes('claude/'))
+            else if (profile.model.includes('claude'))
                 profile.api = 'anthropic';
             else if (profile.model.includes('huggingface/'))
                 profile.api = "huggingface";
@@ -156,15 +156,15 @@ export class Prompter {
                 profile.api = 'hyperbolic';
             else if (profile.model.includes('novita/'))
                 profile.api = 'novita';
-            else if (profile.model.includes('qwen/'))
+            else if (profile.model.includes('qwen'))
                 profile.api = 'qwen';
-            else if (profile.model.includes('doubao/'))
+            else if (profile.model.includes('doubao'))
                 profile.api = 'doubao';
-            else if (profile.model.includes('grok/'))
+            else if (profile.model.includes('grok'))
                 profile.api = 'xai';
-            else if (profile.model.includes('deepseek/'))
+            else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-	          else if (profile.model.includes('mistral/'))
+	          else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
             else 
                 throw new Error('Unknown model:', profile.model);
@@ -214,10 +214,6 @@ export class Prompter {
         return this.profile.name;
     }
     
-    getGenerativeConfigs() {
-        return this.profile.generative;
-    }
-
     getInitModes() {
         return this.profile.modes;
     }
