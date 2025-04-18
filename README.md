@@ -1,10 +1,12 @@
-# <img src="https://s2.loli.net/2025/04/18/RWaFJkY4gSDLViy.png" alt="Official Discord Server" width="30" height="30"> Mindcraft Generative Agents
+# Mindcraft Generative Agents <img src="https://s2.loli.net/2025/04/18/RWaFJkY4gSDLViy.png" alt="Official Discord Server" width="36" height="36"> 
 
-The setup process of Minecraft Generative Agents is the same as that of [Mindcraft](https://github.com/kolbytn/mindcraft). However, there are some significant features you should be aware of.
+**Mindcraft Generative Agents** is an extension of the [Mindcraft](https://github.com/kolbytn/mindcraft) and integrates the core concepts of [Generative Agents](https://github.com/joonspk-research/generative_agents)—such as autonomous planning, self-reflection, self-driven behavior, and long-term goal pursuit—into an interactive Minecraft environment. Rather than introducing a separate memory system, the project leverages Mindcraft’s existing memory infrastructure, enhancing it with dynamic agent profiles, daily self-generated task lists, and reflective behaviors. Agents can interact, plan, and evolve over time based on their profile and experiences, enabling a lightweight yet powerful simulation of human-like behavior.
 
 🦾 This project is currently in development. We are continuously adding and optimizing more functions. If you have any questions, you're welcome to join our Discord server for further discussions!
 
 <a href="https://discord.gg/RKjspnTBmb" target="_blank"><img src="https://s2.loli.net/2025/04/18/CEjdFuZYA4pKsQD.png" alt="Official Discord Server" width="180" height="36"></a>
+
+The **setup process** of Minecraft Generative Agents is the same as that of [Mindcraft](https://github.com/kolbytn/mindcraft). However, there are some significant features you should be aware of.
 
 ## Notable Features
 
