@@ -102,7 +102,7 @@ In Mindcraft, you can manage the bots through a page hosted at `localhost:8080` 
 
 The recorded voice is converted into text via the STT API. If the resulting text starts with the name of a specific bot, the text will be sent to that bot as a whisper message. Otherwise, an "@all" label will be automatically added, ensuring that the message is received by all bots.
 
-🪪 **Currently, the STT function is only available with ByteDance's STT API. Therefore, you need to apply for access rights on ByteDance's website, enable the STT service, obtain the appropriate app ID and access token, and fill them in the `key.json` file:**
+🪪 **Currently, the STT function is only available with [ByteDance's STT API](https://www.volcengine.com/docs/6561/163043). Therefore, you need to apply for access rights on ByteDance's website, enable the STT service, obtain the appropriate app ID and access token, and fill them in the `key.json` file:**
 
 ```json
 {
@@ -117,7 +117,7 @@ The recorded voice is converted into text via the STT API. If the resulting text
 
 Mindcraft has a speak function that can be toggled on or off by changing the value of "speak" in the `settings.json` file. It uses the native text-to-speech (TTS) tools of your system. We have added an additional option to perform TTS via an API.
 
-🪪 **Currently, the TTS via API function is only available with ByteDance's TTS API. Therefore, you need to apply for access rights on ByteDance's website, enable the TTS service, obtain the appropriate app ID and access token, and fill them in the `key.json` file:**
+🪪 **Currently, the TTS via API function is only available with [ByteDance's TTS API](https://www.volcengine.com/docs/6561/79820). Therefore, you need to apply for access rights on ByteDance's website, enable the TTS service, obtain the appropriate app ID and access token, and fill them in the `key.json` file:**
 
 ```json
 {
