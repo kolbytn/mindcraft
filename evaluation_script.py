@@ -57,7 +57,6 @@ def analyze_json_file(file_path):
                 for turn in data["turns"]:
                     if turn.get("role") == "system" and "content" in turn:
                         if isinstance(turn["content"], str) and "Task ended with score : " in turn["content"]:
-                            score_found = True
                             if "Task ended with score : 1" in turn["content"]:
                                 return 1
                             elif "Task ended with score : 0" in turn["content"]:
@@ -66,7 +65,8 @@ def analyze_json_file(file_path):
                                 score = float(turn["content"].split(":")[-1].strip())
                                 return score
                             
-        return False
+                            
+        return None
     except FileNotFoundError:
         print(f"Error: File not found: {file_path}")
         return None
@@ -86,11 +86,14 @@ def extract_result(folder_path):
         return None
     else: 
         score = None
+        curr_score = 0
         for json_file in json_files:
             score = analyze_json_file(json_file)
             if score is not None:
-                return score
-        return 0
+                max_score = max(score, curr_score)
+                curr_score = max_score
+
+        return curr_score
     
 def aggregate_results(local_folders):
     """
@@ -106,21 +109,91 @@ def aggregate_results(local_folders):
 
     total = 0
     successful = 0
+    successful_tasks = []
+
+    task_type = local_folders[0].split("/")[-2]
+    if "cooking" in task_type:
+        task_type = "cooking"
+    elif "techtree" in task_type:
+        task_type = "techtree"
+    elif "construction" in task_type:
+        task_type = "construction"
+
     for folder_path in tqdm(local_folders):
         folder_name = os.path.basename(folder_path)
 
         try: 
             result = extract_result(folder_path)
+            
+            if result == 1:
+                successful_tasks.append(folder_name)
             if result is not None:
                 total += 1
                 successful += result
         except Exception as e:
             print(f"Error processing {folder_name}: {e}")
+
+    successful_tasks.sort()
+
+    if task_type == "construction":
+        successful = successful / total
     
     return {
         "total": total,
         "successful": successful,
     }
+
+def check_folder_results(folder_path):
+    """
+    Evaluate all JSON files in a folder and its subfolders and calculate success metrics.
+    
+    Args:
+        folder_path (str): Path to the folder containing JSON log files.
+        
+    Returns:
+        dict: A dictionary with success metrics.
+    """
+    print(f"Checking results in folder: {folder_path}")
+    
+    # Check if the folder exists
+    if not os.path.exists(folder_path):
+        print(f"Error: Folder not found: {folder_path}")
+        return None
+    
+    # Find all subfolders (task IDs) in the given folder
+    if os.path.isdir(folder_path):
+        subfolders = [f for f in glob.glob(os.path.join(folder_path, "*")) if os.path.isdir(f)]
+        if subfolders:
+            # If there are subfolders, evaluate each subfolder
+            print(f"Found {len(subfolders)} subfolders to evaluate")
+            results = aggregate_results(subfolders)
+        else:
+            # If no subfolders, treat the folder itself as a results folder
+            print("No subfolders found, evaluating the folder itself")
+            results = aggregate_results([folder_path])
+            
+        # Calculate success rate
+        if results["total"] > 0:
+            results["success_rate"] = results["successful"] / results["total"]
+        else:
+            results["success_rate"] = 0.0
+            
+        # Print summary
+        print("\n=== Evaluation Results ===")
+        print(f"Total tasks evaluated: {results['total']}")
+
+        if "construction" not in folder_path:
+            print(f"Successful tasks: {results['successful']}")
+
+        if "construction" not in folder_path:
+            print(f"Success rate: {results['success_rate']:.2f}")
+        else:
+            print(f"Success rate: {results['successful']:.2f}")
+        
+        return results
+    else:
+        print(f"Error: {folder_path} is not a directory")
+        return None
 
 def read_settings(file_path):
     """Read and parse the settings.js file to get agent profiles."""
@@ -722,9 +795,16 @@ def main():
     parser.add_argument('--num_examples', default=2, type=int, help='Maximum number of turns before summarizing')
     parser.add_argument('--no-pruning', action='store_true', help='Disable pruning of the actions')
     parser.add_argument('--block_conversation', action='store_true', help='Block conversation actions')
+    parser.add_argument('--check', metavar='FOLDER_PATH', help='Check and evaluate results in the specified folder without running experiments')
 
     args = parser.parse_args()
     print(args)
+    
+    # If --check flag is provided, evaluate results in the specified folder and exit
+    if args.check:
+        check_folder_results(args.check)
+        return
+    
     if not args.no_launch_world:
         try: 
             subprocess.run(['tmux', 'kill-server'], check=True)
