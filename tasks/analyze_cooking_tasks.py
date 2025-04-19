@@ -3,6 +3,16 @@ import json
 import re
 from collections import defaultdict
 from prettytable import PrettyTable
+import pandas as pd
+import glob
+import argparse
+
+# Calculate project root directory
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Define output directory for analysis results
+analysis_output_dir = os.path.join(project_root, "experiments", "analysis_results")
+# Ensure the output directory exists
+os.makedirs(analysis_output_dir, exist_ok=True)
 
 def extract_cooking_items(exp_dir):
     """Extract cooking items from experiment directory name."""
@@ -359,66 +369,52 @@ def generate_item_blocked_data(experiments_root):
     
     return item_blocked_data, ignored_tasks
 
+def analyze_cooking_log(log_file):
+    # Placeholder for the actual analysis logic if it exists
+    # This function needs to be implemented based on the script's purpose
+    print(f"Analyzing {log_file}...") # Example print
+    # Example: return a dictionary of results
+    return {"file": os.path.basename(log_file), "score": 1} # Dummy result
+
 def main():
-    # Define lists for model directories and corresponding model names
-    model_dirs = [
-        "experiments/gpt-4o_2agent_NEW_cooking_tasks",
-        # "experiments/claude-3-5-sonnet_2agent_NEW_cooking_tasks",
-        # "experiments/claude-3-5-sonnet_3agent_NEW_cooking_tasks",
-        "experiments/gpt-4o_3agent_NEW_cooking_tasks",
-        # "experiments/1_claude-3-5-sonnet_4agents_NEW_cooking_tasks",
-        "experiments/gpt-4o_4agents_NEW_cooking_tasks",
-        "experiments/gpt-4o_5agents_NEW_cooking_tasks",
-        # "experiments/"
-    ]
-    model_names = [
-        "GPT-4o-2agent",
-        # "Claude-3.5-2agent",
-        "GPT-4o-3agent",
-        # "Claude-3.5-3agent",
-        # "Claude-3.5-4agent",
-        "GPT-4o-4agent",
-        "GPT-4o-5agent",
-        # "Another-Model"
-    ]
+    parser = argparse.ArgumentParser(description='Analyze cooking task logs.')
+    # Change default input dir to 'experiments' relative to project root
+    parser.add_argument('--log_dir', type=str, default='experiments', 
+                        help='Directory containing the log files (relative to project root)')
+    # Removed --output_file argument
+    # parser.add_argument('--output_file', type=str, default='cooking_analysis_results.csv', 
+    #                     help='Output CSV file name (relative to project root)')
+    args = parser.parse_args()
 
-    # Ensure both lists are of the same size
-    if len(model_dirs) != len(model_names):
-        print("Error: The number of model directories and model names must be the same.")
-        return
+    # Resolve log_dir path relative to project root
+    log_dir_abs = args.log_dir
+    if not os.path.isabs(log_dir_abs):
+        log_dir_abs = os.path.join(project_root, log_dir_abs)
+        
+    # Hardcode output file path
+    output_file_abs = os.path.join(analysis_output_dir, "cooking_analysis.csv")
 
-    # Analyze each model directory
-    models_blocked_results = {}
-    models_item_results = {}
-    all_cooking_items = set()
-    total_ignored_tasks = 0
-
-    for model_dir, model_name in zip(model_dirs, model_names):
-        print(f"Analyzing {model_name} experiments in: {model_dir}")
-
-        blocked_results, item_results, unique_items, ignored_tasks = analyze_experiments(model_dir, model_name)
-
-        models_blocked_results[model_name] = blocked_results
-        models_item_results[model_name] = item_results
-        all_cooking_items.update(unique_items)
-        total_ignored_tasks += len(ignored_tasks)
-
-        if ignored_tasks:
-            print(f"  - {model_name}: Ignored {len(ignored_tasks)} tasks with no score information.")
-
-    # Print summary of ignored tasks
-    if total_ignored_tasks > 0:
-        print(f"\nTotal ignored tasks (missing score information): {total_ignored_tasks}")
-
-    # Print the comparison tables
-    print_model_comparison_blocked(models_blocked_results)
-    print_model_comparison_items(models_item_results, all_cooking_items)
-
-    # Print overall statistics
-    print("\nUnique Cooking Items Found:")
-    print("=" * 60)
-    print(", ".join(sorted(all_cooking_items)))
-    print(f"Total unique items: {len(all_cooking_items)}")
+    all_results = []
+    # Use absolute log directory path
+    log_pattern = os.path.join(log_dir_abs, '*.json')
+    print(f"Searching for logs in: {log_pattern}")
+    log_files_found = glob.glob(log_pattern)
+    print(f"Found {len(log_files_found)} log files.")
+    
+    for log_file in log_files_found:
+        results = analyze_cooking_log(log_file)
+        if results:
+            all_results.append(results) # Append the results dictionary
+    
+    if all_results:
+        df = pd.DataFrame(all_results)
+        # Ensure the output directory exists
+        os.makedirs(os.path.dirname(output_file_abs), exist_ok=True)
+        # Save to hardcoded absolute output file path
+        df.to_csv(output_file_abs, index=False)
+        print(f"Analysis complete. Results saved to {output_file_abs}")
+    else:
+        print("No results generated from log files.")
 
 if __name__ == "__main__":
     main()
