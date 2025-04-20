@@ -249,8 +249,18 @@ export class Prompter {
         if (prompt.includes('$ACTION')) {
             prompt = prompt.replaceAll('$ACTION', this.agent.actions.currentActionLabel);
         }
-        if (prompt.includes('$COMMAND_DOCS'))
-            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());
+        if (prompt.includes('$COMMAND_DOCS')){
+            prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs());     
+        }
+        if (prompt.includes('$MCP_TOOL_USAGE')) {
+             //If MCP is enabled, add MCP tool information
+             if (this.agent.mcp_client && this.agent.mcp_client.isConnected()) {
+                let mcp_tool_usage_prompt = this.profile.mcp_tool_usage.replace('$MCPSERVERS', this.agent.mcp_client.getMCPToolsInfo());
+                prompt = prompt.replaceAll('$MCP_TOOL_USAGE', mcp_tool_usage_prompt);
+            }
+        }else{
+            prompt = prompt.replaceAll('\n$MCP_TOOL_USAGE\n', '');
+        }
         if (prompt.includes('$CODE_DOCS')) {
             const code_task_content = messages.slice().reverse().find(msg =>
                 msg.role !== 'system' && msg.content.includes('!newAction(')
@@ -299,6 +309,9 @@ export class Prompter {
         if (remaining !== null) {
             console.warn('Unknown prompt placeholders:', remaining.join(', '));
         }
+        console.log('=========== [prompter.js] DEBUG MCP Prompt ===========');
+        console.log(prompt);
+        console.log('=========== [prompter.js]  DEBUG MCP Prompt ===========');
         return prompt;
     }
 

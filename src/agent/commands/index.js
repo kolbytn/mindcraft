@@ -26,8 +26,8 @@ export function blacklistCommands(commands) {
     }
 }
 
-const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
-const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
+const commandRegex = /!(\w+)(?:\((.*)\))?/;
+const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"|'[^']*'|\{.*\}|\[.*\]/g;
 
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);
@@ -81,7 +81,7 @@ function checkInInterval(number, lowerBound, upperBound, endpointType) {
         case '[]':
             return lowerBound <= number && number <= upperBound;
         default:
-            throw new Error('Unknown endpoint type:', endpointType)
+            throw new Error('Unknown endpoint type:', endpointType);
     }
 }
 
@@ -100,12 +100,50 @@ export function parseCommandMessage(message) {
 
     const commandName = "!"+commandMatch[1];
 
-    let args;
-    if (commandMatch[2]) args = commandMatch[2].match(argRegex);
-    else args = [];
+    // 提取参数字符串
+    const argsString = commandMatch[2] || '';
+    
+    // 分析命令参数，处理嵌套的大括号、引号等
+    const args = [];
+    let currentArg = '';
+    let braceCount = 0;
+    let inQuote = false;
+    let quoteChar = '';
+
+    for (let i = 0; i < argsString.length; i++) {
+        const char = argsString[i];
+        
+        // 处理引号
+        if ((char === '"' || char === "'") && (i === 0 || argsString[i-1] !== '\\')) {
+            if (!inQuote) {
+                inQuote = true;
+                quoteChar = char;
+            } else if (char === quoteChar) {
+                inQuote = false;
+            }
+        }
+        
+        // 处理花括号
+        if (char === '{' && !inQuote) braceCount++;
+        if (char === '}' && !inQuote) braceCount--;
+        
+        // 处理参数分隔符
+        if (char === ',' && !inQuote && braceCount === 0) {
+            args.push(currentArg.trim());
+            currentArg = '';
+            continue;
+        }
+        
+        currentArg += char;
+    }
+    
+    // 添加最后一个参数
+    if (currentArg.trim()) {
+        args.push(currentArg.trim());
+    }
 
     const command = getCommand(commandName);
-    if(!command) return `${commandName} is not a command.`
+    if(!command) return `${commandName} is not a command.`;
 
     const params = commandParams(command);
     const paramNames = commandParamNames(command);
@@ -125,22 +163,26 @@ export function parseCommandMessage(message) {
         //Convert to the correct type
         switch(param.type) {
             case 'int':
-                arg = Number.parseInt(arg); break;
+                arg = Number.parseInt(arg); 
+                break;
             case 'float':
-                arg = Number.parseFloat(arg); break;
+                arg = Number.parseFloat(arg); 
+                break;
             case 'boolean':
-                arg = parseBoolean(arg); break;
+                arg = parseBoolean(arg); 
+                break;
             case 'BlockName':
             case 'ItemName':
                 if (arg.endsWith('plank'))
                     arg += 's'; // catches common mistakes like "oak_plank" instead of "oak_planks"
+                break;
             case 'string':
                 break;
             default:
                 throw new Error(`Command '${commandName}' parameter '${paramNames[i]}' has an unknown type: ${param.type}`);
         }
         if(arg === null || Number.isNaN(arg))
-            return `Error: Param '${paramNames[i]}' must be of type ${param.type}.`
+            return `Error: Param '${paramNames[i]}' must be of type ${param.type}.`;
 
         if(typeof arg === 'number') { //Check the domain of numbers
             const domain = param.domain;
@@ -156,13 +198,13 @@ export function parseCommandMessage(message) {
                     //Alternatively arg could be set to the nearest value in the domain.
                 }
             } else if (!suppressNoDomainWarning) {
-                console.warn(`Command '${commandName}' parameter '${paramNames[i]}' has no domain set. Expect any value [-Infinity, Infinity].`)
+                console.warn(`Command '${commandName}' parameter '${paramNames[i]}' has no domain set. Expect any value [-Infinity, Infinity].`);
                 suppressNoDomainWarning = true; //Don't spam console. Only give the warning once.
             }
         } else if(param.type === 'BlockName') { //Check that there is a block with this name
-            if(getBlockId(arg) == null && arg !== 'air') return  `Invalid block type: ${arg}.`
+            if(getBlockId(arg) == null && arg !== 'air') return  `Invalid block type: ${arg}.`;
         } else if(param.type === 'ItemName') { //Check that there is an item with this name
-            if(getItemId(arg) == null) return `Invalid item type: ${arg}.`
+            if(getItemId(arg) == null) return `Invalid item type: ${arg}.`;
         }
         args[i] = arg;
     }
@@ -235,7 +277,7 @@ export function getCommandDocs() {
         'BlockName':    'string',
         'ItemName':     'string',
         'boolean':      'bool'
-    }
+    };
     let docs = `\n*COMMAND DOCS\n You can use the following commands to perform actions and get information about the world. 
     Use the commands with the syntax: !commandName or !commandName("arg1", 1.2, ...) if the command takes arguments.\n
     Do not use codeblocks. Use double quotes for strings. Only use one command in each response, trailing commands and comments will be ignored.\n`;

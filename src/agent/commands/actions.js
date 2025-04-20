@@ -460,7 +460,58 @@ export const actionsList = [
         description: 'Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.',
         params: {'distance': { type: 'int', description: 'Distance to dig down', domain: [1, Number.MAX_SAFE_INTEGER] }},
         perform: runAsAction(async (agent, distance) => {
-            await skills.digDown(agent.bot, distance)
+            await skills.digDown(agent.bot, distance);
         })
     },
+    {
+        name: '!use_mcp_tool',
+        description: 'Request to use a tool provided by a connected MCP server. Each MCP server can provide multiple tools with different functionalities. Tools have defined input schemas that specify required and optional parameters.',
+        params: {
+            'server_name': { type: 'string', description: 'Name of the MCP server providing the tool' },
+            'tool_name': { type: 'string', description: 'Name of the tool to execute' },
+            'tool_args': { type: 'string', description: 'A JSON object containing the tool input parameters, following the tool\'s input schema' }
+        },
+        perform: async function(agent, server_name, tool_name, tool_args = '{}') {
+            // Check MCP connection
+            if (!agent.mcp_client?.isConnected()) 
+                return 'Not connected to any MCP server, cannot call tool';
+            
+            if (!agent.mcp_client.isServerConnected(server_name))
+                return `Not connected to the specified MCP server: ${server_name}`;
+            
+            // List tools if no tool name specified
+            if (!tool_name?.trim()) {
+                const serverTools = agent.mcp_client.getTools()
+                    .filter(tool => tool.serverIdentifier === server_name);
+                
+                if (!serverTools.length)
+                    return `Server ${server_name} does not provide any tools`;
+                
+                return `Tools available from server ${server_name}:\n${serverTools.map(tool => 
+                    `- ${tool.name}: ${tool.description || 'No description'}`
+                ).join('\n')}`;
+            }
+
+            // Parse and execute tool
+            try {
+                const parsedArgs = typeof tool_args === 'string' ? 
+                    JSON.parse(tool_args) : tool_args;
+                
+                const result = await agent.mcp_client.callToolFromServer(
+                    server_name, 
+                    tool_name, 
+                    parsedArgs
+                );
+                
+                const resultStr = typeof result === 'object' ? 
+                    JSON.stringify(result, null, 2) : String(result);
+                
+                return `Result from tool ${tool_name} on server ${server_name}:\n${resultStr}`;
+            } catch (error) {
+                return error.message.includes('JSON') ? 
+                    `Failed to parse tool arguments: ${error.message}` :
+                    `Failed to call tool ${tool_name} on server ${server_name}: ${error.message}`;
+            }
+        }
+    }
 ];

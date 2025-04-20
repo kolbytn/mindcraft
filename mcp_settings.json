@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "getTime": {
+      "command": "node",
+      "args": [
+        "src/agent/mcp/servers/time-server.js"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "bots"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    }
+  }
+}

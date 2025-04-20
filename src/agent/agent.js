@@ -16,6 +16,8 @@ import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
 import { Task } from './tasks.js';
 import { say } from './speak.js';
+import process from 'process';
+import { MCPClient } from './mcp/mcp_client.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
@@ -48,6 +50,11 @@ export class Agent {
         await this.prompter.initExamples();
         console.log('Initializing task...');
         this.task = new Task(this, task_path, task_id);
+        
+        // 初始化 MCP 客户端
+        console.log('Initializing MCP client...');
+        this.mcp_client = new MCPClient(this);
+        
         const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(blocked_actions);
 
@@ -127,7 +134,7 @@ export class Agent {
                 console.log(this.name, 'received message from', username, ':', message);
 
                 if (convoManager.isOtherAgent(username)) {
-                    console.warn('received whisper from other bot??')
+                    console.warn('received whisper from other bot??');
                 }
                 else {
                     let translation = await handleEnglishTranslation(message);
@@ -136,9 +143,9 @@ export class Agent {
             } catch (error) {
                 console.error('Error handling message:', error);
             }
-        }
+        };
 		
-		this.respondFunc = respondFunc
+		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
@@ -266,7 +273,7 @@ export class Agent {
             console.log(`${this.name} full response to ${source}: ""${res}""`);
             
             if (res.trim().length === 0) { 
-                console.warn('no response')
+                console.warn('no response');
                 break; // empty response ends loop
             }
 
@@ -278,7 +285,7 @@ export class Agent {
                 
                 if (!commandExists(command_name)) {
                     this.history.add('system', `Command ${command_name} does not exist.`);
-                    console.warn('Agent hallucinated command:', command_name)
+                    console.warn('Agent hallucinated command:', command_name);
                     continue;
                 }
 
@@ -392,7 +399,7 @@ export class Agent {
             console.error('Error event!', err);
         });
         this.bot.on('end', (reason) => {
-            console.warn('Bot disconnected! Killing agent process.', reason)
+            console.warn('Bot disconnected! Killing agent process.', reason);
             this.cleanKill('Bot disconnected! Killing agent process.');
         });
         this.bot.on('death', () => {
@@ -466,10 +473,21 @@ export class Agent {
         this.history.add('system', msg);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
+        
+        // 清理 MCP 客户端资源
+        if (this.mcp_client) {
+            this.mcp_client.cleanup();
+        }
+        
         process.exit(code);
     }
 
     killAll() {
+        // 清理 MCP 客户端资源
+        if (this.mcp_client) {
+            this.mcp_client.cleanup();
+        }
+        
         serverProxy.shutdown();
     }
 }
