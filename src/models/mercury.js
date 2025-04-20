@@ -18,8 +18,8 @@ export class Mercury {
     async sendRequest(turns, systemMessage, stop_seq='***') {
         if (typeof stop_seq === 'string') {
             stop_seq = [stop_seq];
-        } else if (!Array.isArray(stop_seq)) {  // 处理其他非字符串非数组的无效输入
-            stop_seq = []; // 或抛出错误，或其他处理方式
+        } else if (!Array.isArray(stop_seq)) {
+            stop_seq = [];
         }
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
         messages = strictFormat(messages);
