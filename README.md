@@ -162,7 +162,7 @@ To activate this feature, two parameters must be defined in the bot’s profile:
 
 Minecraft time uses ticks, where 1000 ticks ≈ 1 hour in-game. For example, `thinking_interval: 100` will prompt thinking every ~6 in-game minutes.
 
-You can customize the agent’s personality and intrinsic goals by configuring the `person_desc`, `longterm`, and `shortterm` fields in the agent’s profile. These will influence the content of the agent’s thoughts and the direction of its autonomous actions.
+You can customize the agent’s personality and intrinsic goals by configuring the `person_desc`, `longterm`, and `shortterm` fields in the agent’s profile (note that, when not specified in the agent's profile, these fields are set with the default values given in `profiles/defaults/_default.json`). These will influence the content of the agent’s thoughts and the direction of its autonomous actions.
 
 > **Note:** Both `thinking_interval` and `reflection_interval` must be set to valid numerical values for the system to take effect.
 
