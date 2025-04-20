@@ -21,6 +21,7 @@ import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
+import { Pollinations } from './pollinations.js';
 
 export class Prompter {
     constructor(agent, fp) {
@@ -133,6 +134,8 @@ export class Prompter {
                 profile.api = 'openrouter'; // must do first because shares names with other models
             else if (profile.model.includes('ollama/'))
                 profile.api = 'ollama'; // also must do early because shares names with other models
+            else if (profile.model.includes('pollinations/'))
+                profile.api = 'pollinations'; // also shares some model names like llama
             else if (profile.model.includes('gemini'))
                 profile.api = 'google';
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
@@ -198,6 +201,8 @@ export class Prompter {
             model = new DeepSeek(profile.model, profile.url, profile.params);
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
+        else if (profile.api === 'pollinations')
+            model = new Pollinations(profile.model.replace('pollinations/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
