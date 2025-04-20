@@ -28,8 +28,11 @@ const settings = {
     "load_memory": false, // load memory from previous session
     "init_message": "Respond with hello world and your name", // sends to all on spawn
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
-    "speak": false, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
-    "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
+    
+    "speak": true,
+    "speak_model": "pollinations/openai-audio/echo", // allows all bots to speak through text-to-speach. format: {provider}/{model}/{voice}. if set to "system" it will use system text-to-speech, which works on windows and mac, but on linux you need to `apt install espeak`.
+    
+    "language": "en", // translate to/from this language. NOT text-to-speech language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
     "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk

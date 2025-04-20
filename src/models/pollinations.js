@@ -31,7 +31,7 @@ export class Pollinations {
                 body: JSON.stringify(payload)
             });
             if (!response.ok) {
-                console.error(`Failed to receive response. Status`, response.status, response.text);
+                console.error(`Failed to receive response. Status`, response.status, (await response.text()));
                 res = "My brain disconnected, try again.";
             } else {
                 const result = await response.json();
@@ -60,6 +60,55 @@ export class Pollinations {
         });
 
         return this.sendRequest(imageMessages, systemMessage)
+    }
+
+    async sendAudioRequest(text, voice) {
+        const fallback = "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU5LjI3LjEwMAAAAAAAAAAAAAAA/+NAwAAAAAAAAAAAAEluZm8AAAAPAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExhdmM1OS4zNwAAAAAAAAAAAAAAAAAAAAAAAAAAAADQAAAeowAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+        // ^ 0 second silent audio clip
+    
+        const payload = {
+            model: this.model_name,
+            modalities: ["text", "audio"],
+            audio: {
+                voice: voice,
+                format: "mp3",
+            },
+            messages: [
+                {
+                    role: "developer",
+                    content: "You are an AI that echoes. Your sole function is to repeat back everything the user says to you exactly as it is written. This includes punctuation, grammar, language, and text formatting. Do not add, remove, or alter anything in the user's input in any way. Respond only with an exact duplicate of the user’s query."
+                    // this is required because pollinations attempts to send an AI response to the text instead of just saying the text.
+                },
+                {
+                    role: "user",
+                    content: text
+                }
+            ]
+        }
+
+        let audioData = null;
+
+        try {
+            const response = await fetch(this.url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+
+            if (!response.ok) {
+                console.error("Failed to get text transcription. Status", response.status, (await response.text()))
+                return fallback
+            }
+
+            const result = await response.json();
+            audioData = result.choices[0].message.audio.data;
+            return audioData;
+        } catch (err) {
+            console.error("TTS fetch failed:", err);
+            return fallback
+        }
     }
 }
 
