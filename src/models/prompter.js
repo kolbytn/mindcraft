@@ -21,6 +21,7 @@ import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
+import { Mercury} from "./mercury.js";
 
 export class Prompter {
     constructor(agent, fp) {
@@ -159,8 +160,10 @@ export class Prompter {
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
                 profile.api = 'deepseek';
-	          else if (profile.model.includes('mistral'))
+            else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
+            else if (profile.model.includes('mercury'))
+                profile.api = 'mercury';
             else 
                 throw new Error('Unknown model:', profile.model);
         }
@@ -198,6 +201,8 @@ export class Prompter {
             model = new DeepSeek(profile.model, profile.url, profile.params);
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
+        else if (profile.api === 'mercury')
+            model = new Mercury(profile.model, profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
