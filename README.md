@@ -16,6 +16,7 @@ The **setup process** of Minecraft Generative Agents is the same as that of [Min
 - [Talk to All Bots with @all](#talk-to-all-bots-with-all)
 - [Set Skin with Local Files](#set-skin-with-local-files)
 - [Interaction in Natural Voice](#interaction-in-natural-voice)
+- [Implementation of Generative Agents](#implementation-of-generative-agents)
 
 ### Profile of Bots
 
@@ -148,3 +149,28 @@ Since our Minecraft Generative Agents project allows you to send messages to all
 "speak_agents": ["Dobson"]
 ``` 
 
+### Implementation of Generative Agents 
+
+We've added a module named SelfDrivenThinking in `src/agent/thinking.js`. This module will periodically prompt the bot to engage in self-driven behaviors and reflect on its own motivations.
+
+To enable the self-driven thinking feature, you need to set two parameters, `thinking_interval` and `reflection_interval`, in the bot's profile. `thinking_interval` represents the time interval (in ticks) for self-driven thinking, and `reflection_interval` represents the time interval (in ticks) for reflection.
+
+In Mineflayer, `bot.time.time` returns the number of ticks passed since the game started. In the Minecraft world, 1000 ticks equal one hour. For example, setting `thinking_interval: 100` means the bot will perform self-driven thinking every 6 minutes.
+
+You can customize the bot's personality and goals by referring to `person_desc`, `longterm`, and `shortterm` in the default profile (`profiles/defaults/_default.json`). Then, provide a customized version in the bot's profile.
+
+Note: For the self-driven thinking feature to work, both `thinking_interval` and `reflection_interval` must be set to valid values. 
+
+```
+{
+    "name": "Dobson",
+    "model" : {
+        "api" : "doubao",
+        "model": "doubao-1-5-pro-32k-250115"
+    },
+    "reflection_interval" : 3000,
+    "thinking_interval" : 100 
+}
+```
+
+<img src="https://s2.loli.net/2025/04/20/wWpoAE9xe6rcQ7f.gif" alt="Bot build a igloo after self-driven thinking." width="800" height="450">
