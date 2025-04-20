@@ -56,8 +56,6 @@ export async function textToSpeech(text, options = {}) {
     }
   };
 
-  console.log(requestData)
-
   const response = await axios.post('https://openspeech.bytedance.com/api/v1/tts', requestData, {
     headers: {
       'Authorization': `Bearer;${config.token}`,

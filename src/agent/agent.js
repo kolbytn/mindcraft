@@ -7,6 +7,7 @@ import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
+import { SelfDrivenThinking } from './thinking.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import convoManager from './conversation.js';
@@ -39,6 +40,8 @@ export class Agent {
         this.coder = new Coder(this);
         console.log('Initializing npc controller...');
         this.npc = new NPCContoller(this);
+        console.log('Initializing self-driven thinking...');
+        this.thinking = new SelfDrivenThinking(this);
         console.log('Initializing memory bank...');
         this.memory_bank = new MemoryBank();
         console.log('Initializing self prompter...');
@@ -51,7 +54,7 @@ export class Agent {
         const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(blocked_actions);
 
-        this.idle_updates_before_self_driven_thinking = -1;
+        // for Generative Agents 
 
         serverProxy.connect(this);
 
@@ -122,8 +125,8 @@ export class Agent {
             "Gamerule "
         ];
         
-        const respondAtAllFunc = async (username, message) => {
-            if (settings.profiles.length === 1 || message.startsWith("@all")) {
+        const respondAtFunc = async (username, message) => {
+            if (settings.profiles.length === 1 || message.startsWith("@all") || message.startsWith(`@${this.name}`)) {
                 this.respondFunc(username, message)
             }
         }
@@ -150,10 +153,10 @@ export class Agent {
             }
         }
 		
-		this.respondAtAllFunc = respondAtAllFunc
+		this.respondAtFunc = respondAtFunc
 		this.respondFunc = respondFunc
 
-        this.bot.on('chat', respondAtAllFunc);
+        this.bot.on('chat', respondAtFunc);
         this.bot.on('whisper', respondFunc);
 
         // Set up auto-eat
@@ -222,19 +225,16 @@ export class Agent {
             max_responses = Infinity;
         }
 
-        if (this.idle_updates_before_self_driven_thinking >= 0) {
-            this.idle_updates_before_self_driven_thinking = this.prompter.profile.generative_idle_updates;
-        } else { 
-            this.idle_updates_before_self_driven_thinking = Math.min(20, this.prompter.profile.generative_idle_updates);
-        }
-
+        console.log(`Got ${message}`)
         const self_driven_thinking = message.startsWith("[[Self-Driven Thinking]]");
         if (self_driven_thinking) {
-            message = message.slice("[[Self-Driven Thinking]]".length); 
+            message = message.slice("[[Self-Driven Thinking]]".length).trim(); 
         }
+        console.log(`Got ${message}`)
 
         const self_prompt = source === 'system' || (source === this.name && !self_driven_thinking) ;
         const from_other_bot = convoManager.isOtherAgent(source);
+
 
         if (!self_prompt && !self_driven_thinking && !from_other_bot) { // from user, check for forced commands
             const user_command_name = containsCommand(message);
@@ -338,7 +338,6 @@ export class Agent {
             
             this.history.save();
         }
-
         return used_command;
     }
 
@@ -376,6 +375,10 @@ export class Agent {
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
 
+        if (this.thinking.isSelfDrivenThinking) {
+            this.thinking.updateDoneList(message)
+        }
+
         if (settings.only_chat_with.length > 0) {
             for (let username of settings.only_chat_with) {
                 this.bot.whisper(username, message);
@@ -394,16 +397,17 @@ export class Agent {
     startEvents() {
         // Custom events
         this.bot.on('time', () => {
-            if (this.bot.time.timeOfDay == 0)
-            this.bot.emit('sunrise');
-            else if (this.bot.time.timeOfDay == 6000)
-            this.bot.emit('noon');
-            else if (this.bot.time.timeOfDay == 12000)
-            this.bot.emit('sunset');
-            else if (this.bot.time.timeOfDay == 18000)
-            this.bot.emit('midnight');
+            if (this.bot.time.timeOfDay >= 0 && this.bot.time.timeOfDay < 20) {
+                this.bot.emit('sunrise');
+            } else if (this.bot.time.timeOfDay >= 6000 && this.bot.time.timeOfDay < 6020) {
+                this.bot.emit('noon');
+            } else if (this.bot.time.timeOfDay >= 12000 && this.bot.time.timeOfDay < 12020) {
+                this.bot.emit('sunset');
+            } else if (this.bot.time.timeOfDay >= 18000 && this.bot.time.timeOfDay < 18020) {
+                this.bot.emit('midnight');
+            }
         });
-
+        
         let prev_health = this.bot.health;
         this.bot.lastDamageTime = 0;
         this.bot.lastDamageTaken = 0;
@@ -452,6 +456,7 @@ export class Agent {
 
         // Init NPC controller
         this.npc.init();
+        this.thinking.init();
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
         const INTERVAL = 300;
@@ -482,19 +487,7 @@ export class Agent {
                 console.log('Task finished:', res.message);
                 this.killAll();
             }
-        } else {
-            if (this.isIdle() && this.idle_updates_before_self_driven_thinking >= 0) {
-                if (this.idle_updates_before_self_driven_thinking < 1) {
-                    console.log('Self-driven thinking.');
-                    const prompt = this.prompter.profile.generative_configs.init_goal;
-                    if (prompt) {
-                        this.handleMessage(this.name, prompt)
-                    }
-                } else {
-                    this.idle_updates_before_self_driven_thinking--;
-                }
-            }
-        }
+        } 
     }
 
     isIdle() {

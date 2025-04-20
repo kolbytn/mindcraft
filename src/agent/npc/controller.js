@@ -7,7 +7,6 @@ import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
 
-
 export class NPCContoller {
     constructor(agent) {
         this.agent = agent;
@@ -156,9 +155,10 @@ export class NPCContoller {
 
         let acted = false;
         for (let goal of goals) {
-
             // Obtain goal item or block
             if (this.constructions[goal.name] === undefined) {
+                if (this.agent.bot.game.gameMode === "creative") 
+                    this.agent.bot.chat(`/give ${this.agent.name} ${goal.name} ${goal.quantity}`)
                 if (!itemSatisfied(this.agent.bot, goal.name, goal.quantity)) {
                     let res = await this.item_goal.executeNext(goal.name, goal.quantity);
                     this.last_goals[goal.name] = res;
@@ -166,7 +166,6 @@ export class NPCContoller {
                     break;
                 }
             }
-
             // Build construction goal
             else {
                 let res = null;

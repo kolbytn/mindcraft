@@ -1,11 +1,10 @@
-import { readFileSync, mkdirSync, writeFileSync} from 'fs';
+import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from '../agent/commands/index.js';
 import { SkillLibrary } from "../agent/library/skill_library.js";
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
 import settings from '../../settings.js';
-
 import { Gemini } from './gemini.js';
 import { GPT } from './gpt.js';
 import { Claude } from './claude.js';
@@ -23,11 +22,12 @@ import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 
+
 export class Prompter {
     constructor(agent, fp) {
         this.agent = agent;
         this.profile = JSON.parse(readFileSync(fp, 'utf8'));
-        let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default_generative.json', 'utf8'));
+        let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
         let base_fp = settings.base_profile;
         let base_profile = JSON.parse(readFileSync(base_fp, 'utf8'));
 
@@ -121,10 +121,11 @@ export class Prompter {
         mkdirSync(`./bots/${name}`, { recursive: true });
         writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {
             if (err) {
-                throw new Error('Failed to save profile:', err);
+                throw new Error('Failed to sile:', err);
             }
             console.log("Copy profile saved.");
         });
+        
     }
 
     _selectAPI(profile) {
@@ -307,9 +308,9 @@ export class Prompter {
         if (remaining !== null) {
             console.warn('Unknown prompt placeholders:', remaining.join(', '));
         }
-        return prompt;
+        return prompt.trim();
     }
-
+    
     async checkCooldown() {
         let elapsed = Date.now() - this.last_prompt_time;
         if (elapsed < this.cooldown && this.cooldown > 0) {
