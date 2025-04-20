@@ -149,17 +149,22 @@ Since our Minecraft Generative Agents project allows you to send messages to all
 "speak_agents": ["Dobson"]
 ``` 
 
-### Implementation of Generative Agents 
+###  Implementation of Generative Agents 
 
-We've added a module named SelfDrivenThinking in `src/agent/thinking.js`. This module will periodically prompt the bot to engage in self-driven behaviors and reflect on its own motivations.
+🧠 We introduce a new module, `SelfDrivenThinking`, implemented in `src/agent/thinking.js`, to enable generative agents to exhibit autonomous behavior cycles inspired by human-like reflection and planning.
 
-To enable the self-driven thinking feature, you need to set two parameters, `thinking_interval` and `reflection_interval`, in the bot's profile. `thinking_interval` represents the time interval (in ticks) for self-driven thinking, and `reflection_interval` represents the time interval (in ticks) for reflection.
+This module periodically prompts the agent to engage in self-initiated thought processes, including short-term goal creation and motivation-driven reflection, even when not actively receiving external input.
 
-In Mineflayer, `bot.time.time` returns the number of ticks passed since the game started. In the Minecraft world, 1000 ticks equal one hour. For example, setting `thinking_interval: 100` means the bot will perform self-driven thinking every 6 minutes.
+To activate this feature, two parameters must be defined in the bot’s profile:
 
-You can customize the bot's personality and goals by referring to `person_desc`, `longterm`, and `shortterm` in the default profile (`profiles/defaults/_default.json`). Then, provide a customized version in the bot's profile.
+- `thinking_interval`: The time interval (in ticks) at which the bot will perform self-driven thinking.
+- `reflection_interval`: The interval (in ticks) between each self-reflection round.
 
-Note: For the self-driven thinking feature to work, both `thinking_interval` and `reflection_interval` must be set to valid values. 
+Minecraft time uses ticks, where 1000 ticks ≈ 1 hour in-game. For example, `thinking_interval: 100` will prompt thinking every ~6 in-game minutes.
+
+You can customize the agent’s personality and intrinsic goals by configuring the `person_desc`, `longterm`, and `shortterm` fields in the agent’s profile. These will influence the content of the agent’s thoughts and the direction of its autonomous actions.
+
+> **Note:** Both `thinking_interval` and `reflection_interval` must be set to valid numerical values for the system to take effect.
 
 ```
 {
