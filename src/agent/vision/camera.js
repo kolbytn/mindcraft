@@ -1,5 +1,5 @@
 import { Viewer } from 'prismarine-viewer/viewer/lib/viewer.js';
-import { WorldView } from 'prismarine-viewer/viewer/lib/worldview.js';
+import { WorldView } from 'prismarine-viewer/viewer/lib/worldView.js';
 import { getBufferFromStream } from 'prismarine-viewer/viewer/lib/simpleUtils.js';
 
 import THREE from 'three';
