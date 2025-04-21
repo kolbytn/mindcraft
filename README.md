@@ -12,6 +12,7 @@ The **setup process** of Minecraft Generative Agents is the same as that of [Min
 
 - [Profile of Bots](#profile-of-bots)
 - [Used mineflayer-pathfinder from MinePal](#used-mineflayer-pathfinder-from-minepal)
+- [Support for Pollinations AI](#support-for-pollinations-ai)
 - [Support for Doubao LLMs from ByteDance](#support-for-doubao-llms-from-bytedance)
 - [Talk to All Bots with @all](#talk-to-all-bots-with-all)
 - [Set Skin with Local Files](#set-skin-with-local-files)
