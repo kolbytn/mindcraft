@@ -38,13 +38,13 @@ const settings = {
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
     "relevant_docs_count": 5, // number of relevant code function docs to select for prompting. -1 for all
 
-    "max_messages": process.env.MAX_MESSAGES || 15, // max number of messages to keep in context
-    "num_examples": process.env.NUM_EXAMPLES || 2, // number of examples to give to the model
+    "max_messages": 15, // max number of messages to keep in context
+    "num_examples": 2, // number of examples to give to the model
     "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
-    "log_all_prompts": process.env.LOG_ALL || true, // log all prompts to file
+    "log_all_prompts": false, // log ALL prompts to file
 }
 
 // these environment variables override certain settings
@@ -63,4 +63,14 @@ if (process.env.INSECURE_CODING) {
 if (process.env.BLOCKED_ACTIONS) {
     settings.blocked_actions = JSON.parse(process.env.BLOCKED_ACTIONS);
 }
+if (process.env.MAX_MESSAGES) {
+    settings.max_messages = process.env.MAX_MESSAGES;
+}
+if (process.env.NUM_EXAMPLES) {
+    settings.num_examples = process.env.NUM_EXAMPLES;
+}
+if (process.env.LOG_ALL) {
+    settings.log_all_prompts = process.env.LOG_ALL;
+}
+
 export default settings;

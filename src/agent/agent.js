@@ -14,7 +14,7 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addBrowserViewer } from './vision/browser_viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-import { Task } from './tasks.js';
+import { Task } from './tasks/tasks.js';
 import { say } from './speak.js';
 
 export class Agent {
@@ -62,7 +62,6 @@ export class Agent {
         } else {
             taskStart = Date.now();
         }
-        // incorporate new restart time into task
         this.task = new Task(this, task_path, task_id, taskStart);
         this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(this.blocked_actions);
@@ -105,7 +104,9 @@ export class Agent {
                 this.startEvents();
               
                 if (!load_mem) {
-                    this.task.initBotTask();
+                    if (task_path !== null) {
+                        this.task.initBotTask();
+                    }
                 }
 
                 await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -153,7 +154,7 @@ export class Agent {
             }
         }
 
-		        this.respondFunc = respondFunc;
+		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
@@ -199,8 +200,8 @@ export class Agent {
         if (missingPlayers.length > 0) {
             console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
             this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
-          }
         }
+    }
 
     requestInterrupt() {
         this.bot.interrupt_code = true;

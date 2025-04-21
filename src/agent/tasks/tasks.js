@@ -1,10 +1,9 @@
 import { readFileSync , writeFileSync, existsSync} from 'fs';
-import { executeCommand } from './commands/index.js';
-import { getPosition } from './library/world.js';
-import settings from '../../settings.js';
-import { Vec3 } from 'vec3';
-import { ConstructionTaskValidator, Blueprint } from './task_types/construction_tasks.js';
-import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
+import { executeCommand } from '../commands/index.js';
+import { getPosition } from '../library/world.js';
+import settings from '../../../settings.js';
+import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
+import { CookingTaskInitiator } from './cooking_tasks.js';
 
 const PROGRESS_FILE = './hells_kitchen_progress.json';
 
@@ -237,27 +236,23 @@ export class Task {
     constructor(agent, task_path, task_id, taskStartTime = null) {
         this.agent = agent;
         this.data = null;
-        console.log("task start time", taskStartTime);
         if (taskStartTime !== null)
             this.taskStartTime = taskStartTime;
         else
             this.taskStartTime = Date.now();
 
-        console.log(this.taskStartTime);
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
         this.task_id = task_id;
-        console.log('Task ID:', task_id);
-
-        // Reset hells_kitchen progress when a new task starts
-        if (task_id && task_id.endsWith('hells_kitchen')) {
-            hellsKitchenProgressManager.resetTask(task_id);
-            console.log('Reset Hells Kitchen progress for new task');
-        }
-
 
         if (task_path && task_id) {
+            console.log('Starting task', task_id);
+            if (task_id.endsWith('hells_kitchen')) {
+                // Reset hells_kitchen progress when a new task starts
+                hellsKitchenProgressManager.resetTask(task_id);
+                console.log('Reset Hells Kitchen progress for new task');
+            }
             this.data = this.loadTask(task_path, task_id);
             this.task_type = this.data.type;
             if (this.task_type === 'construction' && this.data.blueprint) {
@@ -291,6 +286,9 @@ export class Task {
                 this.blocked_actions.push('!endGoal');
             if (this.conversation)
                 this.blocked_actions.push('!endConversation');
+        }
+        else {
+            console.log('No task.');
         }
 
         this.name = this.agent.name;

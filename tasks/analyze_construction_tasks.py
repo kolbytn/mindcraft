@@ -3,6 +3,16 @@ import json
 from collections import defaultdict
 from prettytable import PrettyTable
 import re
+import argparse
+import pandas as pd
+import glob
+
+# Calculate project root directory
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Define output directory for analysis results
+analysis_output_dir = os.path.join(project_root, "experiments", "analysis_results")
+# Ensure the output directory exists
+os.makedirs(analysis_output_dir, exist_ok=True)
 
 def extract_success_scores(folders, model_names):
     assert len(folders) == len(model_names), "Folders and model names lists must have the same length."
@@ -173,7 +183,49 @@ def extract_success_scores(folders, model_names):
     display_table("Average Success Score by Room", avg_room_scores)
     display_table("Average Success Score by (Material, Room) Tuples", avg_material_room_scores, tuple_keys=True)
 
-# Example usage
-folders = ["experiments/gpt-4o_construction_tasks", "experiments/claude-3-5-sonnet-latest_construction_tasks"]
-model_names = ["GPT-4o", "Claude 3.5 sonnet"]
-extract_success_scores(folders, model_names)
+def analyze_construction_log(log_file):
+    # ... existing code ...
+    pass
+
+def main():
+    parser = argparse.ArgumentParser(description='Analyze construction task logs.')
+    # Change default input dir to 'experiments' relative to project root
+    parser.add_argument('--log_dir', type=str, default='experiments', 
+                        help='Directory containing the log files (relative to project root)')
+    # Removed --output_file argument
+    # parser.add_argument('--output_file', type=str, default='construction_analysis_results.csv', 
+    #                     help='Output CSV file name (relative to project root)')
+    args = parser.parse_args()
+
+    # Resolve log_dir path relative to project root
+    log_dir_abs = args.log_dir
+    if not os.path.isabs(log_dir_abs):
+        log_dir_abs = os.path.join(project_root, log_dir_abs)
+        
+    # Hardcode output file path
+    output_file_abs = os.path.join(analysis_output_dir, "construction_analysis.csv")
+
+    all_results = []
+    # Use absolute log directory path
+    log_pattern = os.path.join(log_dir_abs, '*.json')
+    print(f"Searching for logs in: {log_pattern}")
+    log_files_found = glob.glob(log_pattern)
+    print(f"Found {len(log_files_found)} log files.")
+
+    for log_file in log_files_found:
+        results = analyze_construction_log(log_file)
+        if results:
+            all_results.append(results)
+
+    if all_results:
+        df = pd.DataFrame(all_results)
+        # Ensure the output directory exists (already done at top)
+        # os.makedirs(os.path.dirname(output_file_abs), exist_ok=True)
+        # Save to hardcoded absolute output file path
+        df.to_csv(output_file_abs, index=False)
+        print(f"Analysis complete. Results saved to {output_file_abs}")
+    else:
+        print("No results generated from log files.")
+
+if __name__ == "__main__":
+    main()

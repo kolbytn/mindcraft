@@ -1054,6 +1054,7 @@ export function blueprintToTask(blueprint_data, num_agents) {
     }
 
     let give_agent = 0;
+    console.log("materials", blueprint_data.materials)
     for (const key of Object.keys(blueprint_data.materials)) {
         initialInventory[JSON.stringify(give_agent)][key] = blueprint_data.materials[key];
         give_agent = (give_agent + 1) % num_agents;
@@ -1063,7 +1064,7 @@ export function blueprintToTask(blueprint_data, num_agents) {
         type: "construction",
         goal: "Make a structure with the blueprint below",
         conversation: "Let's share materials and make a structure with the blueprint",
-        agent_count: 2,
+        agent_count: num_agents,
         blueprint: blueprint_data,
         initial_inventory: initialInventory,
     };
