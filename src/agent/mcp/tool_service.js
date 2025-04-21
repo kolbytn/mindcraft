@@ -23,7 +23,6 @@ export class ToolService {
         try {
             // Use correct MCP SDK API to get tool list
             const toolsResult = await this.mcp.listTools();
-            // console.log("Original tool response:", JSON.stringify(toolsResult));
             
             if (!toolsResult || !toolsResult.tools) {
                 console.warn("Failed to get tool list, server did not return tool information");
@@ -32,9 +31,7 @@ export class ToolService {
             
             // Extract tool information and log - keep complete information
             const tools = toolsResult.tools;
-            
-            // 不打印详细工具信息，只输出工具数量
-            // console.log("Available tools:", JSON.stringify(tools));
+
             
             // Return tool list
             return tools;
@@ -92,13 +89,10 @@ export class ToolService {
         // If specific tool list is provided, set to that list
         if (Array.isArray(toolNames)) {
             this.autoApproveList = [...toolNames];
-            // console.log(`Auto-approve tool list set: ${this.autoApproveList.join(', ') || 'none'}`);
         } else {
             this.autoApproveList = [];
-            // console.log('No auto-approve tool list provided, will auto-approve all tools');
         }
         
-        // console.log(`Auto-approve all tools: ${this.autoApproveAll}`);
     }
     
     /**
