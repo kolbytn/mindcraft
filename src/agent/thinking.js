@@ -7,7 +7,6 @@ export class SelfDrivenThinking {
         this.agent = agent;
         this.todo_list = [];
         this.done_list = [];
-        this.summary = ""; 
         this.last_thinking_time = null;
         this.last_reflection_time = null;
         this.isSelfDrivenThinking = false;
@@ -46,7 +45,7 @@ export class SelfDrivenThinking {
     async selfDrivenReflection() {
         let prompt = this.agent.prompter.profile.thinking_reflection; 
         if (prompt && prompt.trim().length > 0) {
-            prompt = await this.replaceStrings(prompt);
+            prompt = await this.agent.prompter.replaceStrings(prompt);
             prompt += "\n\n" + this.agent.prompter.profile.thinking_format;
             let generation = await this.agent.prompter.chat_model.sendRequest([], prompt);
             console.log(`${this.agent.name} performed reflection: ""${generation}""`);
@@ -75,7 +74,7 @@ export class SelfDrivenThinking {
     async selfDrivenPlan() {
         let prompt = this.agent.prompter.profile.thinking_plan;
         if (prompt && prompt.trim().length > 0) {
-            prompt = await this.replaceStrings(prompt);
+            prompt = await this.agent.prompter.replaceStrings(prompt);
             await this.agent.handleMessage(this.agent.name, "[[Self-Driven Thinking]]" + prompt)
         }
         this.isSelfDrivenThinking = false; 
@@ -96,55 +95,6 @@ export class SelfDrivenThinking {
         });
     }
     
-    async replaceStrings(prompt) {
-        if (prompt.includes('$PERSON')) {
-            if (this.agent.prompter.profile.person_desc && this.agent.prompter.profile.person_desc.trim().length > 0) {
-                prompt = prompt.replaceAll('$PERSON', this.agent.prompter.profile.person_desc);
-            } else {
-                prompt = prompt.replaceAll('$PERSON', "");
-            }
-        }
-        if (prompt.includes('$LONGTERM')) {
-            if (this.agent.prompter.profile.longterm_thinking && this.agent.prompter.profile.longterm_thinking.trim().length > 0) {
-                prompt = prompt.replaceAll('$LONGTERM', "## Long-Term Thiking:\n" + this.agent.prompter.profile.longterm_thinking);
-            } else {
-                prompt = prompt.replaceAll('$LONGTERM', "");
-            }
-        }
-        if (prompt.includes('$SHORTTERM')) {
-            if (this.agent.prompter.profile.shortterm_thinking && this.agent.prompter.profile.shortterm_thinking.trim().length > 0) {
-                prompt = prompt.replaceAll('$SHORTTERM', "## Short-Term Thiking:\n" + this.agent.prompter.profile.shortterm_thinking);
-            } else {
-                prompt = prompt.replaceAll('$SHORTTERM', "");
-            }
-        }
-        if (prompt.includes('$TODO')) {
-            if (this.todo_list.length > 0) {
-                let todo_list = "-" + this.todo_list.join("\n-"); 
-                prompt = prompt.replaceAll('$TODO', "## TODO List:\n" + todo_list);
-            } else {
-                prompt = prompt.replaceAll('$TODO', "");
-            }
-        }
-        if (prompt.includes('$DONE')) {
-            if (this.done_list.length > 0) {
-                let done_list = "-" + this.done_list.join("\n-"); 
-                prompt = prompt.replaceAll('$DONE', "## DONE List:\n" + done_list);
-            } else {
-                prompt = prompt.replaceAll('$DONE', "");
-            }
-        }
-        if (prompt.includes('$THINK_SUMMARY')) {
-            if (this.summary && this.summary.trim().length > 0) {
-                prompt = prompt.replaceAll('$THINK_SUMMARY', "## Summary of Motivations:\n" + this.summary);
-            } else {
-                prompt = prompt.replaceAll('$THINK_SUMMARY', "");
-            }
-        }
-        prompt = (await this.agent.prompter.replaceStrings(prompt.trim())).trim();
-        return prompt
-    }
-    
     extractInfo(text) {
         let [content, data] = splitContentAndJSON(text);
         let to_self_message = ""
@@ -160,23 +110,5 @@ export class SelfDrivenThinking {
         if (data.todo && Array.isArray(data.todo)) 
             todo = data.todo
         return [to_self_message, longterm_thinking, shortterm_thinking, todo]
-    }
-    
-    async updateDoneList(message) {
-        this.done_list.push(message);
-        this.summary = await this.promptSummary()
-        if (this.summary.length > 500) {
-            this.summary = this.summary.slice(0, 500);
-            this.summary += '...(Summary of motivations truncated to 500 chars. Compress it more next time)';
-        }
-        console.log("Summary of motivations updated to: ", this.summary);
-        this.isSelfDrivenThinking = false;
-    }
-
-    async promptSummary() {
-        await this.agent.prompter.checkCooldown();
-        let prompt = this.agent.prompter.profile.thinking_summary;
-        prompt = await this.replaceStrings(prompt);
-        return await this.agent.prompter.chat_model.sendRequest([], prompt);
     }
 }

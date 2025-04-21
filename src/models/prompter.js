@@ -16,6 +16,7 @@ import { GroqCloudAPI } from './groq.js';
 import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
 import { Doubao } from "./doubao.js";
+import { Pollinations } from "./pollinations.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
@@ -200,6 +201,8 @@ export class Prompter {
             model = new Qwen(profile.model, profile.url, profile.params);
         else if (profile.api === 'doubao')
             model = new Doubao(profile.model, profile.url, profile.params);
+        else if (profile.api === 'pollinations')
+            model = new Pollinations(profile.model, profile.url, profile.params);
         else if (profile.api === 'xai')
             model = new Grok(profile.model, profile.url, profile.params);
         else if (profile.api === 'deepseek')
@@ -246,6 +249,36 @@ export class Prompter {
 
     async replaceStrings(prompt, messages, examples=null, to_summarize=[], last_goals=null) {
         prompt = prompt.replaceAll('$NAME', this.agent.name);
+
+        if (prompt.includes('$PERSON')) {
+            if (this.profile.person_desc && this.profile.person_desc.trim().length > 0) {
+                prompt = prompt.replaceAll('$PERSON', this.profile.person_desc);
+            } else {
+                prompt = prompt.replaceAll('$PERSON', "");
+            }
+        }
+        if (prompt.includes('$LONGTERM')) {
+            if (this.profile.longterm_thinking && this.profile.longterm_thinking.trim().length > 0) {
+                prompt = prompt.replaceAll('$LONGTERM', "## Long-Term Thiking:\n" + this.profile.longterm_thinking);
+            } else {
+                prompt = prompt.replaceAll('$LONGTERM', "");
+            }
+        }
+        if (prompt.includes('$SHORTTERM')) {
+            if (this.profile.shortterm_thinking && this.profile.shortterm_thinking.trim().length > 0) {
+                prompt = prompt.replaceAll('$SHORTTERM', "## Short-Term Thiking:\n" + this.profile.shortterm_thinking);
+            } else {
+                prompt = prompt.replaceAll('$SHORTTERM', "");
+            }
+        }
+        if (prompt.includes('$TODO')) {
+            if (this.agent.thinking.todo_list.length > 0) {
+                let todo_list = "-" + this.agent.thinking.todo_list.join("\n-"); 
+                prompt = prompt.replaceAll('$TODO', "## TODO List:\n" + todo_list);
+            } else {
+                prompt = prompt.replaceAll('$TODO', "");
+            }
+        }
 
         if (prompt.includes('$STATS')) {
             let stats = await getCommand('!stats').perform(this.agent);

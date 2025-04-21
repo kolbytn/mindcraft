@@ -126,7 +126,7 @@ export class Agent {
         ];
         
         const respondAtFunc = async (username, message) => {
-            if (settings.profiles.length === 1 || message.startsWith("@all") || message.startsWith(`@${this.name}`)) {
+            if (settings.profiles.length === 1 || Object.keys(this.bot.players).length === 2 || message.startsWith("@all") || message.startsWith(`@${this.name}`)) {
                 this.respondFunc(username, message)
             }
         }
@@ -374,10 +374,6 @@ export class Agent {
         message =  translated_msg + " " + remaining;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
         message = message.replaceAll('\n', ' ');
-
-        if (this.thinking.isSelfDrivenThinking) {
-            this.thinking.updateDoneList(message)
-        }
 
         if (settings.only_chat_with.length > 0) {
             for (let username of settings.only_chat_with) {

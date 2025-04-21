@@ -42,6 +42,22 @@ During the development of this project, the pathfinder function from mineflayer-
 
 <img src="https://s2.loli.net/2025/04/18/TjrGhlR6OYniHyQ.gif" alt="Bot open doors." width="800" height="450">
 
+### Support for Pollinations AI 
+
+We have added support for using text models from [Pollinations](https://pollinations.ai/). It is a open-sourced LLM API without requiring keys/token/accounts to get access!
+
+You only need to specify the API as "pollinations" and select a model from the [model list](https://text.pollinations.ai/models):
+
+```json
+{
+    "name": "Oppen", 
+    "model": {
+        "api": "pollinations", 
+        "model": "openai-large"
+    }
+}
+```
+
 ### Support for Doubao LLMs from ByteDance
 
 We have added support for using [Doubao LLMs](https://www.volcengine.com/docs/82379/1099504). To use it, you need to provide your token as the value of the "DOUBAO_API_KEY" in the `key.json` file:

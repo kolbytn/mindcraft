@@ -37,6 +37,7 @@ export const queryList = [
             res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
             res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
 
+            res += `\n- Date: this is the ${bot.time.day}-th day.`;
 
             if (bot.time.timeOfDay < 6000) {
                 res += '\n- Time: Morning';
