@@ -1,5 +1,7 @@
 # MineCollab
 
+MineCollab is a versatile benchmark for assessing the embodied and collaborative communication abilities of agents. 
+
 ## Tasks 
 
 ### Cooking
