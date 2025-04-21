@@ -40,6 +40,7 @@
     "devDependencies": {
         "@eslint/js": "^9.13.0",
         "eslint": "^9.13.0",
+        "eslint-plugin-no-floating-promise": "^2.0.0",
         "globals": "^15.11.0"
     }
 }

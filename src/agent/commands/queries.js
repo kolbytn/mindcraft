@@ -211,7 +211,6 @@ export const queryList = [
             // Generate crafting plan
             let craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
             craftingPlan = prefixMessage + craftingPlan;
-            console.log(craftingPlan);
             return pad(craftingPlan);
         },
     },
@@ -240,7 +239,7 @@ export const queryList = [
                 return divContent.trim();
               } catch (error) {
                 console.error("Error fetching or parsing HTML:", error);
-                return `The following error occured: ${error}`
+                return `The following error occurred: ${error}`
               }
         }
     },

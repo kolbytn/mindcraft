@@ -582,12 +582,18 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
      * await skills.placeBlock(bot, "oak_log", p.x + 2, p.y, p.x);
      * await skills.placeBlock(bot, "torch", p.x + 1, p.y, p.x, 'side');
      **/
-    if (!mc.getBlockId(blockType)) {
+    if (!mc.getBlockId(blockType) && blockType !== 'air') {
         log(bot, `Invalid block type: ${blockType}.`);
         return false;
     }
 
     const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
+
+    if (blockType === 'air') {
+        log(bot, `Placing air (removing block) at ${target_dest}.`);
+        return await breakBlockAt(bot, x, y, z);
+    }
+
     if (bot.modes.isOn('cheat') && !dontCheat) {
         if (bot.restrict_to_inventory) {
             let block = bot.inventory.items().find(item => item.name === blockType);
@@ -1002,10 +1008,34 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
         log(bot, `Teleported to ${x}, ${y}, ${z}.`);
         return true;
     }
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(new pf.goals.GoalNear(x, y, z, min_distance));
-    log(bot, `You have reached at ${x}, ${y}, ${z}.`);
-    return true;
+    
+    const movements = new pf.Movements(bot);
+    bot.pathfinder.setMovements(movements);
+    
+    const checkProgress = () => {
+        if (bot.targetDigBlock) {
+            const targetBlock = bot.targetDigBlock;
+            const itemId = bot.heldItem ? bot.heldItem.type : null;
+            if (!targetBlock.canHarvest(itemId)) {
+                log(bot, `Pathfinding stopped: Cannot break ${targetBlock.name} with current tools.`);
+                bot.pathfinder.stop();
+                bot.stopDigging();
+            }
+        }
+    };
+    
+    const progressInterval = setInterval(checkProgress, 1000);
+    
+    try {
+        await bot.pathfinder.goto(new pf.goals.GoalNear(x, y, z, min_distance));
+        log(bot, `You have reached at ${x}, ${y}, ${z}.`);
+        return true;
+    } catch (err) {
+        log(bot, `Pathfinding stopped: ${err.message}.`);
+        return false;
+    } finally {
+        clearInterval(progressInterval);
+    }
 }
 
 export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64) {
@@ -1029,7 +1059,7 @@ export async function goToNearestBlock(bot, blockType,  min_distance=2, range=64
         log(bot, `Could not find any ${blockType} in ${range} blocks.`);
         return false;
     }
-    log(bot, `Found ${blockType} at ${block.position}.`);
+    log(bot, `Found ${blockType} at ${block.position}. Navigating...`);
     await goToPosition(bot, block.position.x, block.position.y, block.position.z, min_distance);
     return true;
     
