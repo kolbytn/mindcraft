@@ -1,6 +1,6 @@
 import { exec, spawn } from 'child_process';
 import settings from '../../settings.js';
-import { Pollinations } from '../models/pollinations.js';
+import { sendAudioRequest } from '../models/pollinations.js';
 
 let speakingQueue = [];
 let isSpeaking = false;
@@ -20,7 +20,7 @@ async function processQueue() {
 
   const isWin = process.platform === 'win32';
   const isMac = process.platform === 'darwin';
-  const model = settings.speak_model || 'system';
+  const model = settings.speak_model || 'pollinations/openai-audio/echo';
 
   if (model === 'system') {
     // system TTS
@@ -43,7 +43,11 @@ $s.Speak('${txt.replace(/'/g,"''")}'); $s.Dispose()"`
     if (prov !== 'pollinations') throw new Error(`Unknown provider: ${prov}`);
 
     try {
-      const audioData = await new Pollinations(mdl).sendAudioRequest(txt, voice);
+      let audioData = await sendAudioRequest(txt, mdl, voice);
+      if (!audioData) {
+        audioData = "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU5LjI3LjEwMAAAAAAAAAAAAAAA/+NAwAAAAAAAAAAAAEluZm8AAAAPAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExhdmM1OS4zNwAAAAAAAAAAAAAAAAAAAAAAAAAAAADQAAAeowAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+        // ^ 0 second silent audio clip
+      }
 
       if (isWin) {
         const ps = `
