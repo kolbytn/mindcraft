@@ -1,5 +1,5 @@
 import mineflayer from 'mineflayer';
-import { worldToBlueprint, blueprintToTask } from '../../src/agent/task_types/construction_tasks.js';
+import { worldToBlueprint, blueprintToTask } from '../../src/agent/tasks/construction_tasks.js';
 import fs from 'fs';
 import { start } from 'repl';
 

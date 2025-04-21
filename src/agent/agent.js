@@ -14,7 +14,7 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addBrowserViewer } from './vision/browser_viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-import { Task } from './tasks.js';
+import { Task } from './tasks/tasks.js';
 import { say } from './speak.js';
 
 export class Agent {
@@ -62,7 +62,6 @@ export class Agent {
         } else {
             taskStart = Date.now();
         }
-        // incorporate new restart time into task
         this.task = new Task(this, task_path, task_id, taskStart);
         this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(this.blocked_actions);
