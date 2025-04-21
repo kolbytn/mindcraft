@@ -43,7 +43,7 @@ $s.Speak('${txt.replace(/'/g,"''")}'); $s.Dispose()"`
       [prov, mdl, voice] = model.split('/');
       url = "https://text.pollinations.ai/openai";
     } else {
-      prov = model.provider;
+      prov = model.api;
       mdl = model.model;
       voice = model.voice;
       url = model.url || "https://text.pollinations.ai/openai";
