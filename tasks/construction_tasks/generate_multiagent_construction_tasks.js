@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {proceduralGeneration} from "../../src/agent/task_types/construction_tasks.js";
+import {proceduralGeneration} from "../../src/agent/tasks/construction_tasks.js";
 
 //note 'main' (script to run generation of tasks) is at bottom of page
 
