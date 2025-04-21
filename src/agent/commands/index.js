@@ -100,10 +100,10 @@ export function parseCommandMessage(message) {
 
     const commandName = "!"+commandMatch[1];
 
-    // 提取参数字符串
+    // extract the argument string
     const argsString = commandMatch[2] || '';
     
-    // 分析命令参数，处理嵌套的大括号、引号等
+    // analyze the command parameters, handle nested braces, quotes, etc.
     const args = [];
     let currentArg = '';
     let braceCount = 0;
@@ -113,7 +113,7 @@ export function parseCommandMessage(message) {
     for (let i = 0; i < argsString.length; i++) {
         const char = argsString[i];
         
-        // 处理引号
+        // handle quotes
         if ((char === '"' || char === "'") && (i === 0 || argsString[i-1] !== '\\')) {
             if (!inQuote) {
                 inQuote = true;
@@ -123,11 +123,11 @@ export function parseCommandMessage(message) {
             }
         }
         
-        // 处理花括号
+        // handle braces
         if (char === '{' && !inQuote) braceCount++;
         if (char === '}' && !inQuote) braceCount--;
         
-        // 处理参数分隔符
+        // handle parameter separator
         if (char === ',' && !inQuote && braceCount === 0) {
             args.push(currentArg.trim());
             currentArg = '';
@@ -137,7 +137,7 @@ export function parseCommandMessage(message) {
         currentArg += char;
     }
     
-    // 添加最后一个参数
+    // add the last argument
     if (currentArg.trim()) {
         args.push(currentArg.trim());
     }
