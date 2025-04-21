@@ -50,8 +50,6 @@ export class Agent {
         await this.prompter.initExamples();
         console.log('Initializing task...');
         this.task = new Task(this, task_path, task_id);
-        
-        // 初始化 MCP 客户端
         console.log('Initializing MCP client...');
         this.mcp_client = new MCPClient(this);
         
@@ -473,20 +471,15 @@ export class Agent {
         this.history.add('system', msg);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
-        
-        // 清理 MCP 客户端资源
-        if (this.mcp_client) {
+        if (this.mcp_client) 
             this.mcp_client.cleanup();
-        }
         
         process.exit(code);
     }
 
     killAll() {
-        // 清理 MCP 客户端资源
-        if (this.mcp_client) {
+        if (this.mcp_client) 
             this.mcp_client.cleanup();
-        }
         
         serverProxy.shutdown();
     }
