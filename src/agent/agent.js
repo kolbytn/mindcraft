@@ -105,7 +105,9 @@ export class Agent {
                 this.startEvents();
               
                 if (!load_mem) {
-                    this.task.initBotTask();
+                    if (task_path !== null) {
+                        this.task.initBotTask();
+                    }
                 }
 
                 await new Promise((resolve) => setTimeout(resolve, 10000));
