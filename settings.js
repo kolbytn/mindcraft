@@ -30,7 +30,8 @@ const settings = {
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
     
     "speak": true,
-    "speak_model": "pollinations/openai-audio/echo", // allows all bots to speak through text-to-speach. format: {provider}/{model}/{voice}. if set to "system" it will use system text-to-speech, which works on windows and mac, but on linux you need to `apt install espeak`.
+    // allows all bots to speak through text-to-speech. format: {provider}/{model}/{voice}. if set to "system" it will use system text-to-speech, which works on windows and mac, but on linux you need to `apt install espeak`.
+    // specify speech model inside each profile - so that you can have each bot with different voices ;)
     
     "language": "en", // translate to/from this language. NOT text-to-speech language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...

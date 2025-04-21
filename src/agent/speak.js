@@ -1,12 +1,11 @@
 import { exec, spawn } from 'child_process';
-import settings from '../../settings.js';
 import { sendAudioRequest } from '../models/pollinations.js';
 
 let speakingQueue = [];
 let isSpeaking = false;
 
-export function say(text) {
-  speakingQueue.push(text);
+export function say(text, speak_model) {
+  speakingQueue.push([text, speak_model]);
   if (!isSpeaking) processQueue();
 }
 
@@ -16,11 +15,11 @@ async function processQueue() {
     return;
   }
   isSpeaking = true;
-  const txt = speakingQueue.shift();
+  const [txt, speak_model] = speakingQueue.shift();
 
   const isWin = process.platform === 'win32';
   const isMac = process.platform === 'darwin';
-  const model = settings.speak_model || 'pollinations/openai-audio/echo';
+  const model = speak_model || 'pollinations/openai-audio/echo';
 
   if (model === 'system') {
     // system TTS
@@ -39,11 +38,20 @@ $s.Speak('${txt.replace(/'/g,"''")}'); $s.Dispose()"`
 
   } else {
     // remote audio provider
-    const [prov, mdl, voice] = model.split('/');
+    let prov, mdl, voice, url;
+    if (typeof model === "string") {
+      [prov, mdl, voice] = model.split('/');
+      url = "https://text.pollinations.ai/openai";
+    } else {
+      prov = model.provider;
+      mdl = model.model;
+      voice = model.voice;
+      url = model.url || "https://text.pollinations.ai/openai";
+    }
     if (prov !== 'pollinations') throw new Error(`Unknown provider: ${prov}`);
 
     try {
-      let audioData = await sendAudioRequest(txt, mdl, voice);
+      let audioData = await sendAudioRequest(txt, mdl, voice, url);
       if (!audioData) {
         audioData = "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU5LjI3LjEwMAAAAAAAAAAAAAAA/+NAwAAAAAAAAAAAAEluZm8AAAAPAAAAAAAAANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAExhdmM1OS4zNwAAAAAAAAAAAAAAAAAAAAAAAAAAAADQAAAeowAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
         // ^ 0 second silent audio clip

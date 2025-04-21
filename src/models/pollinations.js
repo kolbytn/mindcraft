@@ -63,7 +63,7 @@ export class Pollinations {
     }
 }
 
-export async function sendAudioRequest(text, model, voice) {
+export async function sendAudioRequest(text, model, voice, url) {
     const payload = {
         model: model,
         modalities: ["text", "audio"],
@@ -87,7 +87,7 @@ export async function sendAudioRequest(text, model, voice) {
     let audioData = null;
 
     try {
-        const response = await fetch("https://text.pollinations.ai/openai", {
+        const response = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
