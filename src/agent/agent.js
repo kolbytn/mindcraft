@@ -154,7 +154,7 @@ export class Agent {
             }
         }
 
-		        this.respondFunc = respondFunc;
+		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
@@ -200,8 +200,8 @@ export class Agent {
         if (missingPlayers.length > 0) {
             console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
             this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
-          }
         }
+    }
 
     requestInterrupt() {
         this.bot.interrupt_code = true;
