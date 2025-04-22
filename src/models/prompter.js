@@ -337,8 +337,6 @@ export class Prompter {
 
             try {
                 generation = await this.chat_model.sendRequest(messages, prompt);
-                let task_id = this.agent.task.task_id
-                console.log(task_id)
                 if (typeof generation !== 'string') {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');

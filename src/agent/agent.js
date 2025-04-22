@@ -55,7 +55,6 @@ export class Agent {
         if (load_mem) {
             save_data = this.history.load();
         }
-        console.log(save_data);
         let taskStart = null;
         if (save_data) {
             taskStart = save_data.taskStart;
