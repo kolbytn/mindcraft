@@ -52,16 +52,17 @@ export class Agent {
         blacklistCommands(blocked_actions);
 
         serverProxy.connect(this);
-
+        let save_data = null;
+        if (load_mem) {
+            save_data = await this.history.load();
+        }
+        // Note: Long initialization tasks must be completed before initBot, otherwise it will fail to connect to minecraft
         console.log(this.name, 'logging into minecraft...');
         this.bot = initBot(this.name);
 
         initModes(this);
 
-        let save_data = null;
-        if (load_mem) {
-            save_data = this.history.load();
-        }
+      
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');

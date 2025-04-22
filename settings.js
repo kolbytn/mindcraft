@@ -38,7 +38,9 @@ const settings = {
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
     "relevant_docs_count": 5, // number of relevant code function docs to select for prompting. -1 for all
 
-    "max_messages": 15, // max number of messages to keep in context
+    "max_messages": 30, // max number of messages to keep in context
+    "summary_chunk_size": 10, // number of messages to remove from current history and save into memory
+    "relevant_memory_size": 15, // number of memory show to LLM in prompt
     "num_examples": 2, // number of examples to give to the model
     "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "verbose_commands": true, // show full command syntax

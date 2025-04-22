@@ -1,16 +1,21 @@
 export function stringifyTurns(turns) {
-    let res = '';
+    let messages = [];
+    
     for (let turn of turns) {
+        let role = '';
         if (turn.role === 'assistant') {
-            res += `\nYour output:\n${turn.content}`;
+            role = '[Your output]';
         } else if (turn.role === 'system') {
-            res += `\nSystem output: ${turn.content}`;
+            role = '[System output]';
         } else {
-            res += `\nUser input: ${turn.content}`;
-        
+            role = '[User input]';
         }
+        
+        messages.push(`  "${role}": "${turn.content.replace(/"/g, '\\"')}"`);
     }
-    return res.trim();
+    
+    // Return formatted list with opening and closing brackets
+    return `[\n${messages.join(',\n')}\n]`;
 }
 
 export function toSinglePrompt(turns, system=null, stop_seq='***', model_nickname='assistant') {
