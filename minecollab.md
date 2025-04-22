@@ -1,20 +1,12 @@
 # MineCollab
 
-MineCollab is a versatile benchmark for assessing the embodied and collaborative communication abilities of agents. 
-
-## Tasks 
-
-### Cooking
-
-### Crafting
-
-### Construction
+MineCollab is a versatile benchmark for assessing the embodied and collaborative communication abilities of agents across three unique types of tasks. 
 
 ## Installation 
 
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
 
-First, download the relevant task files and server data files. The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. Unzip the server_data.zip in the base mindcraft/ folder. 
+Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. Unzip the server_data.zip in the base `tasks/` folder. 
 
 Then, set up your conda environment: `conda create --name mindcraft --file requirements.txt`
 
