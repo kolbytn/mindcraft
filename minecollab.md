@@ -6,9 +6,15 @@ MineCollab is a versatile benchmark for assessing the embodied and collaborative
 
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
 
-Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. Unzip the server_data.zip in the base `tasks/` folder. 
+Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. **Unzip the server_data.zip in the base `tasks/` folder**.
 
-Then, set up your conda environment: `conda create --name mindcraft --file requirements.txt`
+Then, set up your conda environment: 
+
+```
+conda create --name mindcraft python=3.11
+conda activate mindcraft
+pip install -r requirements.txt
+```
 
 Then, you can run the evaluation_script **from the project root** using `python tasks/evaluation_script.py --task_path {your-task-path} --model {model you want to use}`. 
 
@@ -23,18 +29,20 @@ Similarly, match the default prompt profile to the type of task. If you are runn
 In summary, to run two and three agent tasks on crafting  on gpt-4o-mini you would run 
 
 ```
-python evaluation_script.py --task_path {path_to_two_agent_crafting_tasks} --model gpt-4o-mini --template_profile profiles/tasks/crafting_profile.json
+python tasks/evaluation_script.py --task_path tasks/crafting_tasks/test_tasks/2_agent.json --model gpt-4o-mini --template_profile profiles/tasks/crafting_profile.json
 
-python evaluation_script.py --task_path {path_to_three_agent_crafting_tasks} --model gpt-4o-mini --template_profile profiles/tasks/crafting_profile --num_agents 3
+python tasks/evaluation_script.py --task_path tasks/crafting_tasks/test_tasks/filtered_tasks_3_agents.json --model gpt-4o-mini --template_profile profiles/tasks/crafting_profile --num_agents 3
 ```
 
 For cooking and construction 
 
 ```
-python evaluation_script.py --task_path {path_to_two_agent_cooking_tasks} --model gpt-4o-mini --template_profile profiles/tasks/cooking_profile.json 
+python tasks/evaluation_script.py --task_path {path_to_two_agent_cooking_tasks} --model gpt-4o-mini --template_profile profiles/tasks/cooking_profile.json 
 
-python evaluation_script.py --task_path {path_to_two_agent_construction_tasks} --model gpt-4o-mini --template_profile profiles/tasks/construction_profile.json --insecure_coding
+python tasks/evaluation_script.py --task_path {path_to_two_agent_construction_tasks} --model gpt-4o-mini --template_profile profiles/tasks/construction_profile.json --insecure_coding
 ```
+
+When you launch the evaluation script, you will see the minecraft server being launched. If you want to join this world, you can connect to it on the port localhost:55916 the way you would a standard Minecraft world (go to single player -> direct connection -> type in localhost:55916) It may take a few minutes for everything to be properly loaded - as first the agents need to be added to the world and given the correct permissions to use cheats and add inventory. After about 5 minutes everything should be loaded and working. If you wish to kill the experiment run `tmux kill-server`. Sometimes there will be issues copying the files, if this happens you can run the python file twice. 
 
 ## Using the Evaluation Script
 

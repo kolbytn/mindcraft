@@ -30,6 +30,24 @@ Do not connect this bot to public servers with coding enabled. This project allo
 
 If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues.
 
+## Run Evaluations
+
+First you need to download the server_data.zip and unzip it in the tasks/ folder from [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). Then set up your conda environment: 
+
+```
+conda create --name mindcraft python=3.11
+conda activate mindcraft
+pip install -r requirements.txt
+```
+
+Then you should be ready to launch evaluations like this: 
+
+```
+python tasks/evaluation_script.py --task_path tasks/crafting_tasks/test_tasks/2_agent.json --model gpt-4o-mini --template_profile profiles/tasks/crafting_profile.json
+```
+
+
+
 ## Model Customization
 
 You can configure project details in `settings.js`. [See file.](settings.js)
