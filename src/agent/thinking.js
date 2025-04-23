@@ -46,7 +46,6 @@ export class SelfDrivenThinking {
         let prompt = this.agent.prompter.profile.thinking_reflection; 
         if (prompt && prompt.trim().length > 0) {
             prompt = await this.agent.prompter.replaceStrings(prompt);
-            prompt += "\n\n" + this.agent.prompter.profile.thinking_format;
             let generation = await this.agent.prompter.chat_model.sendRequest([], prompt);
             console.log(`${this.agent.name} performed reflection: ""${generation}""`);
             let to_self_message = "";

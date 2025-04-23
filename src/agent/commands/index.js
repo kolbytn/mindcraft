@@ -85,8 +85,6 @@ function checkInInterval(number, lowerBound, upperBound, endpointType) {
     }
 }
 
-
-
 // todo: handle arrays?
 /**
  * Returns an object containing the command, the command name, and the comand parameters.

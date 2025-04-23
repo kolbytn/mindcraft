@@ -7,6 +7,7 @@ import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
+import { BuildManager } from './building.js';
 import { SelfDrivenThinking } from './thinking.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
@@ -40,6 +41,8 @@ export class Agent {
         this.coder = new Coder(this);
         console.log('Initializing npc controller...');
         this.npc = new NPCContoller(this);
+        console.log('Initializing build manager...');
+        this.building = new BuildManager(this);
         console.log('Initializing self-driven thinking...');
         this.thinking = new SelfDrivenThinking(this);
         console.log('Initializing memory bank...');
@@ -452,6 +455,9 @@ export class Agent {
 
         // Init NPC controller
         this.npc.init();
+        // Init build manager 
+        this.building.init();
+        // Init self-driven thinkin 
         this.thinking.init();
 
         // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval

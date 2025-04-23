@@ -38,7 +38,6 @@ export function getNearestFreeSpace(bot, size=1, distance=8) {
     }
 }
 
-
 export function getBlockAtPosition(bot, x=0, y=0, z=0) {
      /**
      * Get a block from the bot's relative position 

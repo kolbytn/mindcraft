@@ -157,6 +157,7 @@ function keysUpdate(socket) {
     let keys = {
         "BYTEDANCE_APP_ID" : getKey("BYTEDANCE_APP_ID"),
         "BYTEDANCE_APP_TOKEN" : getKey("BYTEDANCE_APP_TOKEN"),
+        "OPENAI_API_KEY" : getKey("OPENAI_API_KEY"),
     };
     socket.emit('keys-update', keys);
 }

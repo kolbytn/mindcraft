@@ -94,18 +94,22 @@
             width: 100%;
             display: none;
         }
+        #apiSelectionArea {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2d2d2d;
+            border-radius: 8px;
+        }
         #transcriptionArea {
             margin-top: 20px;
             padding: 15px;
             background: #2d2d2d;
             border-radius: 8px;
-            min-height: 100px;
         }
         #transcriptText {
             background: #363636;
             padding: 10px;
             border-radius: 4px;
-            min-height: 60px;
             margin-top: 10px;
             white-space: pre-wrap;
             word-break: break-word;
@@ -177,6 +181,17 @@
             margin-left: 10px;
             vertical-align: middle;
         }
+        .radio-group {
+            margin: 10px 0;
+        }
+        .radio-option {
+            margin-right: 20px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .radio-option input {
+            margin-right: 5px;
+        }
         #toggleDetails {
             background: #555;
             border: none;
@@ -203,7 +218,16 @@
 <body>
     <h1>Mindcraft Generative Agents</h1>
     <div id="agents"></div>
-    
+    <div id="apiSelectionArea">
+        <div class="radio-group">
+            <label class="radio-option">
+                <input type="radio" name="apiSelection" value="1" checked> OpenAI 
+            </label>
+            <label class="radio-option">
+                <input type="radio" name="apiSelection" value="2"> ByteDance
+            </label>
+        </div>
+    </div>
     <div id="voiceControls">
         <button id="voiceButton" class="voice-btn">Start Detecting</button>
         <div id="voiceStatus">Detecting not Started</div>
@@ -594,90 +618,127 @@
             
             voiceStatus.textContent = `Recorded，Duration: ${recordingDuration.toFixed(1)} seconds，perform STT...`;
             
-            try {
-                const audioBase64 = await blobToBase64(audioBlob);
-                transcriptText.innerHTML = 'STT Processing...<div class="loading"></div>';
-                
-                const requestId = generateUUID();
-                
-                // using bytedance STT api (https://www.volcengine.com/docs/6561/1354868)
-                const response = await fetch('https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Api-App-Key': sttKeys["BYTEDANCE_APP_ID"],
-                        'X-Api-Access-Key': sttKeys["BYTEDANCE_APP_TOKEN"],
-                        'X-Api-Resource-Id': 'volc.bigasr.auc',
-                        'X-Api-Request-Id': requestId,
-                        'X-Api-Sequence': '-1'
-                    },
-                    body: JSON.stringify({
-                        "user": {
-                            "uid": "" 
-                        },
-                        "audio": {
-                            "format": "raw",
-                            "data": audioBase64, 
-                            "sample_rate": sampleRate, 
-                            "channel_num": 1, 
-                            "bits_per_sample": 16
-                        },
-                        "request": {
-                            "model_name": "bigmodel",
-                            "enable_itn": true
-                        }
-                    })
-                });
-                
-                const statusCode = response.headers.get('X-Api-Status-Code');
-                const message = response.headers.get('X-Api-Message');
-                
-                if (statusCode === '20000000') {
-                    // Submitted and start querying for result 
-                    const taskResult = await pollTaskResult(requestId);
-                    displayTranscriptResult(taskResult);
-
-                    if (taskResult && taskResult.result && taskResult.result.text) {
-                        let text = taskResult.result.text;
-                        let agentName = checkMessageStartsWithName(text, agentNames);
-                        let agentNamesToSendMsg = [];
-                        if (agentName) {
-                            agentNamesToSendMsg.push(agentName);
-                        } else {
-                            agentNamesToSendMsg = agentNames;
-                        }
-                        if (agentNames.length > 1) {
-                            if (agentNamesToSendMsg.length > 1) {
-                                text = "@all " + text;
-                            } else {
-                                text = "/msg " + agentNamesToSendMsg[0] + " " + text;
-                            }
-                        }
-                        addToHistory(text);
-                        for (var i = 0; i < agentNamesToSendMsg.length; i++) {
-                            sendMessage(agentNamesToSendMsg[i], taskResult.result.text);
-                        }
-                    }
-                } else if (statusCode === '20000003') {
-                    transcriptText.textContent = "Detected audio without content. Speak again.";
-                    toggleDetailsButton.style.display = 'none';
-                } else {
-                    throw new Error(`API Error: ${message} (${statusCode})`);
+            const radioButtons = document.getElementsByName('apiKeySelection');
+            let selectedAPI = "1"; // Default to 1
+            for (const radioButton of radioButtons) {
+                if (radioButton.checked) {
+                    selectedAPI = radioButton.value;
+                    break;
                 }
-                
-            } catch (error) {
-                console.error('Faild in STT:', error);
-                transcriptText.textContent = "Error in STT: " + error.message;
-                toggleDetailsButton.style.display = 'none';
-                
-                setTimeout(() => {
-                    if (isListening) {
-                        voiceStatus.textContent = 'Detecting...';
-                    }
-                }, 2000);
             }
-            
+                
+            if (selectedAPI == "1") {
+                const formData = new FormData();
+                formData.append('file', audioBlob, 'voice.mp3');
+                formData.append('model', 'whisper-1');
+                
+                try {
+                    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sttKeys["OPENAI_API_KEY"]}`
+                        },
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error?.message || `Whisper API request failed with status ${response.status}`);
+                    }
+                    const data = await response.json();
+                    transcriptText.textContent = data.text;
+                    handleTranscript(data.text)
+                } catch (error) {
+                    transcriptText.textContent = `Transcription error: ${error.message}`;
+                } 
+            } else {
+                try {
+                    const audioBase64 = await blobToBase64(audioBlob);
+                    transcriptText.innerHTML = 'STT Processing...<div class="loading"></div>';
+                    
+                    const requestId = generateUUID();
+                    
+                    // using bytedance STT api (https://www.volcengine.com/docs/6561/1354868)
+                    const response = await fetch('https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Api-App-Key': sttKeys["BYTEDANCE_APP_ID"],
+                            'X-Api-Access-Key': sttKeys["BYTEDANCE_APP_TOKEN"],
+                            'X-Api-Resource-Id': 'volc.bigasr.auc',
+                            'X-Api-Request-Id': requestId,
+                            'X-Api-Sequence': '-1'
+                        },
+                        body: JSON.stringify({
+                            "user": {
+                                "uid": "" 
+                            },
+                            "audio": {
+                                "format": "raw",
+                                "data": audioBase64, 
+                                "sample_rate": sampleRate, 
+                                "channel_num": 1, 
+                                "bits_per_sample": 16
+                            },
+                            "request": {
+                                "model_name": "bigmodel",
+                                "enable_itn": true
+                            }
+                        })
+                    });
+                    
+                    const statusCode = response.headers.get('X-Api-Status-Code');
+                    const message = response.headers.get('X-Api-Message');
+                    
+                    if (statusCode === '20000000') {
+                        // Submitted and start querying for result 
+                        const taskResult = await pollTaskResult(requestId);
+                        displayTranscriptResult(taskResult);
+
+                        if (taskResult && taskResult.result && taskResult.result.text) {
+                            handleTranscript(taskResult.result.text)
+                        }
+                    } else if (statusCode === '20000003') {
+                        transcriptText.textContent = "Detected audio without content. Speak again.";
+                        toggleDetailsButton.style.display = 'none';
+                    } else {
+                        throw new Error(`API Error: ${message} (${statusCode})`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Faild in STT:', error);
+                    transcriptText.textContent = "Error in STT: " + error.message;
+                    toggleDetailsButton.style.display = 'none';
+                    
+                    setTimeout(() => {
+                        if (isListening) {
+                            voiceStatus.textContent = 'Detecting...';
+                        }
+                    }, 2000);
+                }
+            }
             recordedChunks = [];
+        }
+
+        function handleTranscript(text) {
+            let agentName = checkMessageStartsWithName(text, agentNames);
+            let agentNamesToSendMsg = [];
+            if (agentName) {
+                agentNamesToSendMsg.push(agentName);
+            } else {
+                agentNamesToSendMsg = agentNames;
+            }
+            if (agentNames.length > 1) {
+                if (agentNamesToSendMsg.length > 1) {
+                    text = "@all " + text;
+                } else {
+                    text = "/msg " + agentNamesToSendMsg[0] + " " + text;
+                }
+            }
+            addToHistory(text);
+            for (var i = 0; i < agentNamesToSendMsg.length; i++) {
+                sendMessage(agentNamesToSendMsg[i], text);
+            }
         }
         
         function displayTranscriptResult(result) {

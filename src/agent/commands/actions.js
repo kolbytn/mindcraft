@@ -387,6 +387,25 @@ export const actionsList = [
         }
     },
     {
+        name: '!build',
+        description: 'Build a structure when there is a proper blueprint for the refenrece. This is preferred if there is a blueprint that is similar to what you want to build.',
+        params: {
+            'blueprint': { type: 'string', description: 'name of the reference blueprint, should be selected from the availabel blueprints.' },
+            'idea': { type: 'string', description: 'a concise description on how to modify a reference blueprint so that buildings sharing the same blueprint can each have distinct, recognizable features.' },
+        },
+        perform: async function (agent, blueprint, idea) {
+            await agent.building.buildWithIdea(blueprint, idea);
+        }
+    },
+    {
+        name: '!endBuild',
+        description: 'Call when you are satisfied with what you built. It will stop the action if you are building an architecture with a reference blueprint. ',
+        perform: async function (agent) {
+            agent.building.stop();
+            return 'Building stopped.';
+        }
+    },
+    {
         name: '!startConversation',
         description: 'Start a conversation with a player. Use for bots only.',
         params: {
