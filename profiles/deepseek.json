@@ -1,7 +1,9 @@
 {
-    "name": "deepseek",
+  "name": "deepseek",
 
-    "model": "deepseek-chat",
+  "model": "deepseek-chat",
 
-    "embedding": "openai"
+  "embedding": "openai",
+
+  "vision": "ollama/llava"
 }
