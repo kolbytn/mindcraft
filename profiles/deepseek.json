@@ -5,5 +5,5 @@
 
   "embedding": "openai",
 
-  "vision": "ollama/llava"
+  "vision_model": "ollama/llava"
 }
