@@ -46,6 +46,7 @@ Then you should be ready to launch evaluations like this:
 python tasks/evaluation_script.py --task_path tasks/crafting_tasks/test_tasks/2_agent.json --model gpt-4o-mini --template_profile profiles/tasks/crafting_profile.json
 ```
 
+For further details check the readme on [MineCollab](minecollab.md). 
 
 
 ## Model Customization
