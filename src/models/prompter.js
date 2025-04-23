@@ -66,8 +66,8 @@ export class Prompter {
             this.code_model = this.chat_model;
         }
 
-        if (this.profile.vision_model) {
-            let vision_model_profile = this._selectAPI(this.profile.vision_model);
+        if (this.profile.vision) {
+            let vision_model_profile = this._selectAPI(this.profile.vision);
             this.vision_model = this._createModel(vision_model_profile);
         }
         else {
@@ -370,7 +370,7 @@ export class Prompter {
     async promptVision(messages, imageBuffer) {
         await this.checkCooldown();
         let prompt = this.profile.image_analysis;
-        prompt = await this.replaceStrings(prompt, messages, null, null, null);
+        prompt = await this.replaceStrings(prompt, null, null, null, null);
         return await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
     }
 
