@@ -66,8 +66,8 @@ export class Prompter {
             this.code_model = this.chat_model;
         }
 
-        if (this.profile.vision) {
-            let vision_model_profile = this._selectAPI(this.profile.vision);
+        if (this.profile.vision_model) {
+            let vision_model_profile = this._selectAPI(this.profile.vision_model);
             this.vision_model = this._createModel(vision_model_profile);
         }
         else {
