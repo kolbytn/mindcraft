@@ -743,6 +743,7 @@ def main():
     parser.add_argument('--no-pruning', action='store_true', help='Disable pruning of the actions')
     parser.add_argument('--block_conversation', action='store_true', help='Block conversation actions')
     parser.add_argument('--check', metavar='FOLDER_PATH', help='Check and evaluate results in the specified folder without running experiments')
+    parser.add_argument('--usernames', default="", help='Comma-separated list of usernames for the agents')
 
     args = parser.parse_args()
     print(args)
@@ -763,6 +764,22 @@ def main():
         clean_up_server_files(args.num_parallel)
     if args.add_keys:
         update_keys_json()
+
+    # change task file to include usernames
+    with open(args.task_path, 'r') as f:
+        content = f.read()
+        task = json.loads(content) 
+    # check if human count for first task is non zero
+    human_count = task[list(task.keys())[0]]["human_count"]
+    username_lst = args.usernames.replace(" ", "").split(",")
+    if len(username_lst) != human_count:
+        raise ValueError(f"Number of usernames provided ({len(username_lst)}) does not match human count ({human_count})")
+    if human_count > 0:
+        for task_id in task.keys():
+            task[task_id]["usernames"] = args.usernames.replace(" ", "").split(",")
+    # dump to task_path 
+    with open(args.task_path, 'w') as f:
+        json.dump(task, f, indent=4)
     
     launch_parallel_experiments(args.task_path, 
                                 num_exp=args.num_exp, 

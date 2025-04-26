@@ -430,12 +430,43 @@ export class Task {
             let initialInventory = {};
             
             // Handle multi-agent inventory assignment
-            if (this.data.agent_count > 1) {
-                initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
-                console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
-            } else {
-                initialInventory = this.data.initial_inventory;
-                console.log("Initial inventory:", initialInventory);
+            // function hasSubDictionary(obj) {
+            //     for (let key in obj) {
+            //         if (typeof obj[key] === 'object' && obj[key] !== null) {
+            //             return true;
+            //         }
+            //     }
+            //     return false;
+            // }
+
+            // const hasSubDictionaryResult = hasSubDictionary(this.data.initial_inventory);
+            // const firstKey = Object.keys(initialInventory)[0];
+            // console.log(firstKey);
+            // console.log(hasSubDictionaryResult);
+            // if (typeof this.data.initial_inventory[firstKey] === 'object') {
+            initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
+            console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
+
+            if (this.data.human_count > 0 && this.agent.count_id === 0) {
+                // this.num_humans = num_keys - this.data.num_agents;
+                if (this.data.human_count !== this.data.usernames.length) {
+                    console.log(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
+                    throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
+                    return;
+                }
+                const starting_idx = this.data.agent_count;
+                for (let i = 0; i < this.data.human_count; i++) {
+                    const username = this.data.usernames[i];
+                    console.log(`Giving ${username} ${this.data.initial_inventory[starting_idx + i]}`);
+                    const inventory = this.data.initial_inventory[starting_idx + i];
+                    console.log(Object.keys(inventory));
+                    for (let key of Object.keys(inventory)) {
+                        const itemName = key.toLowerCase();
+                        const quantity = inventory[key];
+                        console.log(`Give ${username} ${quantity} ${itemName}`);
+                        await this.agent.bot.chat(`/give ${username} ${itemName} ${quantity}`);
+                    }
+                }
             }
             console.log(this.data.initial_inventory);
 
@@ -474,7 +505,7 @@ export class Task {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 waitCount++;
             }
-            if (other_name === undefined) {
+            if (other_name === undefined && this.agent_count > 1) {
                 console.log('No other agents found. Task unsuccessful.');
                 this.agent.killAll();
             }

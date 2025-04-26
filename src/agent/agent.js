@@ -194,6 +194,7 @@ export class Agent {
         if (!this.task || !this.task.agent_names) {
           return;
         }
+        console.log(this.task.agent_names)
 
         const missingPlayers = this.task.agent_names.filter(name => !this.bot.players[name]);
         if (missingPlayers.length > 0) {
