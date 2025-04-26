@@ -958,8 +958,25 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
     }
     // if we are too close, make some distance
     if (bot.entity.position.distanceTo(player.position) < 2) {
+        let too_close = true;
+        let start_moving_away = Date.now();
         await moveAwayFromEntity(bot, player, 2);
+        while (too_close && !bot.interrupt_code) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            too_close = bot.entity.position.distanceTo(player.position) < 5;
+            if (too_close) {
+                await moveAwayFromEntity(bot, player, 5);
+            }
+            if (Date.now() - start_moving_away > 3000) {
+                break;
+            }
+        }
+        if (too_close) {
+            log(bot, `Failed to give ${itemType} to ${username}, too close.`);
+            return false;
+        }
     }
+
     await bot.lookAt(player.position);
     if (await discard(bot, itemType, num)) {
         let given = false;
