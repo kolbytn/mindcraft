@@ -129,10 +129,6 @@ export class Prompter {
         if (!profile.api) {
             if (profile.model.includes('gemini'))
                 profile.api = 'google';
-            else if (profile.model.includes('openrouter/'))
-                profile.api = 'openrouter'; // must do before others bc shares model names
-            else if (profile.model.includes('vllm/'))
-                profile.api = 'vllm';
             else if (profile.model.includes('gpt') || profile.model.includes('o1')|| profile.model.includes('o3'))
                 profile.api = 'openai';
             else if (profile.model.includes('claude'))
@@ -152,8 +148,8 @@ export class Prompter {
             else if (profile.model.includes('grok'))
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
-                profile.api = 'deepseek';     
-	    else if (profile.model.includes('mistral'))
+                profile.api = 'deepseek';
+	          else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
             else if (profile.model.includes('llama3'))
                 profile.api = 'ollama';
@@ -421,36 +417,4 @@ export class Prompter {
         goal.quantity = parseInt(goal.quantity);
         return goal;
     }
-
-    async _saveLog(prompt, messages, generation, tag) {
-        if (!settings.log_all_prompts)
-            return;
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        let logEntry;
-        let task_id = this.agent.task.task_id;
-        if (task_id == null) {
-            logEntry = `[${timestamp}] \nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
-        } else {
-            logEntry = `[${timestamp}] Task ID: ${task_id}\nPrompt:\n${prompt}\n\nConversation:\n${JSON.stringify(messages, null, 2)}\n\nResponse:\n${generation}\n\n`;
-        }
-        const logFile = `${tag}_${timestamp}.txt`;
-        await this._saveToFile(logFile, logEntry);
-    }
-
-    async _saveToFile(logFile, logEntry) {
-        let task_id = this.agent.task.task_id;
-        let logDir;
-        if (task_id == null) {
-            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
-        } else {
-            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
-        }
-
-        await fs.mkdir(logDir, { recursive: true });
-
-        logFile = path.join(logDir, logFile);
-        await fs.appendFile(logFile, String(logEntry), 'utf-8');
-    }
-
-
 }
