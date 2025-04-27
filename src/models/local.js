@@ -6,7 +6,7 @@ export class Local {
         this.params = params;
         this.url = url || 'http://127.0.0.1:11434';
         this.chat_endpoint = '/api/chat';
-        this.embedding_endpoint = '/api/embeddings';
+        this.embedding_endpoint = '/api/embed';
         this.vision_endpoint = 'api/generate';
     }
 
@@ -138,7 +138,7 @@ export class Local {
         let model = this.model_name || 'nomic-embed-text';
         let body = { model: model, input: text };
         let res = await this.send(this.embedding_endpoint, body);
-        return res['embedding'];
+        return res['embeddings'];
     }
 
     async send(endpoint, body) {
