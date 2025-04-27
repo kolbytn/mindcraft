@@ -1,0 +1,453 @@
+{
+    "debug_single_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "initial_inventory": {},
+        "type": "debug"
+    },
+    "debug_multi_agent": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug"
+    },
+    "debug_1_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 1,
+        "initial_inventory": {
+            "iron_ingot": 1
+        },
+        "type": "debug",
+        "timeout": 60
+    },
+    "debug_2_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug",
+        "timeout": 60
+    },
+    "debug_3_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 3,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            },
+            "2": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug",
+        "timeout": 60
+    }, 
+    "debug_4_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 4,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            },
+            "2": {
+                "iron_ingot": 1
+            },
+            "3": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug",
+        "timeout": 60
+    },
+    "debug_5_agent_timeout": {
+        "goal": "Just stand at a place and don't do anything",
+        "agent_count": 5,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            },
+            "2": {
+                "iron_ingot": 1
+            },
+            "3": {
+                "iron_ingot": 1
+            },
+            "4": {
+                "iron_ingot": 1
+            }
+        },
+        "type": "debug",
+        "timeout": 60
+    },
+    "debug_different_goal": {
+        "goal": {
+            "0": "Reply to all messages with star emojis when prompted",
+            "1": "Reply to all messages with heart emojis when prompted"
+        },
+        "agent_count": 2,
+        "type": "debug"
+    },
+    "debug_inventory_restriction": {
+        "goal": "Place 1 oak plank, then place 1 stone brick",
+        "initial_inventory": {
+            "oak_planks": 20
+        },
+        "type": "debug",
+        "restrict_to_inventory": true
+    },
+    "construction": {
+        "type": "construction",
+        "goal": "Build a house",
+        "initial_inventory": {
+            "oak_planks": 20
+        }
+    },
+    "techtree_1_shears_with_2_iron_ingot": {
+        "goal": "Build a shear.",
+        "initial_inventory": {
+            "iron_ingot": 2
+        },
+        "target": "shears",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 60
+    },
+    "multiagent_techtree_1_stone_pickaxe": {
+        "conversation": "Let's collaborate to build a stone pickaxe",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "wooden_pickaxe": 1
+            },
+            "1": {
+                "wooden_axe": 1
+            }
+        },
+        "target": "stone_pickaxe",
+        "goal": "Build a stone pickaxe",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
+    }, 
+    "construction_house": {
+        "type": "construction",
+        "goal": "Make a house with the blueprint below",
+        "agent_count": 1,
+        "blueprint": {
+            "materials": {
+                "plank": {
+                    "id": "oak_planks",
+                    "number": 40
+                },
+                "door": {
+                    "id": "oak_door",
+                    "number": 1
+                }
+            },
+            "levels": [
+                {   
+                    "level": 0,
+                    "coordinates": [142, -60, -179], 
+                    "placement":
+                    [
+                        ["oak_planks", "oak_planks", "oak_door", "oak_planks", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
+                    ]
+                },
+                {
+                    "level": 1,
+                    "coordinates": [142, -59, -179],
+                    "placement":
+                    [
+                        ["oak_planks", "oak_planks", "oak_door", "oak_planks", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "air", "air", "air", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
+                    ]
+                },
+                {
+                    "level": 2,
+                    "coordinates": [142, -58, -179],
+                    "placement":
+                    [
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
+                    ]
+                }
+            ]
+        },
+        "initial_inventory": {
+            "oak_planks": 40, 
+            "oak_door": 1
+        }
+    }, 
+    "multiagent_construction_house": {
+        "type": "construction",
+        "goal": "Make a house with the blueprint below ",
+        "conversation": "Let's share materials and make a house with the blueprint",
+        "agent_count": 2, 
+        "blueprint": {
+            "materials": {
+                "plank": {
+                    "id": "oak_plank",
+                    "number": 20
+                },
+                "door": {
+                    "id": "oak_door",
+                    "number": 1
+                }
+            },
+            "levels": [
+                {   
+                    "level": 0,
+                    "coordinates": [142, -60, -179], 
+                    "placement":
+                    [
+                        ["stone", "stone", "oak_door", "stone", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "stone", "stone", "stone", "stone"]
+                    ]
+                },
+                {
+                    "level": 1,
+                    "coordinates": [142, -59, -179],
+                    "placement":
+                    [
+                        ["stone", "stone", "oak_door", "stone", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "air", "air", "air", "stone"],
+                        ["stone", "stone", "stone", "stone", "stone"]
+                    ]
+                },
+                {
+                    "level": 2,
+                    "coordinates": [142, -58, -179],
+                    "placement":
+                    [
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                        ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
+                    ]
+                }
+            ]
+        },
+        "initial_inventory": {
+            "0": {
+                "oak_planks": 20
+            },
+            "1": {
+                "stone": 40,
+                "oak_door": 1
+            }
+        }
+    }, 
+    "construction_large_house": {
+        "type": "construction",
+        "goal": "Make a large house with the blueprint below ",
+        "agent_count": 1,
+        "blueprint": {
+            "materials": {
+                "bricks": {
+                    "id": "bricks",
+                    "number": 200
+                },
+                "glass_pane": {
+                    "id": "glass_pane",
+                    "number": 24
+                },
+                "oak_door": {
+                    "id": "oak_door",
+                    "number": 2
+                }
+            },
+            "levels": [
+                {   
+                    "level": 0,
+                    "coordinates": [162, -60, -180], 
+                    "placement":
+                    [
+                        ["bricks", "bricks", "bricks", "bricks", "dark_oak_door", "dark_oak_door", "bricks", "bricks", "bricks", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                },
+                {
+                    "level": 1,
+                    "coordinates": [162, -59, -180],
+                    "placement":
+                    [
+                        ["bricks", "glass_pane", "glass_pane", "bricks", "dark_oak_door", "dark_oak_door", "bricks", "glass_pane", "glass_pane", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                },
+                {
+                    "level": 2,
+                    "coordinates": [162, -58, -180],
+                    "placement":
+                    [
+                        ["bricks", "glass_pane", "glass_pane", "bricks", "air", "air", "bricks", "glass_pane", "glass_pane", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["glass_pane", "air", "air", "air", "air", "air", "air", "air", "air", "glass_pane"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                }, 
+                {
+                    "level": 3,
+                    "coordinates": [162, -57, -180],
+                    "placement":
+                    [
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "air", "air", "air", "air", "air", "air", "air", "air", "bricks"],
+                        ["bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks", "bricks"]
+                    ]
+                }
+            ]
+        }, 
+        "initial_inventory": {
+            "bricks": 200, 
+            "dark_oak_door": 2,
+            "glass_pane": 24
+        }
+    },
+    "multiagent_techtree_1_shears": {
+        "goal": "Collaborate with other agents to build a shear.",
+        "conversation": "Let's collaborate to build a shear.",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "iron_ingot": 1
+            },
+            "1": {
+                "iron_ingot": 1
+            }
+        },
+        "target": "shears",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 60
+    },
+    "smelt_ingot": {
+        "goal": "Smelt 1 iron ingot and 1 copper ingot",
+        "agent_count": 1,
+        "initial_inventory": {
+            "furnace": 1,
+            "raw_iron": 1,
+            "raw_copper": 1,
+            "coal": 2
+        },
+        "target": "copper_ingot",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
+    },
+    "multiagent_smelt_ingot": {
+        "conversation": "Let's collaborate to smelt ingots",
+        "goal": "Smelt 1 iron ingot and 1 copper ingot, use star emojis in every response",
+        "agent_count": 2,
+        "initial_inventory": {
+            "0": {
+                "furnace": 1,
+                "coal": 2
+            },
+            "1": {
+                "raw_iron": 1,
+                "raw_copper": 1
+            }
+        },
+        "target": "copper_ingot",
+        "number_of_target": 1,
+        "type": "techtree",
+        "timeout": 300
+    },
+    "multiagent_cooking_1": {
+        "conversation": "Let's collaborate to make dinner, I am going to search for 'potatoes' and make 1 'baked_potato', you on the other hand, search for cow and cook 1 beef. We have a furnace (fuel already present) nearby to help us cook, search for it over long distances to find it. Note : We only need one of each item, lets not waste time by collecting unnecessary resources.",
+        "agent_count": 2,
+        "target": {
+            "baked_potato":1,
+            "cooked_beef":1
+        },
+        "type": "cooking",
+        "timeout": 300,
+        "goal": "Make 1 baked potato, use a furnace nearby to cook which has fuel in it, let the other agent cook 1 beef"
+    },
+    "multiagent_cooking_2": {
+        "conversation": "Let's collaborate to make bread and cooked_mutton. We can split up to gather ingredients and use the nearby furnace that's already fueled.",
+        "agent_count": 2,
+        "target": {
+          "bread": 1,
+          "cooked_mutton": 1
+        },
+        "type": "cooking",
+        "timeout": 300,
+        "recipes": {
+          "bread": [
+            "Step 1: Go to the farm and collect 3 wheat.",
+            "Step 2: Go to the crafting table and use the wheat to craft bread."
+          ],
+          "cooked_mutton": [
+            "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+            "Step 2: Go to furnace and use it to cook the mutton."
+          ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal" : {
+          "0": "Collaborate with randy to make 1 bread and 1 cooked mutton, you can divide the tasks among yourselves.\nThere is a furnace nearby that is already fueled, there is also a smoker and crafting table nearby, use them to your advantage. Crops of all different types are available in the farm where you are standing, you can use them to your advantage as well. The farm also includes animals like cows, pigs, sheep, and chickens that you can use to your advantage.\nSince the farm is huge, make sure to search for the resources over long distances to find them.",
+          "1": "Collaborate with andy to make 1 bread and 1 cooked mutton, you can divide the tasks among yourselves.\nThere is a furnace nearby that is already fueled, there is also a smoker and crafting table nearby, use them to your advantage. Crops of all different types are available in the farm where you are standing, you can use them to your advantage as well. The farm also includes animals like cows, pigs, sheep, and chickens that you can use to your advantage.\nSince the farm is huge, make sure to search for the resources over long distances to find them."
+        }
+      }
+}

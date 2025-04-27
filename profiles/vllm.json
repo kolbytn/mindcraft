@@ -1,0 +1,10 @@
+{
+    "name": "vllm",
+
+    "model": {
+        "api": "vllm",
+        "model": "Qwen/Qwen2.5-1.5B-Instruct",
+        "url": "http://127.0.0.1:8000/v1"
+    },
+    "embedding": "openai"
+}
