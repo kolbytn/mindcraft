@@ -268,7 +268,7 @@ export async function executeCommand(agent, message) {
     }
 }
 
-export function getCommandDocs() {
+export function getCommandDocs(agent) {
     const typeTranslations = {
         //This was added to keep the prompt the same as before type checks were implemented.
         //If the language model is giving invalid inputs changing this might help.
@@ -282,6 +282,9 @@ export function getCommandDocs() {
     Use the commands with the syntax: !commandName or !commandName("arg1", 1.2, ...) if the command takes arguments.\n
     Do not use codeblocks. Use double quotes for strings. Only use one command in each response, trailing commands and comments will be ignored.\n`;
     for (let command of commandList) {
+        if (agent.blocked_actions.includes(command.name)) {
+            continue;
+        }
         docs += command.name + ': ' + command.description + '\n';
         if (command.params) {
             docs += 'Params:\n';

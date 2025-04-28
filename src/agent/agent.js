@@ -14,7 +14,7 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addBrowserViewer } from './vision/browser_viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-import { Task } from './tasks.js';
+import { Task } from './tasks/tasks.js';
 import { say } from './speak.js';
 import process from 'process';
 import { MCPClient } from './mcp/mcp_client.js';
@@ -28,7 +28,9 @@ export class Agent {
         }
         
         console.log('Starting agent initialization with profile:', profile_fp);
-        
+
+
+
         // Initialize components with more detailed error handling
         console.log('Initializing action manager...');
         this.actions = new ActionManager(this);
@@ -45,17 +47,27 @@ export class Agent {
         this.memory_bank = new MemoryBank();
         console.log('Initializing self prompter...');
         this.self_prompter = new SelfPrompter(this);
-        convoManager.initAgent(this);            
+        convoManager.initAgent(this);
         console.log('Initializing examples...');
         await this.prompter.initExamples();
         console.log('Initializing task...');
-        this.task = new Task(this, task_path, task_id);
+
+        // load mem first before doing task
+        let save_data = null;
+        if (load_mem) {
+            save_data = this.history.load();
+        }
+        let taskStart = null;
+        if (save_data) {
+            taskStart = save_data.taskStart;
+        } else {
+            taskStart = Date.now();
+        }
+        this.task = new Task(this, task_path, task_id, taskStart);
+        this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
+        blacklistCommands(this.blocked_actions);
         console.log('Initializing MCP client...');
         this.mcp_client = new MCPClient(this);
-        
-        const blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
-        blacklistCommands(blocked_actions);
-
         serverProxy.connect(this);
 
         console.log(this.name, 'logging into minecraft...');
@@ -63,14 +75,10 @@ export class Agent {
 
         initModes(this);
 
-        let save_data = null;
-        if (load_mem) {
-            save_data = this.history.load();
-        }
+
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');
-
             serverProxy.login();
             
             // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
@@ -98,8 +106,13 @@ export class Agent {
                 this.startEvents();
 
                 if (!load_mem) {
-                    this.task.initBotTask();
+                    if (task_path !== null) {
+                        this.task.initBotTask();
+                    }
                 }
+
+                await new Promise((resolve) => setTimeout(resolve, 10000));
+                this.checkAllPlayersPresent();
 
                 console.log('Initializing vision intepreter...');
                 this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
@@ -141,8 +154,8 @@ export class Agent {
             } catch (error) {
                 console.error('Error handling message:', error);
             }
-        };
-		
+        }
+
 		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
@@ -180,6 +193,18 @@ export class Agent {
         }
     }
 
+    checkAllPlayersPresent() {
+        if (!this.task || !this.task.agent_names) {
+          return;
+        }
+
+        const missingPlayers = this.task.agent_names.filter(name => !this.bot.players[name]);
+        if (missingPlayers.length > 0) {
+            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+            this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+        }
+    }
+
     requestInterrupt() {
         this.bot.interrupt_code = true;
         this.bot.stopDigging();
@@ -202,6 +227,7 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) {
+        await this.checkTaskDone();
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -269,8 +295,8 @@ export class Agent {
             let res = await this.prompter.promptConvo(history);
 
             console.log(`${this.name} full response to ${source}: ""${res}""`);
-            
-            if (res.trim().length === 0) { 
+
+            if (res.trim().length === 0) {
                 console.warn('no response');
                 break; // empty response ends loop
             }
@@ -452,35 +478,40 @@ export class Agent {
     async update(delta) {
         await this.bot.modes.update();
         this.self_prompter.update(delta);
-        if (this.task.data) {
-            let res = this.task.isDone();
-            if (res) {
-                await this.history.add('system', `${res.message} ended with code : ${res.code}`);
-                await this.history.save();
-                console.log('Task finished:', res.message);
-                this.killAll();
-            }
-        }
+        await this.checkTaskDone();
     }
 
     isIdle() {
         return !this.actions.executing;
     }
     
+
     cleanKill(msg='Killing agent process...', code=1) {
         this.history.add('system', msg);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
-        if (this.mcp_client) 
+        if (this.mcp_client)
             this.mcp_client.cleanup();
-        
+
         process.exit(code);
+    }
+    async checkTaskDone() {
+        if (this.task.data) {
+            let res = this.task.isDone();
+            if (res) {
+                await this.history.add('system', `Task ended with score : ${res.score}`);
+                await this.history.save();
+                // await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 second for save to complete
+                console.log('Task finished:', res.message);
+                this.killAll();
+            }
+        }
     }
 
     killAll() {
-        if (this.mcp_client) 
+        if (this.mcp_client)
             this.mcp_client.cleanup();
-        
+
         serverProxy.shutdown();
     }
 }
