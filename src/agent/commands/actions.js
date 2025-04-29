@@ -2,8 +2,7 @@ import * as skills from '../library/skills.js';
 import settings from '../../../settings.js';
 import convoManager from '../conversation.js';
 
-
-function runAsAction (actionFn, resume = false, timeout = -1) {
+export function runAsAction (actionFn, resume = false, timeout = -1) {
     let actionLabel = null;  // Will be set on first use
     
     const wrappedAction = async function (agent, ...args) {
