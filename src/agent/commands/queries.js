@@ -2,6 +2,7 @@ import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
 import { getCommandDocs } from './index.js';
 import convoManager from '../conversation.js';
+import { checkLevelBlueprint, checkBlueprint } from '../tasks/construction_tasks.js';
 import { load } from 'cheerio';
 
 const pad = (str) => {
@@ -37,7 +38,6 @@ export const queryList = [
             res += '\n- ' + world.getSurroundingBlocks(bot).join('\n- ')
             res += `\n- First Solid Block Above Head: ${world.getFirstBlockAboveHead(bot, null, 32)}`;
 
-            res += `\n- Date: this is the ${bot.time.day}-th day.`;
 
             if (bot.time.timeOfDay < 6000) {
                 res += '\n- Time: Morning';
@@ -179,6 +179,46 @@ export const queryList = [
         perform: async function (agent) {
             return "Saved place names: " + agent.memory_bank.getKeys();
         }
+    }, 
+    {
+        name: '!checkBlueprintLevel',
+        description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
+        params: {
+            'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: function (agent, levelNum) {
+            let res = checkLevelBlueprint(agent, levelNum);
+            console.log(res);
+            return pad(res);
+        }
+    }, 
+    {
+        name: '!checkBlueprint',
+        description: 'Check what blocks still need to be placed for the blueprint',
+        perform: function (agent) {
+            let res = checkBlueprint(agent);
+            return pad(res);
+        }
+    }, 
+    {
+        name: '!getBlueprint',
+        description: 'Get the blueprint for the building',
+        perform: function (agent) {
+            let res = agent.task.blueprint.explain();
+            return pad(res);
+        }
+    }, 
+    {
+        name: '!getBlueprintLevel',
+        description: 'Get the blueprint for the building',
+        params: {
+            'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: function (agent, levelNum) {
+            let res = agent.task.blueprint.explainLevel(levelNum);
+            console.log(res);
+            return pad(res);
+        }
     },
     {
         name: '!getCraftingPlan',
@@ -248,7 +288,7 @@ export const queryList = [
         name: '!help',
         description: 'Lists all available commands and their descriptions.',
         perform: async function (agent) {
-            return getCommandDocs();
+            return getCommandDocs(agent);
         }
     },
 ];

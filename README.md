@@ -1,198 +1,175 @@
-# Mindcraft Generative Agents <img src="https://s2.loli.net/2025/04/18/RWaFJkY4gSDLViy.png" alt="Official Discord Server" width="36" height="36"> 
+# Mindcraft 🧠⛏️
 
-**Mindcraft Generative Agents** is an extension of the [Mindcraft](https://github.com/kolbytn/mindcraft) and integrates the core concepts of [Generative Agents](https://github.com/joonspk-research/generative_agents)—such as autonomous planning, self-reflection, self-driven behavior, and long-term goal pursuit—into an interactive Minecraft environment. Rather than introducing a separate memory system, the project leverages Mindcraft’s existing memory infrastructure, enhancing it with dynamic agent profiles, daily self-generated task lists, and reflective behaviors. Agents can interact, plan, and evolve over time based on their profile and experiences, enabling a lightweight yet powerful simulation of human-like behavior.
+Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 
-🦾 This project is currently in development. We are continuously adding and optimizing more functions. If you have any questions, you're welcome to join our Discord server for further discussions!
+[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Video Tutorial](https://www.youtube.com/watch?v=gRotoL8P8D8) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1) | [Paper Website](https://mindcraft-minecollab.github.io/index.html) | [MineCollab](https://github.com/kolbytn/mindcraft/blob/main/minecollab.md) 
 
-<a href="https://discord.gg/RKjspnTBmb" target="_blank"><img src="https://s2.loli.net/2025/04/18/CEjdFuZYA4pKsQD.png" alt="Official Discord Server" width="180" height="36"></a>
 
-The **setup process** of Minecraft Generative Agents is the same as that of [Mindcraft](https://github.com/kolbytn/mindcraft). However, there are some significant features you should be aware of.
+> [!Caution]
+Do not connect this bot to public servers with coding enabled. This project allows an LLM to write/execute code on your computer. The code is sandboxed, but still vulnerable to injection attacks. Code writing is disabled by default, you can enable it by setting `allow_insecure_coding` to `true` in `settings.js`. Ye be warned.
 
-## Notable Features
+## Requirements
 
-- [Profile of Bots](#profile-of-bots)
-- [Used mineflayer-pathfinder from MinePal](#used-mineflayer-pathfinder-from-minepal)
-- [Support for Pollinations AI](#support-for-pollinations-ai)
-- [Support for Doubao LLMs from ByteDance](#support-for-doubao-llms-from-bytedance)
-- [Talk to All Bots with @all](#talk-to-all-bots-with-all)
-- [Set Skin with Local Files](#set-skin-with-local-files)
-- [Interaction in Natural Voice](#interaction-in-natural-voice)
-- [Implementation of Generative Agents](#implementation-of-generative-agents)
+- [Minecraft Java Edition](https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc) (up to v1.21.1, recommend v1.20.4)
+- [Node.js Installed](https://nodejs.org/) (at least v14)
+- One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) | [Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download). | [Mistral API Key](https://docs.mistral.ai/getting-started/models/models_overview/) | [Qwen API Key [Intl.]](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key)/[[cn]](https://help.aliyun.com/zh/model-studio/getting-started/first-api-call-to-qwen?) | [Novita AI API Key](https://novita.ai/settings?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link#key-management) |
 
-### Profile of Bots
+## Install and Run
 
-Since some models are supported by multiple API providers, the API inference function may sometimes produce unexpected results due to confusion. We highly recommend that you specify the service provider as the value of the "api" key in the bot's configuration, as shown in the following example:
+1. Make sure you have the requirements above.
+
+2. Clone or download this repository (big green button)
+
+3. Rename `keys.example.json` to `keys.json` and fill in your API keys (you only need one). The desired model is set in `andy.json` or other profiles. For other models refer to the table below.
+
+4. In terminal/command prompt, run `npm install` from the installed directory
+
+5. Start a minecraft world and open it to LAN on localhost port `55916`
+
+6. Run `node main.js` from the installed directory
+
+If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues.
+
+## Tasks
+
+Bot performance can be roughly evaluated with Tasks. Tasks automatically intialize bots with a goal to aquire specific items or construct predefined buildings, and remove the bot once the goal is achieved.
+
+To run tasks, you need python, pip, and optionally conda. You can then install dependencies with `pip install -r requirements.txt`. 
+
+Tasks are defined in json files in the `tasks` folder, and can be run with: `python tasks/run_task_file.py --task_path=tasks/example_tasks.json`
+
+For full evaluations, you will need to [download and install the task suite. Full instructions.](minecollab.md#installation)
+
+## Model Customization
+
+You can configure project details in `settings.js`. [See file.](settings.js)
+
+You can configure the agent's name, model, and prompts in their profile like `andy.json` with the `model` field. For comprehensive details, see [Model Specifications](#model-specifications).
+
+| API | Config Variable | Example Model name | Docs |
+|------|------|------|------|
+| `openai` | `OPENAI_API_KEY` | `gpt-4o-mini` | [docs](https://platform.openai.com/docs/models) |
+| `google` | `GEMINI_API_KEY` | `gemini-2.0-flash` | [docs](https://ai.google.dev/gemini-api/docs/models/gemini) |
+| `anthropic` | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
+| `xai` | `XAI_API_KEY` | `grok-2-1212` | [docs](https://docs.x.ai/docs) |
+| `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` | [docs](https://api-docs.deepseek.com/) |
+| `ollama` (local) | n/a | `ollama/llama3.1` | [docs](https://ollama.com/library) |
+| `qwen` | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
+| `mistral` | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
+| `replicate` | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
+| `groq` (not grok) | `GROQCLOUD_API_KEY` | `groq/mixtral-8x7b-32768` | [docs](https://console.groq.com/docs/models) |
+| `huggingface` | `HUGGINGFACE_API_KEY` | `huggingface/mistralai/Mistral-Nemo-Instruct-2407` | [docs](https://huggingface.co/models) |
+| `novita` | `NOVITA_API_KEY` | `novita/deepseek/deepseek-r1` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
+| `openrouter` | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
+| `glhf.chat` | `GHLF_API_KEY` | `glhf/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
+| `hyperbolic` | `HYPERBOLIC_API_KEY` | `hyperbolic/deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
+| `vllm` | n/a | `vllm/llama3` | n/a |
+
+If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
+`ollama pull llama3.1 && ollama pull nomic-embed-text`
+
+### Online Servers
+To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
+```javascript
+"host": "111.222.333.444",
+"port": 55920,
+"auth": "microsoft",
+
+// rest is same...
+```
+> [!Important]
+> The bot's name in the profile.json must exactly match the Minecraft profile name! Otherwise the bot will spam talk to itself.
+
+To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcer, then run `node main.js`, then switch to your main account after the bot has connected.
+
+### Docker Container
+
+If you intend to `allow_insecure_coding`, it is a good idea to run the app in a docker container to reduce risks of running unknown code. This is strongly recommended before connecting to remote servers.
+
+```bash
+docker run -i -t --rm -v $(pwd):/app -w /app -p 3000-3003:3000-3003 node:latest node main.js
+```
+or simply
+```bash
+docker-compose up
+```
+
+When running in docker, if you want the bot to join your local minecraft server, you have to use a special host address `host.docker.internal` to call your localhost from inside your docker container. Put this into your [settings.js](settings.js):
+
+```javascript
+"host": "host.docker.internal", // instead of "localhost", to join your local minecraft from inside the docker container
+```
+
+To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
+
+# Bot Profiles
+
+Bot profiles are json files (such as `andy.json`) that define:
+
+1. Bot backend LLMs to use for talking, coding, and embedding.
+2. Prompts used to influence the bot's behavior.
+3. Examples help the bot perform tasks.
+
+## Model Specifications
+
+LLM models can be specified simply as `"model": "gpt-4o"`. However, you can use different models for chat, coding, and embeddings. 
+You can pass a string or an object for these fields. A model object must specify an `api`, and optionally a `model`, `url`, and additional `params`.
 
 ```json
-{
-    "name": "Dusty", 
-    "model": {
-        "api": "openrouter", 
-        "model": "openrouter/deepseek/deepseek-chat-v3-0324:free"
-    }
+"model": {
+  "api": "openai",
+  "model": "gpt-4o",
+  "url": "https://api.openai.com/v1/",
+  "params": {
+    "max_tokens": 1000,
+    "temperature": 1
+  }
+},
+"code_model": {
+  "api": "openai",
+  "model": "gpt-4",
+  "url": "https://api.openai.com/v1/"
+},
+"vision_model": {
+  "api": "openai",
+  "model": "gpt-4o",
+  "url": "https://api.openai.com/v1/"
+},
+"embedding": {
+  "api": "openai",
+  "url": "https://api.openai.com/v1/",
+  "model": "text-embedding-ada-002"
+}
+
+```
+
+`model` is used for chat, `code_model` is used for newAction coding, `vision_model` is used for image interpretation, and `embedding` is used to embed text for example selection. If `code_model` or `vision_model` is not specified, `model` will be used by default. Not all APIs support embeddings or vision.
+
+All apis have default models and urls, so those fields are optional. The `params` field is optional and can be used to specify additional parameters for the model. It accepts any key-value pairs supported by the api. Is not supported for embedding models.
+
+## Embedding Models
+
+Embedding models are used to embed and efficiently select relevant examples for conversation and coding.
+
+Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novita`
+
+If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
+
+## Specifying Profiles via Command Line
+
+By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument: `node main.js --profiles ./profiles/andy.json ./profiles/jill.json`
+
+## Patches
+
+Some of the node modules that we depend on have bugs in them. To add a patch, change your local node module file and run `npx patch-package [package-name]`
+
+## Citation:
+
+```
+@misc{mindcraft2023,
+    Author = {Kolby Nottingham and Max Robinson},
+    Title = {MINDcraft: LLM Agents for cooperation, competition, and creativity in Minecraft},
+    Year = {2023},
+    url={https://github.com/kolbytn/mindcraft}
 }
 ```
-
-### Used mineflayer-pathfinder from [MinePal](https://github.com/leo4life2/MinePal/tree/main)
-
-During the development of this project, the pathfinder function from mineflayer-pathfinder had certain limitations regarding bots' interactions with doors and other tools. Therefore, we borrowed the version of mineflayer-pathfinder from [MinePal](https://github.com/leo4life2/MinePal/tree/main), as specified in the `package.json` file:
-
-```
-"mineflayer-pathfinder": "file:mineflayer-pathfinder",
-```
-
-<img src="https://s2.loli.net/2025/04/18/TjrGhlR6OYniHyQ.gif" alt="Bot open doors." width="800" height="450">
-
-### Support for Pollinations AI 
-
-We have added support for using text models from [Pollinations](https://pollinations.ai/). It is a open-sourced LLM API without requiring keys/token/accounts to get access!
-
-You only need to specify the API as "pollinations" and select a model from the [model list](https://text.pollinations.ai/models):
-
-```json
-{
-    "name": "Oppen", 
-    "model": {
-        "api": "pollinations", 
-        "model": "openai-large"
-    }
-}
-```
-
-### Support for Doubao LLMs from ByteDance
-
-We have added support for using [Doubao LLMs](https://www.volcengine.com/docs/82379/1099504). To use it, you need to provide your token as the value of the "DOUBAO_API_KEY" in the `key.json` file:
-
-```json
-{
-    "DOUBAO_API_KEY": "[access token]"
-}
-```
-
-Then, you must specify the API as "doubao" and select a model for which you have access rights:
-
-```json
-{
-    "name": "Dobson", 
-    "model": {
-        "api": "doubao", 
-        "model": "doubao-1-5-pro-32k-250115"
-    }
-}
-```
-
-🧛‍♀️ *You can also use Deepseek models through the "doubao" API.*
-
-### Talk to All Bots with @all
-
-In Mindcraft, when multiple bots are online, you have to use the "whisper" function to send a message to a specific bot. We have added a feature to simplify sending messages to all bots simultaneously. Just start your message with "@all", and all bots will receive it.
-
-```
-@all come here
-```
-
-### Set Skin with Local Files
-
-We have expanded the skin feature of Mindcraft to enable bots to set their skins using local skin files. Simply specify the path to the skin file in the "skin" section of the bot's profile.
-
-💼 **Note that the skin feature requires the [Fabric Tailor Mod](https://www.curseforge.com/minecraft/mc-mods/fabrictailor)**.
-
-```json
-{
-    "name": "Dobson", 
-    "skin": {
-        "model": "classic",
-        "file": "[path to the local stored minecraft skin file]"
-    },
-    "model": {
-        "api": "doubao", 
-        "model": "doubao-1-5-pro-32k-250115"
-    }
-}
-```
-<img src="https://s2.loli.net/2025/04/18/gb1UiLjJyMzEuh2.gif" alt="Change skins." width="800" height="450">
-
-💡 With the [Fabric Tailor Mod](https://www.curseforge.com/minecraft/mc-mods/fabrictailor), a bot can change its skin using the chat command `/skin set upload [skin model] [path to skin file]`. This opens up the possibility of adding a "skin change" action that allows the bot to change its skin during gameplay. We may explore this feature in the future.
-
-### Interaction in Natural Voice
-
-#### Talk to The Bot
-
-In Mindcraft, you can manage the bots through a page hosted at `localhost:8080` (by default). We have added a Speech-to-Text (STT) function to this page. By clicking the "Start Detecting" button, the front-end will request access to your microphone and continuously detect voice input. When voice is detected, it starts recording and stops when there is no voice for 3 seconds. You can also manually stop the recording and detection by clicking the "Stop Detecting" button.
-
-The recorded voice is converted into text via the STT API. If the resulting text starts with the name of a specific bot, the text will be sent to that bot as a whisper message. Otherwise, an "@all" label will be automatically added, ensuring that the message is received by all bots.
-
-🪪 **Currently, the STT function is only available with [ByteDance's STT API](https://www.volcengine.com/docs/6561/163043). Therefore, you need to apply for access rights on ByteDance's website, enable the STT service, obtain the appropriate app ID and access token, and fill them in the `key.json` file:**
-
-```json
-{
-    "BYTEDANCE_APP_ID": "[app ID]",
-    "BYTEDANCE_APP_TOKEN": "[access token]"
-}
-```
-
-<img src="https://s2.loli.net/2025/04/18/FVON4CPf3DTSpQ8.gif" alt="Talk to bot." width="800" height="450">
-
-#### Bot Speak
-
-Mindcraft has a speak function that can be toggled on or off by changing the value of "speak" in the `settings.json` file. It uses the native text-to-speech (TTS) tools of your system. We have added an additional option to perform TTS via an API.
-
-🪪 **Currently, the TTS via API function is only available with [ByteDance's TTS API](https://www.volcengine.com/docs/6561/79820). Therefore, you need to apply for access rights on ByteDance's website, enable the TTS service, obtain the appropriate app ID and access token, and fill them in the `key.json` file:**
-
-```json
-{
-    "BYTEDANCE_APP_ID": "[app ID]",
-    "BYTEDANCE_APP_TOKEN": "[access token]"
-}
-```
-
-To use the TTS via API function, you need to set "speak" to `true` in the `settings.json` file and explicitly specify the "tts_voice_type" in the bot's profile. When using ByteDance's TTS service, only two voice types are available by default (others require additional purchase): `BV001_streaming` (female voice) and `BV002_streaming` (male voice). If "tts_voice_type" is not specified, the Mindcraft TTS process will be used instead.
-
-```json
-{
-    "name": "Dobson", 
-    "model": {
-        "api": "doubao", 
-        "model": "doubao-1-5-pro-32k-250115"
-    },
-    "tts_voice_type": "BV002_streaming"
-}
-```
-
-Since our Minecraft Generative Agents project allows you to send messages to all bots at once, enabling TTS with multiple bots online may result in a large number of voices speaking simultaneously. To address this, we have added a parameter "speak_agents" to the `settings.json` file. When this parameter is set and a list of bot names is provided, only the bots in the list will speak.
-
-```json
-"speak": true, 
-"speak_agents": ["Dobson"]
-``` 
-
-###  Implementation of Generative Agents 
-
-🧠 We introduce a new module, `SelfDrivenThinking`, implemented in `src/agent/thinking.js`, to enable generative agents to exhibit autonomous behavior cycles inspired by human-like reflection and planning.
-
-This module periodically prompts the agent to engage in self-initiated thought processes, including short-term goal creation and motivation-driven reflection, even when not actively receiving external input.
-
-To activate this feature, two parameters must be defined in the bot’s profile:
-
-- `thinking_interval`: The time interval (in ticks) at which the bot will perform self-driven thinking.
-- `reflection_interval`: The interval (in ticks) between each self-reflection round.
-
-Minecraft time uses ticks, where 1000 ticks ≈ 1 hour in-game. For example, `thinking_interval: 100` will prompt thinking every ~6 in-game minutes.
-
-You can customize the agent’s personality and intrinsic goals by configuring the `person_desc`, `longterm`, and `shortterm` fields in the agent’s profile (note that, when not specified in the agent's profile, these fields are set with the default values given in `profiles/defaults/_default.json`). These will influence the content of the agent’s thoughts and the direction of its autonomous actions.
-
-> **Note:** Both `thinking_interval` and `reflection_interval` must be set to valid numerical values for the system to take effect.
-
-```
-{
-    "name": "Dobson",
-    "model" : {
-        "api" : "doubao",
-        "model": "doubao-1-5-pro-32k-250115"
-    },
-    "reflection_interval" : 3000,
-    "thinking_interval" : 100 
-}
-```
-
-<img src="https://s2.loli.net/2025/04/20/wWpoAE9xe6rcQ7f.gif" alt="Bot build a igloo after self-driven thinking." width="800" height="450">

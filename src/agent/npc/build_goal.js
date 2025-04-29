@@ -23,12 +23,10 @@ export class BuildGoal {
         let sizey = goal.blocks.length;
         if (!position) {
             for (let x = 0; x < sizex - 1; x++) {
-                position = world.getNearestFreeSpace(this.agent.bot, sizex - x, 32);
-                console.log(x, sizex, position)
+                position = world.getNearestFreeSpace(this.agent.bot, sizex - x, 16);
                 if (position) break;
             }
         }
-
         if (orientation === null) {
             orientation = Math.floor(Math.random() * 4);
         }

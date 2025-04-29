@@ -15,6 +15,7 @@
         "mineflayer-armor-manager": "^2.0.1",
         "mineflayer-auto-eat": "^3.3.6",
         "mineflayer-collectblock": "^1.4.1",
+        "mineflayer-pathfinder": "^2.4.5",
         "mineflayer-pvp": "^1.3.2",
         "node-canvas-webgl": "PrismarineJS/node-canvas-webgl",
         "openai": "^4.4.0",
@@ -26,9 +27,7 @@
         "socket.io": "^4.7.2",
         "socket.io-client": "^4.7.2",
         "three": "^0.128.0",
-        "uuid": "^11.1.0",
         "vec3": "^0.1.10",
-        "ws": "^8.18.1",
         "yargs": "^17.7.2"
     },
     "scripts": {

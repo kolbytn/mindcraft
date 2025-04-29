@@ -7,6 +7,7 @@ import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
 import * as mc from '../../utils/mcdata.js';
 
+
 export class NPCContoller {
     constructor(agent) {
         this.agent = agent;
@@ -155,10 +156,9 @@ export class NPCContoller {
 
         let acted = false;
         for (let goal of goals) {
+
             // Obtain goal item or block
             if (this.constructions[goal.name] === undefined) {
-                if (this.agent.bot.game.gameMode === "creative") 
-                    this.agent.bot.chat(`/give ${this.agent.name} ${goal.name} ${goal.quantity}`)
                 if (!itemSatisfied(this.agent.bot, goal.name, goal.quantity)) {
                     let res = await this.item_goal.executeNext(goal.name, goal.quantity);
                     this.last_goals[goal.name] = res;
@@ -166,6 +166,7 @@ export class NPCContoller {
                     break;
                 }
             }
+
             // Build construction goal
             else {
                 let res = null;
@@ -220,5 +221,41 @@ export class NPCContoller {
             }
         }
         return null;
+    }
+
+    getBuildingDoor(name) {
+        if (name === null || this.data.built[name] === undefined) return null;
+        let door_x = null;
+        let door_z = null;
+        let door_y = null;
+        for (let y = 0; y < this.constructions[name].blocks.length; y++) {
+            for (let z = 0; z < this.constructions[name].blocks[y].length; z++) {
+                for (let x = 0; x < this.constructions[name].blocks[y][z].length; x++) {
+                    if (this.constructions[name].blocks[y][z][x] !== null &&
+                        this.constructions[name].blocks[y][z][x].includes('door')) {
+                        door_x = x;
+                        door_z = z;
+                        door_y = y;
+                        break;
+                    }
+                }
+                if (door_x !== null) break;
+            }
+            if (door_x !== null) break;
+        }
+        if (door_x === null) return null;
+
+        let sizex = this.constructions[name].blocks[0][0].length;
+        let sizez = this.constructions[name].blocks[0].length;
+        let orientation = 4 - this.data.built[name].orientation; // this conversion is opposite
+        if (orientation == 4) orientation = 0;
+        [door_x, door_z] = rotateXZ(door_x, door_z, orientation, sizex, sizez);
+        door_y += this.constructions[name].offset;
+
+        return {
+            x: this.data.built[name].position.x + door_x,
+            y: this.data.built[name].position.y + door_y,
+            z: this.data.built[name].position.z + door_z
+        };
     }
 }

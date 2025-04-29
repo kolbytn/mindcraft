@@ -1,5 +1,4 @@
 {
     "name": "andy",
-    "api" : "ollama",
-    "model": "llama3.1"
+    "model": "qwen-max"
 }

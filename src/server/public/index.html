@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mindcraft Generative Agents</title>
+    <title>Mindcraft</title>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        if (typeof io === 'undefined') {
-            document.write('<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"><\/script>');
-        }
-    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,7 +28,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .restart-btn, .start-btn, .stop-btn, .voice-btn, .clear-btn {
+        .restart-btn, .start-btn, .stop-btn {
             color: white;
             border: none;
             padding: 5px 10px;
@@ -50,21 +45,9 @@
         .stop-btn {
             background: #f44336;
         }
-        .clear-btn {
-            background: #FF9800;
-        }
-        .voice-btn {
-            background: #9c27b0;
-        }
-        .voice-btn.active {
-            background: #6a0080;
-            animation: pulse 1.5s infinite;
-        }
         .restart-btn:hover { background: #45a049; }
         .start-btn:hover { background: #1976D2; }
         .stop-btn:hover { background: #d32f2f; }
-        .voice-btn:hover { background: #7B1FA2; }
-        .clear-btn:hover { background: #F57C00; }
         .status-icon {
             font-size: 12px;
             margin-right: 8px;
@@ -75,782 +58,63 @@
         .status-icon.offline {
             color: #f44336;
         }
-        #voiceControls {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2d2d2d;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        #voiceStatus {
-            font-size: 14px;
-            color: #bbbbbb;
-            margin-top: 5px;
-        }
-        #audioPlayer {
-            margin-top: 10px;
-            width: 100%;
-            display: none;
-        }
-        #apiSelectionArea {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2d2d2d;
-            border-radius: 8px;
-        }
-        #transcriptionArea {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2d2d2d;
-            border-radius: 8px;
-        }
-        #transcriptText {
-            background: #363636;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        #detailedTranscript {
-            margin-top: 15px;
-            background: #363636;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-        }
-        #historyArea {
-            margin-top: 20px;
-            padding: 15px;
-            background: #2d2d2d;
-            border-radius: 8px;
-        }
-        #historyList {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 10px;
-            background: #363636;
-            border-radius: 4px;
-            padding: 0;
-        }
-        .history-item {
-            padding: 10px;
-            border-bottom: 1px solid #444;
-            display: flex;
-            flex-direction: column;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .history-item-time {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-        .history-item-text {
-            word-break: break-word;
-        }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .utterance {
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #444;
-        }
-        .utterance:last-child {
-            border-bottom: none;
-        }
-        .utterance-time {
-            font-size: 12px;
-            color: #999;
-            margin-left: 10px;
-        }
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        .radio-group {
-            margin: 10px 0;
-        }
-        .radio-option {
-            margin-right: 20px;
-            display: inline-flex;
-            align-items: center;
-        }
-        .radio-option input {
-            margin-right: 5px;
-        }
-        #toggleDetails {
-            background: #555;
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 12px;
-        }
-        #toggleDetails:hover {
-            background: #666;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
     </style>
 </head>
 <body>
-    <h1>Mindcraft Generative Agents</h1>
+    <h1>Mindcraft</h1>
     <div id="agents"></div>
-    <div id="apiSelectionArea">
-        <div class="radio-group">
-            <label class="radio-option">
-                <input type="radio" name="apiSelection" value="1" checked> OpenAI 
-            </label>
-            <label class="radio-option">
-                <input type="radio" name="apiSelection" value="2"> ByteDance
-            </label>
-        </div>
-    </div>
-    <div id="voiceControls">
-        <button id="voiceButton" class="voice-btn">Start Detecting</button>
-        <div id="voiceStatus">Detecting not Started</div>
-        <audio id="audioPlayer" controls></audio>
-    </div>
-    
-    <div id="transcriptionArea">
-        <h3>STT Result</h3>
-        <div id="transcriptText">STT result will be here...</div>
-        <button id="toggleDetails" style="display:none;">Show Details</button>
-        <div id="detailedTranscript"></div>
-    </div>
-    
-    <div id="historyArea">
-        <div class="history-header">
-            <h3>History</h3>
-            <button id="clearHistory" class="clear-btn">Clear History</button>
-        </div>
-        <div id="historyList">
-            <div class="empty-message">Emtpy</div>
-        </div>
-    </div>
+
     <script>
-        let agentNames = []; 
-        let sttKeys = {}; 
-        // initialize after socket.io 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof io === 'undefined') {
-                console.error('Socket.IO failed to load. Function restricted.');
-                document.getElementById('agents').innerHTML = '<div class="agent">Socket.IO failed to load. Function restricted.</div>';
-                return;
-            }
-            
-            // initialize socket.io
-            const socket = io();
-            const agentsDiv = document.getElementById('agents');
+        const socket = io();
+        const agentsDiv = document.getElementById('agents');
 
-            socket.on('connect', () => {
-                console.log('Connected to STT service.');
-            });
-
-            socket.on('connect_error', (error) => {
-                console.error('Connection Error:', error);
-                agentsDiv.innerHTML = '<div class="agent">Failed to connect to STT service.</div>';
-            });
-
-            socket.on('agents-update', (agents) => {
-                agentNames = [];
-                for (var i = 0; i < agents.length; i++) {
-                    agentNames.push(agents[i].name)
-                }
-                agentsDiv.innerHTML = agents.length ? 
-                    agents.map(agent => `
-                        <div class="agent">
-                            <span>
-                                <span class="status-icon ${agent.in_game ? 'online' : 'offline'}">●</span>
-                                ${agent.name}
-                            </span>
-                            <div>
-                                ${agent.in_game ? `
-                                    <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
-                                    <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
-                                    <input type="text" id="messageInput-${agent.name}" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput-${agent.name}').value)">Send</button>
-                                ` : `
-                                    <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
-                                `}
-                            </div>
+        socket.on('agents-update', (agents) => {
+            agentsDiv.innerHTML = agents.length ? 
+                agents.map(agent => `
+                    <div class="agent">
+                        <span>
+                            <span class="status-icon ${agent.in_game ? 'online' : 'offline'}">●</span>
+                            ${agent.name}
+                        </span>
+                        <div>
+                            ${agent.in_game ? `
+                                <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
+                                <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
+								<input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
+                            ` : `
+                                <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
+                            `}
                         </div>
-                    `).join('') + 
-                    `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
-                    <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
-                    '<div class="agent">No agents connected</div>';
-            });
-            
-            socket.on('keys-update', (keys) => {
-                for (const key in keys) {
-                    sttKeys[key] = keys[key];
-                }
-            });
-
-            // add socket to global access
-            window.socketIO = socket;
+                    </div>
+                `).join('') + 
+                `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
+                <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
+                '<div class="agent">No agents connected</div>';
         });
 
         function restartAgent(agentName) {
-            if (window.socketIO) window.socketIO.emit('restart-agent', agentName);
+            socket.emit('restart-agent', agentName);
         }
 
         function startAgent(agentName) {
-            if (window.socketIO) window.socketIO.emit('start-agent', agentName);
+            socket.emit('start-agent', agentName);
         }
 
         function stopAgent(agentName) {
-            if (window.socketIO) window.socketIO.emit('stop-agent', agentName);
+            socket.emit('stop-agent', agentName);
         }
 
         function killAllAgents() {
-            if (window.socketIO) window.socketIO.emit('stop-all-agents');
+            socket.emit('stop-all-agents');
         }
 
         function shutdown() {
-            if (window.socketIO) window.socketIO.emit('shutdown');
+            socket.emit('shutdown');
         }
-        
-        function sendMessage(agentName, message) {
-            if (window.socketIO) window.socketIO.emit('send-message', agentName, message);
-        }
-        
-        // generate UUID
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-        
-        // convert blob to base64
-        function blobToBase64(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    // remove 'data:audio/webm;base64,' prefix, keep base64 code
-                    const base64data = reader.result.split(',')[1];
-                    resolve(base64data);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-        }
-        
-        function formatTime(ms) {
-            const seconds = Math.floor(ms / 1000);
-            const millis = ms % 1000;
-            return `${seconds}.${millis.toString().padStart(3, '0')}s`;
-        }
-
-        function formatDateTime() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
-        
-        let voiceButton = document.getElementById('voiceButton');
-        let voiceStatus = document.getElementById('voiceStatus');
-        let audioPlayer = document.getElementById('audioPlayer');
-        let transcriptText = document.getElementById('transcriptText');
-        let detailedTranscript = document.getElementById('detailedTranscript');
-        let toggleDetailsButton = document.getElementById('toggleDetails');
-        let historyList = document.getElementById('historyList');
-        let clearHistoryButton = document.getElementById('clearHistory');
-        let mediaRecorder = null;
-        let audioContext = null;
-        let audioStream = null;
-        let isListening = false;
-        let isRecording = false;
-        let silenceTimer = null;
-        let recordedChunks = [];
-        let selectedAgent = null;
-        let recordingStartTime = 0;
-        let sampleRate = 16000; 
-        let lastTranscriptResult = null;
-        let transcriptHistory = []; 
-        
-        function addToHistory(text) {
-            const timestamp = formatDateTime();
-            transcriptHistory.unshift({
-                time: timestamp,
-                text: text
-            });
-            
-            if (transcriptHistory.length > 50) {
-                transcriptHistory = transcriptHistory.slice(0, 50);
-            }
-            
-            updateHistoryDisplay();
-        }
-        
-        function updateHistoryDisplay() {
-            if (transcriptHistory.length === 0) {
-                historyList.innerHTML = '<div class="empty-message">Empty</div>';
-                return;
-            }
-            
-            historyList.innerHTML = transcriptHistory.map(item => `
-                <div class="history-item">
-                    <div class="history-item-time">${item.time}</div>
-                    <div class="history-item-text">${item.text}</div>
-                </div>
-            `).join('');
-        }
-        
-        clearHistoryButton.addEventListener('click', function() {
-            if (confirm('Are you sure to clear all history?')) {
-                transcriptHistory = [];
-                updateHistoryDisplay();
-            }
-        });
-
-        toggleDetailsButton.addEventListener('click', function() {
-            if (detailedTranscript.style.display === 'none') {
-                detailedTranscript.style.display = 'block';
-                this.textContent = 'Hide Details';
-            } else {
-                detailedTranscript.style.display = 'none';
-                this.textContent = 'Show Details';
-            }
-        });
-        
-        voiceButton.addEventListener('click', toggleVoiceRecording);
-        
-        async function toggleVoiceRecording() {
-            if (!isListening) {
-                try {
-                    isListening = true;
-                    await startVoiceListening();
-                    voiceButton.textContent = 'Stop Detecting';
-                    voiceButton.classList.add('active');
-                    voiceStatus.textContent = 'Detecting...';
-                    audioPlayer.style.display = 'none';
-                    toggleDetailsButton.style.display = 'none';
-                    detailedTranscript.style.display = 'none';
-                    transcriptText.textContent = 'STT result will be here...';
-                } catch (error) {
-                    console.error('Cannot start detecting:', error);
-                    voiceStatus.textContent = 'Failed to start detecting: ' + error.message;
-                }
-            } else {
-                stopVoiceListening();
-                voiceButton.textContent = 'Start Detecting';
-                voiceButton.classList.remove('active');
-                voiceStatus.textContent = 'Detecting stopped.';
-                isListening = false;
-            }
-        }
-        
-        async function startVoiceListening() {
-            try {
-                audioStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true,
-                        autoGainControl: true
-                    } 
-                });
-                
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                sampleRate = audioContext.sampleRate;
-                
-                const audioSource = audioContext.createMediaStreamSource(audioStream);
-                const analyser = audioContext.createAnalyser();
-                analyser.fftSize = 1024;
-                analyser.smoothingTimeConstant = 0.8;
-                audioSource.connect(analyser);
-                
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                
-                const checkAudioLevel = () => {
-                    if (!isListening) return;
-                    
-                    analyser.getByteFrequencyData(dataArray);
-                    let sum = 0;
-                    for(let i = 0; i < bufferLength; i++) {
-                        sum += dataArray[i];
-                    }
-                    let average = sum / bufferLength;
-                    
-                    if (average > 20) { 
-                        if (!isRecording) {
-                            startRecording();
-                        } else {
-                            resetSilenceTimer();
-                        }
-                    }
-                    
-                    requestAnimationFrame(checkAudioLevel);
-                };
-                
-                checkAudioLevel();
-            } catch (error) {
-                console.error('Failed to access microphone:', error);
-                throw error;
-            }
-        }
-        
-        function startRecording() {
-            if (isRecording) return;
-            
-            isRecording = true;
-            recordedChunks = [];
-            voiceStatus.textContent = 'Recording...';
-            recordingStartTime = Date.now();
-            
-            resetSilenceTimer();
-            
-            const options = { 
-                mimeType: 'audio/webm;codecs=opus', 
-                audioBitsPerSecond: 256000 
-            };
-            
-            try {
-                mediaRecorder = new MediaRecorder(audioStream, options);
-            } catch (e) {
-                console.warn('Invalid format. Use the default audio format.');
-                mediaRecorder = new MediaRecorder(audioStream);
-            }
-            
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    recordedChunks.push(event.data);
-                }
-            };
-            
-            mediaRecorder.onstop = () => {
-                if (recordedChunks.length > 0) {
-                    processRecording();
-                }
-            };
-            
-            mediaRecorder.start(100); 
-        }
-        
-        function resetSilenceTimer() {
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-            }
-            
-            silenceTimer = setTimeout(() => {
-                // Stop recording after silence for 3s 
-                if (isRecording) {
-                    mediaRecorder.stop();
-                    isRecording = false;
-                    voiceStatus.textContent = 'Processing...';
-                }
-            }, 3000);
-        }
-
-        function checkMessageStartsWithName(message, names) {
-            if (!message || typeof message !== 'string') {
-                return null;
-            }
-            
-            const trimmedMessage = message.trim();
-            for (const name of names) {
-                if (!name || typeof name !== 'string') {
-                    continue;
-                }
-                
-                if (trimmedMessage.toLowerCase().startsWith(name.toLowerCase())) {
-                    return name;
-                }
-            }
-            
-            return null;
-        }
-        
-        async function processRecording() {
-            const recordingDuration = (Date.now() - recordingStartTime) / 1000;
-            
-            // Ignore the audio with too short duration 
-            if (recordingDuration < 0.5) {
-                voiceStatus.textContent = 'Too short. Ignored.';
-                setTimeout(() => {
-                    if (isListening) {
-                        voiceStatus.textContent = 'Detecting...';
-                    }
-                }, 1500);
-                recordedChunks = [];
-                return;
-            }
-            
-            let mimeType = 'audio/webm';
-            if (mediaRecorder && mediaRecorder.mimeType) {
-                mimeType = mediaRecorder.mimeType;
-            }
-            
-            const audioBlob = new Blob(recordedChunks, { type: mimeType });
-            const audioUrl = URL.createObjectURL(audioBlob);
-            
-            audioPlayer.src = audioUrl;
-            audioPlayer.style.display = 'block';
-            
-            voiceStatus.textContent = `Recorded，Duration: ${recordingDuration.toFixed(1)} seconds，perform STT...`;
-            
-            const radioButtons = document.getElementsByName('apiKeySelection');
-            let selectedAPI = "1"; // Default to 1
-            for (const radioButton of radioButtons) {
-                if (radioButton.checked) {
-                    selectedAPI = radioButton.value;
-                    break;
-                }
-            }
-                
-            if (selectedAPI == "1") {
-                const formData = new FormData();
-                formData.append('file', audioBlob, 'voice.mp3');
-                formData.append('model', 'whisper-1');
-                
-                try {
-                    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${sttKeys["OPENAI_API_KEY"]}`
-                        },
-                        body: formData
-                    });
-                    
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.error?.message || `Whisper API request failed with status ${response.status}`);
-                    }
-                    const data = await response.json();
-                    transcriptText.textContent = data.text;
-                    handleTranscript(data.text)
-                } catch (error) {
-                    transcriptText.textContent = `Transcription error: ${error.message}`;
-                } 
-            } else {
-                try {
-                    const audioBase64 = await blobToBase64(audioBlob);
-                    transcriptText.innerHTML = 'STT Processing...<div class="loading"></div>';
-                    
-                    const requestId = generateUUID();
-                    
-                    // using bytedance STT api (https://www.volcengine.com/docs/6561/1354868)
-                    const response = await fetch('https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Api-App-Key': sttKeys["BYTEDANCE_APP_ID"],
-                            'X-Api-Access-Key': sttKeys["BYTEDANCE_APP_TOKEN"],
-                            'X-Api-Resource-Id': 'volc.bigasr.auc',
-                            'X-Api-Request-Id': requestId,
-                            'X-Api-Sequence': '-1'
-                        },
-                        body: JSON.stringify({
-                            "user": {
-                                "uid": "" 
-                            },
-                            "audio": {
-                                "format": "raw",
-                                "data": audioBase64, 
-                                "sample_rate": sampleRate, 
-                                "channel_num": 1, 
-                                "bits_per_sample": 16
-                            },
-                            "request": {
-                                "model_name": "bigmodel",
-                                "enable_itn": true
-                            }
-                        })
-                    });
-                    
-                    const statusCode = response.headers.get('X-Api-Status-Code');
-                    const message = response.headers.get('X-Api-Message');
-                    
-                    if (statusCode === '20000000') {
-                        // Submitted and start querying for result 
-                        const taskResult = await pollTaskResult(requestId);
-                        displayTranscriptResult(taskResult);
-
-                        if (taskResult && taskResult.result && taskResult.result.text) {
-                            handleTranscript(taskResult.result.text)
-                        }
-                    } else if (statusCode === '20000003') {
-                        transcriptText.textContent = "Detected audio without content. Speak again.";
-                        toggleDetailsButton.style.display = 'none';
-                    } else {
-                        throw new Error(`API Error: ${message} (${statusCode})`);
-                    }
-                    
-                } catch (error) {
-                    console.error('Faild in STT:', error);
-                    transcriptText.textContent = "Error in STT: " + error.message;
-                    toggleDetailsButton.style.display = 'none';
-                    
-                    setTimeout(() => {
-                        if (isListening) {
-                            voiceStatus.textContent = 'Detecting...';
-                        }
-                    }, 2000);
-                }
-            }
-            recordedChunks = [];
-        }
-
-        function handleTranscript(text) {
-            let agentName = checkMessageStartsWithName(text, agentNames);
-            let agentNamesToSendMsg = [];
-            if (agentName) {
-                agentNamesToSendMsg.push(agentName);
-            } else {
-                agentNamesToSendMsg = agentNames;
-            }
-            if (agentNames.length > 1) {
-                if (agentNamesToSendMsg.length > 1) {
-                    text = "@all " + text;
-                } else {
-                    text = "/msg " + agentNamesToSendMsg[0] + " " + text;
-                }
-            }
-            addToHistory(text);
-            for (var i = 0; i < agentNamesToSendMsg.length; i++) {
-                sendMessage(agentNamesToSendMsg[i], text);
-            }
-        }
-        
-        function displayTranscriptResult(result) {
-            console.log(result)
-            if (!result) {
-                transcriptText.textContent = "Failed to get STT result.";
-                toggleDetailsButton.style.display = 'none';
-                return;
-            } 
-
-            if (!result.result && result.error) {
-                transcriptText.textContent = result.error;
-                toggleDetailsButton.style.display = 'none';
-                return;
-            } 
-            
-            lastTranscriptResult = result;
-            transcriptText.textContent = result.result.text;
-            
-            if (result.result.utterances && result.result.utterances.length > 0) {
-                toggleDetailsButton.style.display = 'block';
-                let detailsHTML = '<h4>STT Details</h4>';
-                
-                result.result.utterances.forEach((utterance, index) => {
-                    detailsHTML += `
-                        <div class="utterance">
-                            <div>
-                                <strong>Sentence ${index + 1}:</strong> ${utterance.text}
-                                <span class="utterance-time">(${formatTime(utterance.start_time)} - ${formatTime(utterance.end_time)})</span>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                detailedTranscript.innerHTML = detailsHTML;
-            } else {
-                toggleDetailsButton.style.display = 'none';
-            }
-        }
-        
-        async function pollTaskResult(requestId) {
-            const maxRetries = 30; 
-            const retryInterval = 1000; // 1 second 
-            
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    await new Promise(resolve => setTimeout(resolve, retryInterval));
-                    
-                    const response = await fetch('https://openspeech.bytedance.com/api/v3/auc/bigmodel/query', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Api-App-Key': sttKeys["BYTEDANCE_APP_ID"],
-                            'X-Api-Access-Key': sttKeys["BYTEDANCE_APP_TOKEN"],
-                            'X-Api-Resource-Id': 'volc.bigasr.auc',
-                            'X-Api-Request-Id': requestId
-                        },
-                        body: JSON.stringify({})
-                    });
-                    
-                    const statusCode = response.headers.get('X-Api-Status-Code');
-                    const message = response.headers.get('X-Api-Message');
-                    
-                    if (statusCode === '20000000') {
-                        const result = await response.json();
-                        return result;
-                    } else if (statusCode === '20000001' || statusCode === '20000002') {
-                        console.log(`Processing, status code: ${statusCode}, continue querying...`);
-                        continue;
-                    } else if (statusCode === '20000003') {
-                        console.log('Detected audio without any content.');
-                        return { error: 'Audio without any content.' };
-                    } else if (statusCode === '55000031') {
-                        console.log('STT server is busy.');
-                        await new Promise(resolve => setTimeout(resolve, 2000)); 
-                        continue;
-                    } else {
-                        throw new Error(`API Error: ${message} (${statusCode})`);
-                    }
-                } catch (error) {
-                    console.error('Failed in query:', error);
-                    if (error.name === 'TypeError' && error.message.includes('network')) {
-                        continue;
-                    }
-                    throw error;
-                }
-            }
-            
-            throw new Error('STT Timeout.');
-        }
-        
-        function stopVoiceListening() {
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-                silenceTimer = null;
-            }
-            
-            if (mediaRecorder && isRecording) {
-                mediaRecorder.stop();
-                isRecording = false;
-            }
-            
-            if (audioStream) {
-                audioStream.getTracks().forEach(track => track.stop());
-                audioStream = null;
-            }
-            
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
-            }
-        }
+		
+		function sendMessage(agentName, message) {
+			socket.emit('send-message', agentName, message)
+		}
     </script>
 </body>
-</html>
+</html> 
