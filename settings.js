@@ -45,7 +45,7 @@ const settings = {
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
     "log_all_prompts": false, // log ALL prompts to file
-    "plugins" : ["Dance"],
+    // "plugins" : ["Dance"], // plugins are loaded iff this is defined and the plugin's name is inclued.
 }
 
 // these environment variables override certain settings
