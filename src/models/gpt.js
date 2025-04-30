@@ -21,7 +21,7 @@ export class GPT {
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-
+        messages = strictFormat(messages);
         const pack = {
             model: this.model_name || "gpt-3.5-turbo",
             messages,
@@ -29,7 +29,6 @@ export class GPT {
             ...(this.params || {})
         };
         if (this.model_name.includes('o1')) {
-            pack.messages = strictFormat(messages);
             delete pack.stop;
         }
 
