@@ -1,4 +1,6 @@
 {
+    "BYTEDANCE_APP_ID" : "",
+    "BYTEDANCE_APP_TOKEN" : "",
     "OPENAI_API_KEY": "",
     "OPENAI_ORG_ID": "",
     "GEMINI_API_KEY": "",
@@ -7,6 +9,7 @@
     "GROQCLOUD_API_KEY": "",
     "HUGGINGFACE_API_KEY": "",
     "QWEN_API_KEY": "",
+    "DOUBAO_API_KEY": "",
     "XAI_API_KEY": "",
     "MISTRAL_API_KEY": "",
     "DEEPSEEK_API_KEY": "",

@@ -10,7 +10,7 @@ const settings = {
     "mindserver_port": 8080,
     
     // the base profile is shared by all bots for default prompts/examples/modes
-    "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
+    "base_profile": "./profiles/defaults/creative.json", // also see creative.json, god_mode.json
     "profiles": [
         "./andy.json",
         // "./profiles/gpt.json",
@@ -45,7 +45,7 @@ const settings = {
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
     "log_all_prompts": false, // log ALL prompts to file
-    // "plugins" : ["Dance"], // plugin will be loaded if and only if it's name appears here
+    "plugins" : ["Dance"], // plugin will be loaded if and only if it's name appears here
 }
 
 // these environment variables override certain settings

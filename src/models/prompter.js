@@ -16,6 +16,7 @@ import { Novita } from './novita.js';
 import { GroqCloudAPI } from './groq.js';
 import { HuggingFace } from './huggingface.js';
 import { Qwen } from "./qwen.js";
+import { Doubao } from "./doubao.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
@@ -164,6 +165,8 @@ export class Prompter {
                 profile.api = 'novita';
             else if (profile.model.includes('qwen'))
                 profile.api = 'qwen';
+            else if (profile.model.includes('doubao'))
+                profile.api = 'doubao';
             else if (profile.model.includes('grok'))
                 profile.api = 'xai';
             else if (profile.model.includes('deepseek'))
@@ -201,6 +204,8 @@ export class Prompter {
             model = new Novita(profile.model.replace('novita/', ''), profile.url, profile.params);
         else if (profile.api === 'qwen')
             model = new Qwen(profile.model, profile.url, profile.params);
+        else if (profile.api === 'doubao')
+            model = new Doubao(profile.model, profile.url, profile.params);
         else if (profile.api === 'xai')
             model = new Grok(profile.model, profile.url, profile.params);
         else if (profile.api === 'deepseek')
