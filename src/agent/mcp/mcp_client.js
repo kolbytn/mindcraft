@@ -24,11 +24,17 @@ export class MCPClient {
         
         // Get config path from settings
         this.configPath = settings.mcp_settings || path.join(process.cwd(), 'mcp_settings.json');
-        
-        // Auto-connect if enabled
+    }
+
+    /**
+     * Initialize MCP client and connect to servers
+     */
+    async init() {
         if (settings.mcp_servers) {
-            this.autoConnect();
+            await this.autoConnect();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -36,7 +42,7 @@ export class MCPClient {
      */
     async autoConnect() {
         try {
-            // console.log("Connecting to MCP servers...");
+ 
             
             // Check config file
             try {
@@ -49,7 +55,7 @@ export class MCPClient {
             
             // Load config
             const configContent = await fs.readFile(this.configPath, "utf8");
-            // console.log(`Read MCP config successfully`);
+            console.log(`Read MCP config successfully`);
             
             let config;
             try {
@@ -64,10 +70,10 @@ export class MCPClient {
             if (config.mcpServers && Object.keys(config.mcpServers).length > 0) {
                 // console.log(`Found ${Object.keys(config.mcpServers).length} MCP servers`);
                 for (const serverIdentifier of Object.keys(config.mcpServers)) {
-                    // console.log(`Connecting to MCP server: ${serverIdentifier}`);
+                    console.log(`Connecting to MCP server: ${serverIdentifier}`);
                     const success = await this.connectToServer(serverIdentifier);
                     if (success) {
-                        // console.log(`Connected to MCP server: ${serverIdentifier}`);
+                        console.log(`Connected to MCP server: ${serverIdentifier}`);
                     } else {
                         console.error(`Failed to connect to MCP server: ${serverIdentifier}`);
                     }
@@ -82,48 +88,15 @@ export class MCPClient {
     }
 
     /**
-     * Get transport options for a script
-     * @param {string} scriptPath Script path
-     * @returns {Object} Transport options
-     */
-    getTransportOptionsForScript(scriptPath) {
-        // Check extension
-        const isJs = scriptPath.endsWith(".js");
-        const isPy = scriptPath.endsWith(".py");
-        if (!isJs && !isPy) {
-            console.warn("Warning: Script has no .js/.py extension, using Node.js");
-        }
-        
-        // Select command
-        const command = isPy
-            ? process.platform === "win32"
-                ? "python"
-                : "python3"
-            : process.execPath;
-            
-        return {
-            command,
-            args: [scriptPath],
-        };
-    }
-
-    /**
-     * Set config path
-     * @param {string} filePath Config path
-     */
-    setConfigPath(filePath) {
-        this.configPath = filePath;
-    }
-
-    /**
      * Connect to MCP server
      * @param {string} serverIdentifier Server identifier
      * @returns {Promise<boolean>} Success status
      */
     async connectToServer(serverIdentifier) {
         try {
+            console.log(`[mcp_client.js] Connecting to server: ${serverIdentifier}`);
             if (this.connections.has(serverIdentifier) && this.connections.get(serverIdentifier).connected) {
-                // console.log(`Already connected to server: ${serverIdentifier}`);
+                console.log(`[mcp_client.js] Already connected to server: ${serverIdentifier}`);
                 return true;
             }
             
@@ -135,9 +108,9 @@ export class MCPClient {
                 // Check config file
                 try {
                     await fs.access(this.configPath);
-                    // console.log(`Found config: ${this.configPath}`);
+                    console.log(`[mcp_client.js] Found config: ${this.configPath}`);
                 } catch (accessError) {
-                    console.error(`Config file ${this.configPath} not found: ${accessError.message}`);
+                    console.error(`[mcp_client.js] Config file ${this.configPath} not found: ${accessError.message}`);
                     throw new Error(`MCP config not found: ${this.configPath}`);
                 }
                 
@@ -146,7 +119,7 @@ export class MCPClient {
                 try {
                     config = JSON.parse(configContent);
                 } catch (parseError) {
-                    console.error(`Config JSON parse error: ${parseError.message}`);
+                    console.error(`[mcp_client.js] Config JSON parse error: ${parseError.message}`);
                     throw new Error(`MCP config format error`);
                 }
                 
@@ -162,7 +135,7 @@ export class MCPClient {
                         args: serverConfig.args || [],
                         env: serverConfig.env,
                     };
-                    // console.log(`Starting server from config: ${serverIdentifier}, cmd: ${serverConfig.command}`);
+                    console.log(`[mcp_client.js] Starting server from config: ${serverIdentifier}, cmd: ${serverConfig.command}`);
                 }
                 else if (serverIdentifier === "default" &&
                     config.defaultServer &&
@@ -175,27 +148,63 @@ export class MCPClient {
                         args: serverConfig.args || [],
                         env: serverConfig.env,
                     };
-                    // console.log(`Using default server: ${defaultServerName}`);
+                    console.log(`[mcp_client.js] Using default server: ${defaultServerName}`);
                 }
                 else {
                     // Direct script path
                     if (serverIdentifier.includes('/') || serverIdentifier.includes('\\')) {
-                        transportOptions = this.getTransportOptionsForScript(serverIdentifier);
-                        // console.log(`Starting server from script: ${serverIdentifier}`);
+                        // Check file extension
+                        const isJs = serverIdentifier.endsWith(".js");
+                        const isPy = serverIdentifier.endsWith(".py");
+                        
+                        if (!isJs && !isPy) {
+                            console.warn("[mcp_client.js] Warning: Script has no .js/.py extension");
+                        }
+                        
+                        // Select correct command for Python files
+                        const command = isPy
+                            ? process.platform === "win32"
+                                ? "python"
+                                : "python3"
+                            : process.execPath;
+                        
+                        transportOptions = {
+                            command,
+                            args: [serverIdentifier],
+                        };
+                        console.log(`[mcp_client.js] Starting server from script: ${serverIdentifier} with command: ${command}`);
                     } else {
                         throw new Error(`Server ${serverIdentifier} not found in config`);
                     }
                 }
             }
             catch (error) {
-                console.error(`Config error: ${error instanceof Error ? error.message : String(error)}`);
+                console.error(`[mcp_client.js] Config error: ${error instanceof Error ? error.message : String(error)}`);
                 
                 // Try as script path
                 if (serverIdentifier.includes('/') || serverIdentifier.includes('\\')) {
-                    transportOptions = this.getTransportOptionsForScript(serverIdentifier);
-                    // console.log(`Trying as script path: ${serverIdentifier}`);
+                    // Check file extension
+                    const isJs = serverIdentifier.endsWith(".js");
+                    const isPy = serverIdentifier.endsWith(".py");
+                    
+                    if (!isJs && !isPy) {
+                        console.warn("[mcp_client.js] Warning: Script has no .js/.py extension");
+                    }
+                    
+                    // Select correct command for Python files
+                    const command = isPy
+                        ? process.platform === "win32"
+                            ? "python"
+                            : "python3"
+                        : process.execPath;
+                    
+                    transportOptions = {
+                        command,
+                        args: [serverIdentifier],
+                    };
+                    console.log(`[mcp_client.js] Trying as script path: ${serverIdentifier} with command: ${command}`);
                 } else {
-                    throw new Error(`Unable to connect to server: ${serverIdentifier}`);
+                    throw new Error(`[mcp_client.js] Unable to connect to server: ${serverIdentifier}`);
                 }
             }
             
@@ -205,7 +214,7 @@ export class MCPClient {
                 version: "1.0.0",
             });
             
-            // console.log(`Creating transport for server: ${serverIdentifier}...`);
+            console.log(`[mcp_client.js] Creating transport for server: ${serverIdentifier}...`);
             
             // Create transport
             const transport = new StdioClientTransport(transportOptions);
@@ -215,10 +224,12 @@ export class MCPClient {
             
             // Connect
             try {
-                mcp.connect(transport);
-                // console.log(`Connected to server: ${serverIdentifier}`);
+                await mcp.connect(transport);
+                // Add delay to wait for server initialization
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log(`[mcp_client.js] Connected to server: ${serverIdentifier}`);
             } catch (connectError) {
-                console.error(`Connection failed: ${connectError.message}`);
+                console.error(`[mcp_client.js] Connection failed: ${connectError.message}`);
                 throw connectError;
             }
             
@@ -232,9 +243,29 @@ export class MCPClient {
             
             // Get tools
             try {
-                // console.log(`Getting tools from ${serverIdentifier}...`);
-                const serverTools = await toolService.getTools();
-                // console.log(`Got ${serverTools.length} tools from ${serverIdentifier}`);
+                console.log(`[mcp_client.js] Getting tools from ${serverIdentifier}...`);
+                // Add delay before requesting tools to ensure server is ready
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Retry logic for getting tools
+                let serverTools = [];
+                let retryCount = 0;
+                const maxRetries = 3;
+                
+                while (retryCount < maxRetries) {
+                    try {
+                        serverTools = await toolService.getTools();
+                        console.log(`[mcp_client.js] Got ${serverTools.length} tools from ${serverIdentifier}`);
+                        break; // Success, exit retry loop
+                    } catch (retryError) {
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            throw retryError; // Max retries reached, re-throw error
+                        }
+                        console.log(`[mcp_client.js] Retry ${retryCount}/${maxRetries} getting tools from ${serverIdentifier}...`);
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait longer between retries
+                    }
+                }
                 
                 // Tag tools with server
                 const taggedTools = serverTools.map(tool => ({
@@ -248,11 +279,11 @@ export class MCPClient {
                 if (serverTools.length === 0) {
                     console.warn(`Warning: Server ${serverIdentifier} provided no tools`);
                 } else {
-                    // 简化输出格式，去掉"MCP Server Name"前缀
+                    // Log tool names
                     console.log(`- ${serverIdentifier}\n      - ${serverTools.map(t => t.name).join('\n      - ')}`);
                 }
             } catch (toolError) {
-                console.error(`Failed to get tools from ${serverIdentifier}: ${toolError.message}`);
+                console.error(`[mcp_client.js] Failed to get tools from ${serverIdentifier}: ${toolError.message}`);
                 console.error(toolError);
             }
             
@@ -260,13 +291,13 @@ export class MCPClient {
             if (config && config.mcpServers && config.mcpServers[serverIdentifier]) {
                 const autoApproveList = config.mcpServers[serverIdentifier].autoApprove || [];
                 toolService.setAutoApproveList(autoApproveList, true);
-                // console.log(`Auto-approving all tools from ${serverIdentifier}`);
+                console.log(`[mcp_client.js] Auto-approving all tools from ${serverIdentifier}`);
             }
             
             return true;
         }
         catch (error) {
-            console.error(`Connection to ${serverIdentifier} failed: ${error.message}`);
+            console.error(`[mcp_client.js] Connection to ${serverIdentifier} failed: ${error.message}`);
             console.error(error);
             return false;
         }
@@ -432,5 +463,13 @@ export class MCPClient {
         }
         
         return result;
+    }
+
+    /**
+     * Set config path
+     * @param {string} filePath Config path
+     */
+    setConfigPath(filePath) {
+        this.configPath = filePath;
     }
 } 
