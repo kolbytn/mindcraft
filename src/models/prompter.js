@@ -22,6 +22,8 @@ import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 import { VLLM } from './vllm.js';
+import { LMStudio } from './lmstudio.js';
+import { Together } from './together.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
