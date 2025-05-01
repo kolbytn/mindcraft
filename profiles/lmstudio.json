@@ -1,0 +1,4 @@
+{
+    "name": "qwen3",
+    "model": "lmstudio/qwen3-8b"
+}

@@ -13,5 +13,6 @@
     "GHLF_API_KEY": "",
     "HYPERBOLIC_API_KEY": "",
     "NOVITA_API_KEY": "",
-    "OPENROUTER_API_KEY": ""
+    "OPENROUTER_API_KEY": "",
+    "TOGETHER_API_KEY": ""
 }
