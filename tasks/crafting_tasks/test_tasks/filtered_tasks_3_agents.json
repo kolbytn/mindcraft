@@ -1,0 +1,840 @@
+{
+  "multiagent_crafting_requires_ctable_dark_prismarine_0_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an dark_prismarine",
+    "conversation": "Let's work together to craft an dark_prismarine.",
+    "initial_inventory": {
+      "0": {
+        "prismarine_shard": 2,
+        "black_dye": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "prismarine_shard": 2
+      },
+      "2": {
+        "prismarine_shard": 4
+      }
+    },
+    "agent_count": 3,
+    "target": "dark_prismarine",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 1,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_cut_red_sandstone_0_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an cut_red_sandstone",
+    "conversation": "Let's work together to craft an cut_red_sandstone.",
+    "initial_inventory": {
+      "0": {
+        "red_sandstone": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "red_sandstone": 1
+      },
+      "2": {
+        "red_sandstone": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "cut_red_sandstone",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 1,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_pink_banner_0_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an pink_banner",
+    "conversation": "Let's work together to craft an pink_banner.",
+    "initial_inventory": {
+      "0": {
+        "pink_wool": 2,
+        "stick": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "pink_wool": 2
+      },
+      "2": {
+        "pink_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "pink_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_blue_banner_0_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an blue_banner",
+    "conversation": "Let's work together to craft an blue_banner.",
+    "initial_inventory": {
+      "0": {
+        "blue_wool": 2,
+        "stick": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "blue_wool": 2
+      },
+      "2": {
+        "blue_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "blue_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_bookshelf_0_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an bookshelf",
+    "conversation": "Let's work together to craft an bookshelf.",
+    "initial_inventory": {
+      "0": {
+        "oak_planks": 2,
+        "book": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "oak_planks": 2,
+        "book": 1
+      },
+      "2": {
+        "oak_planks": 2,
+        "book": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "bookshelf",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_blue_banner_2_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an blue_banner",
+    "conversation": "Let's work together to craft an blue_banner.",
+    "initial_inventory": {
+      "0": {
+        "blue_wool": 2,
+        "stick": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "blue_wool": 2
+      },
+      "2": {
+        "blue_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "blue_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_cyan_bed_1_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an cyan_bed",
+    "conversation": "Let's work together to craft an cyan_bed.",
+    "initial_inventory": {
+      "0": {
+        "cyan_wool": 1,
+        "oak_planks": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "cyan_wool": 1,
+        "oak_planks": 1
+      },
+      "2": {
+        "cyan_wool": 1,
+        "oak_planks": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "cyan_bed",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_blue_banner_1_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an blue_banner",
+    "conversation": "Let's work together to craft an blue_banner.",
+    "initial_inventory": {
+      "0": {
+        "blue_wool": 2,
+        "stick": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "blue_wool": 2
+      },
+      "2": {
+        "blue_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "blue_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_cyan_banner_1_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an cyan_banner",
+    "conversation": "Let's work together to craft an cyan_banner.",
+    "initial_inventory": {
+      "0": {
+        "cyan_wool": 2,
+        "stick": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "cyan_wool": 2
+      },
+      "2": {
+        "cyan_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "cyan_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_white_banner_2_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an white_banner",
+    "conversation": "Let's work together to craft an white_banner.",
+    "initial_inventory": {
+      "0": {
+        "white_wool": 2,
+        "stick": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "white_wool": 2
+      },
+      "2": {
+        "white_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "white_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_waxed_oxidized_cut_copper_2_with_plan__depth_0_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an waxed_oxidized_cut_copper",
+    "conversation": "Let's work together to craft an waxed_oxidized_cut_copper.",
+    "initial_inventory": {
+      "0": {
+        "waxed_oxidized_copper": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "waxed_oxidized_copper": 1
+      },
+      "2": {
+        "waxed_oxidized_copper": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "waxed_oxidized_cut_copper",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 1,
+    "depth": 0,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_chest_minecart_0_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an chest_minecart",
+    "conversation": "Let's work together to craft an chest_minecart.",
+    "initial_inventory": {
+      "0": {
+        "oak_planks": 2,
+        "iron_ingot": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "oak_planks": 2,
+        "iron_ingot": 1
+      },
+      "2": {
+        "oak_planks": 4,
+        "iron_ingot": 3
+      }
+    },
+    "agent_count": 3,
+    "target": "chest_minecart",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_magenta_bed_0_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an magenta_bed",
+    "conversation": "Let's work together to craft an magenta_bed.",
+    "initial_inventory": {
+      "0": {
+        "allium": 1,
+        "black_wool": 1,
+        "oak_planks": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "black_wool": 1,
+        "oak_planks": 1
+      },
+      "2": {
+        "black_wool": 1,
+        "oak_planks": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "magenta_bed",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_red_banner_0_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an red_banner",
+    "conversation": "Let's work together to craft an red_banner.",
+    "initial_inventory": {
+      "0": {
+        "red_dye": 2,
+        "black_wool": 2,
+        "oak_planks": 2,
+        "crafting_table": 1
+      },
+      "1": {
+        "red_dye": 2,
+        "black_wool": 2
+      },
+      "2": {
+        "red_dye": 2,
+        "black_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "red_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_black_banner_0_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an black_banner",
+    "conversation": "Let's work together to craft an black_banner.",
+    "initial_inventory": {
+      "0": {
+        "black_wool": 2,
+        "oak_planks": 2,
+        "crafting_table": 1
+      },
+      "1": {
+        "black_wool": 2
+      },
+      "2": {
+        "black_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "black_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_spectral_arrow_0_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an spectral_arrow",
+    "conversation": "Let's work together to craft an spectral_arrow.",
+    "initial_inventory": {
+      "0": {
+        "glowstone_dust": 1,
+        "flint": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "glowstone_dust": 2,
+        "stick": 1
+      },
+      "2": {
+        "glowstone_dust": 1,
+        "feather": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "spectral_arrow",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_cyan_wool_2_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an cyan_wool",
+    "conversation": "Let's work together to craft an cyan_wool.",
+    "initial_inventory": {
+      "0": {
+        "blue_dye": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "green_dye": 1
+      },
+      "2": {
+        "black_wool": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "cyan_wool",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_pink_banner_2_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an pink_banner",
+    "conversation": "Let's work together to craft an pink_banner.",
+    "initial_inventory": {
+      "0": {
+        "pink_dye": 2,
+        "black_wool": 2,
+        "oak_planks": 2,
+        "crafting_table": 1
+      },
+      "1": {
+        "pink_dye": 2,
+        "black_wool": 2
+      },
+      "2": {
+        "pink_dye": 2,
+        "black_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "pink_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_spectral_arrow_1_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an spectral_arrow",
+    "conversation": "Let's work together to craft an spectral_arrow.",
+    "initial_inventory": {
+      "0": {
+        "glowstone_dust": 1,
+        "flint": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "glowstone_dust": 2,
+        "stick": 1
+      },
+      "2": {
+        "glowstone_dust": 1,
+        "feather": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "spectral_arrow",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_chiseled_polished_blackstone_1_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an chiseled_polished_blackstone",
+    "conversation": "Let's work together to craft an chiseled_polished_blackstone.",
+    "initial_inventory": {
+      "0": {
+        "polished_blackstone": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "polished_blackstone": 1
+      },
+      "2": {
+        "polished_blackstone": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "chiseled_polished_blackstone",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_purple_wool_1_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an purple_wool",
+    "conversation": "Let's work together to craft an purple_wool.",
+    "initial_inventory": {
+      "0": {
+        "blue_dye": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "red_dye": 1
+      },
+      "2": {
+        "black_wool": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "purple_wool",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 2,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_spectral_arrow_2_with_plan__depth_1_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an spectral_arrow",
+    "conversation": "Let's work together to craft an spectral_arrow.",
+    "initial_inventory": {
+      "0": {
+        "glowstone_dust": 1,
+        "flint": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "glowstone_dust": 2,
+        "stick": 1
+      },
+      "2": {
+        "glowstone_dust": 1,
+        "feather": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "spectral_arrow",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 1,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [
+        "!getCraftingPlan"
+      ],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_cyan_bed_0_with_plan__depth_2_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an cyan_bed",
+    "conversation": "Let's work together to craft an cyan_bed.",
+    "initial_inventory": {
+      "0": {
+        "blue_dye": 2,
+        "black_wool": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "green_dye": 2,
+        "black_wool": 1
+      },
+      "2": {
+        "black_wool": 1,
+        "oak_log": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "cyan_bed",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 2,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_cyan_banner_1_with_plan__depth_2_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an cyan_banner",
+    "conversation": "Let's work together to craft an cyan_banner.",
+    "initial_inventory": {
+      "0": {
+        "blue_dye": 1,
+        "green_dye": 1,
+        "black_wool": 2,
+        "oak_log": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "blue_dye": 1,
+        "green_dye": 1,
+        "black_wool": 2
+      },
+      "2": {
+        "blue_dye": 1,
+        "green_dye": 1,
+        "black_wool": 2
+      }
+    },
+    "agent_count": 3,
+    "target": "cyan_banner",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 2,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  },
+  "multiagent_crafting_requires_ctable_gray_wool_1_with_plan__depth_2_num_agents_3": {
+    "goal": "Collaborate with other agents to craft an gray_wool",
+    "conversation": "Let's work together to craft an gray_wool.",
+    "initial_inventory": {
+      "0": {
+        "ink_sac": 1,
+        "crafting_table": 1
+      },
+      "1": {
+        "bone_meal": 1
+      },
+      "2": {
+        "black_wool": 1
+      }
+    },
+    "agent_count": 3,
+    "target": "gray_wool",
+    "number_of_target": 1,
+    "type": "techtree",
+    "max_depth": 3,
+    "depth": 2,
+    "timeout": 500,
+    "blocked_actions": {
+      "0": [
+        "!getCraftingPlan"
+      ],
+      "1": [],
+      "2": []
+    },
+    "missing_items": [],
+    "requires_crafting_table": true
+  }
+}
