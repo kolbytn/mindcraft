@@ -10,42 +10,38 @@
  */
 export class ToolService {
     constructor(mcp) {
-        this.mcp = mcp; // MCP client instance
-        this.autoApproveList = []; // List of auto-approved tools
-        this.autoApproveAll = true; // Default to auto-approve all tools
+        this.mcp = mcp; 
+        this.autoApproveList = []; 
+        this.autoApproveAll = true; 
     }
     
     /**
      * Get list of available tools
-     * @returns {Promise<Array>} List of tools
+     * @returns {Promise<Array>}
      */
     async getTools() {
         try {
-            // Use correct MCP SDK API to get tool list
+
             const toolsResult = await this.mcp.listTools();
             
             if (!toolsResult || !toolsResult.tools) {
                 console.warn("Failed to get tool list, server did not return tool information");
                 return [];
             }
-            
-            // Extract tool information and log - keep complete information
             const tools = toolsResult.tools;
 
-            
-            // Return tool list
             return tools;
         } catch (error) {
             console.error("Failed to get tool list:", error);
-            throw error; // Let upper layer handle exception
+            throw error;
         }
     }
     
     /**
      * Call MCP tool
-     * @param toolName Tool name
-     * @param toolArgs Tool arguments
-     * @returns Tool invocation result
+     * @param {string} toolName 
+     * @param {Object} toolArgs 
+     * @returns {Promise<Object>} 
      */
     async callTool(toolName, toolArgs) {
         try {
@@ -63,9 +59,8 @@ export class ToolService {
     
     /**
      * Find tool by name
-     * @param {string} toolName Tool name
-     * @returns {Promise<Object|null>} Tool object or null
-     * @private
+     * @param {string} toolName 
+     * @returns {Promise<Object|null>} 
      */
     async findTool(toolName) {
         try {
@@ -73,20 +68,18 @@ export class ToolService {
             return tools.find(tool => tool.name === toolName) || null;
         } catch (error) {
             console.error(`Failed to find tool ${toolName}:`, error);
-            return null; // Return null if getting tool list fails
+            return null; 
         }
     }
     
     /**
      * Set auto-approve tool list
-     * @param {Array<string>} toolNames List of tool names
-     * @param {boolean} autoApproveAll Whether to auto-approve all tools
+     * @param {Array<string>} toolNames
+     * @param {boolean} autoApproveAll 
      */
     setAutoApproveList(toolNames, autoApproveAll = true) {
-        // Set whether to auto-approve all tools
         this.autoApproveAll = autoApproveAll;
         
-        // If specific tool list is provided, set to that list
         if (Array.isArray(toolNames)) {
             this.autoApproveList = [...toolNames];
         } else {
@@ -97,9 +90,8 @@ export class ToolService {
     
     /**
      * Check if tool should be auto-approved
-     * @param {string} toolName Tool name
-     * @returns {boolean} Whether to auto-approve
-     * @private
+     * @param {string} toolName 
+     * @returns {boolean}
      */
     shouldAutoApprove(toolName) {
         return this.autoApproveList.includes(toolName);
