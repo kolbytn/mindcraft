@@ -1,5 +1,7 @@
 import mineflayer from 'mineflayer';
 import yargs from 'yargs';
+import { resetConstructionWorld } from '../src/agent/tasks/construction_tasks.js';
+import { cookingTaskInitalization } from '../src/agent/tasks/cooking_tasks.js';
 import { worldToBlueprint, blueprintToTask } from '../../src/agent/tasks/construction_tasks.js';
 import fs from 'fs';
 import { start } from 'repl';
@@ -43,6 +45,8 @@ const selectedTaskId = taskData.task_id;
 // give the required inventory items to the usernames specified in the usernames list
 bot.on('spawn', async () => {
     console.log("Bot spawned. Starting task...");
+
+    // initiate the world according to the construction or cooking world
     const usernames = args.usernames;
     const task = taskData[selectedTaskId];
     const inventory = task.initial_inventory;

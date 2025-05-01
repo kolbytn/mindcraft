@@ -417,7 +417,7 @@ export class Task {
             return;
         
         if (this.task_type === 'cooking') {
-            this.initiator = new CookingTaskInitiator(this.data, this.agent);
+            this.initiator = new CookingTaskInitiator(this.data, this.agent.bot);
         } else {
             this.initiator = null;
         }
@@ -482,7 +482,7 @@ export class Task {
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
-        if (this.initiator) {
+        if (this.initiator && this.agent.count_id === 0) {
             await this.initiator.init();
         }
 
