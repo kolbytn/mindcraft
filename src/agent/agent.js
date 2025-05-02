@@ -68,6 +68,7 @@ export class Agent {
         blacklistCommands(this.blocked_actions);
         console.log('Initializing MCP client...');
         this.mcp_client = new MCPClient(this);
+        await this.mcp_client.init();
         serverProxy.connect(this);
 
         console.log(this.name, 'logging into minecraft...');
