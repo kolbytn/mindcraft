@@ -54,12 +54,12 @@ if (process.env.SETTINGS_PATH) {
       const raw = fs.readFileSync(cfgPath, 'utf-8');
       const overrides = JSON.parse(raw);
       Object.assign(settings, overrides);
-      console.log(`⚡️ Loaded overrides from ${cfgPath}`);
+      console.log(`Loaded overrides from ${cfgPath}`);
     } else {
-      console.warn(`⚠️ SETTINGS_PATH file not found: ${cfgPath}`);
+      console.warn(`SETTINGS_PATH file not found: ${cfgPath}`);
     }
   } catch (err) {
-    console.error("🔴 Failed to load SETTINGS_PATH overrides:", err);
+    console.error("Failed to load SETTINGS_PATH overrides:", err);
   }
 }
 if (process.env.MINECRAFT_PORT) {
