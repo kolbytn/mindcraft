@@ -2,7 +2,7 @@
 
 Crafting minds for Minecraft with LLMs and [Mineflayer!](https://prismarinejs.github.io/mineflayer/#/)
 
-[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Video Tutorial](https://www.youtube.com/watch?v=gRotoL8P8D8) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1)
+[FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) | [Discord Support](https://discord.gg/mp73p35dzC) | [Video Tutorial](https://www.youtube.com/watch?v=gRotoL8P8D8) | [Blog Post](https://kolbynottingham.com/mindcraft/) | [Contributor TODO](https://github.com/users/kolbytn/projects/1) | [Paper Website](https://mindcraft-minecollab.github.io/index.html) | [MineCollab](https://github.com/kolbytn/mindcraft/blob/main/minecollab.md) 
 
 
 > [!Caution]
@@ -30,6 +30,16 @@ Do not connect this bot to public servers with coding enabled. This project allo
 
 If you encounter issues, check the [FAQ](https://github.com/kolbytn/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues.
 
+## Tasks
+
+Bot performance can be roughly evaluated with Tasks. Tasks automatically intialize bots with a goal to aquire specific items or construct predefined buildings, and remove the bot once the goal is achieved.
+
+To run tasks, you need python, pip, and optionally conda. You can then install dependencies with `pip install -r requirements.txt`. 
+
+Tasks are defined in json files in the `tasks` folder, and can be run with: `python tasks/run_task_file.py --task_path=tasks/example_tasks.json`
+
+For full evaluations, you will need to [download and install the task suite. Full instructions.](minecollab.md#installation)
+
 ## Model Customization
 
 You can configure project details in `settings.js`. [See file.](settings.js)
@@ -53,6 +63,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `openrouter` | `OPENROUTER_API_KEY` | `openrouter/anthropic/claude-3.5-sonnet` | [docs](https://openrouter.ai/models) |
 | `glhf.chat` | `GHLF_API_KEY` | `glhf/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
 | `hyperbolic` | `HYPERBOLIC_API_KEY` | `hyperbolic/deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
+| `vllm` | n/a | `vllm/llama3` | n/a |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3.1 && ollama pull nomic-embed-text`
