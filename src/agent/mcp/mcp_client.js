@@ -1,18 +1,10 @@
-/**
- * MCP Client Implementation
- * Handles server settings, connections and tool calls based on Model Context Protocol
- */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
-import { ToolService } from './tool_service.js';
 import settings from '../../../settings.js';
 
-/**
- * MCP Client Class
- */
 export class MCPClient {
     constructor(agent) {
         this.agent = agent;
@@ -21,42 +13,9 @@ export class MCPClient {
         this.configPath = settings.mcp_settings || path.join(process.cwd(), 'mcp_settings.json');
     }
 
-    /**
-     * Initialize MCP client and connect to servers
-     */
     async init() {
         if (!settings.mcp_servers) return false;
         return await this.autoConnect();
-    }
-
-    /**
-     * Connect to all configured servers in parallel
-     */
-    async autoConnect() {
-        try {
-            const config = await this.readConfig();
-            if (!config) return false;
-
-            const serverIds = Object.keys(config.mcpServers || {});
-            if (serverIds.length === 0) {
-                console.log("[mcp_client.js][autoConnect] No MCP servers defined in config");
-                return false;
-            }
-
-            console.log(`[mcp_client.js][autoConnect] Found ${serverIds.length} MCP servers, connecting in parallel...`);
-            
-            // Connect to all servers in parallel
-            const connectionPromises = serverIds.map(id => this.connectToServer(id, config));
-            const results = await Promise.allSettled(connectionPromises);
-            
-            const successCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
-            console.log(`[mcp_client.js][autoConnect] Connected to ${successCount}/${serverIds.length} MCP servers`);
-            
-            return successCount > 0;
-        } catch (error) {
-            console.error(`[mcp_client.js][autoConnect] Failed: ${error.message}\nStack: ${error.stack}`);
-            return false;
-        }
     }
 
     /**
@@ -67,7 +26,6 @@ export class MCPClient {
             await fs.access(this.configPath);
             const content = await fs.readFile(this.configPath, "utf8");
             const config = JSON.parse(content);
-            console.log(`[mcp_client.js][readConfig] Read MCP config successfully`);
             return config;
         } catch (error) {
             if (error.code === 'ENOENT') {
@@ -82,46 +40,6 @@ export class MCPClient {
     }
 
     /**
-     * Connect to MCP server
-     */
-    async connectToServer(serverIdentifier, config = null) {
-        console.log(`[mcp_client.js][connectToServer] Connecting to server: ${serverIdentifier}`);
-        
-        // Check if already connected
-        if (this.isServerConnected(serverIdentifier)) {
-            console.log(`[mcp_client.js][connectToServer] Already connected to server: ${serverIdentifier}`);
-            return true;
-        }
-        
-        try {
-            // Get configuration if not provided
-            if (!config) {
-                config = await this.readConfig();
-                if (!config) return false;
-            }
-            
-            // Get transport options
-            const transportOptions = this.getTransportOptions(serverIdentifier, config);
-            if (!transportOptions) return false;
-            
-            // Create and connect client
-            const connection = await this.createConnection(serverIdentifier, transportOptions);
-            if (!connection) return false;
-            
-            // Store connection
-            this.connections.set(serverIdentifier, connection);
-            
-            // Get tools from server
-            await this.fetchServerTools(serverIdentifier, connection.toolService, config);
-            
-            return true;
-        } catch (error) {
-            console.error(`[mcp_client.js][connectToServer] Connection to ${serverIdentifier} failed: ${error.message}\nStack: ${error.stack}`);
-            return false;
-        }
-    }
-    
-    /**
      * Create and initialize MCP client connection
      */
     async createConnection(serverIdentifier, transportOptions) {
@@ -130,20 +48,15 @@ export class MCPClient {
                 name: `mindcraft-mcp-client-${serverIdentifier}`,
                 version: "1.0.0",
             });
-            
+
             const transport = new StdioClientTransport(transportOptions);
-            const toolService = new ToolService(mcp);
-            
-            // Connect to server
+
             await mcp.connect(transport);
-            // Wait for server to initialize
             await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log(`[mcp_client.js][createConnection] Connected to server: ${serverIdentifier}`);
-            
+
             return {
                 mcp,
                 transport,
-                toolService,
                 connected: true
             };
         } catch (error) {
@@ -151,6 +64,66 @@ export class MCPClient {
             return null;
         }
     }
+
+    /**
+     * Connect to MCP server
+     */
+    async connectToServer(serverIdentifier, config = null) {
+        if (this.isServerConnected(serverIdentifier)) {
+            return true;
+        }
+        try {
+            if (!config) {
+                config = await this.readConfig();
+                if (!config) return false;
+            }
+
+            // Get transport options
+            const transportOptions = this.getTransportOptions(serverIdentifier, config);
+            if (!transportOptions) return false;
+
+            // Create and connect client
+            const connection = await this.createConnection(serverIdentifier, transportOptions);
+            if (!connection) return false;
+
+            // Store connection
+            this.connections.set(serverIdentifier, connection);
+
+            // Get tools from server
+            await this.fetchServerTools(serverIdentifier, connection.mcp, config);
+
+            return true;
+        } catch (error) {
+            console.error(`[mcp_client.js][connectToServer] Connection to ${serverIdentifier} failed: ${error.message}\nStack: ${error.stack}`);
+            return false;
+        }
+    }
+
+    /**
+     * Connect to all configured servers in parallel
+     */
+    async autoConnect() {
+        try {
+            const config = await this.readConfig();
+            if (!config) return false;
+
+            const serverIds = Object.keys(config.mcpServers || {});
+            if (serverIds.length === 0) {
+                return false;
+            }
+
+            const connectionPromises = serverIds.map(id => this.connectToServer(id, config));
+            const results = await Promise.allSettled(connectionPromises);
+            
+            const successCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
+            
+            return successCount > 0;
+        } catch (error) {
+            console.error(`[mcp_client.js][autoConnect] Failed: ${error.message}\nStack: ${error.stack}`);
+            return false;
+        }
+    }
+
     
     /**
      * Get transport options based on server configuration or script path
@@ -163,8 +136,7 @@ export class MCPClient {
                 if (!serverConfig.command) {
                     throw new Error(`Server ${serverIdentifier} missing command field`);
                 }
-                
-                console.log(`[mcp_client.js][getTransportOptions] Starting server from config: ${serverIdentifier}, cmd: ${serverConfig.command}`);
+
                 return {
                     command: serverConfig.command,
                     args: serverConfig.args || [],
@@ -176,8 +148,7 @@ export class MCPClient {
             if (serverIdentifier === "default" && config?.defaultServer && config?.mcpServers?.[config.defaultServer]) {
                 const defaultServerName = config.defaultServer;
                 const serverConfig = config.mcpServers[defaultServerName];
-                
-                console.log(`[mcp_client.js][getTransportOptions] Using default server: ${defaultServerName}`);
+
                 return {
                     command: serverConfig.command,
                     args: serverConfig.args || [],
@@ -197,8 +168,7 @@ export class MCPClient {
                 const command = isPy
                     ? process.platform === "win32" ? "python" : "python3" 
                     : process.execPath;
-                
-                console.log(`[mcp_client.js][getTransportOptions] Starting server from script: ${serverIdentifier} with command: ${command}`);
+
                 return {
                     command,
                     args: [serverIdentifier],
@@ -215,17 +185,18 @@ export class MCPClient {
     /**
      * Fetch tools from server with retry logic
      */
-    async fetchServerTools(serverIdentifier, toolService, config) {
-        console.log(`[mcp_client.js][fetchServerTools] Getting tools from ${serverIdentifier}...`);
-        
-        // Retry logic for getting tools
+    async fetchServerTools(serverIdentifier, mcp, config) {
         const maxRetries = 3;
         let serverTools = [];
         
         for (let retryCount = 0; retryCount < maxRetries; retryCount++) {
             try {
-                serverTools = await toolService.getTools();
-                console.log(`[mcp_client.js][fetchServerTools] Got ${serverTools.length} tools from ${serverIdentifier}`);
+                const toolsResult = await mcp.listTools();
+                if (!toolsResult || !toolsResult.tools) {
+                    console.warn(`[mcp_client.js][fetchServerTools] Failed to get tool list, server ${serverIdentifier} did not return tool information`);
+                    return [];
+                }
+                serverTools = toolsResult.tools;
                 break;
             } catch (error) {
                 if (retryCount >= maxRetries - 1) {
@@ -236,14 +207,12 @@ export class MCPClient {
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
-        
-        // Process and store tools
+
         if (serverTools.length === 0) {
             console.warn(`[mcp_client.js][fetchServerTools] Warning: Server ${serverIdentifier} provided no tools`);
             return;
         }
-        
-        // Add server identifier to tools and merge with existing tools
+
         this.tools = [
             ...this.tools,
             ...serverTools.map(tool => ({ ...tool, serverIdentifier }))
@@ -251,13 +220,7 @@ export class MCPClient {
         
         // Log tool names
         console.log(`[mcp_client.js][fetchServerTools] - ${serverIdentifier}\n      - ${serverTools.map(t => t.name).join('\n      - ')}`);
-        
-        // Set auto approve if configured
-        if (config?.mcpServers?.[serverIdentifier]?.autoApprove) {
-            const autoApproveList = config.mcpServers[serverIdentifier].autoApprove || [];
-            toolService.setAutoApproveList(autoApproveList, true);
-            console.log(`[mcp_client.js][fetchServerTools] Auto-approving tools from ${serverIdentifier}`);
-        }
+
     }
 
     /**
@@ -287,23 +250,22 @@ export class MCPClient {
         }
         
         try {
-            return await connection.toolService.callTool(toolName, toolArgs);
+            const result = await connection.mcp.callTool({
+                name: toolName,
+                arguments: toolArgs,
+            });
+            return result;
         } catch (error) {
             console.error(`[mcp_client.js][callToolFromServer] Call failed for '${toolName}' from '${serverIdentifier}': ${error.message}\nArgs: ${JSON.stringify(toolArgs)}\nStack: ${error.stack}`);
             throw error;
         }
     }
 
-    /**
-     * Get available tools
-     */
+
     getTools() {
         return this.tools;
     }
 
-    /**
-     * Check if connected to server
-     */
     isServerConnected(serverIdentifier) {
         const connection = this.connections.get(serverIdentifier);
         return !!connection?.connected;
@@ -316,9 +278,7 @@ export class MCPClient {
         return Array.from(this.connections.values()).some(conn => conn.connected);
     }
 
-    /**
-     * Clean up resources
-     */
+
     async cleanup() {
         const disconnectPromises = [];
         
@@ -331,8 +291,7 @@ export class MCPClient {
                 );
             }
         }
-        
-        // Wait for all disconnect operations to complete
+
         if (disconnectPromises.length > 0) {
             await Promise.allSettled(disconnectPromises);
         }
@@ -341,9 +300,7 @@ export class MCPClient {
         this.connections.clear();
     }
 
-    /**
-     * Get formatted tool information
-     */
+
     getMCPToolsInfo() {
         if (this.tools.length === 0) {
             return "### Available Tools\nNo tools available.";
@@ -357,8 +314,7 @@ export class MCPClient {
             }
             toolsByServer.get(tool.serverIdentifier).push(tool);
         }
-        
-        // Format output
+
         let result = "### Available Tools\n";
         for (const [serverName, serverTools] of toolsByServer.entries()) {
             result += `\n## ${serverName} Server\n`;

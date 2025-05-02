@@ -473,18 +473,16 @@ export const actionsList = [
             'tool_args': { type: 'string', description: 'A JSON object containing the tool input parameters, following the tool\'s input schema' }
         },
         perform: async function(agent, server_name, tool_name, tool_args = '{}') {
-            // Check MCP connection
             if (!agent.mcp_client?.isConnected()) 
                 return 'Not connected to any MCP server, cannot call tool';
-            
             if (!agent.mcp_client.isServerConnected(server_name))
                 return `Not connected to the specified MCP server: ${server_name}`;
             
-            // List tools if no tool name specified
+
             if (!tool_name?.trim()) {
                 const serverTools = agent.mcp_client.getTools()
                     .filter(tool => tool.serverIdentifier === server_name);
-                
+
                 if (!serverTools.length)
                     return `Server ${server_name} does not provide any tools`;
                 
@@ -493,11 +491,9 @@ export const actionsList = [
                 ).join('\n')}`;
             }
 
-            // Parse and execute tool
             try {
                 const parsedArgs = typeof tool_args === 'string' ? 
                     JSON.parse(tool_args) : tool_args;
-                
                 const result = await agent.mcp_client.callToolFromServer(
                     server_name, 
                     tool_name, 
