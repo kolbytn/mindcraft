@@ -776,7 +776,7 @@ def main():
         raise ValueError(f"Number of usernames provided ({len(username_lst)}) does not match human count ({human_count})")
     if human_count > 0:
         for task_id in task.keys():
-            task[task_id]["usernames"] = args.usernames.replace(" ", "").split(",")
+            task[task_id]["usernames"] = username_lst
     # dump to task_path 
     with open(args.task_path, 'w') as f:
         json.dump(task, f, indent=4)

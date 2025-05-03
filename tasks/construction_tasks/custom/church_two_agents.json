@@ -1,5 +1,5 @@
 {
-    "church_one_agent": {
+    "church_two_agent": {
       "type": "construction",
       "goal": "Make a structure with the blueprint below",
       "conversation": "Let's share materials and make a structure with the blueprint",
@@ -2337,11 +2337,16 @@
           "oak_planks": 153,
           "oak_stairs": 16,
           "torch": 4,
-          "stone_bricks": 142,
-          "quartz_block": 1,
-          "oak_fence": 4, 
-          "oak_door": 2,
-          "glass_pane": 15
+          "oak_door": 2
+        },
+        "1": {
+            "diamond_pickaxe": 1,
+            "diamond_axe": 1,
+            "diamond_shovel": 1,
+            "stone_bricks": 142,
+            "quartz_block": 1,
+            "oak_fence": 4,
+            "glass_pane": 15
         }
       }
     }

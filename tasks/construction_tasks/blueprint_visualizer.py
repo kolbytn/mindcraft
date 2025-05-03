@@ -11,14 +11,14 @@ def display_3d_blocks(data):
     """
 
     block_types = {
-        "air": "white",
-        "oak_planks": "brown",
-        "stone_bricks": "gray",
-        "oak_door": "brown",
-        "oak_stairs": "brown",
-        "quartz_block": "white",
-        "glass_pane": "lightblue",
-        "torch": "orange"
+        "air": "#FFFFFF",          # White
+        "oak_planks": "#8B4513",   # Saddle Brown
+        "stone_bricks": "#808080", # Gray
+        "oak_door": "#A0522D",      # Sienna
+        "oak_stairs": "#D2691E",    # Chocolate
+        "quartz_block": "#FFFFF0",  # Ivory
+        "glass_pane": "#00CED1",    # Dark Turquoise
+        "torch": "#FF8C00"          # Dark Orange
     }
 
     # Extract data from the JSON

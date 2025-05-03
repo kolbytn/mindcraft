@@ -22,6 +22,7 @@ export class CookingTaskInitiator {
         await bot.chat(`/fill ~ ~ ~ ~-50 ~10 ~50 air`);
         await bot.chat(`/fill ~ ~ ~ ~-50 ~10 ~-50 air`);
         await bot.chat(`/fill ~ ~ ~ ~50 ~10 ~-50 air`);
+        console.log("Base area cleared and prepared.");
 
         const position = getPosition(bot);
         const botX = Math.floor(position.x);
@@ -121,12 +122,14 @@ export class CookingTaskInitiator {
         await this.plantCrops(regionPositions.pumpkins.xStart, regionPositions.pumpkins.zStart, 'pumpkin', false);
         await this.plantSugarCane(regionPositions.sugar_cane);
         await new Promise(resolve => setTimeout(resolve, 300));
+        console.log("planted crops!");
         // await plantPumpkins(regionPositions.pumpkins.xStart, regionPositions.pumpkins.zStart);
         // await new Promise(resolve => setTimeout(resolve, 300));
 
 
         await this.buildHouse(regionPositions.house.xStart, regionPositions.house.zStart);
         
+        console.log("House built!");
 
         // Add a chest with cooking items near the bot
         const addChestWithItems = async () => {
@@ -206,135 +209,76 @@ export class CookingTaskInitiator {
         await this.killEntities(animals);
         await this.killEntities(["item"]);
 
+        console.log("killed entities!");
+
         await new Promise(resolve => setTimeout(resolve, 300));
 
         // Summon new animals
         
         await this.summonAnimals(animals, 8);
+        console.log("summoned animals!");
     }
 
     async plantCrops (xStart, zStart, crop_and_age, till=true) {
+        const position = getPosition(this.bot);
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < 6; j++) {
                 const x = xStart + i;
                 const z = zStart + j;
                 if (till) {
-                    await bot.chat(`/setblock ${x} ${position.y - 1} ${z} farmland`);
+                    await this.bot.chat(`/setblock ${x} ${position.y - 1} ${z} farmland`);
                 }
-                await bot.chat(`/setblock ${x} ${position.y} ${z} ${crop_and_age}`);
+                await this.bot.chat(`/setblock ${x} ${position.y} ${z} ${crop_and_age}`);
             }
         }
         await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     async plantSugarCane (patches) {
+        const position = getPosition(this.bot);
         for (const patch of patches) {
             const xCenter = patch.xStart + 1;
             const zCenter = patch.zStart + 1;
-            await bot.chat(`/setblock ${xCenter} ${position.y - 1} ${zCenter} water`);
+            await this.bot.chat(`/setblock ${xCenter} ${position.y - 1} ${zCenter} water`);
             const offsets = [[1, 0], [-1, 0], [0, 1], [0, -1]];
             for (const [dx, dz] of offsets) {
-                await bot.chat(`/setblock ${xCenter + dx} ${position.y} ${zCenter + dz} sugar_cane[age=15]`);
+                await this.bot.chat(`/setblock ${xCenter + dx} ${position.y} ${zCenter + dz} sugar_cane[age=15]`);
             }
         }
     };
 
     async plantMushrooms(xStart, zStart) {
+        const position = getPosition(this.bot);
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 5; j++) {
                 const x = xStart + i;
                 const z = zStart + j;
-                await bot.chat(`/setblock ${x} ${position.y - 1} ${z} mycelium`);
+                await this.bot.chat(`/setblock ${x} ${position.y - 1} ${z} mycelium`);
                 const mushroomType = (i + j) % 2 === 0 ? 'red_mushroom' : 'brown_mushroom';
-                await bot.chat(`/setblock ${x} ${position.y} ${z} ${mushroomType}`);
+                await this.bot.chat(`/setblock ${x} ${position.y} ${z} ${mushroomType}`);
             }
         }
     }
 
     async summonAnimals (animals, amount) {
+        const position = getPosition(this.bot);
         for (const animal of animals) {
             for (let i = 0; i < amount; i++) {
                 const x = position.x - 25 + Math.random() * 50;
                 const z = position.z - 25 + Math.random() * 50;
-                await bot.chat(`/summon ${animal} ${Math.floor(x)} ${position.y} ${Math.floor(z)}`);
+                await this.bot.chat(`/summon ${animal} ${Math.floor(x)} ${position.y} ${Math.floor(z)}`);
             }
         }
     }
 
     async killEntities(entities) {
         for (const entity of entities) {
-            await bot.chat(`/kill @e[type=${animal},distance=..200]`);
+            await this.bot.chat(`/kill @e[type=${entity},distance=..200]`);
         }
-    }
-
-    async addChestWithItems () {
-        // Find a valid position near the bot (within 10 blocks)
-        const findChestPosition = () => {
-            const maxAttempts = 100;
-            for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                const x = botX + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks X
-                const z = botZ + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks Z
-                const y = position.y;
-
-                // Check if the position is not overlapping with existing structures
-                if (!isOverlapping(x, x, z, z, occupiedRegions)) {
-                    return { x, y, z };
-                }
-            }
-            throw new Error('Failed to find valid chest position');
-        };
-
-        const { x, y, z } = findChestPosition();
-
-        // Place the chest
-        await bot.chat(`/setblock ${x} ${y} ${z} chest`);
-
-        const cookingItems = [
-            ['minecraft:milk_bucket', 1],     // Non-stackable
-            ['minecraft:egg', 16],            // Stacks to 16
-            ['minecraft:dandelion', 64],    // Stacks to 64
-            ['minecraft:sugar', 64],
-            ['minecraft:cocoa_beans', 64],
-            ['minecraft:apple', 64],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:salmon', 64],
-            ['minecraft:cod', 64],
-            ['minecraft:kelp', 64],
-            ['minecraft:dried_kelp', 64],
-            ['minecraft:sweet_berries', 64],
-            ['minecraft:honey_bottle', 1],     // Non-stackable
-            ['minecraft:glow_berries', 64],
-            ['minecraft:bowl', 64],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:cooked_salmon', 64],
-            ['minecraft:cooked_cod', 64],
-            ['minecraft:gold_ingot', 64],
-            ['minecraft:oak_planks', 64],
-            ['minecraft:iron_ingot', 64],
-            ['minecraft:milk_bucket', 1],
-            ['minecraft:milk_bucket', 1],
-        ];
-
-        // Fill the chest with random cooking items
-        for (let slot = 0; slot < cookingItems.length; slot++) { // Chest has 27 slots
-            const randomItem = cookingItems[slot];
-            await bot.chat(`/item replace block ${x} ${y} ${z} container.${slot} with ${randomItem[0]} ${randomItem[1]}`);
-        }
-
-        // Mark the chest area as occupied
-        occupiedRegions.push({
-            xMin: x,
-            xMax: x,
-            zMin: z,
-            zMax: z
-        });
     }
 
     async buildHouse (xStart, zStart) {
+        const position = getPosition(this.bot);
         const startX = xStart;
         const startY = position.y;
         const startZ = zStart;
@@ -348,7 +292,7 @@ export class CookingTaskInitiator {
                 for (let z = startZ; z <= startZ + width; z++) {
                     if (y === startY) {
                         if (!(x === startX + depth - 1 && z === startZ + Math.floor(width / 2))) {
-                            await bot.chat(`/setblock ${x} ${y} ${z} stone_bricks`);
+                            await this.bot.chat(`/setblock ${x} ${y} ${z} stone_bricks`);
                         }
                         continue;
                     }
@@ -372,7 +316,7 @@ export class CookingTaskInitiator {
                                         (y === startY + 1 || y === startY + 2);
 
                         if (!isWindow && !isDoor) {
-                            await bot.chat(`/setblock ${x} ${y} ${z} stone_bricks`);
+                            await this.bot.chat(`/setblock ${x} ${y} ${z} stone_bricks`);
                         }
                     }
                 }
@@ -381,8 +325,8 @@ export class CookingTaskInitiator {
 
         // Entrance features
         const doorZ = startZ + Math.floor(width / 2);
-        await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ} stone_brick_stairs[facing=west]`);
-        await bot.chat(`/setblock ${startX + depth} ${startY} ${doorZ} air`);
+        await this.bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ} stone_brick_stairs[facing=west]`);
+        await this.bot.chat(`/setblock ${startX + depth} ${startY} ${doorZ} air`);
         // await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ - 1} stone_bricks`);
         // await bot.chat(`/setblock ${startX + depth - 1} ${startY} ${doorZ + 1} stone_bricks`);
         // await bot.chat(`/setblock ${startX + depth} ${startY} ${doorZ} oak_door[half=lower,hinge=left,facing=west,powered=false]`);
@@ -394,21 +338,21 @@ export class CookingTaskInitiator {
                 for (let z = startZ + i; z <= startZ + width - i; z++) {
                     if (x === startX + i || x === startX + depth - i ||
                         z === startZ + i || z === startZ + width - i) {
-                        await bot.chat(`/setblock ${x} ${startY + height + i} ${z} cobblestone`);
+                        await this.bot.chat(`/setblock ${x} ${startY + height + i} ${z} cobblestone`);
                     }
                 }
             }
         }
 
         // Interior items
-        await bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 3} crafting_table`);
-        await bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 5} furnace`);
+        await this.bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 3} crafting_table`);
+        await this.bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 5} furnace`);
         // Add fuel to the furnace
-        await bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 5} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
-        await bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 7} smoker`);
+        await this.bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 5} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
+        await this.bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 7} smoker`);
         // Add fuel to the smoker
-        await bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 7} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
-        await bot.chat(`/setblock ${startX + depth - 3} ${startY + 1} ${startZ + 2} bed`);
+        await this.bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 7} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
+        await this.bot.chat(`/setblock ${startX + depth - 3} ${startY + 1} ${startZ + 2} bed`);
         await new Promise(resolve => setTimeout(resolve, 300));
     }
 }

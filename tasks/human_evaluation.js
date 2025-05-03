@@ -10,7 +10,7 @@ import { start } from 'repl';
 // add a mineflayer bot the world named Andy 
 const bot = mineflayer.createBot({
     host: 'localhost', // Replace with your server IP or hostname
-    port: 55916,       // Replace with your server port
+    port: 49262,       // Replace with your server port
     username: 'andy', // Replace with your bot's username
     // password: 'your_bot_password' // Only if the server has online-mode=true
 });
@@ -57,10 +57,11 @@ bot.on('spawn', async () => {
 
     // initiate the world according to the construction or cooking world
     const usernames = args.usernames;
+    console.log(usernames);
     bot.chat(`/tp andy ${usernames[0]}`);
     await new Promise(resolve => setTimeout(resolve, 5000));
-    console.log(taskData);
-    console.log(task_id);
+    // console.log(taskData);
+    // console.log(task_id);
     const task = taskData[task_id];
     console.log(task);
 
@@ -93,11 +94,11 @@ bot.on('spawn', async () => {
             console.log(blueprint);
             const result = blueprint.autoDelete();
             const commands = result.commands;
-            for (const command of commands) {
-                bot.chat(command);
-            }
-            bot.chat(`/tp @a ${task.blueprint.levels[0].coordinates[0]} ${task.blueprint.levels[0].coordinates[1]} ${task.blueprint.levels[0].coordinates[2]}`);
-            bot.chat(`/tell ${user} You have the goal to ${task.goal}`);
+            // for (const command of commands) {
+            //     bot.chat(command);
+            // }
+            // bot.chat(`/tp @a ${task.blueprint.levels[0].coordinates[0]} ${task.blueprint.levels[0].coordinates[1]} ${task.blueprint.levels[0].coordinates[2]}`);
+            // bot.chat(`/tell ${user} You have the goal to ${task.goal}`);
             //todo: some sort of blueprint visualizer
         }
         if (task.type === "cooking") {
@@ -114,7 +115,7 @@ bot.on('spawn', async () => {
 
     const timeout = task.timeout;
     console.log(`Timeout set to ${timeout} seconds`);
-    await new Promise(resolve => setTimeout(resolve, timeout * 1000));
+    // await new Promise(resolve => setTimeout(resolve, timeout * 1000));
     if (task.type === "construction") {
         const blueprint = new Blueprint(task.blueprint);
         const check = blueprint.explainBlueprintDifference(bot);

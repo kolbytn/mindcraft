@@ -454,6 +454,14 @@ export class Task {
                     throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
                     return;
                 }
+
+                // Clear inventory for all usernames
+                for (let username of this.data.usernames) {
+                    await this.agent.bot.chat(`/clear ${username}`);
+                    console.log(`Cleared ${username}'s inventory.`);
+                }
+            
+                
                 const starting_idx = this.data.agent_count;
                 for (let i = 0; i < this.data.human_count; i++) {
                     const username = this.data.usernames[i];
