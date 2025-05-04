@@ -31,4 +31,4 @@ The generation code is documented to help with customization.
 - `profiles/task_construct.json` - Default configuration profile
 - `tasks/construction_tasks/test_multiagent_construction_tasks.json` - Training task definitions (initalized with 5 variants)
 - `tasks/construction_tasks/test_multiagent_construction_tasks.json` - Test task definitions (initalized with 1 variant)
-- `src/agent/task_types/construction_tasks.js` - Blueprint Class, Construction Validation Class, and Procedural Generation Function
+- `src/agent/tasks/construction_tasks.js` - Blueprint Class, Construction Validation Class, and Procedural Generation Function

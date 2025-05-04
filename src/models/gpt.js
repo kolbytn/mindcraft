@@ -21,7 +21,7 @@ export class GPT {
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-
+        messages = strictFormat(messages);
         const pack = {
             model: this.model_name || "gpt-3.5-turbo",
             messages,
@@ -29,7 +29,6 @@ export class GPT {
             ...(this.params || {})
         };
         if (this.model_name.includes('o1')) {
-            pack.messages = strictFormat(messages);
             delete pack.stop;
         }
 
@@ -48,12 +47,33 @@ export class GPT {
             if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
                 return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+            } else if (err.message.includes('image_url')) {
+                console.log(err);
+                res = 'Vision is only supported by certain models.';
             } else {
                 console.log(err);
                 res = 'My brain disconnected, try again.';
             }
         }
         return res;
+    }
+
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = [...messages];
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        
+        return this.sendRequest(imageMessages, systemMessage);
     }
 
     async embed(text) {
@@ -66,6 +86,7 @@ export class GPT {
         });
         return embedding.data[0].embedding;
     }
+
 }
 
 

@@ -1,5 +1,6 @@
 import { History } from './history.js';
 import { Coder } from './coder.js';
+import { VisionInterpreter } from './vision/vision_interpreter.js';
 import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
@@ -10,10 +11,11 @@ import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
-import { addViewer } from './viewer.js';
+import { addBrowserViewer } from './vision/browser_viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './agent_proxy.js';
-import { Task } from './tasks.js';
+import { Task } from './tasks/tasks.js';
+import { say } from './speak.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
@@ -53,14 +55,12 @@ export class Agent {
         if (load_mem) {
             save_data = this.history.load();
         }
-        console.log(save_data);
         let taskStart = null;
         if (save_data) {
             taskStart = save_data.taskStart;
         } else {
             taskStart = Date.now();
         }
-        // incorporate new restart time into task
         this.task = new Task(this, task_path, task_id, taskStart);
         this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(this.blocked_actions);
@@ -91,8 +91,8 @@ export class Agent {
         this.bot.once('spawn', async () => {
             try {
                 clearTimeout(spawnTimeout);
-                addViewer(this.bot, count_id);
-              
+                addBrowserViewer(this.bot, count_id);
+
                 // wait for a bit so stats are not undefined
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 
@@ -111,6 +111,9 @@ export class Agent {
                 await new Promise((resolve) => setTimeout(resolve, 10000));
                 this.checkAllPlayersPresent();
               
+                console.log('Initializing vision intepreter...');
+                this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
+
             } catch (error) {
                 console.error('Error in spawn event:', error);
                 process.exit(0);
@@ -150,7 +153,7 @@ export class Agent {
             }
         }
 
-		        this.respondFunc = respondFunc;
+		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
         if (settings.profiles.length === 1)
@@ -196,11 +199,12 @@ export class Agent {
         if (missingPlayers.length > 0) {
             console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
             this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
-          }
         }
+    }
 
     requestInterrupt() {
         this.bot.interrupt_code = true;
+        this.bot.stopDigging();
         this.bot.collectBlock.cancelTask();
         this.bot.pathfinder.stop();
         this.bot.pvp.stop();
@@ -265,13 +269,14 @@ export class Agent {
         console.log('received message from', source, ':', message);
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
-        let behavior_log = this.bot.modes.flushBehaviorLog();
-        if (behavior_log.trim().length > 0) {
+        
+        let behavior_log = this.bot.modes.flushBehaviorLog().trim();
+        if (behavior_log.length > 0) {
             const MAX_LOG = 500;
             if (behavior_log.length > MAX_LOG) {
                 behavior_log = '...' + behavior_log.substring(behavior_log.length - MAX_LOG);
             }
-            behavior_log = 'Recent behaviors log: \n' + behavior_log.substring(behavior_log.indexOf('\n'));
+            behavior_log = 'Recent behaviors log: \n' + behavior_log;
             await this.history.add('system', behavior_log);
         }
 
@@ -380,6 +385,9 @@ export class Agent {
             }
         }
         else {
+	    if (settings.speak) {
+            say(to_translate);
+	    }
             this.bot.chat(message);
         }
     }
@@ -471,7 +479,7 @@ export class Agent {
     }
 
     isIdle() {
-        return !this.actions.executing && !this.coder.generating;
+        return !this.actions.executing;
     }
     
 
