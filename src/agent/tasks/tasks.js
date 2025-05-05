@@ -425,6 +425,15 @@ export class Task {
         //wait for a bit so bots are teleported
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
+        if (this.agent.count_id === 0 && this.data.human_count > 0) {
+            console.log('Clearing human player inventories');
+            for (let i = 0; i < this.data.human_count; i++) {
+                const username = this.data.usernames[i];
+                await this.agent.bot.chat(`/clear ${username}`);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
         if (this.data.initial_inventory) {
             console.log("Setting inventory...");
             let initialInventory = {};
@@ -446,6 +455,7 @@ export class Task {
             // if (typeof this.data.initial_inventory[firstKey] === 'object') {
             initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
             console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
+            console.log("")
 
             if (this.data.human_count > 0 && this.agent.count_id === 0) {
                 // this.num_humans = num_keys - this.data.num_agents;
@@ -454,18 +464,11 @@ export class Task {
                     throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
                     return;
                 }
-
-                // Clear inventory for all usernames
-                for (let username of this.data.usernames) {
-                    await this.agent.bot.chat(`/clear ${username}`);
-                    console.log(`Cleared ${username}'s inventory.`);
-                }
             
                 
                 const starting_idx = this.data.agent_count;
                 for (let i = 0; i < this.data.human_count; i++) {
                     const username = this.data.usernames[i];
-                    console.log(`Giving ${username} ${this.data.initial_inventory[starting_idx + i]}`);
                     const inventory = this.data.initial_inventory[starting_idx + i];
                     console.log(Object.keys(inventory));
                     for (let key of Object.keys(inventory)) {
