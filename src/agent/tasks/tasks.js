@@ -382,6 +382,7 @@ export class Task {
             for (let agent of this.available_agents) {
                 this.agent.bot.chat(`/clear ${agent}`);
             }
+            // this.agent.bot.chat(`/clear @a`);
             return {"message": 'Task successful', "score": res.score};
         }
         let other_names = this.available_agents.filter(n => n !== this.name);
@@ -454,17 +455,14 @@ export class Task {
                     throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
                     return;
                 }
-
-                // Clear inventory for all usernames
-                for (let username of this.data.usernames) {
-                    await this.agent.bot.chat(`/clear ${username}`);
-                    console.log(`Cleared ${username}'s inventory.`);
-                }
             
                 
                 const starting_idx = this.data.agent_count;
                 for (let i = 0; i < this.data.human_count; i++) {
                     const username = this.data.usernames[i];
+                    console.log(`\n\nCleared ${username}'s inventory.\n\n`);
+                    await this.agent.bot.chat(`/clear ${username}`);
+                    await new Promise((resolve) => setTimeout(resolve, 500));
                     console.log(`Giving ${username} ${this.data.initial_inventory[starting_idx + i]}`);
                     const inventory = this.data.initial_inventory[starting_idx + i];
                     console.log(Object.keys(inventory));
