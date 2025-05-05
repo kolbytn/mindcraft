@@ -474,7 +474,7 @@ export class Task {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 waitCount++;
             }
-            if (other_name === undefined) {
+            if (other_name === undefined && this.data.agent_count > 1) {
                 console.log('No other agents found. Task unsuccessful.');
                 this.agent.killAll();
             }
