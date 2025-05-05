@@ -770,16 +770,18 @@ def main():
         content = f.read()
         task = json.loads(content) 
     # check if human count for first task is non zero
-    human_count = task[list(task.keys())[0]]["human_count"]
-    username_lst = args.usernames.replace(" ", "").split(",")
-    if len(username_lst) != human_count:
-        raise ValueError(f"Number of usernames provided ({len(username_lst)}) does not match human count ({human_count})")
-    if human_count > 0:
-        for task_id in task.keys():
-            task[task_id]["usernames"] = username_lst
-    # dump to task_path 
-    with open(args.task_path, 'w') as f:
-        json.dump(task, f, indent=4)
+    if "human_count" in task[list(task.keys())[0]]:
+        # check if human count is non zero
+        human_count = task[list(task.keys())[0]]["human_count"]
+        username_lst = args.usernames.replace(" ", "").split(",")
+        if len(username_lst) != human_count:
+            raise ValueError(f"Number of usernames provided ({len(username_lst)}) does not match human count ({human_count})")
+        if human_count > 0:
+            for task_id in task.keys():
+                task[task_id]["usernames"] = username_lst
+        # dump to task_path 
+        with open(args.task_path, 'w') as f:
+            json.dump(task, f, indent=4)
     
     launch_parallel_experiments(args.task_path, 
                                 num_exp=args.num_exp, 

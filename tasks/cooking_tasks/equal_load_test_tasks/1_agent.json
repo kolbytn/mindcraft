@@ -9,7 +9,7 @@
         "rabbit_stew": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "cooked_beef": [
           "Step 1: Kill a cow and pick up 1 beef that is dropped.",
@@ -51,7 +51,7 @@
         "rabbit_stew": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "bread": [
           "Step 1: Go to the farm and collect 3 wheat.",
@@ -96,7 +96,7 @@
         "golden_apple": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "baked_potato": [
           "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
@@ -131,7 +131,7 @@
         "cooked_beef": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "cake": [
           "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
@@ -172,7 +172,7 @@
         "baked_potato": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "rabbit_stew": [
           "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
@@ -213,7 +213,7 @@
         "cooked_beef": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "bread": [
           "Step 1: Go to the farm and collect 3 wheat.",
@@ -251,7 +251,7 @@
         "bread": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "cake": [
           "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
@@ -293,7 +293,7 @@
         "rabbit_stew": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "cooked_beef": [
           "Step 1: Kill a cow and pick up 1 beef that is dropped.",
@@ -339,7 +339,7 @@
         "cake": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "cooked_beef": [
           "Step 1: Kill a cow and pick up 1 beef that is dropped.",
@@ -384,7 +384,7 @@
         "baked_potato": 1
       },
       "type": "cooking",
-      "timeout": 250,
+      "timeout": 500,
       "recipes": {
         "bread": [
           "Step 1: Go to the farm and collect 3 wheat.",
