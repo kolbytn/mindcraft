@@ -513,11 +513,7 @@ export class Task {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 waitCount++;
             }
-<<<<<<< HEAD
-            if (other_name === undefined && this.agent_count > 1) {
-=======
             if (other_name === undefined && this.data.agent_count > 1) {
->>>>>>> main
                 console.log('No other agents found. Task unsuccessful.');
                 this.agent.killAll();
             }
