@@ -9,7 +9,7 @@
         "rabbit_stew": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "cooked_beef": [
           "Step 1: Kill a cow and pick up 1 beef that is dropped.",
@@ -51,7 +51,7 @@
         "rabbit_stew": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "bread": [
           "Step 1: Go to the farm and collect 3 wheat.",
@@ -96,7 +96,7 @@
         "golden_apple": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "baked_potato": [
           "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
@@ -131,7 +131,7 @@
         "cooked_beef": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "cake": [
           "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
@@ -172,7 +172,7 @@
         "baked_potato": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "rabbit_stew": [
           "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
@@ -205,7 +205,7 @@
     },
     "multiagent_cooking_5_1_bread_1_cooked_beef_1_golden_apple_1_rabbit_stew_1_agent": {
       "conversation": "Let's work together to make bread, rabbit_stew, golden_apple, cooked_beef.",
-      "agent_count": 2,
+      "agent_count": 1,
       "target": {
         "bread": 1,
         "rabbit_stew": 1,
@@ -213,7 +213,7 @@
         "cooked_beef": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "bread": [
           "Step 1: Go to the farm and collect 3 wheat.",
@@ -251,7 +251,7 @@
         "bread": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "cake": [
           "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
@@ -293,7 +293,7 @@
         "rabbit_stew": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "cooked_beef": [
           "Step 1: Kill a cow and pick up 1 beef that is dropped.",
@@ -330,7 +330,7 @@
     },
     "multiagent_cooking_5_1_bread_1_cake_1_cooked_beef_1_golden_apple_1_rabbit_stew_1_agent": {
       "conversation": "Let's work together to make cooked_beef, golden_apple, rabbit_stew, bread, cake.",
-      "agent_count": 5,
+      "agent_count": 1,
       "target": {
         "cooked_beef": 1,
         "golden_apple": 1,
@@ -339,7 +339,7 @@
         "cake": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "cooked_beef": [
           "Step 1: Kill a cow and pick up 1 beef that is dropped.",
@@ -376,7 +376,7 @@
     },
     "multiagent_cooking_5_1_baked_potato_1_bread_1_cooked_beef_1_rabbit_stew_1_agent": {
       "conversation": "Let's work together to make bread, cooked_beef, rabbit_stew, baked_potato.",
-      "agent_count": 2,
+      "agent_count": 1,
       "target": {
         "bread": 1,
         "cooked_beef": 1,
@@ -384,7 +384,7 @@
         "baked_potato": 1
       },
       "type": "cooking",
-      "timeout": 500,
+      "timeout": 250,
       "recipes": {
         "bread": [
           "Step 1: Go to the farm and collect 3 wheat.",

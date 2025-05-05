@@ -338,7 +338,7 @@
     },
     "multiagent_cooking_5_1_bread_1_cake_1_cooked_beef_1_golden_apple_1_rabbit_stew_2_agent": {
       "conversation": "Let's work together to make cooked_beef, golden_apple, rabbit_stew, bread, cake.",
-      "agent_count": 5,
+      "agent_count": 2,
       "target": {
         "cooked_beef": 1,
         "golden_apple": 1,

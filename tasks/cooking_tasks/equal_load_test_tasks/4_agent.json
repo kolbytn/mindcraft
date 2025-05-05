@@ -45,7 +45,7 @@
     },
     "multiagent_cooking_5_1_baked_potato_1_bread_1_cake_1_golden_apple_1_rabbit_stew_4_agent": {
       "conversation": "Let's work together to make bread, cake, golden_apple, baked_potato, rabbit_stew.",
-      "agent_count": 5,
+      "agent_count": 4,
       "target": {
         "bread": 1,
         "cake": 1,
@@ -261,7 +261,7 @@
     },
     "multiagent_cooking_5_1_bread_1_cake_1_golden_apple_1_rabbit_stew_4_agent": {
       "conversation": "Let's work together to make cake, rabbit_stew, golden_apple, bread.",
-      "agent_count": 5,
+      "agent_count": 4,
       "target": {
         "cake": 1,
         "rabbit_stew": 1,
@@ -305,7 +305,7 @@
     },
     "multiagent_cooking_5_1_baked_potato_1_cake_1_cooked_beef_1_golden_apple_1_rabbit_stew_4_agent": {
       "conversation": "Let's work together to make cooked_beef, golden_apple, cake, baked_potato, rabbit_stew.",
-      "agent_count": 5,
+      "agent_count": 4,
       "target": {
         "cooked_beef": 1,
         "golden_apple": 1,
@@ -403,7 +403,7 @@
     },
     "multiagent_cooking_5_1_baked_potato_1_bread_1_cooked_beef_1_rabbit_stew_4_agent": {
       "conversation": "Let's work together to make bread, cooked_beef, rabbit_stew, baked_potato.",
-      "agent_count": 5,
+      "agent_count": 4,
       "target": {
         "bread": 1,
         "cooked_beef": 1,
