@@ -64,14 +64,14 @@ export class CookingTaskInitiator {
 
         // Define all regions with their sizes
         const regionsToPlace = [
-            { type: 'wheat', width: 6, depth: 6 },
-            { type: 'beetroots', width: 4, depth: 5 },
-            { type: 'mushrooms', width: 4, depth: 5 },
-            { type: 'potatoes', width: 4, depth: 5 },
-            { type: 'carrots', width: 4, depth: 5 },
+            { type: 'wheat', width: 3, depth: 3 },
+            { type: 'beetroots', width: 3, depth: 3 },
+            { type: 'mushrooms', width: 3, depth: 3 },
+            { type: 'potatoes', width: 3, depth: 3 },
+            { type: 'carrots', width: 3, depth: 3 },
             { type: 'sugar_cane', width: 3, depth: 3 },
             { type: 'sugar_cane', width: 3, depth: 3 },
-            { type: 'pumpkins', width: 10, depth: 1 },
+            { type: 'pumpkins', width: 5, depth: 1 },
             { type: 'house', width: 11, depth: 11 }
         ];
 
@@ -132,27 +132,27 @@ export class CookingTaskInitiator {
         console.log("House built!");
 
         // Add a chest with cooking items near the bot
-        const addChestWithItems = async () => {
-            // Find a valid position near the bot (within 10 blocks)
-            const findChestPosition = () => {
-                const maxAttempts = 100;
-                for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                    const x = botX + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks X
-                    const z = botZ + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks Z
-                    const y = position.y;
+        // const addChestWithItems = async () => {
+        //     // Find a valid position near the bot (within 10 blocks)
+        //     const findChestPosition = () => {
+        //         const maxAttempts = 100;
+        //         for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        //             const x = botX + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks X
+        //             const z = botZ + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks Z
+        //             const y = position.y;
 
-                    // Check if the position is not overlapping with existing structures
-                    if (!isOverlapping(x, x, z, z, occupiedRegions)) {
-                        return { x, y, z };
-                    }
-                }
-                throw new Error('Failed to find valid chest position');
-            };
+        //             // Check if the position is not overlapping with existing structures
+        //             if (!isOverlapping(x, x, z, z, occupiedRegions)) {
+        //                 return { x, y, z };
+        //             }
+        //         }
+        //         throw new Error('Failed to find valid chest position');
+        //     };
 
-            const { x, y, z } = findChestPosition();
+        //     const { x, y, z } = findChestPosition();
 
-            // Place the chest
-            await bot.chat(`/setblock ${x} ${y} ${z} chest`);
+        //     // Place the chest
+        //     await bot.chat(`/setblock ${x} ${y} ${z} chest`);
 
             const cookingItems = [
                 ['minecraft:milk_bucket', 1],     // Non-stackable
@@ -184,22 +184,22 @@ export class CookingTaskInitiator {
                 ['minecraft:milk_bucket', 1],
             ];
 
-            // Fill the chest with random cooking items
-            for (let slot = 0; slot < cookingItems.length; slot++) { // Chest has 27 slots
-                const randomItem = cookingItems[slot];
-                await bot.chat(`/item replace block ${x} ${y} ${z} container.${slot} with ${randomItem[0]} ${randomItem[1]}`);
-            }
+        //     // Fill the chest with random cooking items
+        //     for (let slot = 0; slot < cookingItems.length; slot++) { // Chest has 27 slots
+        //         const randomItem = cookingItems[slot];
+        //         await bot.chat(`/item replace block ${x} ${y} ${z} container.${slot} with ${randomItem[0]} ${randomItem[1]}`);
+        //     }
 
-            // Mark the chest area as occupied
-            occupiedRegions.push({
-                xMin: x,
-                xMax: x,
-                zMin: z,
-                zMax: z
-            });
-        };
+        //     // Mark the chest area as occupied
+        //     occupiedRegions.push({
+        //         xMin: x,
+        //         xMax: x,
+        //         zMin: z,
+        //         zMax: z
+        //     });
+        // };
 
-        await addChestWithItems();
+        // await addChestWithItems();
         await new Promise(resolve => setTimeout(resolve, 300));
 
         const animals = ['chicken', 'cow', 'llama', 'mooshroom', 'pig', 'rabbit', 'sheep'];

@@ -312,23 +312,24 @@ export class Task {
 
         if (this.task_type === 'cooking') {
 
-                if (this.data.agent_count > 2) {
 
-                    if (this.name.toLowerCase().startsWith('andy')) {
-                        add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
-                    } 
-                    else {
-                        add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
-                    }   
+            if (this.data.agent_count > 2) {
+
+                if (this.name.toLowerCase().startsWith('andy')) {
+                    add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
                 } 
                 else {
-                    if (this.data.task_id && this.data.task_id.endsWith('hells_kitchen')) {
-                        add_string = '';
-                    } 
-                    else {
-                    add_string = '\nIn the end, all the food items should be given to one single bot.';
-                    }
+                    add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                }   
+            } 
+            else {
+                if (this.data.task_id && this.data.task_id.endsWith('hells_kitchen')) {
+                    add_string = '';
+                } 
+                else {
+                add_string = '\nIn the end, all the food items should be given to one single bot.';
                 }
+            }
         }
 
         if (this.task_type === 'techtree') {
@@ -426,6 +427,15 @@ export class Task {
         //wait for a bit so bots are teleported
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
+        if (this.agent.count_id === 0 && this.data.human_count > 0) {
+            console.log('Clearing human player inventories');
+            for (let i = 0; i < this.data.human_count; i++) {
+                const username = this.data.usernames[i];
+                await this.agent.bot.chat(`/clear ${username}`);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
         if (this.data.initial_inventory) {
             console.log("Setting inventory...");
             let initialInventory = {};
@@ -447,6 +457,7 @@ export class Task {
             // if (typeof this.data.initial_inventory[firstKey] === 'object') {
             initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
             console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
+            console.log("")
 
             if (this.data.human_count > 0 && this.agent.count_id === 0) {
                 // this.num_humans = num_keys - this.data.num_agents;
@@ -460,10 +471,6 @@ export class Task {
                 const starting_idx = this.data.agent_count;
                 for (let i = 0; i < this.data.human_count; i++) {
                     const username = this.data.usernames[i];
-                    console.log(`\n\nCleared ${username}'s inventory.\n\n`);
-                    await this.agent.bot.chat(`/clear ${username}`);
-                    await new Promise((resolve) => setTimeout(resolve, 500));
-                    console.log(`Giving ${username} ${this.data.initial_inventory[starting_idx + i]}`);
                     const inventory = this.data.initial_inventory[starting_idx + i];
                     console.log(Object.keys(inventory));
                     for (let key of Object.keys(inventory)) {
