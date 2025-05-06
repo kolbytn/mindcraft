@@ -127,7 +127,7 @@
                 "egg": 1
             },
             "2": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "3": {
                 "apple": 1
@@ -183,7 +183,7 @@
                 "coal": 16
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "2": {
                 "apple": 1
@@ -249,7 +249,7 @@
                 "egg": 1
             },
             "2": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "3": {
                 "apple": 1
@@ -313,7 +313,7 @@
                 "coal": 8
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "2": {
                 "apple": 1
@@ -376,7 +376,7 @@
                 "bowl": 1
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "2": {
                 "apple": 1
@@ -444,7 +444,7 @@
                 "bowl": 1
             },
             "3": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "4": {
                 "apple": 1
@@ -512,7 +512,7 @@
                 "bowl": 1
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "2": {
                 "apple": 1
@@ -584,7 +584,7 @@
                 "egg": 1
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "2": {
                 "apple": 1

@@ -31,7 +31,7 @@
                 "coal": 8
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             }
         }
     },
@@ -64,7 +64,7 @@
         },
         "initial_inventory": {
             "0": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "1": {
                 "coal": 8
@@ -134,7 +134,7 @@
         },
         "initial_inventory": {
             "0": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "1": {
                 "cocoa_beans": 1
@@ -385,7 +385,7 @@
         },
         "initial_inventory": {
             "0": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "1": {
                 "coal": 8
@@ -420,7 +420,7 @@
         },
         "initial_inventory": {
             "0": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             },
             "1": {
                 "bowl": 1
@@ -459,7 +459,7 @@
                 "egg": 1
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             }
         }
     },
@@ -602,7 +602,7 @@
                 "coal": 8
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             }
         }
     },
@@ -1032,7 +1032,7 @@
         },
         "initial_inventory": {
             "0": {
-                "gold_ingots": 8,
+                "gold_ingot": 8,
                 "dandelion": 1
             },
             "1": {
@@ -1286,7 +1286,7 @@
                 "bowl": 1
             },
             "1": {
-                "gold_ingots": 8
+                "gold_ingot": 8
             }
         }
     },
