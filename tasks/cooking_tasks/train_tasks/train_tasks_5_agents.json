@@ -10,7 +10,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -66,7 +66,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -118,7 +118,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -170,7 +170,7 @@
       "cooked_rabbit": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -226,7 +226,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -282,7 +282,7 @@
       "cooked_mutton": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -338,7 +338,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cookie": [
         "Step 1: Go to the farm and collect 2 wheat.",
@@ -397,7 +397,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -453,7 +453,7 @@
       "beetroot_soup": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -506,7 +506,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -558,7 +558,7 @@
       "cooked_porkchop": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -611,7 +611,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -663,7 +663,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -716,7 +716,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -777,7 +777,7 @@
       "cooked_porkchop": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -825,7 +825,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -874,7 +874,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cookie": [
         "Step 1: Go to the farm and collect 2 wheat.",
@@ -927,7 +927,7 @@
       "cooked_porkchop": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -985,7 +985,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -1037,7 +1037,7 @@
       "golden_carrot": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -1093,7 +1093,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -1144,7 +1144,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -1192,7 +1192,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -1246,7 +1246,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -1295,7 +1295,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -1351,7 +1351,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -1401,7 +1401,7 @@
       "beetroot_soup": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -1460,7 +1460,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -1516,7 +1516,7 @@
       "beetroot_soup": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -1564,7 +1564,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -1620,7 +1620,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -1672,7 +1672,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "golden_carrot": [
         "Step 1: Go to the farm and collect 1 carrot.",
@@ -1735,7 +1735,7 @@
       "cooked_mutton": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -1788,7 +1788,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -1842,7 +1842,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -1896,7 +1896,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -1952,7 +1952,7 @@
       "cooked_mutton": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -2004,7 +2004,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -2053,7 +2053,7 @@
       "cooked_rabbit": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -2112,7 +2112,7 @@
       "golden_carrot": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -2162,7 +2162,7 @@
       "cooked_rabbit": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -2217,7 +2217,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cookie": [
         "Step 1: Go to the farm and collect 2 wheat.",
@@ -2269,7 +2269,7 @@
       "cooked_porkchop": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cookie": [
         "Step 1: Go to the farm and collect 2 wheat.",
@@ -2320,7 +2320,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "golden_carrot": [
         "Step 1: Go to the farm and collect 1 carrot.",
@@ -2372,7 +2372,7 @@
       "cooked_rabbit": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -2429,7 +2429,7 @@
       "cooked_porkchop": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_mutton": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
@@ -2481,7 +2481,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -2531,7 +2531,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -2585,7 +2585,7 @@
       "cooked_mutton": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -2632,7 +2632,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "pumpkin_pie": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
@@ -2687,7 +2687,7 @@
       "pumpkin_pie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -2746,7 +2746,7 @@
       "cooked_mutton": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -2800,7 +2800,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -2859,7 +2859,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "golden_carrot": [
         "Step 1: Go to the farm and collect 1 carrot.",
@@ -2908,7 +2908,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -2962,7 +2962,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -3015,7 +3015,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -3071,7 +3071,7 @@
       "golden_carrot": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "suspicious_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
@@ -3130,7 +3130,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -3182,7 +3182,7 @@
       "golden_carrot": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -3234,7 +3234,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -3283,7 +3283,7 @@
       "cooked_rabbit": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -3342,7 +3342,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_rabbit": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
@@ -3396,7 +3396,7 @@
       "cooked_porkchop": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -3449,7 +3449,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_porkchop": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
@@ -3500,7 +3500,7 @@
       "suspicious_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cookie": [
         "Step 1: Go to the farm and collect 2 wheat.",
@@ -3556,7 +3556,7 @@
       "cookie": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "mushroom_stew": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
@@ -3607,7 +3607,7 @@
       "mushroom_stew": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
@@ -3668,7 +3668,7 @@
       "cooked_chicken": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "beetroot_soup": [
         "Step 1: Go to the farm and collect 6 beetroot.",
@@ -3726,7 +3726,7 @@
       "cooked_mutton": 1
     },
     "type": "cooking",
-    "timeout": 300,
+    "timeout": 1500,
     "recipes": {
       "cooked_chicken": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
