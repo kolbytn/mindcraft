@@ -692,9 +692,12 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     }
     dirs.push(...Object.values(dir_map).filter(d => !dirs.includes(d)));
 
+    const cant_place_blocks = ['door', 'bed', 'chest', 'crafting_table', 'furnace', 'dispenser', 'dropper', 'brewing_stand', 'enchanting_table', 'anvil', 'beacon'];
+    const cant_place_names = ['door', 'bed', 'chest', 'table', 'furnace'];
+
     for (let d of dirs) {
         const block = bot.blockAt(target_dest.plus(d));
-        if (!empty_blocks.includes(block.name)) {
+        if (!(empty_blocks.concat(cant_place_blocks)).includes(block.name) && !cant_place_names.some(name => block.name.includes(name))) {
             buildOffBlock = block;
             faceVec = new Vec3(-d.x, -d.y, -d.z); // invert
             break;
