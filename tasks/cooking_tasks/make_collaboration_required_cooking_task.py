@@ -244,7 +244,7 @@ chest_items = {
     "iron_ingot": 64,
 }
 
-def reconfigure_tasks(task_path, new_task_path):
+def reconfigure_tasks(task_path, new_task_path, num_agents=None):
     with open(task_path, 'r') as f:
         tasks = json.load(f)
     task_ids = tasks.keys()
@@ -265,14 +265,23 @@ def reconfigure_tasks(task_path, new_task_path):
             print(inventory)
             task["recipes"] = new_recipes
             # assign inventory to the agents
-            num_agents = task.get("agent_count", 0) + task.get("human_count", 0)
+            if num_agents is None:
+                num_agents = task.get("agent_count", 0) + task.get("human_count", 0)
+            else:
+                task["agent_count"] = num_agents
             initial_inventory = {}
             for i in range(num_agents):
                 initial_inventory[i] = {}
             items_lst = list(inventory.keys())
             for i in range(len(items_lst)):
                 agent_num = i % num_agents
-                initial_inventory[agent_num][items_lst[i]] = inventory[items_lst[i]]
+                if inventory[items_lst[i]] == 1:
+                    initial_inventory[agent_num][items_lst[i]] = 1
+                elif inventory[items_lst[i]] > 1:
+                    num_per_agent = inventory[items_lst[i]] // num_agents + 1
+                    for j in range(num_agents):
+                        initial_inventory[j][items_lst[i]] = num_per_agent
+                # initial_inventory[agent_num][items_lst[i]] = inventory[items_lst[i]]
             task["initial_inventory"] = initial_inventory
             
             goals = task.get("goal", {})
@@ -292,13 +301,23 @@ def reconfigure_tasks(task_path, new_task_path):
     with open(new_task_path, 'w') as f:
         json.dump(tasks, f, indent=4)
 
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/2_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/2_agent.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/3_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/3_agent.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/4_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/4_agent.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/5_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/5_agent.json")
 
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/2_agent_cooking_train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train/2_agent.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train/2_agent_blocked_access.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks_3_agents.json", "mindcraft/tasks/cooking_tasks/require_collab_train/3_agent.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks_4_agents.json", "mindcraft/tasks/cooking_tasks/require_collab_train/4_agent.json")
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks_5_agents.json", "mindcraft/tasks/cooking_tasks/require_collab_train/5_agent.json")
+
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/2_agent.json", 2)
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/3_agent.json", 3)
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/4_agent.json", 4)
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/5_agent.json", 5)
+
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", 2)
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/3_agent.json", 3)
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/4_agent.json", 4)
+reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/5_agent.json", 5)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/3_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/3_agent.json")
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/4_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/4_agent.json")
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/5_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/5_agent.json")
+
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/2_agent_cooking_train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train/2_agent.json")
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train/2_agent_blocked_access.json")
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks_3_agents.json", "mindcraft/tasks/cooking_tasks/require_collab_train/3_agent.json")
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks_4_agents.json", "mindcraft/tasks/cooking_tasks/require_collab_train/4_agent.json")
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks_5_agents.json", "mindcraft/tasks/cooking_tasks/require_collab_train/5_agent.json")
