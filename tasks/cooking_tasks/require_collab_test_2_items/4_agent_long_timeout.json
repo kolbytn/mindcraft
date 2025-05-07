@@ -7,7 +7,7 @@
             "bread": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "golden_apple": [
                 "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
@@ -47,7 +47,7 @@
             "rabbit_stew": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "golden_apple": [
                 "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
@@ -94,7 +94,7 @@
             "bread": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "cake": [
                 "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
@@ -137,7 +137,7 @@
             "golden_apple": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "baked_potato": [
                 "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
@@ -183,7 +183,7 @@
             "rabbit_stew": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "baked_potato": [
                 "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
@@ -231,7 +231,7 @@
             "bread": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "rabbit_stew": [
                 "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
@@ -270,7 +270,7 @@
             "baked_potato": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "bread": [
                 "Step 1: Go to the farm and collect 3 wheat.",
@@ -311,7 +311,7 @@
             "cake": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "baked_potato": [
                 "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
@@ -360,7 +360,7 @@
             "cooked_beef": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "golden_apple": [
                 "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
@@ -406,7 +406,7 @@
             "cooked_beef": 1
         },
         "type": "cooking",
-        "timeout": 500,
+        "timeout": 1500,
         "recipes": {
             "bread": [
                 "Step 1: Go to the farm and collect 3 wheat.",
