@@ -10,7 +10,7 @@ import { start } from 'repl';
 // add a mineflayer bot the world named Andy 
 const bot = mineflayer.createBot({
     host: 'localhost', // Replace with your server IP or hostname
-    port: 49262,       // Replace with your server port
+    port: 55916,       // Replace with your server port
     username: 'andy', // Replace with your bot's username
     // password: 'your_bot_password' // Only if the server has online-mode=true
 });
@@ -42,12 +42,12 @@ class Agent {
 
 // parse arguments
 const args = parseArguments();
+console.log(args);
 
 // load in the task path
 const taskPath = fs.readFileSync(args.task_path, 'utf8');
 const taskData = JSON.parse(taskPath);
 const task_id = args.task_id;
-
 
 // give the required inventory items to the usernames specified in the usernames list
 bot.on('spawn', async () => {
@@ -61,7 +61,8 @@ bot.on('spawn', async () => {
     bot.chat(`/tp andy ${usernames[0]}`);
     await new Promise(resolve => setTimeout(resolve, 5000));
     // console.log(taskData);
-    // console.log(task_id);
+    console.log(`Task id is ${task_id}`)
+    console.log(task_id);
     const task = taskData[task_id];
     console.log(task);
 

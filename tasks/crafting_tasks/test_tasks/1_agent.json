@@ -4,7 +4,7 @@
       "conversation": "Let's work together to craft an pink_wool.",
       "initial_inventory": {
         "0": {
-          "pink_dye": 1
+          "black_wool": 1
         }
       },
       "agent_count": 2,
@@ -26,7 +26,7 @@
       "conversation": "Let's work together to craft an lime_wool.",
       "initial_inventory": {
         "0": {
-          "lime_dye": 1
+          "black_wool": 1
         }
       },
       "agent_count": 2,
