@@ -552,7 +552,8 @@ export class Task {
             }
         }
 
-        if (human_player_name) {
+        // go the human if there is one and not required for the task
+        if (human_player_name && this.data.human_count === 0) {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
@@ -598,7 +599,14 @@ export class Task {
                 const commands = result.commands;
                 const nearbyPosition = result.nearbyPosition;
                 console.log("nearby position", nearbyPosition);
-                bot.chat(`/tp @a ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+                const first_coord = this.data.blueprint.levels[0].coordinates;
+                bot.chat(`/tp @a ${first_coord[0]} ${first_coord[1]} ${first_coord[2]}`);
+                if (this.agent.agent_id === 0 && this.data.human_count > 0) {
+                    for (let i = 0; i < this.data.human_count; i++) {
+                        const username = this.data.usernames[i];
+                        await bot.chat(`/tp ${username} ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+                    }
+                }
                 for (const command of commands) {
                     bot.chat(command);
                 }

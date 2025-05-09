@@ -303,15 +303,17 @@ def reconfigure_tasks(task_path, new_task_path, num_agents=None):
 
 
 
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/2_agent.json", 2)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/3_agent.json", 3)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/4_agent.json", 4)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/5_agent.json", 5)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/2_agent.json", 2)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/3_agent.json", 3)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/4_agent.json", 4)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/5_agent.json", 5)
 
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", 2)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/3_agent.json", 3)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/4_agent.json", 4)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/5_agent.json", 5)
 reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", 2)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/3_agent.json", 3)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/4_agent.json", 4)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/5_agent.json", 5)
+
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/3_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/3_agent.json")
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/4_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/4_agent.json")
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/equal_load_test_tasks/5_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test/5_agent.json")
