@@ -3,7 +3,7 @@
       "type": "construction",
       "goal": "Make a structure with the blueprint below",
       "conversation": "Let's share materials and make a structure with the blueprint",
-      "agent_count": 1,
+      "agent_count": 2,
       "human_count": 1,
       "timeout": 600,
       "blueprint": {

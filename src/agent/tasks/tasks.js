@@ -240,7 +240,7 @@ export class Task {
             this.taskStartTime = taskStartTime;
         else
             this.taskStartTime = Date.now();
-
+        console.log("Task start time set to", this.taskStartTime);
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
@@ -264,7 +264,6 @@ export class Task {
                 this.conversation = this.data.conversation;
             }
             this.taskTimeout = this.data.timeout || 300;
-            this.taskStartTime = Date.now();
             // Set validator based on task_type
 
             if (this.task_type === 'construction') {
@@ -440,21 +439,6 @@ export class Task {
             console.log("Setting inventory...");
             let initialInventory = {};
             
-            // Handle multi-agent inventory assignment
-            // function hasSubDictionary(obj) {
-            //     for (let key in obj) {
-            //         if (typeof obj[key] === 'object' && obj[key] !== null) {
-            //             return true;
-            //         }
-            //     }
-            //     return false;
-            // }
-
-            // const hasSubDictionaryResult = hasSubDictionary(this.data.initial_inventory);
-            // const firstKey = Object.keys(initialInventory)[0];
-            // console.log(firstKey);
-            // console.log(hasSubDictionaryResult);
-            // if (typeof this.data.initial_inventory[firstKey] === 'object') {
             initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
             console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
             console.log("")
@@ -466,7 +450,6 @@ export class Task {
                     throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
                     return;
                 }
-            
                 
                 const starting_idx = this.data.agent_count;
                 for (let i = 0; i < this.data.human_count; i++) {
