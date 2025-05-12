@@ -2,6 +2,7 @@
     "type": "module",
     "dependencies": {
         "@anthropic-ai/sdk": "^0.17.1",
+        "@cerebras/cerebras_cloud_sdk": "^1.0.0",
         "@google/generative-ai": "^0.2.1",
         "@huggingface/inference": "^2.8.1",
         "@mistralai/mistralai": "^1.1.0",
