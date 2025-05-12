@@ -21,6 +21,7 @@ import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
+import { Pollinations } from './pollinations.js';
 import { VLLM } from './vllm.js';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -140,6 +141,8 @@ export class Prompter {
                 profile.api = 'openrouter'; // must do first because shares names with other models
             else if (profile.model.includes('ollama/'))
                 profile.api = 'ollama'; // also must do early because shares names with other models
+            else if (profile.model.includes('pollinations/'))
+                profile.api = 'pollinations'; // also shares some model names like llama
             else if (profile.model.includes('gemini'))
                 profile.api = 'google';
             else if (profile.model.includes('vllm/'))
@@ -207,6 +210,8 @@ export class Prompter {
             model = new DeepSeek(profile.model, profile.url, profile.params);
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
+        else if (profile.api === 'pollinations')
+            model = new Pollinations(profile.model.replace('pollinations/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
             model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
         else
