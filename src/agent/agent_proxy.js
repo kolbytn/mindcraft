@@ -71,3 +71,7 @@ export const serverProxy = new AgentServerProxy();
 export function sendBotChatToServer(agentName, json) {
     serverProxy.getSocket().emit('chat-message', agentName, json);
 }
+
+export function sendResponseToServer(agentName, message) {
+    serverProxy.getSocket().emit('response-message', agentName, message);
+}
