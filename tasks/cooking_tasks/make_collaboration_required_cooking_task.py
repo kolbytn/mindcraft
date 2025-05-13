@@ -328,7 +328,7 @@ def make_all_possible_tasks(items: List[str], num_items:int, num_agents: int, ou
         for item in combination:
             task_id += "_" + item
         tasks[task_id] = task
-        tasks[task_id + "_partial_plan"] = partial_plan_task
+        # tasks[task_id + "_partial_plan"] = partial_plan_task
     with open(output_file, 'w') as f:
         json.dump(tasks, f, indent=4)
 
@@ -433,9 +433,11 @@ def block_recipe_in_tasks(task_path, new_task_path, num_agents=None):
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/3_agent.json", 3)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/4_agent.json", 4)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/5_agent.json", 5)
+#
+
 test_items = ["bread", "golden_apple", "rabbit_stew", "cake", "baked_potato", "cooked_beef"]
-block_recipe_in_tasks("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
-# make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_all_possible.json")
+# block_recipe_in_tasks("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
+make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_full.json")
 
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/hells_kitchen_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", 2, True)
