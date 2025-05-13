@@ -31,7 +31,16 @@
       "overall_difficulty_score": 4,
       "difficulty_category": "medium"
     },
-    "difficulty": "medium"
+    "difficulty": "medium",
+    "initial_inventory": {
+      "0": {
+          "gold_ingot": 5
+      },
+      "1": {
+          "gold_ingot": 5,
+          "apple": 1
+      }
+  }
   },
   "multiagent_cooking_golden_apple_rabbit_stew_hells_kitchen": {
     "conversation": "We need to make golden_apple and rabbit_stew together. You are supposed to make rabbit_stew and I am supposed to make golden_apple, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
@@ -71,7 +80,17 @@
       "overall_difficulty_score": 6,
       "difficulty_category": "hard"
     },
-    "difficulty": "hard"
+    "difficulty": "hard",
+    "initial_inventory": {
+      "0": {
+          "gold_ingot": 5,
+          "bowl": 1
+      },
+      "1": {
+          "gold_ingot": 5,
+          "apple": 1
+      }
+  }
   },
   "multiagent_cooking_bread_cake_hells_kitchen": {
     "conversation": "We need to make bread and cake together. You are supposed to make cake and I am supposed to make bread, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
@@ -108,7 +127,17 @@
       "overall_difficulty_score": 5,
       "difficulty_category": "medium"
     },
-    "difficulty": "medium"
+    "difficulty": "medium",
+    "initial_inventory": {
+      "0": {
+          "milk_bucket": 2
+      },
+      "1": {
+          "milk_bucket": 2,
+          "egg": 1
+      }
+  }
+
   },
   "multiagent_cooking_baked_potato_golden_apple_hells_kitchen": {
     "conversation": "We need to make baked_potato and golden_apple together. You are supposed to make golden_apple and I am supposed to make baked_potato, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
@@ -144,7 +173,18 @@
       "overall_difficulty_score": 5,
       "difficulty_category": "medium"
     },
-    "difficulty": "medium"
+    "difficulty": "medium",
+    "initial_inventory": {
+      "0": {
+          "coal": 1,
+          "gold_ingot": 5,
+          "apple": 1
+      },
+      "1": {
+          "coal": 1,
+          "gold_ingot": 5
+      }
+  }
   },
   "multiagent_cooking_baked_potato_cake_hells_kitchen": {
     "conversation": "We need to make baked_potato and cake together. You are supposed to make cake and I am supposed to make baked_potato, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
@@ -183,7 +223,18 @@
       "overall_difficulty_score": 6,
       "difficulty_category": "hard"
     },
-    "difficulty": "hard"
+    "difficulty": "hard",
+    "initial_inventory": {
+      "0": {
+          "coal": 5,
+          "milk_bucket": 2,
+          "egg": 1
+      },
+      "1": {
+          "coal": 5,
+          "milk_bucket": 2
+      }
+  }
   },
   "multiagent_cooking_cooked_beef_golden_apple_hells_kitchen": {
     "conversation": "We need to make cooked_beef and golden_apple together. You are supposed to make golden_apple and I am supposed to make cooked_beef, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
@@ -219,6 +270,17 @@
       "overall_difficulty_score": 5,
       "difficulty_category": "medium"
     },
-    "difficulty": "medium"
+    "difficulty": "medium",
+    "initial_inventory": {
+      "0": {
+          "gold_ingot": 5,
+          "coal": 5
+      },
+      "1": {
+          "gold_ingot": 5,
+          "apple": 1,
+          "coal": 5
+      }
+  }
   }
 }
