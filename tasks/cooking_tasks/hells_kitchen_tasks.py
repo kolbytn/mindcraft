@@ -465,9 +465,9 @@ def generate_maximum_hells_kitchen_tasks(
     
     hk_test_lst = list(hk_test_items)
     train_possible_combinations = itertools.combinations(hk_train_items, 2)
-    test_possible_combinations = [["bread", "golden_apple"], ["golden_apple", "rabbit_stew"], ["bread", "cake"], 
-                                  ["baked_potato", "golden_apple"], ["baked_potato", "cake"], ["cooked_beef", "golden_apple"]]
-    # test_possible_combinations = itertools.combinations(hk_test_lst, 2)
+    # test_possible_combinations = [["bread", "golden_apple"], ["golden_apple", "rabbit_stew"], ["bread", "cake"], 
+    #                               ["baked_potato", "golden_apple"], ["baked_potato", "cake"], ["cooked_beef", "golden_apple"]]
+    test_possible_combinations = itertools.combinations(hk_test_lst, 2)
     # Set fixed seed for consistent results
     random.seed(42)
     
@@ -601,7 +601,7 @@ if __name__ == "__main__":
     with open("hells_kitchen_train_tasks.json", "w") as f:
         json.dump(hk_train_tasks, f, indent=2)
     
-    with open("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", "w") as f:
+    with open("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen_full.json", "w") as f:
         json.dump(hk_test_tasks, f, indent=2)
     
     # Print counts
