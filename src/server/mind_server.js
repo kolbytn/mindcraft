@@ -128,6 +128,9 @@ export function createMindServer(port = 8080) {
 				console.error('Error: ', error);
 			}
 		});
+    	socket.on('response-message', (agentName, message) => {
+    		io.emit('response-message', {agentName, message});
+        });
     });
 
     server.listen(port, 'localhost', () => {

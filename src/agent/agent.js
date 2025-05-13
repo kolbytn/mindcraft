@@ -388,7 +388,8 @@ export class Agent {
 	    if (settings.speak) {
             say(to_translate);
 	    }
-            this.bot.chat(message);
+            if (settings.chat_response) {this.bot.chat(message);}
+            sendResponseToServer(this.name, message);
         }
     }
 
