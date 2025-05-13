@@ -409,6 +409,19 @@ def reconfigure_tasks(task_path, new_task_path, num_agents=None, hells_kitchen=F
     with open(new_task_path, 'w') as f:
         json.dump(new_tasks, f, indent=4)
 
+def block_recipe_in_tasks(task_path, new_task_path, num_agents=None):
+    with open(task_path, 'r') as f:
+        tasks = json.load(f)
+    task_ids = tasks.keys()
+    for task_id in task_ids:
+        task = tasks[task_id]
+        task["blocked_access_to_recipe"] = ["0"]
+        items = task["recipes"].keys()
+        goal_str = "Collaborate with other agents around you to make " + ", ".join(items) + "."
+        task["goal"]["0"] = goal_str
+    with open(new_task_path, 'w') as f:
+        json.dump(tasks, f, indent=4)
+
 
 
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/3_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_3_items/2_agent.json", 2)
@@ -421,7 +434,8 @@ def reconfigure_tasks(task_path, new_task_path, num_agents=None, hells_kitchen=F
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/4_agent.json", 4)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/5_agent.json", 5)
 test_items = ["bread", "golden_apple", "rabbit_stew", "cake", "baked_potato", "cooked_beef"]
-make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_all_possible.json")
+block_recipe_in_tasks("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
+# make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_all_possible.json")
 
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/hells_kitchen_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", 2, True)
