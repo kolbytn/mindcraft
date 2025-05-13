@@ -290,8 +290,10 @@ def count_items_in_inventory(inventory):
 
 def make_all_possible_tasks(items: List[str], num_items:int, num_agents: int, output_file) -> List[Dict[str, Any]]:
     combinations = itertools.combinations(items, num_items)
+    already_completed = [["bread", "golden_apple"], ["golden_apple", "rabbit_stew"], ["bread", "cake"], ["baked_potato", "golden_apple"], ["baked_potato", "cake"], ["cooked_beef", "golden_apple"]]
+    remaining_combinations = set(combinations) - set(tuple(sorted(comb)) for comb in already_completed)
     tasks = {}
-    for combination in combinations:
+    for combination in remaining_combinations:
         task = {}
         task["type"] = "cooking"
         task["recipes"] = {}
@@ -322,13 +324,12 @@ def make_all_possible_tasks(items: List[str], num_items:int, num_agents: int, ou
         partial_plan_task["goal"] = {}
         for i in range(num_agents):
             partial_plan_task["goal"][i] = goal_str
-        recipe_goal_str = goal_str
         partial_plan_task["goal"][0] = recipe_goal_str
         task_id = "multiagent_cooking"
         for item in combination:
             task_id += "_" + item
-        tasks[task_id] = task
-        # tasks[task_id + "_partial_plan"] = partial_plan_task
+        # tasks[task_id] = task
+        tasks[task_id + "_partial_plan"] = partial_plan_task
     with open(output_file, 'w') as f:
         json.dump(tasks, f, indent=4)
 
@@ -437,7 +438,7 @@ def block_recipe_in_tasks(task_path, new_task_path, num_agents=None):
 
 test_items = ["bread", "golden_apple", "rabbit_stew", "cake", "baked_potato", "cooked_beef"]
 # block_recipe_in_tasks("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
-make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_full.json")
+make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_blocked_action_remaining.json")
 
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/hells_kitchen_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", 2, True)
