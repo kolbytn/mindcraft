@@ -1,0 +1,2 @@
+sleep 360 
+python3 tasks/evaluation_script.py --model gpt-4o --num_parallel 1 --num_exp 1 --exp_name "4o_1_agent_crafting" --template_profile ./profiles/tasks/crafting_profile.json --task_path tasks/crafting_tasks/test_tasks/1_agent.json --num_agents 1

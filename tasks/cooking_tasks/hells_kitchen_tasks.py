@@ -2,6 +2,7 @@ import random
 import json
 from typing import Dict, List, Any, Tuple, Set
 from collections import Counter, defaultdict
+import itertools
 
 # Define your COOKING_ITEMS dictionary here
 # This is where you should put your complete COOKING_ITEMS dictionary
@@ -325,10 +326,10 @@ def generate_hells_kitchen_task_id(task: Dict[str, Any]) -> str:
     # Combine everything with hells_kitchen suffix
     return f"multiagent_cooking_{quantities}_hells_kitchen"
 
-def generate_hells_kitchen_task() -> Dict[str, Any]:
+def generate_hells_kitchen_task(selected_items) -> Dict[str, Any]:
     """Generate a single Hell's Kitchen task where agents have recipes for each other's items."""
     # Select two different items
-    selected_items = random.sample(list(COOKING_ITEMS.keys()), 2)
+    # selected_items = random.sample(list(COOKING_ITEMS.keys()), 2)
 
     # Assign one item to each agent
     agent0_target = selected_items[0]
@@ -458,16 +459,22 @@ def generate_maximum_hells_kitchen_tasks(
     all_items = list(COOKING_ITEMS.keys())
     
     # Fixed test items as specified in your original code
-    hk_test_items = {"cooked_mutton", "baked_potato", "cake", "golden_carrot", "mushroom_stew", "bread"}
+    hk_test_items = {"cooked_beef", "baked_potato", "cake", "golden_apple", "rabbit_stew", "bread"}
+
     hk_train_items = set(all_items) - hk_test_items
     
+    hk_test_lst = list(hk_test_items)
+    train_possible_combinations = itertools.combinations(hk_train_items, 2)
+    test_possible_combinations = [["bread", "golden_apple"], ["golden_apple", "rabbit_stew"], ["bread", "cake"], 
+                                  ["baked_potato", "golden_apple"], ["baked_potato", "cake"], ["cooked_beef", "golden_apple"]]
+    # test_possible_combinations = itertools.combinations(hk_test_lst, 2)
     # Set fixed seed for consistent results
     random.seed(42)
     
     # Generate tasks for training set
     train_tasks = {}
-    while len(train_tasks) < num_train_tasks:
-        task = generate_hells_kitchen_task()
+    for combination in train_possible_combinations:
+        task = generate_hells_kitchen_task(combination)
         task_id, task_data = list(task.items())[0]
         
         # Check if task uses valid items for train set
@@ -480,8 +487,8 @@ def generate_maximum_hells_kitchen_tasks(
     
     # Generate tasks for test set
     test_tasks = {}
-    while len(test_tasks) < num_test_tasks:
-        task = generate_hells_kitchen_task()
+    for combination in test_possible_combinations:
+        task = generate_hells_kitchen_task(combination)
         task_id, task_data = list(task.items())[0]
         
         # Check if task uses valid items for test set
@@ -594,7 +601,7 @@ if __name__ == "__main__":
     with open("hells_kitchen_train_tasks.json", "w") as f:
         json.dump(hk_train_tasks, f, indent=2)
     
-    with open("hells_kitchen_test_tasks.json", "w") as f:
+    with open("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", "w") as f:
         json.dump(hk_test_tasks, f, indent=2)
     
     # Print counts

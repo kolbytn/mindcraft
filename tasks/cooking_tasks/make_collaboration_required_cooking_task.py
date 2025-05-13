@@ -4,6 +4,7 @@ from typing import Dict, List, Any, Tuple, Set
 from collections import Counter, defaultdict
 import os
 import numpy as np
+import itertools
 
 # Define your COOKING_ITEMS dictionary here
 # This is where you should put your complete COOKING_ITEMS dictionary
@@ -245,6 +246,38 @@ chest_items = {
     "iron_ingot": 64,
 }
 
+def make_initial_inventory(items, num_agents):
+    """
+    Evenly split inventory between the agents for a given set of items and number of agents
+    """
+    inventory = {}
+    for item in items:
+        if item in COOKING_ITEMS:
+            cooking_info = COOKING_ITEMS[item]
+            for chest_item, quantity in cooking_info.get("required_chest_items", {}).items():
+                inventory[chest_item] = inventory.get(chest_item, 0) + quantity
+        else:
+            print(f"item {item} not found in COOKING_ITEMS.")
+    initial_inventory = {}
+    for i in range(num_agents):
+        initial_inventory[i] = {}
+    items_lst = list(inventory.keys())
+    for i in range(len(items_lst)):
+        item_counts = count_items_in_inventory(initial_inventory)
+        agent_num = np.argmin(item_counts)
+        if inventory[items_lst[i]] == 1:
+            initial_inventory[agent_num][items_lst[i]] = 1
+        elif inventory[items_lst[i]] > 1:
+            div = inventory[items_lst[i]] // num_agents
+            rem = inventory[items_lst[i]] % num_agents
+            for j in range(num_agents):
+                initial_inventory[j][items_lst[i]] = div
+            j = 0
+            while j < rem:
+                initial_inventory[j][items_lst[i]] += 1
+                j += 1
+    return initial_inventory
+
 def count_items_in_inventory(inventory):
     item_counts = []
     for key in inventory.keys():
@@ -254,6 +287,50 @@ def count_items_in_inventory(inventory):
             total_items += agent_inventory[item]
         item_counts.append(total_items)
     return item_counts
+
+def make_all_possible_tasks(items: List[str], num_items:int, num_agents: int, output_file) -> List[Dict[str, Any]]:
+    combinations = itertools.combinations(items, num_items)
+    tasks = {}
+    for combination in combinations:
+        task = {}
+        task["type"] = "cooking"
+        task["recipes"] = {}
+        task["agent_count"] = num_agents
+        task["target"] = {}
+        for item in combination:
+            task["target"][item] = 1
+        for item in combination:
+            if item in COOKING_ITEMS:
+                task["recipes"][item] = COOKING_ITEMS[item]["recipe"]
+            else:
+                print(f"item {item} not found in COOKING_ITEMS.")
+        initial_inventory = make_initial_inventory(combination, num_agents)
+        task["initial_inventory"] = initial_inventory
+        task["goal"] = {}
+        goal_str = f"Collaborate with other agents around you to make "
+        conversation_str = f"Let's collaborate to make "
+        for item in combination:
+            goal_str += item + ", "
+            conversation_str += item + ", "
+        recipe_goal_str = goal_str + "The recipes are as follows:\n"
+        for item in combination:
+            recipe_goal_str += f"Recipe for {item}:\n{COOKING_ITEMS[item]['recipe']}\n"
+        for i in range(num_agents):
+            task["goal"][i] = recipe_goal_str
+        task["conversation"] = conversation_str
+        partial_plan_task = task.copy()
+        partial_plan_task["goal"] = {}
+        for i in range(num_agents):
+            partial_plan_task["goal"][i] = goal_str
+        recipe_goal_str = goal_str
+        partial_plan_task["goal"][0] = recipe_goal_str
+        task_id = "multiagent_cooking"
+        for item in combination:
+            task_id += "_" + item
+        tasks[task_id] = task
+        tasks[task_id + "_partial_plan"] = partial_plan_task
+    with open(output_file, 'w') as f:
+        json.dump(tasks, f, indent=4)
 
 
 
@@ -343,10 +420,13 @@ def reconfigure_tasks(task_path, new_task_path, num_agents=None, hells_kitchen=F
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/3_agent.json", 3)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/4_agent.json", 4)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/2_agent_cooking_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/5_agent.json", 5)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/hells_kitchen_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", 2, True)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train_2_items/2_agent_block_recipe.json", 2, False)
-reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/hells_kitchen_train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train_2_items/2_agent_hells_kitchen.json", 2, True)
+test_items = ["bread", "golden_apple", "rabbit_stew", "cake", "baked_potato", "cooked_beef"]
+make_all_possible_tasks(test_items, 2, 2, "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_all_possible.json")
+
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_block_recipe.json", 2)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/test_tasks/hells_kitchen_test_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen.json", 2, True)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train_2_items/2_agent_block_recipe.json", 2, False)
+# reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/hells_kitchen_train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train_2_items/2_agent_hells_kitchen.json", 2, True)
 
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/2_agent_cooking_train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train_2_items/3_agent.json", 3)
 # reconfigure_tasks("mindcraft/tasks/cooking_tasks/train_tasks/2_agent_cooking_train_tasks.json", "mindcraft/tasks/cooking_tasks/require_collab_train_2_items/4_agent.json", 4)
