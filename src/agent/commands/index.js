@@ -26,6 +26,18 @@ export function blacklistCommands(commands) {
     }
 }
 
+export function addPluginActions(plugin, actions) {
+    for (let action of actions) {
+        if (commandMap[action.name]) {
+            console.log(`Command already exists. Can't add ${action.name} from plugin ${plugin}.`)
+        } else {
+            commandMap[action.name] = action;
+            commandList.push(action);
+            actionsList.push(action);
+        }
+    }
+}
+
 const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
 const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
 
