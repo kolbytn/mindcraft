@@ -161,3 +161,6 @@ function stopAllAgents() {
 export const getIO = () => io;
 export const getServer = () => server;
 export const getConnectedAgents = () => connectedAgents; 
+export function getAllInGameAgentNames() {
+    return Object.keys(inGameAgents);
+  }

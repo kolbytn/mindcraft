@@ -20,6 +20,15 @@ import { say } from './speak.js';
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.last_sender = null;
+        // Safely attach agent instance to a global-like object so STT code can access it.
+        // This works in Node.js ESM or CommonJS. If "global" doesn't exist, fallback to "globalThis".
+        const globalObj = (typeof global !== 'undefined') ? global : globalThis;
+        try {
+            globalObj.agent = this;
+        } catch(e) {
+            console.warn("Failed attaching agent to global object:", e);
+        }
+        
         this.count_id = count_id;
         if (!profile_fp) {
             throw new Error('No profile filepath provided');
@@ -120,6 +129,7 @@ export class Agent {
             }
         });
     }
+
 
     async _setupEventHandlers(save_data, init_message) {
         const ignore_messages = [

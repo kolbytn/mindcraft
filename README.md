@@ -102,6 +102,21 @@ When running in docker, if you want the bot to join your local minecraft server,
 
 To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
 
+## STT in Mindcraft
+
+STT allows you to speak to the model if you have a microphone
+
+STT can be enabled in `settings.js` under the section that looks like this:
+```javascript
+    "stt_transcription": true, // Change this to "true" to enable STT
+    "stt_username": "SYSTEM",
+    "stt_agent_name": ""
+```
+
+The Text to Speech engine will begin listening on the system default input device.
+
+When using STT, you **need** a [GroqCloud API key](https://console.groq.com/keys) as Groq is used for Audio transcription
+
 # Bot Profiles
 
 Bot profiles are json files (such as `andy.json`) that define:

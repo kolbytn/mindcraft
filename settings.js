@@ -28,7 +28,6 @@ const settings = {
     "load_memory": false, // load memory from previous session
     "init_message": "Respond with hello world and your name", // sends to all on spawn
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
-    "speak": false, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
@@ -44,6 +43,12 @@ const settings = {
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
+
+    // New section for advanced features
+    "stt_transcription": false, // change this to "true" or "false" depending on if you want STT in Mindcraft, STT needs a GroqCloud API key, can be found here: https://console.groq.com/keys
+    "stt_username": "SYSTEM", // Change this to the username the model will respond to.
+    "stt_agent_name": "" // Change the name here to whatever your agent is named, if left empty, will send message to all agents.
+    "speak": false, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
     "log_all_prompts": false, // log ALL prompts to file
 }
 
