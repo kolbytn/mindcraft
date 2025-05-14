@@ -13,7 +13,6 @@ import json
 import glob
 import socket
 
-from tqdm import tqdm
 import boto3
 
 BLOCKED_ACTIONS_COOKING = [
@@ -119,7 +118,7 @@ def aggregate_results(local_folders):
     elif "construction" in task_type:
         task_type = "construction"
 
-    for folder_path in tqdm(local_folders):
+    for folder_path in local_folders:
         folder_name = os.path.basename(folder_path)
 
         try: 
