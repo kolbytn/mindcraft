@@ -18,6 +18,7 @@ export class ConstructionTaskValidator {
             }
             let total_blocks = result.mismatches.length + result.matches.length;
             score = (result.matches.length / total_blocks) * 100;
+            console.log(`Task score: ${score}%`);
             return {
                 "valid": valid, 
                 "score": score

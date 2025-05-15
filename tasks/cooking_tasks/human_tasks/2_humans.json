@@ -1,0 +1,48 @@
+{ "multiagent_cooking_5_1_baked_potato_1_bread_1_cake_1_golden_apple_1_rabbit_stew": {
+    "conversation": "Let's work together to make bread, cake, golden_apple, baked_potato, rabbit_stew.",
+    "agent_count": 0,
+    "human_count": 2,
+    "target": {
+      "bread": 1,
+      "cake": 1,
+      "golden_apple": 1,
+      "baked_potato": 1,
+      "rabbit_stew": 1
+    },
+    "type": "cooking",
+    "timeout": 500,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "cake": [
+        "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+        "Step 2: Go to the chest and grab 3 milk buckets.",
+        "Step 3: Go to the chest and grab an egg.",
+        "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+        "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+      ],
+      "golden_apple": [
+        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab a bowl",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "Make 1 bread, 1 cake, 1 golden_apple, 1 baked_potato, 1 rabbit_stew. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+    }
+  }
+}

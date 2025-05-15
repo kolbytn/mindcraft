@@ -1,0 +1,40 @@
+{
+"multiagent_cooking_5_1_baked_potato_1_bread_1_cooked_beef_1_rabbit_stew": {
+    "conversation": "Let's work together to make bread, cooked_beef, rabbit_stew, baked_potato.",
+    "agent_count": 2,
+    "target": {
+      "bread": 1,
+      "cooked_beef": 1,
+      "rabbit_stew": 1,
+      "baked_potato": 1
+    },
+    "type": "cooking",
+    "timeout": 500,
+    "recipes": {
+      "bread": [
+        "Step 1: Go to the farm and collect 3 wheat.",
+        "Step 2: Go to the crafting table and use the wheat to craft bread."
+      ],
+      "cooked_beef": [
+        "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+        "Step 2: Go to furnace and use it to cook the beef."
+      ],
+      "rabbit_stew": [
+        "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+        "Step 2: Go to the furnace and bake the potato.",
+        "Step 3: Go to the chest and grab a bowl",
+        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 6: Go to the furnace and cook the raw rabbit.",
+        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+      ],
+      "baked_potato": [
+        "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Go to the furnace and bake the potato."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "Collaborate with agents around you to make 1 bread, 1 cooked_beef, 1 rabbit_stew, 1 baked_potato. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato."
+    }
+  }
+}

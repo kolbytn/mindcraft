@@ -1,0 +1,413 @@
+{
+    "multiagent_cooking_2_1_cooked_chicken_1_golden_carrot": {
+        "conversation": "Let's work together to make cooked_chicken, golden_carrot.",
+        "agent_count": 5,
+        "target": {
+            "cooked_chicken": 1,
+            "golden_carrot": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "cooked_chicken": [
+                "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+                "Step 2: Get coal from your inventory or other agents.",
+                "Step 3: Put coal in the furnace",
+                "Step 4: Go to furnace and use it to cook the raw chicken."
+            ],
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 cooked_chicken, 1 golden_carrot. Recipe for cooked_chicken:\n['Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the raw chicken.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']",
+            "1": "Collaborate with agents around you to make 1 cooked_chicken, 1 golden_carrot. Recipe for cooked_chicken:\n['Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the raw chicken.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "coal": 1,
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_cooked_mutton_1_golden_carrot": {
+        "conversation": "Let's work together to make golden_carrot, cooked_mutton.",
+        "agent_count": 5,
+        "target": {
+            "golden_carrot": 1,
+            "cooked_mutton": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ],
+            "cooked_mutton": [
+                "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+                "Step 2: Get coal from your inventory or other agents.",
+                "Step 3: Put coal in the furnace",
+                "Step 4: Go to furnace and use it to cook the mutton."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 golden_carrot, 1 cooked_mutton. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for cooked_mutton:\n['Step 1: Kill a sheep and pick up 1 mutton that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the mutton.']",
+            "1": "Collaborate with agents around you to make 1 golden_carrot, 1 cooked_mutton. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for cooked_mutton:\n['Step 1: Kill a sheep and pick up 1 mutton that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the mutton.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1,
+                "coal": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_cookie_1_golden_carrot": {
+        "conversation": "Let's work together to make golden_carrot, cookie.",
+        "agent_count": 5,
+        "target": {
+            "golden_carrot": 1,
+            "cookie": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ],
+            "cookie": [
+                "Step 1: Go to the farm and collect 2 wheat.",
+                "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+                "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 golden_carrot, 1 cookie. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for cookie:\n['Step 1: Go to the farm and collect 2 wheat.', 'Step 2: Get 1 cocoa bean from your inventory or other agents.', 'Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.']",
+            "1": "Collaborate with agents around you to make 1 golden_carrot, 1 cookie. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for cookie:\n['Step 1: Go to the farm and collect 2 wheat.', 'Step 2: Get 1 cocoa bean from your inventory or other agents.', 'Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1,
+                "cocoa_beans": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_cooked_rabbit_1_golden_carrot": {
+        "conversation": "Let's work together to make golden_carrot, cooked_rabbit.",
+        "agent_count": 5,
+        "target": {
+            "golden_carrot": 1,
+            "cooked_rabbit": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ],
+            "cooked_rabbit": [
+                "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+                "Step 2: Get coal from your inventory or other agents.",
+                "Step 3: Put coal in the furnace",
+                "Step 2: Go to furnace and use it to cook the raw rabbit."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 golden_carrot, 1 cooked_rabbit. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for cooked_rabbit:\n['Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to furnace and use it to cook the raw rabbit.']",
+            "1": "Collaborate with agents around you to make 1 golden_carrot, 1 cooked_rabbit. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for cooked_rabbit:\n['Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to furnace and use it to cook the raw rabbit.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1,
+                "coal": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_golden_carrot_1_mushroom_stew": {
+        "conversation": "Let's work together to make golden_carrot, mushroom_stew.",
+        "agent_count": 5,
+        "target": {
+            "golden_carrot": 1,
+            "mushroom_stew": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ],
+            "mushroom_stew": [
+                "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+                "Step 2: From your inventory or other agents get a bowl.",
+                "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 golden_carrot, 1 mushroom_stew. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for mushroom_stew:\n['Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.', 'Step 2: From your inventory or other agents get a bowl.', 'Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.']",
+            "1": "Collaborate with agents around you to make 1 golden_carrot, 1 mushroom_stew. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for mushroom_stew:\n['Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.', 'Step 2: From your inventory or other agents get a bowl.', 'Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1,
+                "bowl": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_golden_carrot_1_pumpkin_pie": {
+        "conversation": "Let's work together to make pumpkin_pie, golden_carrot.",
+        "agent_count": 5,
+        "target": {
+            "pumpkin_pie": 1,
+            "golden_carrot": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "pumpkin_pie": [
+                "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+                "Step 2: Get 1 egg from your inventory or other bots",
+                "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+                "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+            ],
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 pumpkin_pie, 1 golden_carrot. Recipe for pumpkin_pie:\n['Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.', 'Step 2: Get 1 egg from your inventory or other bots', 'Step 3: Go to the crafting table and craft the sugar cane into sugar.', 'Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']",
+            "1": "Collaborate with agents around you to make 1 pumpkin_pie, 1 golden_carrot. Recipe for pumpkin_pie:\n['Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.', 'Step 2: Get 1 egg from your inventory or other bots', 'Step 3: Go to the crafting table and craft the sugar cane into sugar.', 'Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "egg": 1,
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_cooked_porkchop_1_golden_carrot": {
+        "conversation": "Let's work together to make cooked_porkchop, golden_carrot.",
+        "agent_count": 5,
+        "target": {
+            "cooked_porkchop": 1,
+            "golden_carrot": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "cooked_porkchop": [
+                "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+                "Step 2: Get coal from your inventory or other agents.",
+                "Step 3: Put coal in the furnace",
+                "Step 4: Go to furnace and use it to cook the porkchop."
+            ],
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 cooked_porkchop, 1 golden_carrot. Recipe for cooked_porkchop:\n['Step 1: Kill a pig and pick up 1 porkchop that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the porkchop.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']",
+            "1": "Collaborate with agents around you to make 1 cooked_porkchop, 1 golden_carrot. Recipe for cooked_porkchop:\n['Step 1: Kill a pig and pick up 1 porkchop that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the porkchop.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "coal": 1,
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_golden_carrot_1_suspicious_stew": {
+        "conversation": "Let's work together to make golden_carrot, suspicious_stew.",
+        "agent_count": 5,
+        "target": {
+            "golden_carrot": 1,
+            "suspicious_stew": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ],
+            "suspicious_stew": [
+                "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+                "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+                "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 golden_carrot, 1 suspicious_stew. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for suspicious_stew:\n['Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.', 'Step 2: From your inventory or other agents get a bowl and 1 dandelion', 'Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.']",
+            "1": "Collaborate with agents around you to make 1 golden_carrot, 1 suspicious_stew. Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']Recipe for suspicious_stew:\n['Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.', 'Step 2: From your inventory or other agents get a bowl and 1 dandelion', 'Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1,
+                "bowl": 1
+            },
+            "4": {
+                "gold_ingot": 1,
+                "dandelion": 1
+            }
+        }
+    },
+    "multiagent_cooking_2_1_beetroot_soup_1_golden_carrot": {
+        "conversation": "Let's work together to make beetroot_soup, golden_carrot.",
+        "agent_count": 5,
+        "target": {
+            "beetroot_soup": 1,
+            "golden_carrot": 1
+        },
+        "type": "cooking",
+        "timeout": 500,
+        "recipes": {
+            "beetroot_soup": [
+                "Step 1: Go to the farm and collect 6 beetroot.",
+                "Step 2: From your inventory or other agents get a bowl.",
+                "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+            ],
+            "golden_carrot": [
+                "Step 1: Go to the farm and collect 1 carrot.",
+                "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+                "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+            ]
+        },
+        "blocked_access_to_recipe": [],
+        "goal": {
+            "0": "Collaborate with agents around you to make 1 beetroot_soup, 1 golden_carrot. Recipe for beetroot_soup:\n['Step 1: Go to the farm and collect 6 beetroot.', 'Step 2: From your inventory or other agents get a bowl.', 'Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']",
+            "1": "Collaborate with agents around you to make 1 beetroot_soup, 1 golden_carrot. Recipe for beetroot_soup:\n['Step 1: Go to the farm and collect 6 beetroot.', 'Step 2: From your inventory or other agents get a bowl.', 'Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.']Recipe for golden_carrot:\n['Step 1: Go to the farm and collect 1 carrot.', 'Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.', 'Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.']"
+        },
+        "initial_inventory": {
+            "0": {
+                "bowl": 1,
+                "gold_ingot": 2
+            },
+            "1": {
+                "gold_ingot": 2
+            },
+            "2": {
+                "gold_ingot": 2
+            },
+            "3": {
+                "gold_ingot": 1
+            },
+            "4": {
+                "gold_ingot": 1
+            }
+        }
+    }
+}

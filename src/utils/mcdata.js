@@ -355,6 +355,7 @@ export function initializeLoopingItems() {
 
     loopingItems = new Set(['coal',
         'wheat',
+        'bone_meal',
         'diamond',
         'emerald',
         'raw_iron',

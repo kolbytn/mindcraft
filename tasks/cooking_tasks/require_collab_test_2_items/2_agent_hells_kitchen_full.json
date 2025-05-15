@@ -1,0 +1,579 @@
+{
+  "multiagent_cooking_golden_apple_bread_hells_kitchen": {
+      "conversation": "We need to make golden_apple and bread together. You are supposed to make bread and I am supposed to make golden_apple, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "golden_apple",
+          "bread"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "golden_apple": [
+              "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
+              "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+          ],
+          "bread": [
+              "Step 1: Go to the farm and collect 3 wheat.",
+              "Step 2: Go to the crafting table and use the wheat to craft bread."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make golden_apple, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for bread:\n['Step 1: Go to the farm and collect 3 wheat.', 'Step 2: Go to the crafting table and use the wheat to craft bread.']",
+          "1": "You need to make bread, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for bread:\n['Step 1: Go to the farm and collect 3 wheat.', 'Step 2: Go to the crafting table and use the wheat to craft bread.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 4,
+          "max_steps_per_recipe": 2,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 4,
+          "difficulty_category": "medium"
+      },
+      "difficulty": "medium",
+      "initial_inventory": {
+          "0": {
+              "gold_ingot": 4,
+              "apple": 1
+          },
+          "1": {
+              "gold_ingot": 4
+          }
+      }
+  },
+  "multiagent_cooking_golden_apple_cake_hells_kitchen": {
+      "conversation": "We need to make golden_apple and cake together. You are supposed to make cake and I am supposed to make golden_apple, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "golden_apple",
+          "cake"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "golden_apple": [
+              "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
+              "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+          ],
+          "cake": [
+              "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+              "Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).",
+              "Step 3: Get an egg from your inventory or other agents.",
+              "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+              "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make golden_apple, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']",
+          "1": "You need to make cake, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 7,
+          "max_steps_per_recipe": 5,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 5,
+          "difficulty_category": "medium"
+      },
+      "difficulty": "medium",
+      "initial_inventory": {
+          "0": {
+              "gold_ingot": 4,
+              "apple": 1,
+              "milk_bucket": 2
+          },
+          "1": {
+              "gold_ingot": 4,
+              "milk_bucket": 1,
+              "egg": 1
+          }
+      }
+  },
+  "multiagent_cooking_golden_apple_rabbit_stew_hells_kitchen": {
+      "conversation": "We need to make golden_apple and rabbit_stew together. You are supposed to make rabbit_stew and I am supposed to make golden_apple, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "golden_apple",
+          "rabbit_stew"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "golden_apple": [
+              "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
+              "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+          ],
+          "rabbit_stew": [
+              "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to the furnace and bake the potato.",
+              "Step 5: From your inventory or other agents get a bowl",
+              "Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+              "Step 7: Go to the furnace and cook the raw rabbit.",
+              "Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make golden_apple, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']",
+          "1": "You need to make rabbit_stew, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 10,
+          "max_steps_per_recipe": 8,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 6,
+          "difficulty_category": "hard"
+      },
+      "difficulty": "hard",
+      "initial_inventory": {
+          "0": {
+              "gold_ingot": 4,
+              "apple": 1
+          },
+          "1": {
+              "gold_ingot": 4,
+              "bowl": 1
+          }
+      }
+  },
+  "multiagent_cooking_golden_apple_baked_potato_hells_kitchen": {
+      "conversation": "We need to make golden_apple and baked_potato together. You are supposed to make baked_potato and I am supposed to make golden_apple, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "golden_apple",
+          "baked_potato"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "golden_apple": [
+              "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
+              "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+          ],
+          "baked_potato": [
+              "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 2: Go to the furnace and bake the potato."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make golden_apple, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']",
+          "1": "You need to make baked_potato, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 6,
+          "max_steps_per_recipe": 4,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 5,
+          "difficulty_category": "medium"
+      },
+      "difficulty": "medium",
+      "initial_inventory": {
+          "0": {
+              "gold_ingot": 4,
+              "apple": 1
+          },
+          "1": {
+              "gold_ingot": 4,
+              "coal": 1
+          }
+      }
+  },
+  "multiagent_cooking_golden_apple_cooked_beef_hells_kitchen": {
+      "conversation": "We need to make golden_apple and cooked_beef together. You are supposed to make cooked_beef and I am supposed to make golden_apple, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "golden_apple",
+          "cooked_beef"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "golden_apple": [
+              "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
+              "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+          ],
+          "cooked_beef": [
+              "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to furnace and use it to cook the beef."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make golden_apple, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']",
+          "1": "You need to make cooked_beef, but you don't have the recipe for it, your partner has it!Recipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 6,
+          "max_steps_per_recipe": 4,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 5,
+          "difficulty_category": "medium"
+      },
+      "difficulty": "medium",
+      "initial_inventory": {
+          "0": {
+              "gold_ingot": 4,
+              "apple": 1
+          },
+          "1": {
+              "gold_ingot": 4,
+              "coal": 1
+          }
+      }
+  },
+  "multiagent_cooking_bread_cake_hells_kitchen": {
+      "conversation": "We need to make bread and cake together. You are supposed to make cake and I am supposed to make bread, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "bread",
+          "cake"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "bread": [
+              "Step 1: Go to the farm and collect 3 wheat.",
+              "Step 2: Go to the crafting table and use the wheat to craft bread."
+          ],
+          "cake": [
+              "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+              "Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).",
+              "Step 3: Get an egg from your inventory or other agents.",
+              "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+              "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make bread, but you don't have the recipe for it, your partner has it!Recipe for bread:\n['Step 1: Go to the farm and collect 3 wheat.', 'Step 2: Go to the crafting table and use the wheat to craft bread.']Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']",
+          "1": "You need to make cake, but you don't have the recipe for it, your partner has it!Recipe for bread:\n['Step 1: Go to the farm and collect 3 wheat.', 'Step 2: Go to the crafting table and use the wheat to craft bread.']Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 7,
+          "max_steps_per_recipe": 5,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 5,
+          "difficulty_category": "medium"
+      },
+      "difficulty": "medium",
+      "initial_inventory": {
+          "0": {
+              "milk_bucket": 2
+          },
+          "1": {
+              "milk_bucket": 1,
+              "egg": 1
+          }
+      }
+  },
+  "multiagent_cooking_cake_rabbit_stew_hells_kitchen": {
+      "conversation": "We need to make cake and rabbit_stew together. You are supposed to make rabbit_stew and I am supposed to make cake, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "cake",
+          "rabbit_stew"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "cake": [
+              "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+              "Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).",
+              "Step 3: Get an egg from your inventory or other agents.",
+              "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+              "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+          ],
+          "rabbit_stew": [
+              "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to the furnace and bake the potato.",
+              "Step 5: From your inventory or other agents get a bowl",
+              "Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+              "Step 7: Go to the furnace and cook the raw rabbit.",
+              "Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make cake, but you don't have the recipe for it, your partner has it!Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']",
+          "1": "You need to make rabbit_stew, but you don't have the recipe for it, your partner has it!Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 13,
+          "max_steps_per_recipe": 8,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 6,
+          "difficulty_category": "hard"
+      },
+      "difficulty": "hard",
+      "initial_inventory": {
+          "0": {
+              "milk_bucket": 2,
+              "bowl": 1
+          },
+          "1": {
+              "milk_bucket": 1,
+              "egg": 1
+          }
+      }
+  },
+  "multiagent_cooking_cake_baked_potato_hells_kitchen": {
+      "conversation": "We need to make cake and baked_potato together. You are supposed to make baked_potato and I am supposed to make cake, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "cake",
+          "baked_potato"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "cake": [
+              "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+              "Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).",
+              "Step 3: Get an egg from your inventory or other agents.",
+              "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+              "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+          ],
+          "baked_potato": [
+              "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 2: Go to the furnace and bake the potato."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make cake, but you don't have the recipe for it, your partner has it!Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']",
+          "1": "You need to make baked_potato, but you don't have the recipe for it, your partner has it!Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 9,
+          "max_steps_per_recipe": 5,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 6,
+          "difficulty_category": "hard"
+      },
+      "difficulty": "hard",
+      "initial_inventory": {
+          "0": {
+              "milk_bucket": 2,
+              "coal": 1
+          },
+          "1": {
+              "milk_bucket": 1,
+              "egg": 1
+          }
+      }
+  },
+  "multiagent_cooking_cake_cooked_beef_hells_kitchen": {
+      "conversation": "We need to make cake and cooked_beef together. You are supposed to make cooked_beef and I am supposed to make cake, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "cake",
+          "cooked_beef"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "cake": [
+              "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+              "Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).",
+              "Step 3: Get an egg from your inventory or other agents.",
+              "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+              "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+          ],
+          "cooked_beef": [
+              "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to furnace and use it to cook the beef."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make cake, but you don't have the recipe for it, your partner has it!Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']",
+          "1": "You need to make cooked_beef, but you don't have the recipe for it, your partner has it!Recipe for cake:\n['Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.', 'Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).', 'Step 3: Get an egg from your inventory or other agents.', 'Step 4: Go to the crafting table and craft the sugarcane into sugar.', 'Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 9,
+          "max_steps_per_recipe": 5,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 6,
+          "difficulty_category": "hard"
+      },
+      "difficulty": "hard",
+      "initial_inventory": {
+          "0": {
+              "milk_bucket": 2,
+              "coal": 1
+          },
+          "1": {
+              "milk_bucket": 1,
+              "egg": 1
+          }
+      }
+  },
+  "multiagent_cooking_rabbit_stew_baked_potato_hells_kitchen": {
+      "conversation": "We need to make rabbit_stew and baked_potato together. You are supposed to make baked_potato and I am supposed to make rabbit_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "rabbit_stew",
+          "baked_potato"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "rabbit_stew": [
+              "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to the furnace and bake the potato.",
+              "Step 5: From your inventory or other agents get a bowl",
+              "Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+              "Step 7: Go to the furnace and cook the raw rabbit.",
+              "Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+          ],
+          "baked_potato": [
+              "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 2: Go to the furnace and bake the potato."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make rabbit_stew, but you don't have the recipe for it, your partner has it!Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']",
+          "1": "You need to make baked_potato, but you don't have the recipe for it, your partner has it!Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 12,
+          "max_steps_per_recipe": 8,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 6,
+          "difficulty_category": "hard"
+      },
+      "difficulty": "hard",
+      "initial_inventory": {
+          "0": {
+              "bowl": 1
+          },
+          "1": {
+              "coal": 1
+          }
+      }
+  },
+  "multiagent_cooking_rabbit_stew_cooked_beef_hells_kitchen": {
+      "conversation": "We need to make rabbit_stew and cooked_beef together. You are supposed to make cooked_beef and I am supposed to make rabbit_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "rabbit_stew",
+          "cooked_beef"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "rabbit_stew": [
+              "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to the furnace and bake the potato.",
+              "Step 5: From your inventory or other agents get a bowl",
+              "Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+              "Step 7: Go to the furnace and cook the raw rabbit.",
+              "Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+          ],
+          "cooked_beef": [
+              "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to furnace and use it to cook the beef."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make rabbit_stew, but you don't have the recipe for it, your partner has it!Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']",
+          "1": "You need to make cooked_beef, but you don't have the recipe for it, your partner has it!Recipe for rabbit_stew:\n[\"Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to the furnace and bake the potato.', 'Step 5: From your inventory or other agents get a bowl', 'Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.', 'Step 7: Go to the furnace and cook the raw rabbit.', 'Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 12,
+          "max_steps_per_recipe": 8,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 6,
+          "difficulty_category": "hard"
+      },
+      "difficulty": "hard",
+      "initial_inventory": {
+          "0": {
+              "bowl": 1
+          },
+          "1": {
+              "coal": 1
+          }
+      }
+  },
+  "multiagent_cooking_baked_potato_cooked_beef_hells_kitchen": {
+      "conversation": "We need to make baked_potato and cooked_beef together. You are supposed to make cooked_beef and I am supposed to make baked_potato, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+      "agent_count": 2,
+      "target": [
+          "baked_potato",
+          "cooked_beef"
+      ],
+      "type": "cooking",
+      "timeout": 300,
+      "recipes": {
+          "baked_potato": [
+              "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 2: Go to the furnace and bake the potato."
+          ],
+          "cooked_beef": [
+              "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+              "Step 2: Get coal from your inventory or other agents.",
+              "Step 3: Put coal in the furnace",
+              "Step 4: Go to furnace and use it to cook the beef."
+          ]
+      },
+      "blocked_access_to_recipe": [],
+      "goal": {
+          "0": "You need to make baked_potato, but you don't have the recipe for it, your partner has it!Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']",
+          "1": "You need to make cooked_beef, but you don't have the recipe for it, your partner has it!Recipe for baked_potato:\n[\"Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\", 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 2: Go to the furnace and bake the potato.']Recipe for cooked_beef:\n['Step 1: Kill a cow and pick up 1 beef that is dropped.', 'Step 2: Get coal from your inventory or other agents.', 'Step 3: Put coal in the furnace', 'Step 4: Go to furnace and use it to cook the beef.']"
+      },
+      "task_type": "cooking",
+      "difficulty_metrics": {
+          "total_recipe_steps": 8,
+          "max_steps_per_recipe": 4,
+          "unique_target_items": 2,
+          "overall_difficulty_score": 5,
+          "difficulty_category": "medium"
+      },
+      "difficulty": "medium",
+      "initial_inventory": {
+          "0": {
+              "coal": 1
+          },
+          "1": {
+              "coal": 1
+          }
+      }
+  }
+}

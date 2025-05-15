@@ -21,7 +21,9 @@
         "goal": "Just stand at a place and don't do anything",
         "agent_count": 1,
         "initial_inventory": {
-            "iron_ingot": 1
+            "0" : {
+                "iron_ingot": 1
+            }
         },
         "type": "debug",
         "timeout": 60
@@ -111,7 +113,9 @@
     "debug_inventory_restriction": {
         "goal": "Place 1 oak plank, then place 1 stone brick",
         "initial_inventory": {
-            "oak_planks": 20
+            "0" : {
+                "oak_planks": 20
+            }
         },
         "type": "debug",
         "restrict_to_inventory": true
@@ -120,13 +124,17 @@
         "type": "construction",
         "goal": "Build a house",
         "initial_inventory": {
-            "oak_planks": 20
+            "0" : {
+                "oak_planks": 20
+            }
         }
     },
     "techtree_1_shears_with_2_iron_ingot": {
         "goal": "Build a shear.",
         "initial_inventory": {
-            "iron_ingot": 2
+            "0": {
+                "iron_ingot": 2
+            }
         },
         "target": "shears",
         "number_of_target": 1,
