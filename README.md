@@ -69,6 +69,10 @@ If you use Ollama, to install the models used by default (generation and embeddi
 `ollama pull sweaterdog/andy-4 && ollama pull nomic-embed-text`
 <details>
   <summary>Additional info about Andy-4...</summary>
+  
+  ![image](https://github.com/user-attachments/assets/215afd01-3671-4bb6-b53f-4e51e710239a)
+
+
   Andy-4 is a community made, open-source model made by Sweaterdog to play Minecraft.
   Since Andy-4 is open-source, which means you can download the model, and play with it offline and for free.
 
