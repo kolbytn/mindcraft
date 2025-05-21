@@ -166,7 +166,7 @@ Some of the node modules that we depend on have bugs in them. To add a patch, ch
 ## Citation:
 
 ```
-@article{whitenottingham2025collaborating,
+@article{mindcraft2025,
   title = {Collaborating Action by Action: A Multi-agent LLM Framework for Embodied Reasoning},
   author = {White*, Isadora and Nottingham*, Kolby and Maniar, Ayush and Robinson, Max and Lillemark, Hansen and Maheshwari, Mehul and Qin, Lianhui and Ammanabrolu, Prithviraj},
   journal = {arXiv preprint arXiv:2504.17950},
