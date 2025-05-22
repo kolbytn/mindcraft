@@ -339,6 +339,40 @@ export const actionsList = [
             await skills.activateNearestBlock(agent.bot, type);
         })
     },
+  {
+    name: '!ride',
+    description: 'Ride the nearest entity of a given type.',
+    params: {
+      'entity_type': { type: 'string', description: 'The type of entity to ride.' }
+    },
+    perform: runAsAction(async (agent, entity_type) => {
+      const entity = agent.bot.entities[Object.keys(agent.bot.entities).find(uuid => agent.bot.entities[uuid].name === entity_type)];
+      if (!entity) {
+        skills.log(agent.bot, `Could not find entity of type ${entity_type}.`);
+        return `Could not find entity of type ${entity_type}.`;
+      }
+      // Walk to the entity coordinates
+      await skills.goToPosition(agent.bot, entity.position.x, entity.position.y, entity.position.z, 1);
+      try {
+        // Mount the entity
+        await agent.bot.mount(entity);
+        skills.log(agent.bot, `Riding entity of type ${entity_type}.`);
+        return `Riding entity of type ${entity_type}.`;
+      } catch (error) {
+        skills.log(agent.bot, `Failed to ride entity of type ${entity_type}: ${error.message}`);
+        return `Failed to ride entity of type ${entity_type}.`;
+      }
+    })
+  },
+  {
+    name: '!dismount',
+    description: 'Dismount the currently ridden entity.',
+    params: {},
+    perform: runAsAction(async (agent) => {
+      await agent.bot.dismount();
+      return 'Dismounted entity.';
+    })
+  },
     {
         name: '!stay',
         description: 'Stay in the current location no matter what. Pauses all modes.',
