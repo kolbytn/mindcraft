@@ -266,6 +266,15 @@ export class Task {
             this.taskTimeout = this.data.timeout || 300;
             // Set validator based on task_type
 
+            // do goal initialization here
+
+            // let agentGoal = this.getAgentGoal();
+            // if (agentGoal) {
+            //     agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
+            //     console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
+            //     await executeCommand(this.agent, `!goal("${agentGoal}")`);
+            // }
+
             if (this.task_type === 'construction') {
                 this.validator = new ConstructionTaskValidator(this.data, this.agent);
             } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
@@ -407,7 +416,17 @@ export class Task {
         return false;
     }
 
+    async setAgentGoal() {
+        let agentGoal = this.getAgentGoal();
+        if (agentGoal && this.data.agent_count + this.data.human_count > 1) {
+            agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
+            console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
+        }
+        await executeCommand(this.agent, `!goal("${agentGoal}")`);
+    }
+
     async initBotTask() {
+        await this.setAgentGoal();
         await this.agent.bot.chat(`/clear ${this.name}`);
         console.log(`Cleared ${this.name}'s inventory.`);
 
@@ -508,12 +527,7 @@ export class Task {
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
 
-        let agentGoal = this.getAgentGoal();
-        if (agentGoal) {
-            agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
-            console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
-            await executeCommand(this.agent, `!goal("${agentGoal}")`);
-        }
+        
     }
     
     async teleportBots() {

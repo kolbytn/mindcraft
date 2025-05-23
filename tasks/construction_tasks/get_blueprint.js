@@ -23,7 +23,7 @@ bot.on('spawn', async () => {
     const xOffset = 30;
     const zOffset = 20;
 
-    const taskFilePath = '/Users/isadorawhite/izzy_mindcraft/mindcraft/tasks/construction_tasks/custom/flower_three_agents.json';
+    const taskFilePath = '';
     const task_name = "flower_three_agents";
     
 

@@ -102,6 +102,11 @@
         "type": "debug",
         "timeout": 60
     },
+    "debug_goal": {
+        "goal": "Reply to all messages with star emojis when prompted",
+        "agent_count": 1,
+        "type": "debug"
+    },
     "debug_different_goal": {
         "goal": {
             "0": "Reply to all messages with star emojis when prompted",
