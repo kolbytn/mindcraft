@@ -1,0 +1,290 @@
+{
+    "multiagent_cooking_2_1_bread_1_golden_apple": {
+        "conversation": "Let's work together to make golden_apple, bread.",
+        "agent_count": 2,
+        "target": {
+            "golden_apple": 1,
+            "bread": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "golden_apple": [
+                "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+                "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+            ],
+            "bread": [
+                "Step 1: Go to the farm and collect 3 wheat.",
+                "Step 2: Go to the crafting table and use the wheat to craft bread."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make golden_apple, bread.",
+            "1": "Collaborate with agents around you to make 1 golden_apple, 1 bread. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread."
+        }
+    },
+    "multiagent_cooking_2_1_golden_apple_1_rabbit_stew": {
+        "conversation": "Let's work together to make golden_apple, rabbit_stew.",
+        "agent_count": 2,
+        "target": {
+            "golden_apple": 1,
+            "rabbit_stew": 1
+        },
+        "type": "cooking",
+        "timeout": 11500,
+        "recipes": {
+            "golden_apple": [
+                "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+                "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+            ],
+            "rabbit_stew": [
+                "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+                "Step 2: Go to the furnace and bake the potato.",
+                "Step 3: Go to the chest and grab a bowl",
+                "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+                "Step 6: Go to the furnace and cook the raw rabbit.",
+                "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make golden_apple, rabbit_stew.",
+            "1": "Collaborate with agents around you to make 1 golden_apple, 1 rabbit_stew. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        }
+    },
+    "multiagent_cooking_2_1_bread_1_cake": {
+        "conversation": "Let's work together to make cake, bread.",
+        "agent_count": 2,
+        "target": {
+            "cake": 1,
+            "bread": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "cake": [
+                "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+                "Step 2: Go to the chest and grab 3 milk buckets.",
+                "Step 3: Go to the chest and grab an egg.",
+                "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+                "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+            ],
+            "bread": [
+                "Step 1: Go to the farm and collect 3 wheat.",
+                "Step 2: Go to the crafting table and use the wheat to craft bread."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make cake, bread.",
+            "1": "Collaborate with agents around you to make 1 cake, 1 bread. \n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread."
+        }
+    },
+    "multiagent_cooking_2_1_baked_potato_1_golden_apple": {
+        "conversation": "Let's work together to make baked_potato, golden_apple.",
+        "agent_count": 2,
+        "target": {
+            "baked_potato": 1,
+            "golden_apple": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "baked_potato": [
+                "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+                "Step 2: Go to the furnace and bake the potato."
+            ],
+            "golden_apple": [
+                "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+                "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make baked_potato, golden_apple.",
+            "1": "Collaborate with agents around you to make 1 baked_potato, 1 golden_apple. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+        }
+    },
+    "multiagent_cooking_2_1_baked_potato_1_rabbit_stew": {
+        "conversation": "Let's work together to make baked_potato, rabbit_stew.",
+        "agent_count": 2,
+        "target": {
+            "baked_potato": 1,
+            "rabbit_stew": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "baked_potato": [
+                "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+                "Step 2: Go to the furnace and bake the potato."
+            ],
+            "rabbit_stew": [
+                "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+                "Step 2: Go to the furnace and bake the potato.",
+                "Step 3: Go to the chest and grab a bowl",
+                "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+                "Step 6: Go to the furnace and cook the raw rabbit.",
+                "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make baked_potato, rabbit_stew.",
+            "1": "Collaborate with agents around you to make 1 baked_potato, 1 rabbit_stew. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        }
+    },
+    "multiagent_cooking_2_1_bread_1_rabbit_stew": {
+        "conversation": "Let's work together to make rabbit_stew, bread.",
+        "agent_count": 2,
+        "target": {
+            "rabbit_stew": 1,
+            "bread": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "rabbit_stew": [
+                "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
+                "Step 2: Go to the furnace and bake the potato.",
+                "Step 3: Go to the chest and grab a bowl",
+                "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+                "Step 6: Go to the furnace and cook the raw rabbit.",
+                "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+            ],
+            "bread": [
+                "Step 1: Go to the farm and collect 3 wheat.",
+                "Step 2: Go to the crafting table and use the wheat to craft bread."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make rabbit_stew, bread.",
+            "1": "Collaborate with agents around you to make 1 rabbit_stew, 1 bread. \n\nRecipe for rabbit_stew:\nStep 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').\nStep 2: Go to the furnace and bake the potato.\nStep 3: Go to the chest and grab a bowl\nStep 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 6: Go to the furnace and cook the raw rabbit.\nStep 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew.\n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread."
+        }
+    },
+    "multiagent_cooking_2_1_baked_potato_1_bread": {
+        "conversation": "Let's work together to make bread, baked_potato.",
+        "agent_count": 2,
+        "target": {
+            "bread": 1,
+            "baked_potato": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "bread": [
+                "Step 1: Go to the farm and collect 3 wheat.",
+                "Step 2: Go to the crafting table and use the wheat to craft bread."
+            ],
+            "baked_potato": [
+                "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+                "Step 2: Go to the furnace and bake the potato."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make bread, baked_potato.",
+            "1": "Collaborate with agents around you to make 1 bread, 1 baked_potato. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato."
+        }
+    },
+    "multiagent_cooking_2_1_baked_potato_1_cake": {
+        "conversation": "Let's work together to make baked_potato, cake.",
+        "agent_count": 2,
+        "target": {
+            "baked_potato": 1,
+            "cake": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "baked_potato": [
+                "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+                "Step 2: Go to the furnace and bake the potato."
+            ],
+            "cake": [
+                "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
+                "Step 2: Go to the chest and grab 3 milk buckets.",
+                "Step 3: Go to the chest and grab an egg.",
+                "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
+                "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make baked_potato, cake.",
+            "1": "Collaborate with agents around you to make 1 baked_potato, 1 cake. \n\nRecipe for baked_potato:\nStep 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).\nStep 2: Go to the furnace and bake the potato.\n\nRecipe for cake:\nStep 1: Go to the farm and collect 3 wheat, 2 sugar cane.\nStep 2: Go to the chest and grab 3 milk buckets.\nStep 3: Go to the chest and grab an egg.\nStep 4: Go to the crafting table and craft the sugarcane into sugar.\nStep 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
+        }
+    },
+    "multiagent_cooking_2_1_cooked_beef_1_golden_apple": {
+        "conversation": "Let's work together to make golden_apple, cooked_beef.",
+        "agent_count": 2,
+        "target": {
+            "golden_apple": 1,
+            "cooked_beef": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "golden_apple": [
+                "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+                "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+            ],
+            "cooked_beef": [
+                "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+                "Step 2: Go to furnace and use it to cook the beef."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make golden_apple, cooked_beef.",
+            "1": "Collaborate with agents around you to make 1 golden_apple, 1 cooked_beef. \n\nRecipe for golden_apple:\nStep 1: Go to the chest and collect 1 apple and 8 gold ingots.\nStep 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef."
+        }
+    },
+    "multiagent_cooking_2_1_bread_1_cooked_beef": {
+        "conversation": "Let's work together to make bread, cooked_beef.",
+        "agent_count": 2,
+        "target": {
+            "bread": 1,
+            "cooked_beef": 1
+        },
+        "type": "cooking",
+        "timeout": 1500,
+        "recipes": {
+            "bread": [
+                "Step 1: Go to the farm and collect 3 wheat.",
+                "Step 2: Go to the crafting table and use the wheat to craft bread."
+            ],
+            "cooked_beef": [
+                "Step 1: Kill a cow and pick up 1 beef that is dropped.",
+                "Step 2: Go to furnace and use it to cook the beef."
+            ]
+        },
+        "blocked_access_to_recipe": [
+            "0"
+        ],
+        "goal": {
+            "0": "Collaborate with other agents around you to make bread, cooked_beef.",
+            "1": "Collaborate with agents around you to make 1 bread, 1 cooked_beef. \n\nRecipe for bread:\nStep 1: Go to the farm and collect 3 wheat.\nStep 2: Go to the crafting table and use the wheat to craft bread.\n\nRecipe for cooked_beef:\nStep 1: Kill a cow and pick up 1 beef that is dropped.\nStep 2: Go to furnace and use it to cook the beef."
+        }
+    }
+}

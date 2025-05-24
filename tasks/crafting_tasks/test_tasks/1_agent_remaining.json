@@ -1,0 +1,146 @@
+{
+    "multiagent_crafting_lectern_full_plan_requires_ctable__depth_2": {
+        "goal": "Collaborate with other agents to craft a lectern",
+        "conversation": "Let's work together to craft a lectern.",
+        "initial_inventory": {
+          "0": {
+            "birch_slab": 5,
+            "crafting_table": 1, 
+            "book": 1
+          }
+        },
+        "agent_count": 1,
+        "target": "lectern",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 2,
+        "depth": 2,
+        "timeout": 300,
+        "blocked_actions": {
+          "0": [],
+          "1": []
+        },
+        "missing_items": [
+        ],
+        "requires_ctable": true
+      },
+      "multiagent_crafting_clock_partial_plan_requires_ctable__depth_0": {
+        "goal": "Collaborate with other agents to craft a clock",
+        "conversation": "Let's work together to craft a clock.",
+        "initial_inventory": {
+          "0": {
+            "gold_ingot": 2
+          }
+        },
+        "agent_count": 1,
+        "target": "clock",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 2,
+        "depth": 0,
+        "timeout": 300,
+        "blocked_actions": {
+          "0": [
+            "!getCraftingPlan"
+          ],
+          "1": []
+        },
+        "missing_items": [],
+        "requires_ctable": true
+      },
+      "multiagent_crafting_firework_rocket_partial_plan__depth_0": {
+        "goal": "Collaborate with other agents to craft firework_rocket",
+        "conversation": "Let's work together to craft firework_rocket.",
+        "initial_inventory": {
+          "0": {
+            "paper": 1
+          }
+        },
+        "agent_count": 1,
+        "target": "firework_rocket",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 2,
+        "depth": 0,
+        "timeout": 300,
+        "blocked_actions": {
+          "0": [
+            "!getCraftingPlan"
+        ],
+          "1": []
+        },
+        "missing_items": [],
+        "requires_ctable": false
+      },
+      "multiagent_crafting_light_gray_wool_full_plan__depth_1": {
+        "goal": "Collaborate with other agents to craft light_gray_wool",
+        "conversation": "Let's work together to craft light_gray_wool.",
+        "initial_inventory": {
+          "0": {
+            "black_dye": 1
+          }
+        },
+        "agent_count": 1,
+        "target": "light_gray_wool",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 2,
+        "depth": 1,
+        "timeout": 300,
+        "blocked_actions": {
+          "0": [],
+          "1": []
+        },
+        "missing_items": [
+        ],
+        "requires_ctable": false
+      },
+      "multiagent_crafting_activator_rail_full_plan_requires_ctable__depth_2": {
+        "goal": "Collaborate with other agents to craft activator_rail",
+        "conversation": "Let's work together to craft activator_rail.",
+        "initial_inventory": {
+          "0": {
+            "iron_ingot": 3,
+            "oak_planks": 6
+          }
+        },
+        "agent_count": 1,
+        "target": "activator_rail",  
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 3,
+        "depth": 2,
+        "timeout": 300,
+        "blocked_actions": {
+          "0": [],
+          "1": []
+        },
+        "missing_items": [
+        ],
+        "requires_ctable": true
+      },
+      "multiagent_crafting_crossbow_full_plan_requires_ctable__depth_2": {
+        "goal": "Collaborate with other agents to craft a crossbow",
+        "conversation": "Let's work together to craft a crossbow.",
+        "initial_inventory": {
+          "0": {
+            "oak_planks": 8,
+            "iron_ingot": 2
+          }
+        },
+        "agent_count": 1,
+        "target": "crossbow",  
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 3,
+        "depth": 2,
+        "timeout": 300,
+        "blocked_actions": {
+          "0": [],
+          "1": []
+        },
+        "missing_items": [
+        ],
+        "requires_ctable": true
+      }
+}

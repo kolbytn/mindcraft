@@ -2,6 +2,7 @@ import random
 import json
 from typing import Dict, List, Any, Tuple, Set
 from collections import Counter, defaultdict
+import itertools
 
 # Define your COOKING_ITEMS dictionary here
 # This is where you should put your complete COOKING_ITEMS dictionary
@@ -10,93 +11,138 @@ COOKING_ITEMS = {
 "cooked_mutton": {
     "recipe": [
         "Step 1: Kill a sheep and pick up 1 mutton that is dropped.", 
-        "Step 2: Go to furnace and use it to cook the mutton."
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
     ],
     "description": "Cooked mutton meat",
-    "complexity": "easy"
+    "complexity": "easy", 
+    "required_chest_items": {
+        "coal": 8,
+    }
 },
 "cooked_beef": {
     "recipe": [
         "Step 1: Kill a cow and pick up 1 beef that is dropped.",
-        "Step 2: Go to furnace and use it to cook the beef."
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the beef."
     ],
     "description": "Cooked beef meat",
-    "complexity": "easy"
+    "complexity": "easy", 
+    "required_chest_items": {
+        "coal": 8,
+    }
 },
 "cooked_porkchop": {
     "recipe": [
         "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
-        "Step 2: Go to furnace and use it to cook the porkchop."
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
     ],
     "description": "Cooked porkchop",
-    "complexity": "easy"
+    "complexity": "easy", 
+    "required_chest_items": {
+        "coal": 8,
+    }
 },
 "cooked_chicken": {
     "recipe": [
         "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
-        "Step 2: Go to furnace and use it to cook the raw chicken."
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
     ],
     "description": "Cooked chicken meat",
-    "complexity": "easy"
+    "complexity": "easy", 
+    "required_chest_items": {
+        "coal": 8,
+    }
 },
 "cooked_rabbit": {
     "recipe": [
         "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
         "Step 2: Go to furnace and use it to cook the raw rabbit."
     ],
     "description": "Cooked rabbit meat",
-    "complexity": "easy"
+    "complexity": "easy", 
+    "required_chest_items": {
+        "coal": 8,
+    }
 },
 
 # Soups and Stews
 "beetroot_soup": {
     "recipe": [
         "Step 1: Go to the farm and collect 6 beetroot.",
-        "Step 2: Go to the chest and grab a bowl.",
+        "Step 2: From your inventory or other agents get a bowl.",
         "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
     ],
     "description": "A hearty beetroot soup",
-    "complexity": "medium"
+    "complexity": "medium", 
+    "required_chest_items": {
+        "bowl": 1,
+    }
 },
 "mushroom_stew": {
     "recipe": [
         "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
-        "Step 2: Go to the chest and grab a bowl.",
+        "Step 2: From your inventory or other agents get a bowl.",
         "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
     ],
     "description": "A warm mushroom stew",
-    "complexity": "medium"
+    "complexity": "medium", 
+    "required_chest_items": {
+        "bowl": 1,
+    }
 },
 "rabbit_stew": {
     "recipe": [
         "Step 1: Go to the farm and collect 1 carrot, 1 potato, and 1 brown mushroom (search for 'potatoes' (not 'potato').",
-        "Step 2: Go to the furnace and bake the potato.",
-        "Step 3: Go to the chest and grab a bowl",
-        "Step 5: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
-        "Step 6: Go to the furnace and cook the raw rabbit.",
-        "Step 7: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to the furnace and bake the potato.",
+        "Step 5: From your inventory or other agents get a bowl",
+        "Step 6: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 7: Go to the furnace and cook the raw rabbit.",
+        "Step 8: Go to the crafting table and combine the cooked rabbit, baked potato, carrot, brown mushroom, and bowl to make rabbit stew."
     ],
     "description": "A hearty rabbit stew",
-    "complexity": "hard"
+    "complexity": "hard", 
+    "required_chest_items": {
+        "bowl": 1,
+    }
 },
 "suspicious_stew": {
     "recipe": [
         "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
-        "Step 2: Go to the chest and grab a bowl and 1 dandelion",
-        "Step 4: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
     ],
     "description": "A mysterious stew with special effects",
-    "complexity": "medium"
+    "complexity": "medium", 
+    "required_chest_items": {
+        "bowl": 1,
+        "dandelion": 1,
+    }
 },
 
 # Baked Goods
 "baked_potato": {
     "recipe": [
         "Step 1: Go to the farm and collect 1 potato (search for 'potatoes' (not 'potato')).",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
         "Step 2: Go to the furnace and bake the potato."
     ],
     "description": "A simple baked potato",
-    "complexity": "easy"
+    "complexity": "easy", 
+    "required_chest_items": {
+        "coal": 8,
+    }
 },
 "bread": {
     "recipe": [
@@ -104,47 +150,61 @@ COOKING_ITEMS = {
         "Step 2: Go to the crafting table and use the wheat to craft bread."
     ],
     "description": "Fresh bread",
-    "complexity": "medium"
+    "complexity": "medium", 
 },
 "cake": {
     "recipe": [
         "Step 1: Go to the farm and collect 3 wheat, 2 sugar cane.",
-        "Step 2: Go to the chest and grab 3 milk buckets (already filled with milk).",
-        "Step 3: Go to the chest and grab an egg.",
+        "Step 2: From your inventory or other agents get 3 milk buckets (already filled with milk).",
+        "Step 3: Get an egg from your inventory or other agents.",
         "Step 4: Go to the crafting table and craft the sugarcane into sugar.",
         "Step 5: Go to the crafting table and combine all ingredients (3 wheat, 2 sugar, 1 egg, and milk bucket) to make a cake."
     ],
     "description": "A delicious cake",
-    "complexity": "hard"
+    "complexity": "hard", 
+    "required_chest_items": {
+        "milk_bucket": 3,
+        "egg": 1,
+    }
 },
 "cookie": {
     "recipe": [
         "Step 1: Go to the farm and collect 2 wheat.",
-        "Step 2: Go to the chest and grab 1 cocoa bean.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
         "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
     ],
     "description": "Sweet cookies",
-    "complexity": "medium"
+    "complexity": "medium", 
+    "required_chest_items": {
+        "cocoa_beans": 1,
+    }
 },
 "pumpkin_pie": {
     "recipe": [
         "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
-        "Step 2: Go to the chest and grab 1 egg.",
+        "Step 2: Get 1 egg from your inventory or other bots",
         "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
         "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
     ],
     "description": "Delicious pumpkin pie",
-    "complexity": "hard"
+    "complexity": "hard", 
+    "required_chest_items": {
+        "egg": 1,
+    }
 },
 
 # Sweet Foods
 "golden_apple": {
     "recipe": [
-        "Step 1: Go to the chest and collect 1 apple and 8 gold ingots.",
+        "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
         "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
     ],
     "description": "A magical golden apple",
-    "complexity": "hard"
+    "complexity": "hard", 
+    "required_chest_items": {
+        "gold_ingots": 8,
+        "apple": 1
+    }
 },
 
 # Special Foods
@@ -155,10 +215,63 @@ COOKING_ITEMS = {
         "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
     ],
     "description": "A magical golden carrot",
-    "complexity": "hard"
+    "complexity": "hard", 
+    "required_chest_items": ["gold_ingots"]
 },
 
 }
+
+chest_items = {
+    "milk_bucket": 3,
+    "egg": 16,
+    "dandelion": 64,
+    "cocao_beans": 64,
+    "apple": 64,
+    "gold_ingots": 8,
+    "salmon": 64,
+    "cod": 64,
+    "kelp": 64,
+    "dried_kelp": 64,
+    "sweet_berries": 64,
+    "honey_bottle": 1,
+    "glow_berries": 64,
+    "bowl": 1,
+    "cooked_salmon": 1,
+    "cooked_cod": 1,
+    "oak_planks": 64,
+    "iron_ingot": 64,
+}
+
+
+chest_items = [
+                ['minecraft:milk_bucket', 1],     
+                ['minecraft:egg', 16],            
+                ['minecraft:dandelion', 64],    
+                ['minecraft:sugar', 64],
+                ['minecraft:cocoa_beans', 64],
+                ['minecraft:apple', 64],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:salmon', 64],
+                ['minecraft:cod', 64],
+                ['minecraft:kelp', 64],
+                ['minecraft:dried_kelp', 64],
+                ['minecraft:sweet_berries', 64],
+                ['minecraft:honey_bottle', 1],
+                ['minecraft:glow_berries', 64],
+                ['minecraft:bowl', 64],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:cooked_salmon', 64],
+                ['minecraft:cooked_cod', 64],
+                ['minecraft:gold_ingot', 64],
+                ['minecraft:oak_planks', 64],
+                ['minecraft:iron_ingot', 64],
+                ['minecraft:milk_bucket', 1],
+                ['minecraft:milk_bucket', 1],
+            ]
 
 def generate_task_id(task: Dict[str, Any]) -> str:
     """
@@ -213,10 +326,10 @@ def generate_hells_kitchen_task_id(task: Dict[str, Any]) -> str:
     # Combine everything with hells_kitchen suffix
     return f"multiagent_cooking_{quantities}_hells_kitchen"
 
-def generate_hells_kitchen_task() -> Dict[str, Any]:
+def generate_hells_kitchen_task(selected_items) -> Dict[str, Any]:
     """Generate a single Hell's Kitchen task where agents have recipes for each other's items."""
     # Select two different items
-    selected_items = random.sample(list(COOKING_ITEMS.keys()), 2)
+    # selected_items = random.sample(list(COOKING_ITEMS.keys()), 2)
 
     # Assign one item to each agent
     agent0_target = selected_items[0]
@@ -346,16 +459,22 @@ def generate_maximum_hells_kitchen_tasks(
     all_items = list(COOKING_ITEMS.keys())
     
     # Fixed test items as specified in your original code
-    hk_test_items = {"cooked_mutton", "baked_potato", "cake", "golden_carrot", "mushroom_stew", "bread"}
+    hk_test_items = {"cooked_beef", "baked_potato", "cake", "golden_apple", "rabbit_stew", "bread"}
+
     hk_train_items = set(all_items) - hk_test_items
     
+    hk_test_lst = list(hk_test_items)
+    train_possible_combinations = itertools.combinations(hk_train_items, 2)
+    # test_possible_combinations = [["bread", "golden_apple"], ["golden_apple", "rabbit_stew"], ["bread", "cake"], 
+    #                               ["baked_potato", "golden_apple"], ["baked_potato", "cake"], ["cooked_beef", "golden_apple"]]
+    test_possible_combinations = itertools.combinations(hk_test_lst, 2)
     # Set fixed seed for consistent results
     random.seed(42)
     
     # Generate tasks for training set
     train_tasks = {}
-    while len(train_tasks) < num_train_tasks:
-        task = generate_hells_kitchen_task()
+    for combination in train_possible_combinations:
+        task = generate_hells_kitchen_task(combination)
         task_id, task_data = list(task.items())[0]
         
         # Check if task uses valid items for train set
@@ -368,8 +487,8 @@ def generate_maximum_hells_kitchen_tasks(
     
     # Generate tasks for test set
     test_tasks = {}
-    while len(test_tasks) < num_test_tasks:
-        task = generate_hells_kitchen_task()
+    for combination in test_possible_combinations:
+        task = generate_hells_kitchen_task(combination)
         task_id, task_data = list(task.items())[0]
         
         # Check if task uses valid items for test set
@@ -482,7 +601,7 @@ if __name__ == "__main__":
     with open("hells_kitchen_train_tasks.json", "w") as f:
         json.dump(hk_train_tasks, f, indent=2)
     
-    with open("hells_kitchen_test_tasks.json", "w") as f:
+    with open("mindcraft/tasks/cooking_tasks/require_collab_test_2_items/2_agent_hells_kitchen_full.json", "w") as f:
         json.dump(hk_test_tasks, f, indent=2)
     
     # Print counts

@@ -1,0 +1,1667 @@
+{
+  "multiagent_cooking_mushroom_stew_golden_carrot_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and golden_carrot together. You are supposed to make golden_carrot and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "golden_carrot"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_suspicious_stew_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and suspicious_stew together. You are supposed to make suspicious_stew and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "suspicious_stew"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_cooked_rabbit_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and cooked_rabbit together. You are supposed to make cooked_rabbit and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "cooked_rabbit"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and cooked_mutton together. You are supposed to make cooked_mutton and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "cooked_mutton"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_cooked_chicken_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and cooked_chicken together. You are supposed to make cooked_chicken and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "cooked_chicken"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_cooked_porkchop_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and cooked_porkchop together. You are supposed to make cooked_porkchop and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "cooked_porkchop"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_mushroom_stew_cookie_hells_kitchen": {
+    "conversation": "We need to make mushroom_stew and cookie together. You are supposed to make cookie and I am supposed to make mushroom_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "mushroom_stew",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "mushroom_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make mushroom_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make mushroom_stew. You have their recipe:\nRecipe for mushroom_stew:\nStep 1: Go to the farm and collect 1 red mushroom and 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine both the mushrooms and bowl to make mushroom stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_suspicious_stew_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and suspicious_stew together. You are supposed to make suspicious_stew and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "suspicious_stew"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_cooked_rabbit_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and cooked_rabbit together. You are supposed to make cooked_rabbit and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "cooked_rabbit"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and cooked_mutton together. You are supposed to make cooked_mutton and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "cooked_mutton"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_cooked_chicken_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and cooked_chicken together. You are supposed to make cooked_chicken and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "cooked_chicken"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_cooked_porkchop_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and cooked_porkchop together. You are supposed to make cooked_porkchop and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "cooked_porkchop"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_golden_carrot_cookie_hells_kitchen": {
+    "conversation": "We need to make golden_carrot and cookie together. You are supposed to make cookie and I am supposed to make golden_carrot, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "golden_carrot",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "golden_carrot": [
+        "Step 1: Go to the farm and collect 1 carrot.",
+        "Step 2: Go to the chest and collect gold ingots and convert them to gold nuggets.",
+        "Step 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make golden_carrot, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make golden_carrot. You have their recipe:\nRecipe for golden_carrot:\nStep 1: Go to the farm and collect 1 carrot.\nStep 2: Go to the chest and collect gold ingots and convert them to gold nuggets.\nStep 3: Go to the crafting table and surround the carrot with gold nuggets to create a golden carrot.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_cooked_rabbit_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and cooked_rabbit together. You are supposed to make cooked_rabbit and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "cooked_rabbit"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and cooked_mutton together. You are supposed to make cooked_mutton and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "cooked_mutton"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_cooked_chicken_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and cooked_chicken together. You are supposed to make cooked_chicken and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "cooked_chicken"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_cooked_porkchop_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and cooked_porkchop together. You are supposed to make cooked_porkchop and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "cooked_porkchop"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_suspicious_stew_cookie_hells_kitchen": {
+    "conversation": "We need to make suspicious_stew and cookie together. You are supposed to make cookie and I am supposed to make suspicious_stew, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "suspicious_stew",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "suspicious_stew": [
+        "Step 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.",
+        "Step 2: From your inventory or other agents get a bowl and 1 dandelion",
+        "Step 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make suspicious_stew, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make suspicious_stew. You have their recipe:\nRecipe for suspicious_stew:\nStep 1: Go to the farm and collect 1 red mushroom, 1 brown mushroom.\nStep 2: From your inventory or other agents get a bowl and 1 dandelion\nStep 3: Go to the crafting table and combine the mushrooms, dandelion, and bowl to make suspicious stew.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_rabbit_cooked_mutton_hells_kitchen": {
+    "conversation": "We need to make cooked_rabbit and cooked_mutton together. You are supposed to make cooked_mutton and I am supposed to make cooked_rabbit, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_rabbit",
+      "cooked_mutton"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_rabbit_cooked_chicken_hells_kitchen": {
+    "conversation": "We need to make cooked_rabbit and cooked_chicken together. You are supposed to make cooked_chicken and I am supposed to make cooked_rabbit, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_rabbit",
+      "cooked_chicken"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_rabbit_cooked_porkchop_hells_kitchen": {
+    "conversation": "We need to make cooked_rabbit and cooked_porkchop together. You are supposed to make cooked_porkchop and I am supposed to make cooked_rabbit, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_rabbit",
+      "cooked_porkchop"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_rabbit_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make cooked_rabbit and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make cooked_rabbit, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_rabbit",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_rabbit_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make cooked_rabbit and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make cooked_rabbit, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_rabbit",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_rabbit_cookie_hells_kitchen": {
+    "conversation": "We need to make cooked_rabbit and cookie together. You are supposed to make cookie and I am supposed to make cooked_rabbit, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_rabbit",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_rabbit": [
+        "Step 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 2: Go to furnace and use it to cook the raw rabbit."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_rabbit, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_rabbit. You have their recipe:\nRecipe for cooked_rabbit:\nStep 1: Kill a rabbit and pick up 1 raw rabbit that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 2: Go to furnace and use it to cook the raw rabbit.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_mutton_cooked_chicken_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and cooked_chicken together. You are supposed to make cooked_chicken and I am supposed to make cooked_mutton, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_mutton",
+      "cooked_chicken"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ],
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_mutton_cooked_porkchop_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and cooked_porkchop together. You are supposed to make cooked_porkchop and I am supposed to make cooked_mutton, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_mutton",
+      "cooked_porkchop"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_mutton_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make cooked_mutton, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_mutton",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_mutton_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make cooked_mutton, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_mutton",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_mutton_cookie_hells_kitchen": {
+    "conversation": "We need to make cooked_mutton and cookie together. You are supposed to make cookie and I am supposed to make cooked_mutton, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_mutton",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_mutton": [
+        "Step 1: Kill a sheep and pick up 1 mutton that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the mutton."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_mutton, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_mutton. You have their recipe:\nRecipe for cooked_mutton:\nStep 1: Kill a sheep and pick up 1 mutton that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the mutton.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_chicken_cooked_porkchop_hells_kitchen": {
+    "conversation": "We need to make cooked_chicken and cooked_porkchop together. You are supposed to make cooked_porkchop and I am supposed to make cooked_chicken, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_chicken",
+      "cooked_porkchop"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ],
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_chicken_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make cooked_chicken and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make cooked_chicken, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_chicken",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_chicken_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make cooked_chicken and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make cooked_chicken, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_chicken",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_chicken_cookie_hells_kitchen": {
+    "conversation": "We need to make cooked_chicken and cookie together. You are supposed to make cookie and I am supposed to make cooked_chicken, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_chicken",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_chicken": [
+        "Step 1: Kill a chicken and pick up 1 raw chicken that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the raw chicken."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_chicken, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_chicken. You have their recipe:\nRecipe for cooked_chicken:\nStep 1: Kill a chicken and pick up 1 raw chicken that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the raw chicken.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_porkchop_beetroot_soup_hells_kitchen": {
+    "conversation": "We need to make cooked_porkchop and beetroot_soup together. You are supposed to make beetroot_soup and I am supposed to make cooked_porkchop, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_porkchop",
+      "beetroot_soup"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ],
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_porkchop_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make cooked_porkchop and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make cooked_porkchop, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_porkchop",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 8,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_cooked_porkchop_cookie_hells_kitchen": {
+    "conversation": "We need to make cooked_porkchop and cookie together. You are supposed to make cookie and I am supposed to make cooked_porkchop, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "cooked_porkchop",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "cooked_porkchop": [
+        "Step 1: Kill a pig and pick up 1 porkchop that is dropped.",
+        "Step 2: Get coal from your inventory or other agents.",
+        "Step 3: Put coal in the furnace",
+        "Step 4: Go to furnace and use it to cook the porkchop."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make cooked_porkchop, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cooked_porkchop. You have their recipe:\nRecipe for cooked_porkchop:\nStep 1: Kill a pig and pick up 1 porkchop that is dropped.\nStep 2: Get coal from your inventory or other agents.\nStep 3: Put coal in the furnace\nStep 4: Go to furnace and use it to cook the porkchop.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_beetroot_soup_pumpkin_pie_hells_kitchen": {
+    "conversation": "We need to make beetroot_soup and pumpkin_pie together. You are supposed to make pumpkin_pie and I am supposed to make beetroot_soup, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "beetroot_soup",
+      "pumpkin_pie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ],
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_beetroot_soup_cookie_hells_kitchen": {
+    "conversation": "We need to make beetroot_soup and cookie together. You are supposed to make cookie and I am supposed to make beetroot_soup, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "beetroot_soup",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "beetroot_soup": [
+        "Step 1: Go to the farm and collect 6 beetroot.",
+        "Step 2: From your inventory or other agents get a bowl.",
+        "Step 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make beetroot_soup, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make beetroot_soup. You have their recipe:\nRecipe for beetroot_soup:\nStep 1: Go to the farm and collect 6 beetroot.\nStep 2: From your inventory or other agents get a bowl.\nStep 3: Go to the crafting table and combine the 6 beetroot and 1 bowl to make beetroot soup.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 6,
+      "max_steps_per_recipe": 3,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  },
+  "multiagent_cooking_pumpkin_pie_cookie_hells_kitchen": {
+    "conversation": "We need to make pumpkin_pie and cookie together. You are supposed to make cookie and I am supposed to make pumpkin_pie, but I only have YOUR recipe and you only have access to MY recipe! Let's exchange information and get cooking!",
+    "agent_count": 2,
+    "target": [
+      "pumpkin_pie",
+      "cookie"
+    ],
+    "type": "cooking",
+    "timeout": 300,
+    "recipes": {
+      "pumpkin_pie": [
+        "Step 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.",
+        "Step 2: Get 1 egg from your inventory or other bots",
+        "Step 3: Go to the crafting table and craft the sugar cane into sugar.",
+        "Step 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie."
+      ],
+      "cookie": [
+        "Step 1: Go to the farm and collect 2 wheat.",
+        "Step 2: Get 1 cocoa bean from your inventory or other agents.",
+        "Step 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie."
+      ]
+    },
+    "blocked_access_to_recipe": [],
+    "goal": {
+      "0": "You need to make pumpkin_pie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make cookie. You have their recipe:\nRecipe for cookie:\nStep 1: Go to the farm and collect 2 wheat.\nStep 2: Get 1 cocoa bean from your inventory or other agents.\nStep 3: Go to the crafting table and combine the wheat and cocoa bean to craft a cookie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking.",
+      "1": "You need to make cookie, but you don't have the recipe for it, your partner has it!\n\nYour partner needs to make pumpkin_pie. You have their recipe:\nRecipe for pumpkin_pie:\nStep 1: Go to the farm and collect 1 pumpkin and 1 sugar cane.\nStep 2: Get 1 egg from your inventory or other bots\nStep 3: Go to the crafting table and craft the sugar cane into sugar.\nStep 4: Go to the crafting table and combine the pumpkin, egg, and sugar to make a pumpkin pie.\n\nYou must communicate effectively to exchange recipe information and complete both dishes. Note: You can only guide your partner with recipe steps. You cannot help with ingredient collection or cooking."
+    },
+    "task_type": "cooking",
+    "difficulty_metrics": {
+      "total_recipe_steps": 7,
+      "max_steps_per_recipe": 4,
+      "unique_target_items": 2,
+      "overall_difficulty_score": 5,
+      "difficulty_category": "medium"
+    },
+    "difficulty": "medium"
+  }
+}
