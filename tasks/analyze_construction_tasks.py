@@ -183,9 +183,6 @@ def extract_success_scores(folders, model_names):
     display_table("Average Success Score by Room", avg_room_scores)
     display_table("Average Success Score by (Material, Room) Tuples", avg_material_room_scores, tuple_keys=True)
 
-def analyze_construction_log(log_file):
-    # ... existing code ...
-    pass
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze construction task logs.')

@@ -4,6 +4,7 @@
     "goal": "Make a structure with the blueprint below",
     "conversation": "Let's share materials and make a structure with the blueprint",
     "agent_count": 3,
+    "timeout": 1000,
     "blueprint": {
       "materials": {
         "oak_planks": 153,
