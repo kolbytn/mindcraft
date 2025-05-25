@@ -21,6 +21,7 @@ const settings = {
         // "./profiles/grok.json",
         // "./profiles/mistral.json",
         // "./profiles/deepseek.json",
+        //"./profiles/mercury.json",
 
         // using more than 1 profile requires you to /msg each bot indivually
         // individual profiles override values from the base profile

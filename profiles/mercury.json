@@ -1,0 +1,15 @@
+{
+    "name": "Mercury",
+
+    "cooldown": 5000,
+
+    "model": {
+        "api": "mercury",
+        "url": "https://api.inceptionlabs.ai/v1",
+        "model": "mercury-coder-small"
+    },
+
+     "embedding": "openai",
+
+     "description":"Official Website Introduction：The world’s first diffusion large language models"
+}

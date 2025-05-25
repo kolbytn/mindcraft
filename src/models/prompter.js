@@ -21,6 +21,7 @@ import { DeepSeek } from './deepseek.js';
 import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
+import { Mercury} from "./mercury.js";
 import { VLLM } from './vllm.js';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -170,7 +171,9 @@ export class Prompter {
                 profile.api = 'deepseek';
 	        else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
-            else 
+            else if (profile.model.includes('mercury'))
+                profile.api = 'mercury';
+            else
                 throw new Error('Unknown model:', profile.model);
         }
         return profile;
@@ -209,6 +212,8 @@ export class Prompter {
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
             model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
+        else if (profile.api === 'mercury')
+            model = new Mercury(profile.model, profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
@@ -341,7 +346,7 @@ export class Prompter {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');
                 }
-                console.log("Generated response:", generation); 
+                console.log("Generated response:", generation);
                 await this._saveLog(prompt, messages, generation, 'conversation');
 
             } catch (error) {
@@ -358,7 +363,7 @@ export class Prompter {
             if (current_msg_time !== this.most_recent_msg_time) {
                 console.warn(`${this.agent.name} received new message while generating, discarding old response.`);
                 return '';
-            } 
+            }
 
             if (generation?.includes('</think>')) {
                 const [_, afterThink] = generation.split('</think>')
@@ -395,7 +400,7 @@ export class Prompter {
         await this._saveLog(prompt, to_summarize, resp, 'memSaving');
         if (resp?.includes('</think>')) {
             const [_, afterThink] = resp.split('</think>')
-            resp = afterThink
+            resp = afterThink;
         }
         return resp;
     }
