@@ -22,6 +22,7 @@ import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 import { VLLM } from './vllm.js';
+import { Cerebras } from './cerebras.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -170,6 +171,8 @@ export class Prompter {
                 profile.api = 'deepseek';
 	        else if (profile.model.includes('mistral'))
                 profile.api = 'mistral';
+            else if (profile.model.startsWith('cerebras/'))
+                profile.api = 'cerebras';
             else 
                 throw new Error('Unknown model:', profile.model);
         }
@@ -209,6 +212,8 @@ export class Prompter {
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
             model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
+        else if (profile.api === 'cerebras')
+            model = new Cerebras(profile.model.replace('cerebras/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
