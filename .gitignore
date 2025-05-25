@@ -1,4 +1,6 @@
 .vscode/
+.fslckout
+._*
 .idea/
 node_modules/
 package-lock.json
