@@ -41,6 +41,8 @@ You can view the crafting task in action [here](https://www.youtube.com/shorts/V
 
 ## Installation 
 
+You **DO NOT** need Linux to run this, you can run on Windows with the --no-launch-world flag and by installing git bash. 
+
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
 
 Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. **Unzip the server_data.zip in the base `tasks/` folder**.
