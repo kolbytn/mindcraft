@@ -1,5 +1,19 @@
 # Human AI Instructions
 
+## Finishing Installation 
+
+Install the conda environment for running the experiments by executing this in your command line: 
+
+```
+conda create --name mindcraft python=3.11
+conda activate mindcraft
+pip install -r requirements.txt
+```
+
+## Setting up the world
+
+Setting up the world! Make sure your world has cheats enabled! You can do this on creation of your Minecraft world in the Minecraft console, or you can type ```/op @a``` in the chat or in the console of the world launched from the jar file. 
+
 ## Construction 
 Press F3 to view the coordinates of the game. And pull up the file tasks/construction_tasks/church_blueprint.pdf
 Run 
