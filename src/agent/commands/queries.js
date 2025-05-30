@@ -250,9 +250,16 @@ export const queryList = [
             }
 
             // Generate crafting plan
-            let craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
-            craftingPlan = prefixMessage + craftingPlan;
-            return pad(craftingPlan);
+            try {
+                let craftingPlan = mc.getDetailedCraftingPlan(target_item, quantity, curr_inventory);
+                craftingPlan = prefixMessage + craftingPlan;
+                return pad(craftingPlan);
+            } catch (error) {
+                console.error("Error generating crafting plan:", error);
+                return `An error occurred while generating the crafting plan: ${error.message}`;
+            }
+            
+            
         },
     },
     {
