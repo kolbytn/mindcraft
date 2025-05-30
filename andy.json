@@ -1,6 +1,6 @@
 {
-    "name": "andy",
-
-    "model": "gpt-4o-mini"
-
+ "name": "ttsIA",
+ "model": {
+   "model": "gemini-2.0-flash"
+ }
 }
