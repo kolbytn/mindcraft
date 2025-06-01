@@ -423,21 +423,6 @@ export class Task {
             console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
         }
         await executeCommand(this.agent, `!goal("${agentGoal}")`);
-
-        if (this.data.conversation && this.agent.count_id === 0) {
-            let other_name = this.available_agents.filter(n => n !== this.name)[0];
-            let waitCount = 0;
-            while (other_name === undefined && waitCount < 20) {
-                other_name = this.available_agents.filter(n => n !== this.name)[0];
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                waitCount++;
-            }
-            if (other_name === undefined && this.data.agent_count > 1) {
-                console.log('No other agents found. Task unsuccessful.');
-                this.agent.killAll();
-            }
-            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
-        }
     }
 
     async initBotTask() {
@@ -526,9 +511,21 @@ export class Task {
             }
         }
         await new Promise((resolve) => setTimeout(resolve, 500));
+        if (this.data.conversation && this.agent.count_id === 0) {
+            let other_name = this.available_agents.filter(n => n !== this.name)[0];
+            let waitCount = 0;
+            while (other_name === undefined && waitCount < 20) {
+                other_name = this.available_agents.filter(n => n !== this.name)[0];
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                waitCount++;
+            }
+            if (other_name === undefined && this.data.agent_count > 1) {
+                console.log('No other agents found. Task unsuccessful.');
+                this.agent.killAll();
+            }
+            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
+        }
         await this.setAgentGoal();
-
-        
     }
     
     async teleportBots() {
