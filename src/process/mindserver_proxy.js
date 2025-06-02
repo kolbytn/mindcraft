@@ -1,23 +1,23 @@
 import { io } from 'socket.io-client';
-import settings from '../../settings.js';
 
 // Singleton mindserver proxy for the main process
-class MainProxy {
+// recieves commands from mindserver
+class MindserverProxy {
     constructor() {
-        if (MainProxy.instance) {
-            return MainProxy.instance;
+        if (MindserverProxy.instance) {
+            return MindserverProxy.instance;
         }
         
         this.socket = null;
         this.connected = false;
         this.agent_processes = {};
-        MainProxy.instance = this;
+        MindserverProxy.instance = this;
     }
 
-    connect() {
+    connect(host, port) {
         if (this.connected) return;
 
-        this.socket = io(`http://${settings.mindserver_host}:${settings.mindserver_port}`);
+        this.socket = io(`http://${host}:${port}`);
         this.connected = true;
 
         this.socket.on('stop-agent', (agentName) => {
@@ -61,4 +61,4 @@ class MainProxy {
     }
 }
 
-export const mainProxy = new MainProxy();
+export const mindserverProxy = new MindserverProxy();

@@ -2,8 +2,8 @@ import { AgentProcess } from './src/process/agent_process.js';
 import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createMindServer } from './src/server/mind_server.js';
-import { mainProxy } from './src/process/main_proxy.js';
+import { createMindServer } from './src/server/mindserver.js';
+import { mindserverProxy } from './src/process/mindserver_proxy.js.js';
 import { readFileSync } from 'fs';
 
 function parseArguments() {
@@ -33,7 +33,7 @@ async function main() {
     if (settings.host_mindserver) {
         const mindServer = createMindServer(settings.mindserver_port);
     }
-    mainProxy.connect();
+    mindserverProxy.connect();
 
     const args = parseArguments();
     const profiles = getProfiles(args);
@@ -44,7 +44,7 @@ async function main() {
         const agent_process = new AgentProcess();
         const profile = readFileSync(profiles[i], 'utf8');
         const agent_json = JSON.parse(profile);
-        mainProxy.registerAgent(agent_json.name, agent_process);
+        mindserverProxy.registerAgent(agent_json.name, agent_process);
         agent_process.start(profiles[i], load_memory, init_message, i, args.task_path, args.task_id);
         await new Promise(resolve => setTimeout(resolve, 1000));
     }

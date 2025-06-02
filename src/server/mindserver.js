@@ -4,6 +4,11 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Mindserver purposes:
+// - central hub for inter-process communication between all agent processes
+// - api to control from other languages and remote users 
+// - host for webapp
+
 // Module-level variables
 let io;
 let server;
