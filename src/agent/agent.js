@@ -540,7 +540,7 @@ export class Agent {
 
     cleanKill(msg='Killing agent process...', code=1) {
         // Assuming cleanKill messages don't have images
-        await this.history.add('system', msg, null);
+        this.history.add('system', msg, null);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
