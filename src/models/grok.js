@@ -15,9 +15,15 @@ export class Grok {
             config.baseURL = "https://api.x.ai/v1"
         config.apiKey = getKey('XAI_API_KEY');
         this.openai = new OpenAIApi(config);
+        // Direct image data in sendRequest is not supported by this wrapper for standard chat.
+        // Grok may have specific vision capabilities, but this method assumes text-only.
+        this.supportsRawImageInput = false;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq='***') {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq='***') {
+        if (imageData) {
+            console.warn(`[Grok] Warning: imageData provided to sendRequest, but this method in grok.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored.`);
+        }
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
         const pack = {
             model: this.model_name || "grok-beta",
@@ -36,7 +42,7 @@ export class Grok {
         } catch (err) {
             if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
-                return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+                return await this.sendRequest(turns.slice(1), systemMessage, imageData, stop_seq);
             } else if (err.message.includes('The model expects a single `text` element per message.')) {
                 console.log(err);
                 res = 'Vision is only supported by certain models.';

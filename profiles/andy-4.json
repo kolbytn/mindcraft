@@ -1,0 +1,7 @@
+{
+    "name": "andy-4",
+
+    "model": "ollama/sweaterdog/andy-4",
+    
+    "embedding": "ollama"
+}

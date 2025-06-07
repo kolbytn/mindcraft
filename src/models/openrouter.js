@@ -14,12 +14,16 @@ export class OpenRouter {
         }
         config.apiKey = apiKey;
         this.openai = new OpenAIApi(config);
+        // OpenRouter is a router; individual models might support vision.
+        // This generic sendRequest does not format for vision. Use sendVisionRequest or specific model logic.
+        this.supportsRawImageInput = false;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq = '***', visionImageBuffer = null, visionMessage = null) {
-        let processedSystemMessage = systemMessage;
-
-        let messages = [{ role: 'system', content: processedSystemMessage }, ...turns];
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq='*') {
+        if (imageData) {
+            console.warn(`[OpenRouter] Warning: imageData provided to sendRequest. While OpenRouter can route to vision models, this generic method does not format for image data. The image will be ignored. Use sendVisionRequest or ensure your model call through OpenRouter is specifically formatted for vision if needed.`);
+        }
+        let messages = [{ role: 'system', content: systemMessage }, ...turns];
         messages = strictFormat(messages);
 
         const pack = {
@@ -97,9 +101,25 @@ export class OpenRouter {
         return finalRes;
     }
 
-    // Vision request: pass visionImageBuffer and visionMessage
-    async sendVisionRequest(turns, systemMessage, imageBuffer, visionMessage = null, stop_seq = '***') {
-        return await this.sendRequest(turns, systemMessage, stop_seq, imageBuffer, visionMessage);
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = [...messages];
+        imageMessages.push({
+            role: "user",
+            content: [
+                { type: "text", text: systemMessage },
+                {
+                    type: "image_url",
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        
+        // sendVisionRequest formats its own message array; sendRequest here should not process new imageData.
+        // Pass systemMessage and stop_seq as originally intended by sendRequest.
+        return this.sendRequest(imageMessages, systemMessage, null, stop_seq);
+
     }
 
     async embed(text) {

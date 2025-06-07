@@ -334,9 +334,29 @@ export class Prompter {
             let prompt = this.profile.conversing;
             prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
             let generation;
+            let imageData = null;
+
+            if (settings.vision_mode === 'always' && messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                // Check if the last message has an imagePath and if the model supports raw image input
+                if (lastMessage.imagePath && this.chat_model.supportsRawImageInput) {
+                    try {
+                        // Construct the full path to the image file
+                        const agentScreenshotDir = path.join('bots', this.agent.name, 'screenshots');
+                        const imageFullPath = path.join(agentScreenshotDir, lastMessage.imagePath);
+
+                        console.log(`[Prompter] Attempting to read image for always_active mode: ${imageFullPath}`);
+                        imageData = await fs.readFile(imageFullPath); // Read as buffer
+                        console.log('[Prompter] Image data prepared for chat model.');
+                    } catch (err) {
+                        console.error(`[Prompter] Error reading image file ${lastMessage.imagePath}:`, err);
+                        imageData = null; // Proceed without image data if reading fails
+                    }
+                }
+            }
 
             try {
-                generation = await this.chat_model.sendRequest(messages, prompt);
+                generation = await this.chat_model.sendRequest(messages, prompt, imageData);
                 if (typeof generation !== 'string') {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');

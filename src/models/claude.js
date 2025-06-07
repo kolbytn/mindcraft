@@ -12,13 +12,61 @@ export class Claude {
             config.baseURL = url;
         config.apiKey = getKey('ANTHROPIC_API_KEY');
         this.anthropic = new Anthropic(config);
+        this.supportsRawImageInput = true;
     }
 
-    async sendRequest(turns, systemMessage) {
-        const messages = strictFormat(turns);
+    async sendRequest(turns, systemMessage, imageData = null) {
+        const messages = strictFormat(turns); // Ensure messages are in role/content format
         let res = null;
+
+        if (imageData) {
+            const visionModels = ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"];
+            if (!visionModels.some(vm => this.model_name.includes(vm))) {
+                console.warn(`[Claude] Warning: imageData provided for model ${this.model_name}, which is not explicitly a Claude 3 vision model. The image may be ignored or cause an error.`);
+            }
+
+            let lastUserMessageIndex = -1;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].role === 'user') {
+                    lastUserMessageIndex = i;
+                    break;
+                }
+            }
+
+            if (lastUserMessageIndex !== -1) {
+                const userMessage = messages[lastUserMessageIndex];
+                const imagePart = {
+                    type: "image",
+                    source: {
+                        type: "base64",
+                        media_type: "image/jpeg", // Assuming JPEG
+                        data: imageData.toString('base64')
+                    }
+                };
+
+                if (typeof userMessage.content === 'string') {
+                    userMessage.content = [{ type: "text", text: userMessage.content }, imagePart];
+                } else if (Array.isArray(userMessage.content)) {
+                    // If content is already an array, add the image part.
+                    // This handles cases where a user message might already have multiple parts (e.g. multiple text parts, though less common for this bot).
+                    userMessage.content.push(imagePart);
+                } else {
+                     // Fallback or error if content is an unexpected type
+                    console.warn('[Claude] Last user message content is not a string or array. Cannot attach image.');
+                    userMessage.content = [imagePart]; // Or create a new message with just the image if appropriate
+                }
+            } else {
+                console.warn('[Claude] imageData provided, but no user message found to attach it to. Image not sent.');
+                // Optionally, could create a new user message with the image if that's desired behavior.
+                // messages.push({ role: 'user', content: [imagePart] });
+            }
+        }
+
         try {
-            console.log('Awaiting anthropic api response...')
+            console.log('Awaiting anthropic api response...');
+            // console.log('Formatted Messages for API:', JSON.stringify(messages, null, 2));
+            // console.log('System prompt for API:', systemMessage);
+
             if (!this.params.max_tokens) {
                 if (this.params.thinking?.budget_tokens) {
                     this.params.max_tokens = this.params.thinking.budget_tokens + 1000; // max_tokens must be greater
@@ -27,9 +75,9 @@ export class Claude {
                 }
             }
             const resp = await this.anthropic.messages.create({
-                model: this.model_name || "claude-3-sonnet-20240229",
+                model: this.model_name || "claude-3-sonnet-20240229", // Default to a vision-capable model if none specified
                 system: systemMessage,
-                messages: messages,
+                messages: messages, // messages array is now potentially modified with image data
                 ...(this.params || {})
             });
             console.log('Received.')

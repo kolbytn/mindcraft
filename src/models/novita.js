@@ -17,15 +17,20 @@ export class Novita {
     config.apiKey = getKey('NOVITA_API_KEY');
 
     this.openai = new OpenAIApi(config);
+    // Direct image data in sendRequest is not supported by this wrapper.
+    this.supportsRawImageInput = false;
   }
 
-	async sendRequest(turns, systemMessage, stop_seq='***') {
-      let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
+	async sendRequest(turns, systemMessage, imageData = null, stop_seq='***') {
+    if (imageData) {
+      console.warn(`[Novita] Warning: imageData provided to sendRequest, but this method in novita.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored.`);
+    }
+    let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
       
-      messages = strictFormat(messages);
+    messages = strictFormat(messages);
       
-      const pack = {
+    const pack = {
           model: this.model_name || "meta-llama/llama-3.1-70b-instruct",
           messages,
           stop: [stop_seq],
@@ -44,7 +49,7 @@ export class Novita {
       catch (err) {
           if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
               console.log('Context length exceeded, trying again with shorter context.');
-              return await sendRequest(turns.slice(1), systemMessage, stop_seq);
+              return await this.sendRequest(turns.slice(1), systemMessage, imageData, stop_seq); // Added this. and imageData
           } else {
             console.log(err);
               res = 'My brain disconnected, try again.';

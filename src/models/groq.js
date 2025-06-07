@@ -21,9 +21,17 @@ export class GroqCloudAPI {
             console.warn("Groq Cloud has no implementation for custom URLs. Ignoring provided URL.");
 
         this.groq = new Groq({ apiKey: getKey('GROQCLOUD_API_KEY') });
+        // Direct image data in sendRequest is not supported by this wrapper.
+        // Groq may offer specific vision models/APIs, but this standard chat method assumes text.
+        this.supportsRawImageInput = false;
+
     }
 
-    async sendRequest(turns, systemMessage, stop_seq = null) {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq = null) {
+        if (imageData) {
+            console.warn(`[Groq] Warning: imageData provided to sendRequest, but this method in groq.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored.`);
+        }
+        // Construct messages array
         let messages = [{"role": "system", "content": systemMessage}].concat(turns);
         let res = null;
         try {
@@ -83,7 +91,7 @@ export class GroqCloudAPI {
                 }
             ]
         });
-        
+
         const res = await this.sendRequest(imageMessages, systemMessage);
 
         if (imageBuffer && res) {

@@ -15,14 +15,26 @@ export class Mistral {
         if (!getKey("MISTRAL_API_KEY")) {
             throw new Error("Mistral API Key missing, make sure to set MISTRAL_API_KEY in settings.json")
         }
-        this.#client = new MistralClient({ apiKey: getKey("MISTRAL_API_KEY") });
+
+        this.#client = new MistralClient(
+            {
+                apiKey: getKey("MISTRAL_API_KEY")
+            }
+        );
+        this.supportsRawImageInput = false; // Standard chat completions may not support raw images for all models.
+
         
         if (typeof this.model_name === "string" && typeof this.model_name.split("/")[1] !== "undefined") {
             this.model_name = this.model_name.split("/")[1];
         }
     }
 
-    async sendRequest(turns, systemMessage) {
+    async sendRequest(turns, systemMessage, imageData = null) {
+        if (imageData) {
+            console.warn(`[Mistral] Warning: imageData provided to sendRequest, but this method in mistral.js currently does not support direct image data embedding for model ${this.model_name}. The image will be ignored. Use sendVisionRequest for models/endpoints that support vision, or ensure the API/model used by sendRequest can handle images in its standard chat format.`);
+            // imageData is ignored for now.
+        }
+
         let result;
         const model = this.model_name || "mistral-large-latest";
         const messages = [{ role: "system", content: systemMessage }];

@@ -17,9 +17,15 @@ export class ReplicateAPI {
 		this.replicate = new Replicate({
 			auth: getKey('REPLICATE_API_KEY'),
 		});
+		// Direct image data in sendRequest is not supported by this wrapper.
+		// Replicate handles vision models differently, often with specific inputs like "image".
+		this.supportsRawImageInput = false;
 	}
 
-	async sendRequest(turns, systemMessage) {
+	async sendRequest(turns, systemMessage, imageData = null) {
+		if (imageData) {
+			console.warn(`[ReplicateAPI] Warning: imageData provided to sendRequest, but this method in replicate.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored. Replicate models with vision capabilities usually require specific input fields like 'image' with a URL or base64 string.`);
+		}
 		const stop_seq = '***';
 		const prompt = toSinglePrompt(turns, null, stop_seq);
 		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';

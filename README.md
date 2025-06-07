@@ -53,7 +53,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `anthropic` | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | `xai` | `XAI_API_KEY` | `grok-2-1212` | [docs](https://docs.x.ai/docs) |
 | `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` | [docs](https://api-docs.deepseek.com/) |
-| `ollama` (local) | n/a | `ollama/llama3.1` | [docs](https://ollama.com/library) |
+| `ollama` (local) | n/a | `ollama/sweaterdog/andy-4` | [docs](https://ollama.com/library) |
 | `qwen` | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 | `mistral` | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
 | `replicate` | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
@@ -66,7 +66,25 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `vllm` | n/a | `vllm/llama3` | n/a |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
-`ollama pull llama3.1 && ollama pull nomic-embed-text`
+`ollama pull sweaterdog/andy-4 && ollama pull nomic-embed-text`
+<details>
+  <summary>Additional info about Andy-4...</summary>
+  
+  ![image](https://github.com/user-attachments/assets/215afd01-3671-4bb6-b53f-4e51e710239a)
+
+
+  Andy-4 is a community made, open-source model made by Sweaterdog to play Minecraft.
+  Since Andy-4 is open-source, which means you can download the model, and play with it offline and for free.
+
+  The Andy-4 collection of models has reasoning and non-reasoning modes, sometimes the model will reason automatically without being prompted.
+  If you want to specifically enable reasoning, use the `andy-4-reasoning.json` profile.
+  Some Andy-4 models may not be able to disable reasoning, no matter what profile is used.
+
+  Andy-4 has many different models, and come in different sizes.
+  For more information about which model size is best for you, check [Sweaterdog's Ollama page](https://ollama.com/Sweaterdog/Andy-4)
+
+  If you have any Issues, join the Mindcraft server, and ping `@Sweaterdog` with your issue, or leave an issue on the [Andy-4 huggingface repo](https://huggingface.co/Sweaterdog/Andy-4/discussions/new)
+</details>
 
 ### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
