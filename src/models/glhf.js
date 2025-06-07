@@ -1,5 +1,6 @@
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js'; // Added import
 
 export class GLHF {
     constructor(model_name, url) {
@@ -16,7 +17,7 @@ export class GLHF {
 
     async sendRequest(turns, systemMessage, stop_seq = '***') {
         // Construct the message array for the API request.
-        let messages = [{ role: 'system', content: systemMessage }].concat(turns);
+        let messages = [{ role: 'system', content: systemMessage }].concat(turns); // messages for API and logging
         const pack = {
             model: this.model_name || "hf:meta-llama/Llama-3.1-405B-Instruct",
             messages,
@@ -39,7 +40,7 @@ export class GLHF {
                 // If there's an open <think> tag without a corresponding </think>, retry.
                 if (res.includes("<think>") && !res.includes("</think>")) {
                     console.warn("Partial <think> block detected. Re-generating...");
-                    continue;
+                    if (attempt < maxAttempts) continue; // Continue if not the last attempt
                 }
                 // If there's a closing </think> tag but no opening <think>, prepend one.
                 if (res.includes("</think>") && !res.includes("<think>")) {
@@ -50,6 +51,7 @@ export class GLHF {
             } catch (err) {
                 if ((err.message === 'Context length exceeded' || err.code === 'context_length_exceeded') && turns.length > 1) {
                     console.log('Context length exceeded, trying again with shorter context.');
+                    // Recursive call will handle its own logging
                     return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
                 } else {
                     console.error(err);
@@ -58,9 +60,10 @@ export class GLHF {
                 }
             }
         }
-        if (finalRes === null) {
+        if (finalRes === null) { // Should only be reached if loop completed due to continue on last attempt
             finalRes = "I thought too hard, sorry, try again";
         }
+        log(JSON.stringify(messages), finalRes); // Added log call
         return finalRes;
     }
 

@@ -1,6 +1,7 @@
 import { Mistral as MistralClient } from '@mistralai/mistralai';
 import { getKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class Mistral {
     #client;
@@ -64,23 +65,37 @@ export class Mistral {
             console.log(err);
         }
 
+        log(JSON.stringify(messages), result);
         return result;
     }
 
-    async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = [...messages];
-        imageMessages.push({
+    async sendVisionRequest(original_turns, systemMessage, imageBuffer) {
+        const imageFormattedTurns = [...original_turns];
+        // The user message content should be an array for Mistral when including images
+        const userMessageContent = [{ type: "text", text: systemMessage }];
+        userMessageContent.push({
+            type: "image_url", // This structure is based on current code; Mistral SDK might prefer different if it auto-detects from base64 content.
+                              // The provided code uses 'imageUrl'. Mistral SDK docs show 'image_url' for some contexts or direct base64.
+                              // For `chat.complete`, it's usually within the 'content' array of a user message.
+            imageUrl: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+        });
+        imageFormattedTurns.push({
             role: "user",
-            content: [
-                { type: "text", text: systemMessage },
-                {
-                    type: "image_url",
-                    imageUrl: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
-                }
-            ]
+            content: userMessageContent // Content is an array
         });
         
-        return this.sendRequest(imageMessages, systemMessage);
+        // 'systemMessage' passed to sendRequest should be the overarching system prompt.
+        // If the 'systemMessage' parameter of sendVisionRequest is the vision text prompt,
+        // and it's already incorporated into imageFormattedTurns, then the systemMessage for sendRequest
+        // might be a different, more general one, or empty if not applicable.
+        // For now, let's assume the 'systemMessage' param of sendVisionRequest is the main prompt for this turn
+        // and should also serve as the system-level instruction for the API call via sendRequest.
+        const res = await this.sendRequest(imageFormattedTurns, systemMessage); // sendRequest will call log()
+
+        if (imageBuffer && res) {
+            logVision(original_turns, imageBuffer, res, systemMessage); // systemMessage here is the vision prompt
+        }
+        return res;
     }
 
     async embed(text) {

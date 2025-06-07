@@ -1,6 +1,7 @@
 import { toSinglePrompt } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
 import { HfInference } from "@huggingface/inference";
+import { log, logVision } from '../../logger.js';
 
 export class HuggingFace {
   constructor(model_name, url, params) {
@@ -23,6 +24,7 @@ export class HuggingFace {
     // Fallback model if none was provided
     const model_name = this.model_name || 'meta-llama/Meta-Llama-3-8B';
     // Combine system message with the prompt
+    const logInputMessages = [{role: 'system', content: systemMessage}, ...turns];
     const input = systemMessage + "\n" + prompt;
 
     // We'll try up to 5 times in case of partial <think> blocks for DeepSeek-R1 models.
@@ -76,6 +78,7 @@ export class HuggingFace {
     }
     console.log('Received.');
     console.log(finalRes);
+    log(JSON.stringify(logInputMessages), finalRes);
     return finalRes;
   }
 

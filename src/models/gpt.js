@@ -1,6 +1,7 @@
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class GPT {
     constructor(model_name, url, params) {
@@ -55,15 +56,17 @@ export class GPT {
                 res = 'My brain disconnected, try again.';
             }
         }
+        // Assuming res is assigned in both try and catch.
+        log(JSON.stringify(messages), res);
         return res;
     }
 
-    async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = [...messages];
-        imageMessages.push({
+    async sendVisionRequest(original_turns, systemMessage, imageBuffer) { // Renamed 'messages' to 'original_turns'
+        const imageFormattedTurns = [...original_turns];
+        imageFormattedTurns.push({
             role: "user",
             content: [
-                { type: "text", text: systemMessage },
+                { type: "text", text: systemMessage }, // This is the vision prompt text
                 {
                     type: "image_url",
                     image_url: {
@@ -73,7 +76,22 @@ export class GPT {
             ]
         });
         
-        return this.sendRequest(imageMessages, systemMessage);
+        // Pass a system message to sendRequest. If systemMessage is purely for vision prompt,
+        // then the main system message for the API call itself might be different or empty.
+        // For GPT, system messages are part of the 'messages' array.
+        // The sendRequest will create its 'messages' array including a system role.
+        // Let's assume the 'systemMessage' param here is the specific prompt for the vision task.
+        // The 'sendRequest' will use its own 'systemMessage' parameter from its signature for the API system message.
+        // For consistency, the 'systemMessage' for the API call in sendRequest should be the overarching one.
+
+        const res = await this.sendRequest(imageFormattedTurns, systemMessage); // This will call log() for the text part.
+
+        if (imageBuffer && res) {
+            // 'original_turns' is the conversation history before adding the image-specific content.
+            // 'systemMessage' is the vision prompt text.
+            logVision(original_turns, imageBuffer, res, systemMessage);
+        }
+        return res;
     }
 
     async embed(text) {

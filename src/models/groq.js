@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk'
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 // THIS API IS NOT TO BE CONFUSED WITH GROK!
 // Go to grok.js for that. :)
@@ -55,9 +56,14 @@ export class GroqCloudAPI {
                 ...(this.params || {})
             });
 
-            res = completion.choices[0].message;
+            // res = completion.choices[0].message; // Original assignment
+            let responseText = completion.choices[0].message.content; // Get content
 
-            res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            log(JSON.stringify(messages), responseText); // Log here
+
+            // Original cleaning of <think> tags for the *returned* response (not affecting log)
+            responseText = responseText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            return responseText;
         }
         catch(err) {
             if (err.message.includes("content must be a string")) {
@@ -67,16 +73,21 @@ export class GroqCloudAPI {
                 res = "My brain disconnected, try again.";
             }
             console.log(err);
+            // Log error response
+            log(JSON.stringify(messages), res);
+            return res;
         }
-        return res;
+        // This return is now unreachable due to returns in try/catch, but if logic changes, ensure logging covers it.
+        // log(JSON.stringify(messages), res);
+        // return res;
     }
 
-    async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = messages.filter(message => message.role !== 'system');
+    async sendVisionRequest(original_turns, systemMessage, imageBuffer) {
+        const imageMessages = [...original_turns]; // Use a copy
         imageMessages.push({
             role: "user",
             content: [
-                { type: "text", text: systemMessage },
+                { type: "text", text: systemMessage }, // systemMessage is the vision prompt
                 {
                     type: "image_url",
                     image_url: {
@@ -86,7 +97,13 @@ export class GroqCloudAPI {
             ]
         });
         
-        return this.sendRequest(imageMessages);
+        // Assuming 'systemMessage' (the vision prompt) should also act as the system message for this API call.
+        const res = await this.sendRequest(imageMessages, systemMessage); // sendRequest will call log()
+
+        if (imageBuffer && res) {
+            logVision(original_turns, imageBuffer, res, systemMessage);
+        }
+        return res;
     }
 
     async embed(_) {

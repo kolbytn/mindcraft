@@ -1,4 +1,5 @@
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class Local {
     constructor(model_name, url, params) {
@@ -75,6 +76,7 @@ export class Local {
             console.warn("Could not get a valid <think> block or normal response after max attempts.");
             finalRes = 'I thought too hard, sorry, try again.';
         }
+        log(JSON.stringify(messages), finalRes);
         return finalRes;
     }
 

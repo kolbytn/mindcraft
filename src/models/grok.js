@@ -1,5 +1,6 @@
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 // xAI doesn't supply a SDK for their models, but fully supports OpenAI and Anthropic SDKs
 export class Grok {
@@ -52,15 +53,17 @@ export class Grok {
             }
         }
         // sometimes outputs special token <|separator|>, just replace it
-        return res.replace(/<\|separator\|>/g, '*no response*');
+        const finalResponseText = res ? res.replace(/<\|separator\|>/g, '*no response*') : (res === null ? "*no response*" : res);
+        log(JSON.stringify(messages), finalResponseText);
+        return finalResponseText;
     }
 
-    async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = [...messages];
-        imageMessages.push({
+    async sendVisionRequest(original_turns, systemMessage, imageBuffer) {
+        const imageFormattedTurns = [...original_turns];
+        imageFormattedTurns.push({
             role: "user",
             content: [
-                { type: "text", text: systemMessage },
+                { type: "text", text: systemMessage }, // systemMessage is the vision prompt
                 {
                     type: "image_url",
                     image_url: {
@@ -70,7 +73,13 @@ export class Grok {
             ]
         });
         
-        return this.sendRequest(imageMessages, systemMessage);
+        // Assuming 'systemMessage' (the vision prompt) should also act as the system message for this specific API call.
+        const res = await this.sendRequest(imageFormattedTurns, systemMessage); // sendRequest will call log()
+
+        if (imageBuffer && res) { // Check res to ensure a response was received
+            logVision(original_turns, imageBuffer, res, systemMessage);
+        }
+        return res;
     }
     
     async embed(text) {

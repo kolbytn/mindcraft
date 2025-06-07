@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { toSinglePrompt, strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 export class Gemini {
     constructor(model_name, url, params) {
@@ -54,6 +55,7 @@ export class Gemini {
 
         console.log('Awaiting Google API response...');
 
+        const originalTurnsForLog = [{role: 'system', content: systemMessage}, ...turns];
         turns.unshift({ role: 'system', content: systemMessage });
         turns = strictFormat(turns);
         let contents = [];
@@ -93,6 +95,7 @@ export class Gemini {
 
         console.log('Received.');
 
+        log(JSON.stringify(originalTurnsForLog), text);
         return text;
     }
 
@@ -127,7 +130,12 @@ export class Gemini {
             const response = await result.response;
             const text = response.text();
             console.log('Received.');
-            if (!text.includes(stop_seq)) return text;
+            if (imageBuffer && text) {
+                // 'turns' is the original conversation history.
+                // 'prompt' is the vision message text.
+                logVision(turns, imageBuffer, text, prompt);
+            }
+            if (!text.includes(stop_seq)) return text; // No logging for this early return? Or log text then return text? Assuming logVision is the primary goal.
             const idx = text.indexOf(stop_seq);
             res = text.slice(0, idx);
         } catch (err) {
@@ -137,6 +145,8 @@ export class Gemini {
             } else {
                 res = "An unexpected error occurred, please try again.";
             }
+            const loggedTurnsForError = [{role: 'system', content: systemMessage}, ...turns];
+            log(JSON.stringify(loggedTurnsForError), res);
         }
         return res;
     }

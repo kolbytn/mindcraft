@@ -1,4 +1,5 @@
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js'; // Added import
 
 export class Hyperbolic {
     constructor(modelName, apiUrl) {
@@ -12,19 +13,9 @@ export class Hyperbolic {
         }
     }
 
-    /**
-     * Sends a chat completion request to the Hyperbolic endpoint.
-     *
-     * @param {Array} turns - An array of message objects, e.g. [{role: 'user', content: 'Hi'}].
-     * @param {string} systemMessage - The system prompt or instruction.
-     * @param {string} stopSeq - A stopping sequence, default '***'.
-     * @returns {Promise<string>} - The model's reply.
-     */
     async sendRequest(turns, systemMessage, stopSeq = '***') {
-        // Prepare the messages with a system prompt at the beginning
         const messages = [{ role: 'system', content: systemMessage }, ...turns];
 
-        // Build the request payload
         const payload = {
             model: this.modelName,
             messages: messages,
@@ -36,14 +27,13 @@ export class Hyperbolic {
 
         const maxAttempts = 5;
         let attempt = 0;
-        let finalRes = null;
+        let finalRes = null; // Holds the content after <think> processing and <|separator|> replacement
+        let rawCompletionContent = null; // Holds raw content from API for each attempt
 
         while (attempt < maxAttempts) {
             attempt++;
             console.log(`Awaiting Hyperbolic API response... (attempt: ${attempt})`);
-            console.log('Messages:', messages);
-
-            let completionContent = null;
+            // console.log('Messages:', messages); // Original console log
 
             try {
                 const response = await fetch(this.apiUrl, {
@@ -64,7 +54,7 @@ export class Hyperbolic {
                     throw new Error('Context length exceeded');
                 }
 
-                completionContent = data?.choices?.[0]?.message?.content || '';
+                rawCompletionContent = data?.choices?.[0]?.message?.content || '';
                 console.log('Received response from Hyperbolic.');
             } catch (err) {
                 if (
@@ -72,38 +62,51 @@ export class Hyperbolic {
                     turns.length > 1
                 ) {
                     console.log('Context length exceeded, trying again with a shorter context...');
+                    // Recursive call handles its own logging
                     return await this.sendRequest(turns.slice(1), systemMessage, stopSeq);
                 } else {
                     console.error(err);
-                    completionContent = 'My brain disconnected, try again.';
+                    rawCompletionContent = 'My brain disconnected, try again.';
+                    // Assign to finalRes here if we are to break and log this error immediately
+                    finalRes = rawCompletionContent;
+                    break;
                 }
             }
 
-            // Check for <think> blocks
-            const hasOpenTag = completionContent.includes("<think>");
-            const hasCloseTag = completionContent.includes("</think>");
+            // Process <think> blocks
+            let processedContent = rawCompletionContent;
+            const hasOpenTag = processedContent.includes("<think>");
+            const hasCloseTag = processedContent.includes("</think>");
 
             if ((hasOpenTag && !hasCloseTag)) {
                 console.warn("Partial <think> block detected. Re-generating...");
-                continue; // Retry the request
+                if (attempt < maxAttempts) continue;
+                // If last attempt, use the content as is (or error if preferred)
             }
 
             if (hasCloseTag && !hasOpenTag) {
-                completionContent = '<think>' + completionContent;
+                processedContent = '<think>' + processedContent;
             }
 
             if (hasOpenTag && hasCloseTag) {
-                completionContent = completionContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                processedContent = processedContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
             }
 
-            finalRes = completionContent.replace(/<\|separator\|>/g, '*no response*');
-            break; // Valid response obtained—exit loop
+            finalRes = processedContent.replace(/<\|separator\|>/g, '*no response*');
+
+            // If not retrying due to partial tag, break
+            if (!(hasOpenTag && !hasCloseTag && attempt < maxAttempts)) {
+                break;
+            }
         }
 
         if (finalRes == null) {
-            console.warn("Could not get a valid <think> block or normal response after max attempts.");
-            finalRes = 'I thought too hard, sorry, try again.';
+            console.warn("Could not get a valid response after max attempts, or an error occurred on the last attempt.");
+            finalRes = rawCompletionContent || 'I thought too hard, sorry, try again.'; // Use raw if finalRes never got set
+            finalRes = finalRes.replace(/<\|separator\|>/g, '*no response*'); // Clean one last time
         }
+
+        log(JSON.stringify(messages), finalRes);
         return finalRes;
     }
 

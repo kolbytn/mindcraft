@@ -45,6 +45,12 @@ const settings = {
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
     // "log_all_prompts": false, // DEPRECATED: Replaced by granular log_normal_data, log_reasoning_data, log_vision_data in logger.js and prompter.js
+
+    // NEW LOGGING SETTINGS
+    "log_normal_data": true,
+    "log_reasoning_data": true,
+    "log_vision_data": true,
+    // END NEW LOGGING SETTINGS
 }
 
 // these environment variables override certain settings

@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 export class Claude {
     constructor(model_name, url, params) {
@@ -54,30 +55,45 @@ export class Claude {
             }
             console.log(err);
         }
+        const logMessagesForClaude = [{ role: "system", content: systemMessage }].concat(turns);
+        // The actual 'turns' passed to anthropic.messages.create are already strictFormatted
+        // For logging, we want to capture the input as it was conceptually given.
+        log(JSON.stringify(logMessagesForClaude), res);
         return res;
     }
 
     async sendVisionRequest(turns, systemMessage, imageBuffer) {
-        const imageMessages = [...turns];
-        imageMessages.push({
-            role: "user",
-            content: [
-                {
-                    type: "text",
-                    text: systemMessage
-                },
-                {
-                    type: "image",
-                    source: {
-                        type: "base64",
-                        media_type: "image/jpeg",
-                        data: imageBuffer.toString('base64')
-                    }
+        const visionUserMessageContent = [
+            { type: "text", text: systemMessage }, // Text part of the vision message
+            {
+                type: "image",
+                source: {
+                    type: "base64",
+                    media_type: "image/jpeg",
+                    data: imageBuffer.toString('base64')
                 }
-            ]
-        });
+            }
+        ];
+        // Create the turns structure that will actually be sent to the API
+        const turnsForAPIRequest = [...turns, { role: "user", content: visionUserMessageContent }];
 
-        return this.sendRequest(imageMessages, systemMessage);
+        // Call sendRequest. Note: Claude's sendRequest takes systemMessage separately.
+        // The systemMessage parameter for sendRequest here should be the overall system instruction,
+        // not the text part of the vision message if that's already included in turnsForAPIRequest.
+        // Assuming the passed 'systemMessage' to sendVisionRequest is the vision prompt.
+        // And the actual system prompt for the Claude API call is handled by sendRequest's own 'systemMessage' param.
+        // Let's assume the 'systemMessage' passed to sendVisionRequest is the primary text prompt for the vision task.
+        // The 'sendRequest' function will handle its own logging using log().
+
+        const res = await this.sendRequest(turnsForAPIRequest, systemMessage); // This will call log() internally for the text part.
+
+        // After getting the response, specifically log the vision interaction.
+        if (imageBuffer && res) {
+            // 'turns' are the original conversation turns *before* adding the vision-specific user message.
+            // 'systemMessage' here is used as the 'visionMessage' (the text prompt accompanying the image).
+            logVision(turns, imageBuffer, res, systemMessage);
+        }
+        return res;
     }
 
     async embed(text) {

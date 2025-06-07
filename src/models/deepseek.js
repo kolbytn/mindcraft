@@ -1,6 +1,7 @@
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class DeepSeek {
     constructor(model_name, url, params) {
@@ -46,6 +47,7 @@ export class DeepSeek {
                 res = 'My brain disconnected, try again.';
             }
         }
+        log(JSON.stringify(messages), res);
         return res;
     }
 

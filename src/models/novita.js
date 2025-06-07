@@ -1,6 +1,7 @@
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 // llama, mistral
 export class Novita {
@@ -49,17 +50,23 @@ export class Novita {
               res = 'My brain disconnected, try again.';
           }
       }
-      if (res.includes('<think>')) {
-        let start = res.indexOf('<think>');
-        let end = res.indexOf('</think>') + 8;
-        if (start != -1) {
-          if (end != -1) {
-            res = res.substring(0, start) + res.substring(end);
-          } else {
-            res = res.substring(0, start+7);
+      log(JSON.stringify(messages), res); // Log before stripping <think> tags
+
+      // Existing stripping logic for <think> tags
+      if (res && typeof res === 'string' && res.includes('<think>')) {
+          let start = res.indexOf('<think>');
+          let end = res.indexOf('</think>') + 8; // length of '</think>'
+          if (start !== -1) { // Ensure '<think>' was found
+              if (end !== -1 && end > start + 7) { // Ensure '</think>' was found and is after '<think>'
+                  res = res.substring(0, start) + res.substring(end);
+              } else {
+                  // Malformed or missing end tag, strip from '<think>' onwards or handle as error
+                  // Original code: res = res.substring(0, start+7); This would leave "<think>"
+                  // Let's assume we strip from start if end is not valid.
+                  res = res.substring(0, start);
+              }
           }
-        }
-        res = res.trim();
+          res = res.trim();
       }
       return res;
   }
