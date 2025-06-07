@@ -17,11 +17,45 @@ export class GPT {
         config.apiKey = getKey('OPENAI_API_KEY');
 
         this.openai = new OpenAIApi(config);
+        this.supportsRawImageInput = true;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq='***') {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq = '***') {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
         messages = strictFormat(messages);
+
+        if (imageData) {
+            const visionModels = ["gpt-4-vision-preview", "gpt-4o", "gpt-4-turbo"];
+            if (!visionModels.some(vm => this.model_name.includes(vm))) {
+                console.warn(`[GPT] Warning: imageData provided for model ${this.model_name}, which is not explicitly a vision model. The image may be ignored or cause an error.`);
+            }
+
+            let lastUserMessageIndex = -1;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].role === 'user') {
+                    lastUserMessageIndex = i;
+                    break;
+                }
+            }
+
+            if (lastUserMessageIndex !== -1) {
+                const originalContent = messages[lastUserMessageIndex].content;
+                messages[lastUserMessageIndex].content = [
+                    { type: "text", text: originalContent },
+                    {
+                        type: "image_url",
+                        image_url: {
+                            url: `data:image/jpeg;base64,${imageData.toString('base64')}`
+                        }
+                    }
+                ];
+            } else {
+                // No user message to attach image to, log warning or prepend a new one?
+                // For now, log a warning. Prompter should ensure user message exists if imagePath is set.
+                console.warn('[GPT] imageData provided, but no user message found to attach it to. Image not sent.');
+            }
+        }
+
         const pack = {
             model: this.model_name || "gpt-3.5-turbo",
             messages,
@@ -35,12 +69,12 @@ export class GPT {
         let res = null;
 
         try {
-            console.log('Awaiting openai api response from model', this.model_name)
-            // console.log('Messages:', messages);
+            console.log('Awaiting openai api response from model', this.model_name);
+            // console.log('Formatted Messages for API:', JSON.stringify(messages, null, 2));
             let completion = await this.openai.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')
-                throw new Error('Context length exceeded'); 
-            console.log('Received.')
+                throw new Error('Context length exceeded');
+            console.log('Received.');
             res = completion.choices[0].message.content;
         }
         catch (err) {

@@ -12,9 +12,15 @@ export class GLHF {
             apiKey,
             baseURL: url || "https://glhf.chat/api/openai/v1"
         });
+        // Direct image data in sendRequest is not supported by this wrapper.
+        // Specific vision models/methods should be used if available through the service.
+        this.supportsRawImageInput = false;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq = '***') {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq = '***') {
+        if (imageData) {
+            console.warn(`[GLHF] Warning: imageData provided to sendRequest, but this method in glhf.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored.`);
+        }
         // Construct the message array for the API request.
         let messages = [{ role: 'system', content: systemMessage }].concat(turns);
         const pack = {
@@ -50,7 +56,8 @@ export class GLHF {
             } catch (err) {
                 if ((err.message === 'Context length exceeded' || err.code === 'context_length_exceeded') && turns.length > 1) {
                     console.log('Context length exceeded, trying again with shorter context.');
-                    return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+                    // Pass imageData along in recursive call, though it will be ignored again
+                    return await this.sendRequest(turns.slice(1), systemMessage, imageData, stop_seq);
                 } else {
                     console.error(err);
                     finalRes = 'My brain disconnected, try again.';

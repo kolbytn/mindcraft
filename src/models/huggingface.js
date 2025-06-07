@@ -14,9 +14,15 @@ export class HuggingFace {
     }
 
     this.huggingface = new HfInference(getKey('HUGGINGFACE_API_KEY'));
+    // Direct image data in sendRequest is not supported by this wrapper.
+    // HuggingFace Inference API has other methods for vision tasks.
+    this.supportsRawImageInput = false;
   }
 
-  async sendRequest(turns, systemMessage) {
+  async sendRequest(turns, systemMessage, imageData = null) {
+    if (imageData) {
+      console.warn(`[HuggingFace] Warning: imageData provided to sendRequest, but this method in huggingface.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored.`);
+    }
     const stop_seq = '***';
     // Build a single prompt from the conversation turns
     const prompt = toSinglePrompt(turns, null, stop_seq);

@@ -31,9 +31,10 @@ export class Gemini {
         ];
 
         this.genAI = new GoogleGenerativeAI(getKey('GEMINI_API_KEY'));
+        this.supportsRawImageInput = true;
     }
 
-    async sendRequest(turns, systemMessage) {
+    async sendRequest(turns, systemMessage, imageData = null) {
         let model;
         const modelConfig = {
             model: this.model_name || "gemini-1.5-flash",
@@ -62,6 +63,24 @@ export class Gemini {
                 role: turn.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: turn.content }]
             });
+        }
+
+        if (imageData && contents.length > 0) {
+            const lastContent = contents[contents.length - 1];
+            if (lastContent.role === 'user') { // Ensure the image is added to a user turn
+                lastContent.parts.push({
+                    inline_data: {
+                        mime_type: 'image/jpeg',
+                        data: imageData.toString('base64')
+                    }
+                });
+            } else {
+                // This case should ideally not happen if imageData is tied to a user message.
+                // If it does, we could append a new user turn with the image,
+                // or log a warning and send without the image.
+                // For now, let's assume the last message is the user's if imageData is present.
+                console.warn('[Gemini] imageData provided, but the last content entry was not from a user. Image not sent.');
+            }
         }
 
         const result = await model.generateContent({

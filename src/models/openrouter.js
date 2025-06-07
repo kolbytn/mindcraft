@@ -18,9 +18,15 @@ export class OpenRouter {
         config.apiKey = apiKey; 
 
         this.openai = new OpenAIApi(config);
+        // OpenRouter is a router; individual models might support vision.
+        // This generic sendRequest does not format for vision. Use sendVisionRequest or specific model logic.
+        this.supportsRawImageInput = false;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq='*') {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq='*') {
+        if (imageData) {
+            console.warn(`[OpenRouter] Warning: imageData provided to sendRequest. While OpenRouter can route to vision models, this generic method does not format for image data. The image will be ignored. Use sendVisionRequest or ensure your model call through OpenRouter is specifically formatted for vision if needed.`);
+        }
         let messages = [{ role: 'system', content: systemMessage }, ...turns];
         messages = strictFormat(messages);
 
@@ -67,7 +73,9 @@ export class OpenRouter {
             ]
         });
         
-        return this.sendRequest(imageMessages, systemMessage);
+        // sendVisionRequest formats its own message array; sendRequest here should not process new imageData.
+        // Pass systemMessage and stop_seq as originally intended by sendRequest.
+        return this.sendRequest(imageMessages, systemMessage, null, stop_seq);
     }
 
     async embed(text) {
