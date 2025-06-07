@@ -1,7 +1,7 @@
 import settings from '../../settings.js';
 import { GroqCloudTTS } from '../models/groq.js';
-import portAudio from 'naudiodon';
-const { AudioIO, SampleFormat16Bit } = portAudio;
+// import portAudio from 'naudiodon'; // Original static import
+// const { AudioIO, SampleFormat16Bit } = portAudio; // Original destructuring
 import wav from 'wav';
 import fs from 'fs';
 import path from 'path';
@@ -12,6 +12,40 @@ import { getIO, getAllInGameAgentNames } from '../server/mind_server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// --- Conditional Naudiodon Import ---
+let portAudio;
+let AudioIO;
+let SampleFormat16Bit;
+
+(async () => {
+    try {
+        const naudiodonModule = await import('naudiodon');
+        portAudio = naudiodonModule.default; // CommonJS modules often export functionality on 'default' when imported into ES modules
+        if (portAudio && typeof portAudio.AudioIO === 'function' && typeof portAudio.SampleFormat16Bit !== 'undefined') {
+            AudioIO = portAudio.AudioIO;
+            SampleFormat16Bit = portAudio.SampleFormat16Bit;
+            console.log('[STT] naudiodon loaded successfully.');
+        } else if (naudiodonModule.AudioIO && typeof naudiodonModule.SampleFormat16Bit !== 'undefined') {
+            // Fallback if 'default' is not used and properties are directly on the module
+            AudioIO = naudiodonModule.AudioIO;
+            SampleFormat16Bit = naudiodonModule.SampleFormat16Bit;
+            portAudio = naudiodonModule; // Assign the module itself to portAudio for consistency if needed elsewhere
+            console.log('[STT] naudiodon loaded successfully (direct properties).');
+        }
+        else {
+            throw new Error('AudioIO or SampleFormat16Bit not found in naudiodon module exports.');
+        }
+    } catch (err) {
+        console.warn(`[STT] Failed to load naudiodon, Speech-to-Text will be disabled. Error: ${err.message}`);
+        portAudio = null;
+        AudioIO = null;
+        SampleFormat16Bit = null;
+    }
+    // Initialize TTS after attempting to load naudiodon
+    initTTS();
+})();
+
 
 /**
  * Delete leftover speech_*.wav from previous runs
@@ -43,7 +77,7 @@ let sttRunning = false;   // Ensures continuousLoop is started only once
 async function recordAndTranscribeOnce() {
   // If another recording is in progress, just skip
   if (isRecording) {
-    console.log("Another recording is still in progress; skipping new record attempt.");
+    console.log("[STT] Another recording is still in progress; skipping new record attempt.");
     return null;
   }
   isRecording = true;
@@ -54,6 +88,14 @@ async function recordAndTranscribeOnce() {
     sampleRate: SAMPLE_RATE,
     bitDepth: BIT_DEPTH
   });
+
+  // This is where AudioIO is crucial
+  if (!AudioIO || !SampleFormat16Bit) {
+      console.warn("[STT] AudioIO or SampleFormat16Bit not available. Cannot record audio.");
+      isRecording = false;
+      return null;
+  }
+
   const ai = new AudioIO({
     inOptions: {
       channelCount: 1,
@@ -110,8 +152,10 @@ async function recordAndTranscribeOnce() {
     });
 
     ai.on('error', (err) => {
+      console.error("[STT] AudioIO error:", err);
       cleanupListeners();
-      reject(err);
+      // Don't reject here, as continuousLoop should continue. Resolve with null.
+      resolve(null);
     });
 
     fileWriter.on('finish', async () => {
@@ -124,7 +168,7 @@ async function recordAndTranscribeOnce() {
         const dataSize = stats.size - headerSize;
         const duration = dataSize / (SAMPLE_RATE * (BIT_DEPTH / 8));
         if (duration < 2.75) {
-          console.log("Audio too short (<2.75s); discarding.");
+          console.log("[STT] Audio too short (<2.75s); discarding.");
           fs.unlink(outFile, () => {});
           cleanupListeners();
           return resolve(null);
@@ -144,23 +188,23 @@ async function recordAndTranscribeOnce() {
 
         // Basic check for empty or whitespace
         if (!text || !text.trim()) {
-          console.log("Transcription empty; discarding.");
+          console.log("[STT] Transcription empty; discarding.");
           cleanupListeners();
           return resolve(null);
         }
 
         // Heuristic checks to determine if the transcription is genuine
-        
+
         // 1. Ensure at least one alphabetical character
         if (!/[A-Za-z]/.test(text)) {
-          console.log("Transcription has no letters; discarding.");
+          console.log("[STT] Transcription has no letters; discarding.");
           cleanupListeners();
           return resolve(null);
         }
 
         // 2. Check for gibberish repeated sequences
         if (/([A-Za-z])\1{3,}/.test(text)) {
-          console.log("Transcription looks like gibberish; discarding.");
+          console.log("[STT] Transcription looks like gibberish; discarding.");
           cleanupListeners();
           return resolve(null);
         }
@@ -171,12 +215,12 @@ async function recordAndTranscribeOnce() {
         const allowedGreetings = new Set(["hi", "hello", "greetings", "hey"]);
 
         if (letterCount < 8 && !allowedGreetings.has(normalizedText)) {
-          console.log("Transcription too short and not an allowed greeting; discarding.");
+          console.log("[STT] Transcription too short and not an allowed greeting; discarding.");
           cleanupListeners();
           return resolve(null);
         }
 
-        console.log("Transcription:", text);
+        console.log("[STT] Transcription:", text);
 
         // Format message so it looks like: "[SERVER] message"
         const finalMessage = `[${STT_USERNAME}] ${text}`;
@@ -195,17 +239,23 @@ async function recordAndTranscribeOnce() {
         cleanupListeners();
         resolve(text);
       } catch (err) {
+        console.error("[STT] Error during transcription or sending message:", err);
+        fs.unlink(outFile, () => {}); // Attempt cleanup even on error
         cleanupListeners();
-        reject(err);
+        reject(err); // Propagate error for continuousLoop to catch
       }
     });
 
     ai.start();
 
     function cleanupListeners() {
-      ai.removeAllListeners('data');
-      ai.removeAllListeners('error');
-      fileWriter.removeAllListeners('finish');
+      if (ai && typeof ai.removeAllListeners === 'function') {
+        ai.removeAllListeners('data');
+        ai.removeAllListeners('error');
+      }
+      if (fileWriter && typeof fileWriter.removeAllListeners === 'function') {
+        fileWriter.removeAllListeners('finish');
+      }
       if (silenceTimer) clearTimeout(silenceTimer);
 
       // release lock
@@ -218,30 +268,56 @@ async function recordAndTranscribeOnce() {
  * Runs recording sessions sequentially, so only one at a time
  */
 async function continuousLoop() {
-  while (true) {
+  // This check is now more critical as AudioIO might not be available
+  if (!AudioIO) {
+    console.warn("[STT] AudioIO not available. STT continuous loop cannot start.");
+    sttRunning = false; // Ensure this is marked as not running
+    return;
+  }
+
+  while (sttRunning) { // Check sttRunning to allow loop to terminate if STT is disabled later
     try {
       await recordAndTranscribeOnce();
     } catch (err) {
-      console.error("[STT Error]", err);
+      // Errors from recordAndTranscribeOnce (like transcription errors) are caught here
+      console.error("[STT Error in continuousLoop]", err);
+      // Potentially add a longer delay or a backoff mechanism if errors are persistent
     }
-    // short gap
-    await new Promise(res => setTimeout(res, 1000));
+    // short gap, but only if stt is still supposed to be running
+    if (sttRunning) {
+      await new Promise(res => setTimeout(res, 1000));
+    }
   }
+  console.log("[STT] Continuous loop ended.");
 }
 
 export function initTTS() {
-  // Only run if stt_transcription is true and we haven't started already
-  if (!settings.stt_transcription) return;
-
-  if (sttRunning) {
-    console.log("STT loop already running; skipping re-init.");
+  if (!settings.stt_transcription) {
+    console.log("[STT] STT transcription is disabled in settings.");
+    sttRunning = false; // Ensure it's marked as not running
     return;
   }
-  sttRunning = true;
+
+  // This check is crucial: if AudioIO (from naudiodon) wasn't loaded, STT cannot run.
+  if (!AudioIO) {
+    console.warn("[STT] AudioIO is not available (naudiodon might have failed to load). STT functionality cannot be initialized.");
+    sttRunning = false; // Ensure sttRunning is false if it was somehow true
+    return;
+  }
+
+  if (sttRunning) {
+    console.log("[STT] STT loop already running; skipping re-init.");
+    return;
+  }
+
+  console.log("[STT] Initializing STT...");
+  sttRunning = true; // Set before starting the loop
 
   continuousLoop().catch((err) => {
-    console.error("[STT] continuousLoop crashed", err);
+    console.error("[STT] continuousLoop crashed unexpectedly:", err);
+    sttRunning = false; // Mark as not running if it crashes
   });
 }
 
-initTTS();
+// Moved initTTS() call into the async IIFE after naudiodon import attempt.
+// initTTS();
