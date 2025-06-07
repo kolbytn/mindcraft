@@ -50,7 +50,10 @@ export class Novita {
               res = 'My brain disconnected, try again.';
           }
       }
-      log(JSON.stringify(messages), res); // Log before stripping <think> tags
+      if (typeof res === 'string') {
+          res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+      }
+      log(JSON.stringify(messages), res); // Log transformed res
 
       // Existing stripping logic for <think> tags
       if (res && typeof res === 'string' && res.includes('<think>')) {

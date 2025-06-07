@@ -8,39 +8,32 @@ export class Grok {
         this.model_name = model_name;
         this.url = url;
         this.params = params;
-
         let config = {};
         if (url)
             config.baseURL = url;
         else
             config.baseURL = "https://api.x.ai/v1"
-
         config.apiKey = getKey('XAI_API_KEY');
-
         this.openai = new OpenAIApi(config);
     }
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-
         const pack = {
             model: this.model_name || "grok-beta",
             messages,
             stop: [stop_seq],
             ...(this.params || {})
         };
-
         let res = null;
         try {
             console.log('Awaiting xai api response...')
-            ///console.log('Messages:', messages);
             let completion = await this.openai.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')
                 throw new Error('Context length exceeded'); 
             console.log('Received.')
             res = completion.choices[0].message.content;
-        }
-        catch (err) {
+        } catch (err) {
             if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
                 return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
@@ -53,7 +46,10 @@ export class Grok {
             }
         }
         // sometimes outputs special token <|separator|>, just replace it
-        const finalResponseText = res ? res.replace(/<\|separator\|>/g, '*no response*') : (res === null ? "*no response*" : res);
+        let finalResponseText = res ? res.replace(/<\|separator\|>/g, '*no response*') : (res === null ? "*no response*" : res);
+        if (typeof finalResponseText === 'string') {
+            finalResponseText = finalResponseText.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
         log(JSON.stringify(messages), finalResponseText);
         return finalResponseText;
     }
@@ -63,20 +59,17 @@ export class Grok {
         imageFormattedTurns.push({
             role: "user",
             content: [
-                { type: "text", text: systemMessage }, // systemMessage is the vision prompt
+                { type: "text", text: systemMessage },
                 {
                     type: "image_url",
-                    image_url: {
-                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
-                    }
+                    image_url: { url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}` }
                 }
             ]
         });
         
-        // Assuming 'systemMessage' (the vision prompt) should also act as the system message for this specific API call.
-        const res = await this.sendRequest(imageFormattedTurns, systemMessage); // sendRequest will call log()
+        const res = await this.sendRequest(imageFormattedTurns, systemMessage);
 
-        if (imageBuffer && res) { // Check res to ensure a response was received
+        if (imageBuffer && res) {
             logVision(original_turns, imageBuffer, res, systemMessage);
         }
         return res;
@@ -86,6 +79,3 @@ export class Grok {
         throw new Error('Embeddings are not supported by Grok.');
     }
 }
-
-
-

@@ -57,6 +57,9 @@ export class VLLM {
                 res = 'My brain disconnected, try again.';
             }
         }
+        if (typeof res === 'string') {
+            res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
         log(JSON.stringify(messages), res);
         return res;
     }
