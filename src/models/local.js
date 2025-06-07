@@ -7,12 +7,36 @@ export class Local {
         this.url = url || 'http://127.0.0.1:11434';
         this.chat_endpoint = '/api/chat';
         this.embedding_endpoint = '/api/embeddings';
+        // Note: Actual multimodal support depends on the specific Ollama model (e.g., LLaVA, BakLLaVA)
+        this.supportsRawImageInput = true;
     }
 
-    async sendRequest(turns, systemMessage) {
+    async sendRequest(turns, systemMessage, imageData = null) {
         let model = this.model_name || 'sweaterdog/andy-4:latest'; // Changed to Andy-4
         let messages = strictFormat(turns);
         messages.unshift({ role: 'system', content: systemMessage });
+
+        if (imageData) {
+            console.warn(`[Ollama] imageData provided. Ensure the configured Ollama model ('${model}') is multimodal (e.g., llava, bakllava) to process images.`);
+            let lastUserMessageIndex = -1;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].role === 'user') {
+                    lastUserMessageIndex = i;
+                    break;
+                }
+            }
+
+            if (lastUserMessageIndex !== -1) {
+                if (!messages[lastUserMessageIndex].images) {
+                    messages[lastUserMessageIndex].images = [];
+                }
+                messages[lastUserMessageIndex].images.push(imageData.toString('base64'));
+            } else {
+                console.warn('[Ollama] imageData provided, but no user message found to attach it to. Image not sent.');
+                // Or, could create a new user message:
+                // messages.push({ role: 'user', content: "Image attached.", images: [imageData.toString('base64')] });
+            }
+        }
         
         // We'll attempt up to 5 times for models with deepseek-r1-esk reasoning if the <think> tags are mismatched.
         const maxAttempts = 5;

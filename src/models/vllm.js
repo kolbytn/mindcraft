@@ -19,9 +19,15 @@ export class VLLM {
         vllm_config.apiKey = ""
 
         this.vllm = new OpenAIApi(vllm_config);
+        // VLLM can serve various models. This generic sendRequest does not format for vision.
+        // Specific multimodal models served via VLLM might require custom request formatting.
+        this.supportsRawImageInput = false;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq = '***') {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq = '***') {
+        if (imageData) {
+            console.warn(`[VLLM] Warning: imageData provided to sendRequest, but this method in vllm.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored. Ensure the VLLM endpoint is configured for a multimodal model and the request is formatted accordingly if vision is intended.`);
+        }
         let messages = [{ 'role': 'system', 'content': systemMessage }].concat(turns);
         
         if (this.model_name.includes('deepseek') || this.model_name.includes('qwen')) {
@@ -47,7 +53,7 @@ export class VLLM {
         catch (err) {
             if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
                 console.log('Context length exceeded, trying again with shorter context.');
-                return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+                return await this.sendRequest(turns.slice(1), systemMessage, imageData, stop_seq);
             } else {
                 console.log(err);
                 res = 'My brain disconnected, try again.';

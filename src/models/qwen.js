@@ -12,15 +12,51 @@ export class Qwen {
         config.apiKey = getKey('QWEN_API_KEY');
 
         this.openai = new OpenAIApi(config);
+        // Note: Actual multimodal support depends on the specific Qwen model (e.g., qwen-vl-plus)
+        this.supportsRawImageInput = true;
     }
 
-    async sendRequest(turns, systemMessage, stop_seq='***') {
+    async sendRequest(turns, systemMessage, imageData = null, stop_seq = '***') {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
-
         messages = strictFormat(messages);
 
+        if (imageData) {
+            // Qwen VL models include names like "qwen-vl-plus", "qwen-vl-max", "qwen-vl-chat-v1"
+            if (!this.model_name || !this.model_name.toLowerCase().includes('-vl')) {
+                console.warn(`[Qwen] Warning: imageData provided for model ${this.model_name}, which does not appear to be a Qwen Vision-Language (VL) model. The image may be ignored or cause an error.`);
+            }
+
+            let lastUserMessageIndex = -1;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].role === 'user') {
+                    lastUserMessageIndex = i;
+                    break;
+                }
+            }
+
+            if (lastUserMessageIndex !== -1) {
+                const userMessage = messages[lastUserMessageIndex];
+                if (typeof userMessage.content === 'string') { // Ensure content is a string before converting
+                    userMessage.content = [
+                        { "text": userMessage.content },
+                        { "image": `data:image/jpeg;base64,${imageData.toString('base64')}` }
+                    ];
+                } else if (Array.isArray(userMessage.content)) {
+                    // If content is already an array (e.g. from previous image), add new image
+                     userMessage.content.push({ "image": `data:image/jpeg;base64,${imageData.toString('base64')}` });
+                } else {
+                    console.warn('[Qwen] Last user message content is not a string or array. Creating new content array for image.');
+                    userMessage.content = [{ "image": `data:image/jpeg;base64,${imageData.toString('base64')}` }];
+                }
+            } else {
+                console.warn('[Qwen] imageData provided, but no user message found to attach it to. Image not sent.');
+                // Alternative: Create a new user message with the image
+                // messages.push({ role: 'user', content: [{ "image": `data:image/jpeg;base64,${imageData.toString('base64')}` }] });
+            }
+        }
+
         const pack = {
-            model: this.model_name || "qwen-plus",
+            model: this.model_name || "qwen-plus", // Default might need to be a VL model if images are common
             messages,
             stop: stop_seq,
             ...(this.params || {})

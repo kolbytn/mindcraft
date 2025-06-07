@@ -336,7 +336,7 @@ export class Prompter {
             let generation;
             let imageData = null;
 
-            if (settings.vision_mode === 'always_active' && messages.length > 0) {
+            if (settings.vision_mode === 'always' && messages.length > 0) {
                 const lastMessage = messages[messages.length - 1];
                 // Check if the last message has an imagePath and if the model supports raw image input
                 if (lastMessage.imagePath && this.chat_model.supportsRawImageInput) {

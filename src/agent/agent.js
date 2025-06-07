@@ -248,7 +248,7 @@ export class Agent {
         const from_other_bot = convoManager.isOtherAgent(source);
 
         if (!self_prompt && !from_other_bot) { // from user, check for forced commands
-            if (settings.vision_mode === 'always_active' && this.vision_interpreter && this.vision_interpreter.camera) {
+            if (settings.vision_mode === 'always' && this.vision_interpreter && this.vision_interpreter.camera) {
                 try {
                     const screenshotFilename = await this.vision_interpreter.camera.capture();
                     this.latestScreenshotPath = screenshotFilename;
@@ -268,9 +268,9 @@ export class Agent {
                     // all user-initiated commands are ignored by the bot except for this one
                     // add the preceding message to the history to give context for newAction
                     // This is the user's message that contains the !newAction command.
-                    // If a screenshot was taken due to always_active, it should be associated here.
+                    // If a screenshot was taken due to always, it should be associated here.
                     let imagePathForNewActionCmd = null;
-                    if (settings.vision_mode === 'always_active' && this.latestScreenshotPath && !self_prompt && !from_other_bot) {
+                    if (settings.vision_mode === 'always' && this.latestScreenshotPath && !self_prompt && !from_other_bot) {
                         imagePathForNewActionCmd = this.latestScreenshotPath;
                     }
                     await this.history.add(source, message, imagePathForNewActionCmd);
@@ -307,8 +307,8 @@ export class Agent {
         // Handle other user messages (or initial system messages)
         let imagePathForInitialMessage = null;
         if (!self_prompt && !from_other_bot) {
-            // If it's a user message and a screenshot was auto-captured for always_active
-            if (settings.vision_mode === 'always_active' && this.latestScreenshotPath) {
+            // If it's a user message and a screenshot was auto-captured for always
+            if (settings.vision_mode === 'always' && this.latestScreenshotPath) {
                 imagePathForInitialMessage = this.latestScreenshotPath;
             }
         } else if (source === 'system' && this.latestScreenshotPath && message.startsWith("You died at position")) {
@@ -540,7 +540,7 @@ export class Agent {
 
     cleanKill(msg='Killing agent process...', code=1) {
         // Assuming cleanKill messages don't have images
-        this.history.add('system', msg, null);
+        await this.history.add('system', msg, null);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);

@@ -1,6 +1,7 @@
 import { Vec3 } from 'vec3';
 import { Camera } from "./camera.js";
 import fs from 'fs';
+import path from 'path';
 
 export class VisionInterpreter {
     constructor(agent, vision_mode) {
@@ -19,7 +20,7 @@ export class VisionInterpreter {
         if (!this.camera) {
             return "Camera is not initialized. Vision may be set to 'off'.";
         }
-        if (!this.agent.prompter.vision_model.sendVisionRequest && this.vision_mode === 'on') {
+        if (!this.agent.prompter.vision_model.sendVisionRequest && this.vision_mode === 'prompted') {
             return "Vision requests are not enabled for the current model. Cannot analyze image.";
         }
 
@@ -43,9 +44,9 @@ export class VisionInterpreter {
             this.agent.latestScreenshotPath = filename;
         }
 
-        if (this.vision_mode === 'on') {
+        if (this.vision_mode === 'prompted') {
             return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
-        } else if (this.vision_mode === 'always_active') {
+        } else if (this.vision_mode === 'always') {
             return result + "Screenshot taken and stored.";
         }
         // Should not be reached if vision_mode is one of the expected values
@@ -59,7 +60,7 @@ export class VisionInterpreter {
         if (!this.camera) {
             return "Camera is not initialized. Vision may be set to 'off'.";
         }
-        if (!this.agent.prompter.vision_model.sendVisionRequest && this.vision_mode === 'on') {
+        if (!this.agent.prompter.vision_model.sendVisionRequest && this.vision_mode === 'prompted') {
             return "Vision requests are not enabled for the current model. Cannot analyze image.";
         }
 
@@ -71,9 +72,9 @@ export class VisionInterpreter {
         let filename = await this.camera.capture();
         this.agent.latestScreenshotPath = filename;
 
-        if (this.vision_mode === 'on') {
+        if (this.vision_mode === 'prompted') {
             return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
-        } else if (this.vision_mode === 'always_active') {
+        } else if (this.vision_mode === 'always') {
             return result + "Screenshot taken and stored.";
         }
         // Should not be reached if vision_mode is one of the expected values
@@ -94,7 +95,9 @@ export class VisionInterpreter {
 
     async analyzeImage(filename) {
         try {
-            const imageBuffer = fs.readFileSync(`${this.fp}/${filename}.jpg`);
+            // filename already includes .jpg from camera.js
+            const imageFullPath = path.join(this.fp, filename);
+            const imageBuffer = fs.readFileSync(imageFullPath);
             const messages = this.agent.history.getHistory();
 
             const blockInfo = this.getCenterBlockInfo();
