@@ -58,7 +58,7 @@ export class History {
         }
     }
 
-    async add(name, content) {
+    async add(name, content, imagePath = null) {
         let role = 'assistant';
         if (name === 'system') {
             role = 'system';
@@ -67,7 +67,7 @@ export class History {
             role = 'user';
             content = `${name}: ${content}`;
         }
-        this.turns.push({role, content});
+        this.turns.push({role, content, imagePath});
 
         if (this.turns.length >= this.max_messages) {
             let chunk = this.turns.splice(0, this.summary_chunk_size);

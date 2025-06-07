@@ -20,6 +20,7 @@ import { say } from './speak.js';
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
         this.last_sender = null;
+        this.latestScreenshotPath = null;
         this.count_id = count_id;
         if (!profile_fp) {
             throw new Error('No profile filepath provided');
@@ -116,7 +117,7 @@ export class Agent {
                 this.checkAllPlayersPresent();
               
                 console.log('Initializing vision intepreter...');
-                this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
+                this.vision_interpreter = new VisionInterpreter(this, settings.vision_mode);
 
             } catch (error) {
                 console.error('Error in spawn event:', error);
@@ -172,7 +173,8 @@ export class Agent {
 
         if (save_data?.self_prompt) {
             if (init_message) {
-                this.history.add('system', init_message);
+                // Assuming init_message for self_prompt loading doesn't have an image
+                await this.history.add('system', init_message, null);
             }
             await this.self_prompter.handleLoad(save_data.self_prompt, save_data.self_prompting_state);
         }
@@ -246,6 +248,15 @@ export class Agent {
         const from_other_bot = convoManager.isOtherAgent(source);
 
         if (!self_prompt && !from_other_bot) { // from user, check for forced commands
+            if (settings.vision_mode === 'always_active' && this.vision_interpreter && this.vision_interpreter.camera) {
+                try {
+                    const screenshotFilename = await this.vision_interpreter.camera.capture();
+                    this.latestScreenshotPath = screenshotFilename;
+                    console.log(`[${this.name}] Captured screenshot in always_active mode: ${screenshotFilename}`);
+                } catch (error) {
+                    console.error(`[${this.name}] Error capturing screenshot in always_active mode:`, error);
+                }
+            }
             const user_command_name = containsCommand(message);
             if (user_command_name) {
                 if (!commandExists(user_command_name)) {
@@ -256,7 +267,16 @@ export class Agent {
                 if (user_command_name === '!newAction') {
                     // all user-initiated commands are ignored by the bot except for this one
                     // add the preceding message to the history to give context for newAction
-                    this.history.add(source, message);
+                    // This is the user's message that contains the !newAction command.
+                    // If a screenshot was taken due to always_active, it should be associated here.
+                    let imagePathForNewActionCmd = null;
+                    if (settings.vision_mode === 'always_active' && this.latestScreenshotPath && !self_prompt && !from_other_bot) {
+                        imagePathForNewActionCmd = this.latestScreenshotPath;
+                    }
+                    await this.history.add(source, message, imagePathForNewActionCmd);
+                    if (imagePathForNewActionCmd) {
+                        this.latestScreenshotPath = null; // Consume path
+                    }
                 }
                 let execute_res = await executeCommand(this, message);
                 if (execute_res) 
@@ -281,11 +301,29 @@ export class Agent {
                 behavior_log = '...' + behavior_log.substring(behavior_log.length - MAX_LOG);
             }
             behavior_log = 'Recent behaviors log: \n' + behavior_log;
-            await this.history.add('system', behavior_log);
+            await this.history.add('system', behavior_log, null); // Behavior log unlikely to have an image
         }
 
-        // Handle other user messages
-        await this.history.add(source, message);
+        // Handle other user messages (or initial system messages)
+        let imagePathForInitialMessage = null;
+        if (!self_prompt && !from_other_bot) {
+            // If it's a user message and a screenshot was auto-captured for always_active
+            if (settings.vision_mode === 'always_active' && this.latestScreenshotPath) {
+                imagePathForInitialMessage = this.latestScreenshotPath;
+            }
+        } else if (source === 'system' && this.latestScreenshotPath && message.startsWith("You died at position")) {
+            // Example: System death message might use a path if set by some (future) death-capture logic
+            // For now, this is illustrative; death messages don't set latestScreenshotPath.
+            // More relevant if a system message is a direct consequence of an action that *did* set the path.
+            // However, explicit command result handling is better for those.
+            // imagePathForInitialMessage = this.latestScreenshotPath; // Generally, system messages here won't have an image unless specific logic sets it.
+        }
+
+
+        await this.history.add(source, message, imagePathForInitialMessage);
+        if (imagePathForInitialMessage) {
+            this.latestScreenshotPath = null; // Consume the path if used
+        }
         this.history.save();
 
         if (!self_prompt && this.self_prompter.isActive()) // message is from user during self-prompting
@@ -306,10 +344,12 @@ export class Agent {
 
             if (command_name) { // contains query or command
                 res = truncCommandMessage(res); // everything after the command is ignored
-                this.history.add(this.name, res);
+                // Agent's own message stating the command it will execute
+                await this.history.add(this.name, res, null);
                 
                 if (!commandExists(command_name)) {
-                    this.history.add('system', `Command ${command_name} does not exist.`);
+                    // Agent hallucinated a command
+                    await this.history.add('system', `Command ${command_name} does not exist.`, null);
                     console.warn('Agent hallucinated command:', command_name)
                     continue;
                 }
@@ -333,13 +373,24 @@ export class Agent {
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
                 used_command = true;
 
-                if (execute_res)
-                    this.history.add('system', execute_res);
-                else
+                if (execute_res) {
+                    let imagePathForCommandResult = null;
+                    // Vision commands (!lookAtPlayer, !lookAtPosition) set latestScreenshotPath in VisionInterpreter.
+                    // This is relevant if mode is 'on' (analysis done, path stored by VI) or 'always_active' (screenshot taken, path stored by VI).
+                    if (command_name && (command_name === '!lookAtPlayer' || command_name === '!lookAtPosition') && this.latestScreenshotPath) {
+                        imagePathForCommandResult = this.latestScreenshotPath;
+                    }
+                    await this.history.add('system', execute_res, imagePathForCommandResult);
+                    if (imagePathForCommandResult) {
+                        this.latestScreenshotPath = null; // Consume the path
+                    }
+                }
+                else { // command execution didn't return anything or failed in a way that implies loop break
                     break;
+                }
             }
-            else { // conversation response
-                this.history.add(this.name, res);
+            else { // conversation response (no command)
+                await this.history.add(this.name, res, null); // Agent's text response, no image typically
                 this.routeResponse(source, res);
                 break;
             }
@@ -488,7 +539,8 @@ export class Agent {
     
 
     cleanKill(msg='Killing agent process...', code=1) {
-        this.history.add('system', msg);
+        // Assuming cleanKill messages don't have images
+        await this.history.add('system', msg, null);
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
@@ -497,7 +549,8 @@ export class Agent {
         if (this.task.data) {
             let res = this.task.isDone();
             if (res) {
-                await this.history.add('system', `Task ended with score : ${res.score}`);
+                // Assuming task end messages don't have images
+                await this.history.add('system', `Task ended with score : ${res.score}`, null);
                 await this.history.save();
                 // await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 second for save to complete
                 console.log('Task finished:', res.message);

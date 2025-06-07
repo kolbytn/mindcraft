@@ -428,6 +428,13 @@ export const actionsList = [
             }
         },
         perform: async function(agent, player_name, direction) {
+            if (agent.vision_interpreter && agent.vision_interpreter.vision_mode === 'off') {
+                return "Vision commands are disabled as vision mode is 'off'.";
+            }
+            // Also check if vision_interpreter or camera is not available if mode is not 'off'
+            if (agent.vision_interpreter && !agent.vision_interpreter.camera && agent.vision_interpreter.vision_mode !== 'off') {
+                return "Camera is not available, cannot perform look command.";
+            }
             if (direction !== 'at' && direction !== 'with') {
                 return "Invalid direction. Use 'at' or 'with'.";
             }
@@ -448,6 +455,13 @@ export const actionsList = [
             'z': { type: 'int', description: 'z coordinate' }
         },
         perform: async function(agent, x, y, z) {
+            if (agent.vision_interpreter && agent.vision_interpreter.vision_mode === 'off') {
+                return "Vision commands are disabled as vision mode is 'off'.";
+            }
+            // Also check if vision_interpreter or camera is not available if mode is not 'off'
+            if (agent.vision_interpreter && !agent.vision_interpreter.camera && agent.vision_interpreter.vision_mode !== 'off') {
+                return "Camera is not available, cannot perform look command.";
+            }
             let result = "";
             const actionFn = async () => {
                 result = await agent.vision_interpreter.lookAtPosition(x, y, z);
