@@ -1,6 +1,7 @@
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class Qwen {
     constructor(model_name, url, params) {
@@ -45,6 +46,10 @@ export class Qwen {
                 res = 'My brain disconnected, try again.';
             }
         }
+        if (typeof res === 'string') {
+            res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+        log(JSON.stringify(messages), res);
         return res;
     }
 

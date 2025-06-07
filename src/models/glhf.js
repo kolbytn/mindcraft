@@ -1,5 +1,6 @@
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 export class GLHF {
     constructor(model_name, url) {
@@ -15,7 +16,6 @@ export class GLHF {
     }
 
     async sendRequest(turns, systemMessage, stop_seq = '***') {
-        // Construct the message array for the API request.
         let messages = [{ role: 'system', content: systemMessage }].concat(turns);
         const pack = {
             model: this.model_name || "hf:meta-llama/Llama-3.1-405B-Instruct",
@@ -36,17 +36,15 @@ export class GLHF {
                     throw new Error('Context length exceeded');
                 }
                 let res = completion.choices[0].message.content;
-                // If there's an open <think> tag without a corresponding </think>, retry.
                 if (res.includes("<think>") && !res.includes("</think>")) {
                     console.warn("Partial <think> block detected. Re-generating...");
-                    continue;
+                    if (attempt < maxAttempts) continue;
                 }
-                // If there's a closing </think> tag but no opening <think>, prepend one.
                 if (res.includes("</think>") && !res.includes("<think>")) {
                     res = "<think>" + res;
                 }
                 finalRes = res.replace(/<\|separator\|>/g, '*no response*');
-                break; // Valid response obtained.
+                break;
             } catch (err) {
                 if ((err.message === 'Context length exceeded' || err.code === 'context_length_exceeded') && turns.length > 1) {
                     console.log('Context length exceeded, trying again with shorter context.');
@@ -61,6 +59,11 @@ export class GLHF {
         if (finalRes === null) {
             finalRes = "I thought too hard, sorry, try again";
         }
+
+        if (typeof finalRes === 'string') {
+            finalRes = finalRes.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+        log(JSON.stringify(messages), finalRes);
         return finalRes;
     }
 
