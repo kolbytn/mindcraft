@@ -240,7 +240,7 @@ export class Task {
             this.taskStartTime = taskStartTime;
         else
             this.taskStartTime = Date.now();
-
+        console.log("Task start time set to", this.taskStartTime);
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
@@ -264,8 +264,16 @@ export class Task {
                 this.conversation = this.data.conversation;
             }
             this.taskTimeout = this.data.timeout || 300;
-            this.taskStartTime = Date.now();
             // Set validator based on task_type
+
+            // do goal initialization here
+
+            // let agentGoal = this.getAgentGoal();
+            // if (agentGoal) {
+            //     agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
+            //     console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
+            //     await executeCommand(this.agent, `!goal("${agentGoal}")`);
+            // }
 
             if (this.task_type === 'construction') {
                 this.validator = new ConstructionTaskValidator(this.data, this.agent);
@@ -312,23 +320,24 @@ export class Task {
 
         if (this.task_type === 'cooking') {
 
-                if (this.data.agent_count > 2) {
 
-                    if (this.name.toLowerCase().startsWith('andy')) {
-                        add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
-                    } 
-                    else {
-                        add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
-                    }   
+            if (this.data.agent_count > 2) {
+
+                if (this.name.toLowerCase().startsWith('andy')) {
+                    add_string = '\nIn the end, all the food items should be given to you by other bots. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
                 } 
                 else {
-                    if (this.data.task_id && this.data.task_id.endsWith('hells_kitchen')) {
-                        add_string = '';
-                    } 
-                    else {
-                    add_string = '\nIn the end, all the food items should be given to one single bot.';
-                    }
+                    add_string = '\nIn the end, all the food items should be given to one single bot whose name starts with andy or Andy. Make sure to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
+                }   
+            } 
+            else {
+                if (this.data.task_id && this.data.task_id.endsWith('hells_kitchen')) {
+                    add_string = '';
+                } 
+                else {
+                add_string = '\nIn the end, all the food items should be given to one single bot.';
                 }
+            }
         }
 
         if (this.task_type === 'techtree') {
@@ -382,6 +391,7 @@ export class Task {
             for (let agent of this.available_agents) {
                 this.agent.bot.chat(`/clear ${agent}`);
             }
+            // this.agent.bot.chat(`/clear @a`);
             return {"message": 'Task successful', "score": res.score};
         }
         let other_names = this.available_agents.filter(n => n !== this.name);
@@ -406,7 +416,17 @@ export class Task {
         return false;
     }
 
+    async setAgentGoal() {
+        let agentGoal = this.getAgentGoal();
+        if (agentGoal && this.data.agent_count + this.data.human_count > 1) {
+            agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
+            console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
+        }
+        await executeCommand(this.agent, `!goal("${agentGoal}")`);
+    }
+
     async initBotTask() {
+        await this.setAgentGoal();
         await this.agent.bot.chat(`/clear ${this.name}`);
         console.log(`Cleared ${this.name}'s inventory.`);
 
@@ -417,7 +437,7 @@ export class Task {
             return;
         
         if (this.task_type === 'cooking') {
-            this.initiator = new CookingTaskInitiator(this.data, this.agent);
+            this.initiator = new CookingTaskInitiator(this.data, this.agent.bot);
         } else {
             this.initiator = null;
         }
@@ -425,17 +445,43 @@ export class Task {
         //wait for a bit so bots are teleported
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
+        if (this.agent.count_id === 0 && this.data.human_count > 0) {
+            console.log('Clearing human player inventories');
+            for (let i = 0; i < this.data.human_count; i++) {
+                const username = this.data.usernames[i];
+                await this.agent.bot.chat(`/clear ${username}`);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
         if (this.data.initial_inventory) {
             console.log("Setting inventory...");
             let initialInventory = {};
             
-            // Handle multi-agent inventory assignment
-            if (this.data.agent_count > 1) {
-                initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
-                console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
-            } else {
-                initialInventory = this.data.initial_inventory;
-                console.log("Initial inventory:", initialInventory);
+            initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
+            console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
+            console.log("")
+
+            if (this.data.human_count > 0 && this.agent.count_id === 0) {
+                // this.num_humans = num_keys - this.data.num_agents;
+                if (this.data.human_count !== this.data.usernames.length) {
+                    console.log(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
+                    throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
+                    return;
+                }
+                
+                const starting_idx = this.data.agent_count;
+                for (let i = 0; i < this.data.human_count; i++) {
+                    const username = this.data.usernames[i];
+                    const inventory = this.data.initial_inventory[starting_idx + i];
+                    console.log(Object.keys(inventory));
+                    for (let key of Object.keys(inventory)) {
+                        const itemName = key.toLowerCase();
+                        const quantity = inventory[key];
+                        console.log(`Give ${username} ${quantity} ${itemName}`);
+                        await this.agent.bot.chat(`/give ${username} ${itemName} ${quantity}`);
+                    }
+                }
             }
             console.log(this.data.initial_inventory);
 
@@ -451,7 +497,7 @@ export class Task {
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
 
-        if (this.initiator) {
+        if (this.initiator && this.agent.count_id === 0) {
             await this.initiator.init();
         }
 
@@ -481,12 +527,7 @@ export class Task {
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
 
-        let agentGoal = this.getAgentGoal();
-        if (agentGoal) {
-            agentGoal += "You have to collaborate with other agents/bots, namely " + this.available_agents.filter(n => n !== this.name).join(', ') + " to complete the task as soon as possible by dividing the work among yourselves.";
-            console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
-            await executeCommand(this.agent, `!goal("${agentGoal}")`);
-        }
+        
     }
     
     async teleportBots() {
@@ -508,7 +549,8 @@ export class Task {
             }
         }
 
-        if (human_player_name) {
+        // go the human if there is one and not required for the task
+        if (human_player_name && this.data.human_count === 0) {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
@@ -554,7 +596,14 @@ export class Task {
                 const commands = result.commands;
                 const nearbyPosition = result.nearbyPosition;
                 console.log("nearby position", nearbyPosition);
-                bot.chat(`/tp @a ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+                const first_coord = this.data.blueprint.levels[0].coordinates;
+                bot.chat(`/tp @a ${first_coord[0]} ${first_coord[1]} ${first_coord[2]}`);
+                if (this.agent.agent_id === 0 && this.data.human_count > 0) {
+                    for (let i = 0; i < this.data.human_count; i++) {
+                        const username = this.data.usernames[i];
+                        await bot.chat(`/tp ${username} ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+                    }
+                }
                 for (const command of commands) {
                     bot.chat(command);
                 }

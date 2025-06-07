@@ -35,8 +35,6 @@ export class Agent {
         }
         
         console.log('Starting agent initialization with profile:', profile_fp);
-
-        
         
         // Initialize components with more detailed error handling
         console.log('Initializing action manager...');
@@ -114,6 +112,12 @@ export class Agent {
                 if (!load_mem) {
                     if (task_path !== null) {
                         this.task.initBotTask();
+                        this.task.setAgentGoal();
+                    }
+                } else {
+                    // set the goal without initializing the rest of the task
+                    if (task_path !== null) {
+                        this.task.setAgentGoal();
                     }
                 }
 

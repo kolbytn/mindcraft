@@ -155,7 +155,7 @@
     "missing_items": [],
     "requires_crafting_table": true
   },
-  "multiagent_crafting_requires_ctable_blue_banner_2_with_plan__depth_0_num_agents_3": {
+  "multiagent_crafting_requires_ctable_blue_banner_2_with_partial_plan__depth_0_num_agents_3": {
     "goal": "Collaborate with other agents to craft an blue_banner",
     "conversation": "Let's work together to craft an blue_banner.",
     "initial_inventory": {
@@ -190,7 +190,7 @@
     "missing_items": [],
     "requires_crafting_table": true
   },
-  "multiagent_crafting_requires_ctable_cyan_bed_1_with_plan__depth_0_num_agents_3": {
+  "multiagent_crafting_requires_ctable_cyan_bed_1_with_partial_plan__depth_0_num_agents_3": {
     "goal": "Collaborate with other agents to craft an cyan_bed",
     "conversation": "Let's work together to craft an cyan_bed.",
     "initial_inventory": {
