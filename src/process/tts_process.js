@@ -17,32 +17,55 @@ const __dirname = path.dirname(__filename);
 let portAudio;
 let AudioIO;
 let SampleFormat16Bit;
+let mic; // For mic library
+let activeAudioLibrary = null; // 'naudiodon' or 'mic'
 
 (async () => {
     try {
         const naudiodonModule = await import('naudiodon');
-        portAudio = naudiodonModule.default; // CommonJS modules often export functionality on 'default' when imported into ES modules
+        portAudio = naudiodonModule.default;
         if (portAudio && typeof portAudio.AudioIO === 'function' && typeof portAudio.SampleFormat16Bit !== 'undefined') {
             AudioIO = portAudio.AudioIO;
             SampleFormat16Bit = portAudio.SampleFormat16Bit;
+            activeAudioLibrary = 'naudiodon';
             console.log('[STT] naudiodon loaded successfully.');
         } else if (naudiodonModule.AudioIO && typeof naudiodonModule.SampleFormat16Bit !== 'undefined') {
-            // Fallback if 'default' is not used and properties are directly on the module
             AudioIO = naudiodonModule.AudioIO;
             SampleFormat16Bit = naudiodonModule.SampleFormat16Bit;
-            portAudio = naudiodonModule; // Assign the module itself to portAudio for consistency if needed elsewhere
+            portAudio = naudiodonModule;
+            activeAudioLibrary = 'naudiodon';
             console.log('[STT] naudiodon loaded successfully (direct properties).');
-        }
-        else {
+        } else {
             throw new Error('AudioIO or SampleFormat16Bit not found in naudiodon module exports.');
         }
     } catch (err) {
-        console.warn(`[STT] Failed to load naudiodon, Speech-to-Text will be disabled. Error: ${err.message}`);
+        console.warn(`[STT] Failed to load naudiodon. Error: ${err.message}`);
         portAudio = null;
         AudioIO = null;
         SampleFormat16Bit = null;
+
+        // Attempt to load mic if naudiodon fails
+        try {
+            const micModule = await import('mic');
+            mic = micModule.default; // Assuming mic is also a CommonJS module typically
+            if (mic && typeof mic === 'function') { // mic is often a constructor function
+                 activeAudioLibrary = 'mic';
+                 console.log('[STT] mic loaded successfully as an alternative.');
+            } else if (micModule.Mic) { // Some modules might export it as Mic
+                mic = micModule.Mic;
+                activeAudioLibrary = 'mic';
+                console.log('[STT] mic (Mic) loaded successfully as an alternative.');
+            }
+            else {
+                throw new Error('Mic constructor not found in mic module exports.');
+            }
+        } catch (micErr) {
+            console.warn(`[STT] Failed to load mic as well. Speech-to-Text will be disabled. Error: ${micErr.message}`);
+            mic = null;
+            activeAudioLibrary = null;
+        }
     }
-    // Initialize TTS after attempting to load naudiodon
+    // Initialize TTS after attempting to load audio libraries
     initTTS();
 })();
 
@@ -89,22 +112,14 @@ async function recordAndTranscribeOnce() {
     bitDepth: BIT_DEPTH
   });
 
-  // This is where AudioIO is crucial
-  if (!AudioIO || !SampleFormat16Bit) {
-      console.warn("[STT] AudioIO or SampleFormat16Bit not available. Cannot record audio.");
-      isRecording = false;
-      return null;
+  if (!activeAudioLibrary) {
+    console.warn("[STT] No audio recording library available (naudiodon or mic). Cannot record audio.");
+    isRecording = false;
+    return null;
   }
 
-  const ai = new AudioIO({
-    inOptions: {
-      channelCount: 1,
-      sampleFormat: SampleFormat16Bit,
-      sampleRate: SAMPLE_RATE,
-      deviceId: -1,
-      closeOnError: true
-    }
-  });
+  let audioInterface; // Will hold either naudiodon's 'ai' or mic's 'micInstance'
+  let audioStream;    // Will hold either naudiodon's 'ai' or mic's 'micInputStream'
 
   let recording = true;
   let hasHeardSpeech = false;
@@ -114,26 +129,126 @@ async function recordAndTranscribeOnce() {
   // Helper to reset silence timer
   function resetSilenceTimer() {
     if (silenceTimer) clearTimeout(silenceTimer);
-    if (hasHeardSpeech) {
-      silenceTimer = setTimeout(() => stopRecording(), SILENCE_DURATION);
+    // Only start silence timer if actual speech has been detected
+    if (hasHeardSpeech && recording) { // also check `recording` to prevent timer after explicit stop
+        silenceTimer = setTimeout(() => {
+            console.log('[STT] Silence detected, stopping recording.');
+            stopRecording();
+        }, SILENCE_DURATION);
     }
   }
 
   // Stop recording
   function stopRecording() {
     if (!recording) return;
-    recording = false;
-    ai.quit();
-    fileWriter.end();
+    console.log('[STT] stopRecording called.');
+    recording = false; // Set recording to false immediately
+
+    if (activeAudioLibrary === 'naudiodon' && audioInterface) {
+      audioInterface.quit();
+    } else if (activeAudioLibrary === 'mic' && audioInterface) {
+      audioInterface.stop(); // micInstance.stop()
+    }
+    // fileWriter.end() will be called by the 'finish' or 'silence' event handlers
+    // to ensure all data is written before closing the file.
+    // However, if stopRecording is called externally (e.g. by SILENCE_DURATION timer)
+    // and not by an event that naturally ends the stream, we might need to end it here.
+    // Let's defer fileWriter.end() to specific event handlers for now,
+    // but if issues arise, this is a place to check.
+    // For now, we rely on 'silence' (mic) or 'quit' sequence (naudiodon) to close writer.
   }
+
 
   // We wrap everything in a promise so we can await the transcription
   return new Promise((resolve, reject) => {
-    // Attach event handlers
-    ai.on('data', (chunk) => {
+    if (activeAudioLibrary === 'naudiodon') {
+      if (!AudioIO || !SampleFormat16Bit) { // Should have been caught by activeAudioLibrary check, but for safety
+          console.warn("[STT] Naudiodon not available for recording.");
+          isRecording = false;
+          return reject(new Error("Naudiodon not available"));
+      }
+      audioInterface = new AudioIO({ // Naudiodon's ai
+        inOptions: {
+          channelCount: 1,
+          sampleFormat: SampleFormat16Bit,
+          sampleRate: SAMPLE_RATE,
+          deviceId: -1, // Default device
+          closeOnError: true
+        }
+      });
+      audioStream = audioInterface; // For naudiodon, the interface itself is the stream emitter
+
+      audioStream.on('error', (err) => {
+        console.error("[STT] Naudiodon AudioIO error:", err);
+        stopRecording(); // Try to stop everything
+        fileWriter.end(() => fs.unlink(outFile, () => {})); // End writer and delete file
+        cleanupListeners();
+        resolve(null); // Resolve with null as per existing logic for continuousLoop
+      });
+
+    } else if (activeAudioLibrary === 'mic') {
+      // Calculate exitOnSilence for mic. It's in number of 512-byte chunks.
+      // Each chunk is 256 samples (16-bit, so 2 bytes per sample).
+      // Duration of one chunk = 256 samples / SAMPLE_RATE seconds.
+      // Number of chunks for SILENCE_DURATION:
+      // (SILENCE_DURATION / 1000) / (256 / SAMPLE_RATE)
+      const micExitOnSilence = Math.ceil((SILENCE_DURATION / 1000) * (SAMPLE_RATE / 256));
+      console.log(`[STT] Mic exitOnSilence calculated to: ${micExitOnSilence} frames (for ${SILENCE_DURATION}ms)`);
+
+      audioInterface = new mic({ // micInstance
+        rate: String(SAMPLE_RATE),
+        channels: '1',
+        bitwidth: String(BIT_DEPTH),
+        endian: 'little',
+        encoding: 'signed-integer',
+        device: 'default', // Or settings.audio_input_device
+        exitOnSilence: micExitOnSilence, // This will trigger 'silence' event
+        debug: false // settings.debug_audio || false
+      });
+      audioStream = audioInterface.getAudioStream();
+
+      audioStream.on('error', (err) => {
+        console.error('[STT] Mic error:', err);
+        stopRecording();
+        fileWriter.end(() => fs.unlink(outFile, () => {}));
+        cleanupListeners();
+        resolve(null);
+      });
+
+      audioStream.on('silence', () => {
+        console.log('[STT] Mic detected silence.');
+        // stopRecording(); // This will call micInstance.stop()
+                           // which then triggers processExitComplete.
+                           // Redundant if exitOnSilence is working as expected.
+                           // Let's ensure stopRecording is called to clear timers etc.
+        if (recording) { // Only call stop if we haven't already stopped for other reasons
+            stopRecording();
+        }
+        // Important: mic automatically stops on silence. We need to ensure fileWriter is closed.
+        if (fileWriter && !fileWriter.closed) {
+            fileWriter.end(); // This will trigger 'finish' on fileWriter
+        }
+      });
+
+      audioStream.on('processExitComplete', () => {
+        console.log('[STT] Mic processExitComplete.');
+        // This indicates mic has fully stopped.
+        // Ensure fileWriter is ended if not already.
+        if (fileWriter && !fileWriter.closed) {
+            console.log('[STT] Mic processExitComplete: Ending fileWriter.');
+            fileWriter.end();
+        }
+        // isRecording should be set to false by stopRecording()
+      });
+    }
+
+    // Common event handling for data (applies to both naudiodon ai and micStream)
+    audioStream.on('data', (chunk) => {
+      if (!recording) return; // Don't process data if no longer recording
+
       fileWriter.write(chunk);
 
-      // Calculate RMS for threshold detection
+      // Calculate RMS for threshold detection (same logic for both libraries)
       let sumSquares = 0;
       const sampleCount = chunk.length / 2;
       for (let i = 0; i < chunk.length; i += 2) {
@@ -151,16 +266,20 @@ async function recordAndTranscribeOnce() {
       }
     });
 
-    ai.on('error', (err) => {
-      console.error("[STT] AudioIO error:", err);
-      cleanupListeners();
-      // Don't reject here, as continuousLoop should continue. Resolve with null.
-      resolve(null);
-    });
+    // fileWriter.on('finish', ...) remains largely the same but moved outside library-specific setup
+    // }); // This was part of ai.on('data', ...) which is now common code block.
+
+    // This was ai.on('error',...) specific to naudiodon, now handled above.
+    // });
 
     fileWriter.on('finish', async () => {
+      console.log('[STT] FileWriter finished.');
       if (finished) return;
       finished = true;
+
+      // Ensure recording is marked as stopped and lock released
+      isRecording = false;
+      if (silenceTimer) clearTimeout(silenceTimer);
       try {
         // Check audio duration
         const stats = fs.statSync(outFile);
@@ -246,19 +365,29 @@ async function recordAndTranscribeOnce() {
       }
     });
 
-    ai.start();
+    // Start the appropriate audio input
+    if (activeAudioLibrary === 'naudiodon') {
+      audioInterface.start();
+    } else if (activeAudioLibrary === 'mic') {
+      audioInterface.start();
+    }
 
     function cleanupListeners() {
-      if (ai && typeof ai.removeAllListeners === 'function') {
-        ai.removeAllListeners('data');
-        ai.removeAllListeners('error');
+      if (audioStream && typeof audioStream.removeAllListeners === 'function') {
+        audioStream.removeAllListeners('data');
+        audioStream.removeAllListeners('error');
+        if (activeAudioLibrary === 'mic') {
+          audioStream.removeAllListeners('silence');
+          audioStream.removeAllListeners('processExitComplete');
+        }
       }
       if (fileWriter && typeof fileWriter.removeAllListeners === 'function') {
         fileWriter.removeAllListeners('finish');
       }
       if (silenceTimer) clearTimeout(silenceTimer);
 
-      // release lock
+      // release lock if it hasn't been released by fileWriter.on('finish')
+      // This is a safeguard.
       isRecording = false;
     }
   });
@@ -268,14 +397,13 @@ async function recordAndTranscribeOnce() {
  * Runs recording sessions sequentially, so only one at a time
  */
 async function continuousLoop() {
-  // This check is now more critical as AudioIO might not be available
-  if (!AudioIO) {
-    console.warn("[STT] AudioIO not available. STT continuous loop cannot start.");
-    sttRunning = false; // Ensure this is marked as not running
+  if (!activeAudioLibrary) {
+    console.warn("[STT] No audio recording library available. STT continuous loop cannot start.");
+    sttRunning = false;
     return;
   }
 
-  while (sttRunning) { // Check sttRunning to allow loop to terminate if STT is disabled later
+  while (sttRunning) {
     try {
       await recordAndTranscribeOnce();
     } catch (err) {
@@ -294,14 +422,13 @@ async function continuousLoop() {
 export function initTTS() {
   if (!settings.stt_transcription) {
     console.log("[STT] STT transcription is disabled in settings.");
-    sttRunning = false; // Ensure it's marked as not running
+    sttRunning = false;
     return;
   }
 
-  // This check is crucial: if AudioIO (from naudiodon) wasn't loaded, STT cannot run.
-  if (!AudioIO) {
-    console.warn("[STT] AudioIO is not available (naudiodon might have failed to load). STT functionality cannot be initialized.");
-    sttRunning = false; // Ensure sttRunning is false if it was somehow true
+  if (!activeAudioLibrary) {
+    console.warn("[STT] No audio recording library available (naudiodon or mic failed to load). STT functionality cannot be initialized.");
+    sttRunning = false;
     return;
   }
 
