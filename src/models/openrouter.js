@@ -1,73 +1,105 @@
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class OpenRouter {
     constructor(model_name, url) {
         this.model_name = model_name;
-
         let config = {};
         config.baseURL = url || 'https://openrouter.ai/api/v1';
-
         const apiKey = getKey('OPENROUTER_API_KEY');
         if (!apiKey) {
             console.error('Error: OPENROUTER_API_KEY not found. Make sure it is set properly.');
         }
-
-        // Pass the API key to OpenAI compatible Api
-        config.apiKey = apiKey; 
-
+        config.apiKey = apiKey;
         this.openai = new OpenAIApi(config);
     }
 
-    async sendRequest(turns, systemMessage, stop_seq='*') {
-        let messages = [{ role: 'system', content: systemMessage }, ...turns];
+    async sendRequest(turns, systemMessage, stop_seq = '***', visionImageBuffer = null, visionMessage = null) {
+        let processedSystemMessage = systemMessage;
+
+        let messages = [{ role: 'system', content: processedSystemMessage }, ...turns];
         messages = strictFormat(messages);
 
-        // Choose a valid model from openrouter.ai (for example, "openai/gpt-4o")
         const pack = {
             model: this.model_name,
             messages,
-            stop: stop_seq
+            include_reasoning: true,
+            // stop: stop_seq // Commented out since some API providers on Openrouter do not support a stop sequence, such as Grok 3
         };
 
-        let res = null;
-        try {
-            console.log('Awaiting openrouter api response...');
-            let completion = await this.openai.chat.completions.create(pack);
-            if (!completion?.choices?.[0]) {
-                console.error('No completion or choices returned:', completion);
-                return 'No response received.';
-            }
-            if (completion.choices[0].finish_reason === 'length') {
-                throw new Error('Context length exceeded');
-            }
-            console.log('Received.');
-            res = completion.choices[0].message.content;
-        } catch (err) {
-            console.error('Error while awaiting response:', err);
-            // If the error indicates a context-length problem, we can slice the turns array, etc.
-            res = 'My brain disconnected, try again.';
-        }
-        return res;
-    }
+        const maxAttempts = 5;
+        let attempt = 0;
+        let finalRes = null;
 
-    async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = [...messages];
-        imageMessages.push({
-            role: "user",
-            content: [
-                { type: "text", text: systemMessage },
-                {
-                    type: "image_url",
-                    image_url: {
-                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+        while (attempt < maxAttempts) {
+            attempt++;
+            console.info(`Awaiting openrouter API response... (attempt: ${attempt})`);
+            let res = null;
+            try {
+                let completion = await this.openai.chat.completions.create(pack);
+                if (!completion?.choices?.[0]) {
+                    console.error('No completion or choices returned:', completion);
+                    return 'No response received.';
+                }
+
+                const logMessages = [{ role: "system", content: processedSystemMessage }].concat(turns);
+
+                if (completion.choices[0].finish_reason === 'length') {
+                    throw new Error('Context length exceeded');
+                }
+                
+                if (completion.choices[0].message.reasoning) {
+                    try{
+                        const reasoning = '<think>\n' + completion.choices[0].message.reasoning + '</think>\n';
+                        const content = completion.choices[0].message.content;
+
+                        // --- VISION LOGGING ---
+                        if (visionImageBuffer) {
+                            logVision(turns, visionImageBuffer, reasoning + "\n" + content, visionMessage);
+                        } else {
+                            log(JSON.stringify(logMessages), reasoning + "\n" + content);
+                        }
+                        res = content;
+                    } catch {}
+                } else {
+                    try {
+                        res = completion.choices[0].message.content;
+                        if (visionImageBuffer) {
+                            logVision(turns, visionImageBuffer, res, visionMessage);
+                        } else {
+                            log(JSON.stringify(logMessages), res);
+                        }
+                    } catch {
+                        console.warn("Unable to log due to unknown error!");
                     }
                 }
-            ]
-        });
-        
-        return this.sendRequest(imageMessages, systemMessage);
+                // Trim <think> blocks from the final response if present.
+                if (res && res.includes("<think>") && res.includes("</think>")) {
+                    res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                }
+
+                console.info('Received.');
+            } catch (err) {
+                console.error('Error while awaiting response:', err);
+                res = 'My brain disconnected, try again.';
+            }
+
+            finalRes = res;
+            break; // Exit loop once a valid response is obtained.
+        }
+
+        if (finalRes == null) {
+            console.warn("Could not get a valid <think> block or normal response after max attempts.");
+            finalRes = 'I thought too hard, sorry, try again.';
+        }
+        return finalRes;
+    }
+
+    // Vision request: pass visionImageBuffer and visionMessage
+    async sendVisionRequest(turns, systemMessage, imageBuffer, visionMessage = null, stop_seq = '***') {
+        return await this.sendRequest(turns, systemMessage, stop_seq, imageBuffer, visionMessage);
     }
 
     async embed(text) {

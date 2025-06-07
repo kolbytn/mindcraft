@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { toSinglePrompt, strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 export class Gemini {
     constructor(model_name, url, params) {
@@ -8,28 +9,12 @@ export class Gemini {
         this.params = params;
         this.url = url;
         this.safetySettings = [
-            {
-                "category": "HARM_CATEGORY_DANGEROUS",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_NONE",
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_NONE",
-            },
+            { "category": "HARM_CATEGORY_DANGEROUS", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" },
         ];
-
         this.genAI = new GoogleGenerativeAI(getKey('GEMINI_API_KEY'));
     }
 
@@ -40,20 +25,12 @@ export class Gemini {
             // systemInstruction does not work bc google is trash
         };
         if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                modelConfig,
-                { baseUrl: this.url },
-                { safetySettings: this.safetySettings }
-            );
+            model = this.genAI.getGenerativeModel(modelConfig, { baseUrl: this.url }, { safetySettings: this.safetySettings });
         } else {
-            model = this.genAI.getGenerativeModel(
-                modelConfig,
-                { safetySettings: this.safetySettings }
-            );
+            model = this.genAI.getGenerativeModel(modelConfig, { safetySettings: this.safetySettings });
         }
-
         console.log('Awaiting Google API response...');
-
+        const originalTurnsForLog = [{role: 'system', content: systemMessage}, ...turns];
         turns.unshift({ role: 'system', content: systemMessage });
         turns = strictFormat(turns);
         let contents = [];
@@ -63,25 +40,14 @@ export class Gemini {
                 parts: [{ text: turn.content }]
             });
         }
-
         const result = await model.generateContent({
             contents,
-            generationConfig: {
-                ...(this.params || {})
-            }
+            generationConfig: { ...(this.params || {}) }
         });
         const response = await result.response;
         let text;
-
-        // Handle "thinking" models since they smart 
         if (this.model_name && this.model_name.includes("thinking")) {
-            if (
-                response.candidates &&
-                response.candidates.length > 0 &&
-                response.candidates[0].content &&
-                response.candidates[0].content.parts &&
-                response.candidates[0].content.parts.length > 1
-            ) {
+            if (response.candidates?.length > 0 && response.candidates[0].content?.parts?.length > 1) {
                 text = response.candidates[0].content.parts[1].text;
             } else {
                 console.warn("Unexpected response structure for thinking model:", response);
@@ -90,34 +56,22 @@ export class Gemini {
         } else {
             text = response.text();
         }
-
         console.log('Received.');
-
+        if (typeof text === 'string') {
+            text = text.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+        log(JSON.stringify(originalTurnsForLog), text);
         return text;
     }
 
     async sendVisionRequest(turns, systemMessage, imageBuffer) {
         let model;
         if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
-                { baseUrl: this.url },
-                { safetySettings: this.safetySettings }
-            );
+            model = this.genAI.getGenerativeModel({ model: this.model_name || "gemini-1.5-flash" }, { baseUrl: this.url }, { safetySettings: this.safetySettings });
         } else {
-            model = this.genAI.getGenerativeModel(
-                { model: this.model_name || "gemini-1.5-flash" },
-                { safetySettings: this.safetySettings }
-            );
+            model = this.genAI.getGenerativeModel({ model: this.model_name || "gemini-1.5-flash" }, { safetySettings: this.safetySettings });
         }
-
-        const imagePart = {
-            inlineData: {
-                data: imageBuffer.toString('base64'),
-                mimeType: 'image/jpeg'
-            }
-        };
-
+        const imagePart = { inlineData: { data: imageBuffer.toString('base64'), mimeType: 'image/jpeg' } };
         const stop_seq = '***';
         const prompt = toSinglePrompt(turns, systemMessage, stop_seq, 'model');
         let res = null;
@@ -127,6 +81,9 @@ export class Gemini {
             const response = await result.response;
             const text = response.text();
             console.log('Received.');
+            if (imageBuffer && text) {
+                logVision(turns, imageBuffer, text, prompt);
+            }
             if (!text.includes(stop_seq)) return text;
             const idx = text.indexOf(stop_seq);
             res = text.slice(0, idx);
@@ -137,6 +94,11 @@ export class Gemini {
             } else {
                 res = "An unexpected error occurred, please try again.";
             }
+            const loggedTurnsForError = [{role: 'system', content: systemMessage}, ...turns];
+            if (typeof res === 'string') {
+                res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+            }
+            log(JSON.stringify(loggedTurnsForError), res);
         }
         return res;
     }
@@ -144,16 +106,10 @@ export class Gemini {
     async embed(text) {
         let model;
         if (this.url) {
-            model = this.genAI.getGenerativeModel(
-                { model: "text-embedding-004" },
-                { baseUrl: this.url }
-            );
+            model = this.genAI.getGenerativeModel({ model: "text-embedding-004" }, { baseUrl: this.url });
         } else {
-            model = this.genAI.getGenerativeModel(
-                { model: "text-embedding-004" }
-            );
+            model = this.genAI.getGenerativeModel({ model: "text-embedding-004" });
         }
-
         const result = await model.embedContent(text);
         return result.embedding.values;
     }

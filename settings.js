@@ -44,7 +44,11 @@ const settings = {
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
-    "log_all_prompts": false, // log ALL prompts to file
+    
+    "log_normal_data": false,
+    "log_reasoning_data": false,
+    "log_vision_data": false,
+    
 }
 
 // these environment variables override certain settings
@@ -68,9 +72,6 @@ if (process.env.MAX_MESSAGES) {
 }
 if (process.env.NUM_EXAMPLES) {
     settings.num_examples = process.env.NUM_EXAMPLES;
-}
-if (process.env.LOG_ALL) {
-    settings.log_all_prompts = process.env.LOG_ALL;
 }
 
 export default settings;

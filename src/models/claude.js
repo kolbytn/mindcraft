@@ -1,18 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { strictFormat } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 export class Claude {
     constructor(model_name, url, params) {
         this.model_name = model_name;
         this.params = params || {};
-
         let config = {};
         if (url)
             config.baseURL = url;
-        
         config.apiKey = getKey('ANTHROPIC_API_KEY');
-
         this.anthropic = new Anthropic(config);
     }
 
@@ -23,8 +21,7 @@ export class Claude {
             console.log('Awaiting anthropic api response...')
             if (!this.params.max_tokens) {
                 if (this.params.thinking?.budget_tokens) {
-                    this.params.max_tokens = this.params.thinking.budget_tokens + 1000;
-                    // max_tokens must be greater than thinking.budget_tokens
+                    this.params.max_tokens = this.params.thinking.budget_tokens + 1000; // max_tokens must be greater
                 } else {
                     this.params.max_tokens = 4096;
                 }
@@ -35,9 +32,7 @@ export class Claude {
                 messages: messages,
                 ...(this.params || {})
             });
-
             console.log('Received.')
-            // get first content of type text
             const textContent = resp.content.find(content => content.type === 'text');
             if (textContent) {
                 res = textContent.text;
@@ -45,8 +40,7 @@ export class Claude {
                 console.warn('No text content found in the response.');
                 res = 'No response from Claude.';
             }
-        }
-        catch (err) {
+        } catch (err) {
             if (err.message.includes("does not support image input")) {
                 res = "Vision is only supported by certain models.";
             } else {
@@ -54,30 +48,34 @@ export class Claude {
             }
             console.log(err);
         }
+        const logMessagesForClaude = [{ role: "system", content: systemMessage }].concat(turns);
+        if (typeof res === 'string') {
+            res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+        log(JSON.stringify(logMessagesForClaude), res);
         return res;
     }
 
     async sendVisionRequest(turns, systemMessage, imageBuffer) {
-        const imageMessages = [...turns];
-        imageMessages.push({
-            role: "user",
-            content: [
-                {
-                    type: "text",
-                    text: systemMessage
-                },
-                {
-                    type: "image",
-                    source: {
-                        type: "base64",
-                        media_type: "image/jpeg",
-                        data: imageBuffer.toString('base64')
-                    }
+        const visionUserMessageContent = [
+            { type: "text", text: systemMessage },
+            {
+                type: "image",
+                source: {
+                    type: "base64",
+                    media_type: "image/jpeg",
+                    data: imageBuffer.toString('base64')
                 }
-            ]
-        });
+            }
+        ];
+        const turnsForAPIRequest = [...turns, { role: "user", content: visionUserMessageContent }];
 
-        return this.sendRequest(imageMessages, systemMessage);
+        const res = await this.sendRequest(turnsForAPIRequest, systemMessage);
+
+        if (imageBuffer && res) {
+            logVision(turns, imageBuffer, res, systemMessage);
+        }
+        return res;
     }
 
     async embed(text) {
