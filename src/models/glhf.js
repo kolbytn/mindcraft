@@ -1,5 +1,6 @@
 import OpenAIApi from 'openai';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 export class GLHF {
     constructor(model_name, url) {
@@ -48,11 +49,13 @@ export class GLHF {
                     continue;
                 }
                 // If there's a closing </think> tag but no opening <think>, prepend one.
+
                 if (res.includes("</think>") && !res.includes("<think>")) {
                     res = "<think>" + res;
                 }
                 finalRes = res.replace(/<\|separator\|>/g, '*no response*');
                 break; // Valid response obtained.
+              
             } catch (err) {
                 if ((err.message === 'Context length exceeded' || err.code === 'context_length_exceeded') && turns.length > 1) {
                     console.log('Context length exceeded, trying again with shorter context.');
@@ -68,6 +71,11 @@ export class GLHF {
         if (finalRes === null) {
             finalRes = "I thought too hard, sorry, try again";
         }
+
+        if (typeof finalRes === 'string') {
+            finalRes = finalRes.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+        log(JSON.stringify(messages), finalRes);
         return finalRes;
     }
 

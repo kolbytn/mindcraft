@@ -1,9 +1,13 @@
 // This code uses Dashscope and HTTP to ensure the latest support for the Qwen model.
 // Qwen is also compatible with the OpenAI API format;
 
+// This code uses Dashscope and HTTP to ensure the latest support for the Qwen model.
+// Qwen is also compatible with the OpenAI API format;
+
 import OpenAIApi from 'openai';
 import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
+import { log, logVision } from '../../logger.js';
 
 export class VLLM {
     constructor(model_name, url) {
@@ -59,6 +63,10 @@ export class VLLM {
                 res = 'My brain disconnected, try again.';
             }
         }
+        if (typeof res === 'string') {
+            res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+        log(JSON.stringify(messages), res);
         return res;
     }
 

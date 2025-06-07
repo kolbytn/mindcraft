@@ -1,6 +1,7 @@
 import Replicate from 'replicate';
 import { toSinglePrompt } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 // llama, mistral
 export class ReplicateAPI {
@@ -29,6 +30,7 @@ export class ReplicateAPI {
 		const prompt = toSinglePrompt(turns, null, stop_seq);
 		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
 
+		const logInputMessages = [{role: 'system', content: systemMessage}, ...turns];
 		const input = { 
 			prompt, 
 			system_prompt: systemMessage,
@@ -51,6 +53,10 @@ export class ReplicateAPI {
 			console.log(err);
 			res = 'My brain disconnected, try again.';
 		}
+		if (typeof res === 'string') {
+            res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+		log(JSON.stringify(logInputMessages), res);
 		console.log('Received.');
 		return res;
 	}
