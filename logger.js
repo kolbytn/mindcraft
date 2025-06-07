@@ -1,5 +1,3 @@
-// --- START OF FILE logger.js ---
-
 import { writeFileSync, mkdirSync, existsSync, appendFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import settings from './settings.js'; // Import settings
@@ -133,13 +131,61 @@ function cleanReasoningMarkers(input) {
     return input.replace(/\/think/g, '').replace(/\/no_think/g, '').trim();
 }
 
+// Helper function to clean imagePath from messages for text logs
+function cleanImagePathFromMessages(input) {
+    if (typeof input !== 'string') {
+        return input;
+    }
+    
+    try {
+        const parsed = JSON.parse(input);
+        if (Array.isArray(parsed)) {
+            const cleaned = parsed.map(msg => {
+                let cleanedMsg = { ...msg }; // Clone message
+
+                // Remove top-level imagePath
+                if (cleanedMsg.imagePath !== undefined) {
+                    delete cleanedMsg.imagePath;
+                }
+
+                // Remove image_url from content array
+                if (Array.isArray(cleanedMsg.content)) {
+                    cleanedMsg.content = cleanedMsg.content.filter(part => 
+                        part.type !== 'image_url' && 
+                        !(part.type === 'image' && part.source) // Also filter Claude-style image parts
+                    );
+                    
+                    // If content becomes empty after filtering, remove it or set to empty string
+                    if (cleanedMsg.content.length === 0) {
+                        cleanedMsg.content = "";
+                    } else if (cleanedMsg.content.length === 1 && 
+                               cleanedMsg.content[0].type === 'text' && 
+                               !cleanedMsg.content[0].text?.trim()) {
+                        cleanedMsg.content = "";
+                    }
+                }
+                return cleanedMsg;
+            });
+            return JSON.stringify(cleaned);
+        }
+    } catch (e) {
+        // If not valid JSON, return as-is
+        return input;
+    }
+    
+    return input;
+}
+
 // --- Main Logging Function (for text-based input/output) ---
 export function log(input, response) {
     const trimmedInputStr = input ? (typeof input === 'string' ? input.trim() : JSON.stringify(input)) : "";
     const trimmedResponse = response ? String(response).trim() : ""; // Ensure response is a string
 
     // Clean reasoning markers from input before logging
-    const cleanedInput = cleanReasoningMarkers(trimmedInputStr);
+    let cleanedInput = cleanReasoningMarkers(trimmedInputStr);
+    
+    // Clean imagePath from messages for text logs (normal/reasoning)
+    cleanedInput = cleanImagePathFromMessages(cleanedInput);
 
     // Basic filtering
     if (!cleanedInput && !trimmedResponse) {
@@ -248,6 +294,7 @@ export function logVision(conversationHistory, imageBuffer, response, visionMess
         "Context length exceeded",
         "Image input modality is not enabled",
         "An unexpected error occurred",
+        "Image captured for always active vision", // Filter out placeholder responses
     ];
     
     if (errorMessages.some(err => trimmedResponse.includes(err))) {
@@ -271,31 +318,17 @@ export function logVision(conversationHistory, imageBuffer, response, visionMess
         writeFileSync(imagePath, imageBuffer);
         logCounts.vision_images_saved++;
 
-        // Extract the actual message sent with the image
-        // This is typically the vision prompt/instruction
-        let inputMessage = visionMessage;
-        if (!inputMessage && conversationHistory.length > 0) {
-            // Try to get the last user message or system message
-            const lastMessage = conversationHistory[conversationHistory.length - 1];
-            if (typeof lastMessage.content === 'string') {
-                inputMessage = lastMessage.content;
-            } else if (Array.isArray(lastMessage.content)) {
-                // Find text content in the message
-                const textContent = lastMessage.content.find(c => c.type === 'text');
-                inputMessage = textContent ? textContent.text : '';
-            }
-        }
-
-        // Fallback to conversation history if no specific message
-        if (!inputMessage) {
-            inputMessage = formatConversationInput(conversationHistory);
-        }
+        // Clean the conversation history to remove imagePath and image data before logging
+        const cleanedConversationHistory = JSON.parse(cleanImagePathFromMessages(JSON.stringify(conversationHistory)));
+        
+        // Format the complete input as JSON (cleaned conversation history)
+        const inputData = JSON.stringify(cleanedConversationHistory);
 
         // Create metadata entry in JSONL format for HuggingFace
         const metadataEntry = {
             file_name: relativeImagePath,
-            text: inputMessage,
-            response: trimmedResponse,
+            input: inputData, // Cleaned JSON conversation history
+            response: trimmedResponse, // Actual model response, not placeholder
             timestamp: timestamp
         };
 
@@ -397,5 +430,3 @@ function countVisionEntries(metadataFile) {
 
 // Initialize counts at startup
 initializeCounts();
-
-// --- END OF FILE logger.js ---
