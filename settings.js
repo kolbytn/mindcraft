@@ -48,7 +48,7 @@ const settings = {
 
     "stt_transcription": false, // change this to "true" or "false" depending on if you want STT in Mindcraft, STT needs a GroqCloud API key, can be found here: https://console.groq.com/keys
     "stt_username": "SYSTEM", // Change this to the username the model will respond to.
-    "stt_agent_name": "" // Change the name here to whatever your agent is named, if left empty, will send message to all agents.
+    "stt_agent_name": "", // Change the name here to whatever your agent is named, if left empty, will send message to all agents.
     "speak": false, // allows all bots to speak through system text-to-speech. works on windows, mac, on linux you need to `apt install espeak`
     
     "log_normal_data": false, // Logs all inputs / outputs without reasoning or vision data
