@@ -17,7 +17,6 @@ export class OpenRouter {
     }
 
     async sendRequest(turns, systemMessage, stop_seq = '***', visionImageBuffer = null, visionMessage = null) {
-        // --- PERSONALITY AND REASONING PROMPT HANDLING ---
         let processedSystemMessage = systemMessage;
 
         let messages = [{ role: 'system', content: processedSystemMessage }, ...turns];
@@ -27,7 +26,7 @@ export class OpenRouter {
             model: this.model_name,
             messages,
             include_reasoning: true,
-            // stop: stop_seq
+            // stop: stop_seq // Commented out since some API providers on Openrouter do not support a stop sequence, such as Grok 3
         };
 
         const maxAttempts = 5;
