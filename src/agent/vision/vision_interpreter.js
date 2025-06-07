@@ -1,21 +1,29 @@
 import { Vec3 } from 'vec3';
 import { Camera } from "./camera.js";
 import fs from 'fs';
+import path from 'path';
 
 export class VisionInterpreter {
-    constructor(agent, allow_vision) {
+    constructor(agent, vision_mode) {
         this.agent = agent;
-        this.allow_vision = allow_vision;
+        this.vision_mode = vision_mode;
         this.fp = './bots/'+agent.name+'/screenshots/';
-        if (allow_vision) {
+        if (this.vision_mode !== 'off') {
             this.camera = new Camera(agent.bot, this.fp);
         }
     }
 
     async lookAtPlayer(player_name, direction) {
-        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
+        if (this.vision_mode === 'off') {
             return "Vision is disabled. Use other methods to describe the environment.";
         }
+        if (!this.camera) {
+            return "Camera is not initialized. Vision may be set to 'off'.";
+        }
+        if (!this.agent.prompter.vision_model.sendVisionRequest && this.vision_mode === 'prompted') {
+            return "Vision requests are not enabled for the current model. Cannot analyze image.";
+        }
+
         let result = "";
         const bot = this.agent.bot;
         const player = bot.players[player_name]?.entity;
@@ -26,30 +34,51 @@ export class VisionInterpreter {
         let filename;
         if (direction === 'with') {
             await bot.look(player.yaw, player.pitch);
-            result = `Looking in the same direction as ${player_name}\n`;
+            result = `Looking in the same direction as ${player_name}.\n`;
             filename = await this.camera.capture();
+            this.agent.latestScreenshotPath = filename;
         } else {
             await bot.lookAt(new Vec3(player.position.x, player.position.y + player.height, player.position.z));
-            result = `Looking at player ${player_name}\n`;
+            result = `Looking at player ${player_name}.\n`;
             filename = await this.camera.capture();
-
+            this.agent.latestScreenshotPath = filename;
         }
 
-        return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+        if (this.vision_mode === 'prompted') {
+            return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+        } else if (this.vision_mode === 'always') {
+            return result + "Screenshot taken and stored.";
+        }
+        // Should not be reached if vision_mode is one of the expected values
+        return "Error: Unknown vision mode.";
     }
 
     async lookAtPosition(x, y, z) {
-        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
+        if (this.vision_mode === 'off') {
             return "Vision is disabled. Use other methods to describe the environment.";
         }
+        if (!this.camera) {
+            return "Camera is not initialized. Vision may be set to 'off'.";
+        }
+        if (!this.agent.prompter.vision_model.sendVisionRequest && this.vision_mode === 'prompted') {
+            return "Vision requests are not enabled for the current model. Cannot analyze image.";
+        }
+
         let result = "";
         const bot = this.agent.bot;
-        await bot.lookAt(new Vec3(x, y + 2, z));
-        result = `Looking at coordinate ${x}, ${y}, ${z}\n`;
+        await bot.lookAt(new Vec3(x, y + 2, z)); // lookAt requires y to be eye level, so +2 from feet
+        result = `Looking at coordinate ${x}, ${y}, ${z}.\n`;
 
         let filename = await this.camera.capture();
+        this.agent.latestScreenshotPath = filename;
 
-        return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+        if (this.vision_mode === 'prompted') {
+            return result + `Image analysis: "${await this.analyzeImage(filename)}"`;
+        } else if (this.vision_mode === 'always') {
+            return result + "Screenshot taken and stored.";
+        }
+        // Should not be reached if vision_mode is one of the expected values
+        return "Error: Unknown vision mode.";
     }
 
     getCenterBlockInfo() {
@@ -66,7 +95,9 @@ export class VisionInterpreter {
 
     async analyzeImage(filename) {
         try {
-            const imageBuffer = fs.readFileSync(`${this.fp}/${filename}.jpg`);
+            // filename already includes .jpg from camera.js
+            const imageFullPath = path.join(this.fp, filename);
+            const imageBuffer = fs.readFileSync(imageFullPath);
             const messages = this.agent.history.getHistory();
 
             const blockInfo = this.getCenterBlockInfo();

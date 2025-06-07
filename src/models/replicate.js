@@ -1,6 +1,7 @@
 import Replicate from 'replicate';
 import { toSinglePrompt } from '../utils/text.js';
 import { getKey } from '../utils/keys.js';
+import { log, logVision } from '../../logger.js';
 
 // llama, mistral
 export class ReplicateAPI {
@@ -16,13 +17,20 @@ export class ReplicateAPI {
 		this.replicate = new Replicate({
 			auth: getKey('REPLICATE_API_KEY'),
 		});
+		// Direct image data in sendRequest is not supported by this wrapper.
+		// Replicate handles vision models differently, often with specific inputs like "image".
+		this.supportsRawImageInput = false;
 	}
 
-	async sendRequest(turns, systemMessage) {
+	async sendRequest(turns, systemMessage, imageData = null) {
+		if (imageData) {
+			console.warn(`[ReplicateAPI] Warning: imageData provided to sendRequest, but this method in replicate.js does not support direct image data embedding for model ${this.model_name}. The image will be ignored. Replicate models with vision capabilities usually require specific input fields like 'image' with a URL or base64 string.`);
+		}
 		const stop_seq = '***';
 		const prompt = toSinglePrompt(turns, null, stop_seq);
 		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
 
+		const logInputMessages = [{role: 'system', content: systemMessage}, ...turns];
 		const input = { 
 			prompt, 
 			system_prompt: systemMessage,
@@ -45,6 +53,10 @@ export class ReplicateAPI {
 			console.log(err);
 			res = 'My brain disconnected, try again.';
 		}
+		if (typeof res === 'string') {
+            res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
+        }
+		log(JSON.stringify(logInputMessages), res);
 		console.log('Received.');
 		return res;
 	}

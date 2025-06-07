@@ -334,9 +334,29 @@ export class Prompter {
             let prompt = this.profile.conversing;
             prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
             let generation;
+            let imageData = null;
+
+            if (settings.vision_mode === 'always' && messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                // Check if the last message has an imagePath and if the model supports raw image input
+                if (lastMessage.imagePath && this.chat_model.supportsRawImageInput) {
+                    try {
+                        // Construct the full path to the image file
+                        const agentScreenshotDir = path.join('bots', this.agent.name, 'screenshots');
+                        const imageFullPath = path.join(agentScreenshotDir, lastMessage.imagePath);
+
+                        console.log(`[Prompter] Attempting to read image for always_active mode: ${imageFullPath}`);
+                        imageData = await fs.readFile(imageFullPath); // Read as buffer
+                        console.log('[Prompter] Image data prepared for chat model.');
+                    } catch (err) {
+                        console.error(`[Prompter] Error reading image file ${lastMessage.imagePath}:`, err);
+                        imageData = null; // Proceed without image data if reading fails
+                    }
+                }
+            }
 
             try {
-                generation = await this.chat_model.sendRequest(messages, prompt);
+                generation = await this.chat_model.sendRequest(messages, prompt, imageData);
                 if (typeof generation !== 'string') {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');
@@ -445,8 +465,26 @@ export class Prompter {
     }
 
     async _saveLog(prompt, messages, generation, tag) {
-        if (!settings.log_all_prompts)
-            return;
+        // NEW LOGIC STARTS
+        switch (tag) {
+            case 'conversation':
+            case 'coding': // Assuming coding logs fall under normal data
+            case 'memSaving':
+                if (!settings.log_normal_data) return;
+                break;
+            // Add case for 'vision' if prompter.js starts logging vision prompts/responses via _saveLog
+            // case 'vision':
+            //     if (!settings.log_vision_data) return;
+            //     break;
+            default:
+                // If it's an unknown tag, perhaps log it if general logging is on, or ignore.
+                // For safety, let's assume if it's not specified, it doesn't get logged unless a general flag is on.
+                // However, the goal is to use specific flags. So, if a new tag appears, this logic should be updated.
+                // For now, if it doesn't match known tags that map to a setting, it won't log.
+                return;
+        }
+        // NEW LOGIC ENDS
+
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         let logEntry;
         let task_id = this.agent.task.task_id;
