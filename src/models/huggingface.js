@@ -25,8 +25,7 @@ export class HuggingFace {
     const prompt = toSinglePrompt(turns, null, stop_seq);
     const model_name = this.model_name || 'meta-llama/Meta-Llama-3-8B';
     const logInputMessages = [{role: 'system', content: systemMessage}, ...turns];
-    const input = systemMessage + "
-" + prompt;
+    const input = systemMessage + "" + prompt;
     const maxAttempts = 5;
     let attempt = 0;
     let finalRes = null;
