@@ -44,13 +44,11 @@ const settings = {
     "verbose_commands": true, // show full command syntax
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "chat_bot_messages": true, // publicly chat messages to other bots
-    // "log_all_prompts": false, // DEPRECATED: Replaced by granular log_normal_data, log_reasoning_data, log_vision_data in logger.js and prompter.js
-
-    // NEW LOGGING SETTINGS
-    "log_normal_data": true,
-    "log_reasoning_data": true,
-    "log_vision_data": true,
-    // END NEW LOGGING SETTINGS
+    
+    "log_normal_data": false,
+    "log_reasoning_data": false,
+    "log_vision_data": false,
+    
 }
 
 // these environment variables override certain settings
@@ -75,8 +73,5 @@ if (process.env.MAX_MESSAGES) {
 if (process.env.NUM_EXAMPLES) {
     settings.num_examples = process.env.NUM_EXAMPLES;
 }
-// if (process.env.LOG_ALL) { // DEPRECATED
-//     settings.log_all_prompts = process.env.LOG_ALL;
-// }
 
 export default settings;
