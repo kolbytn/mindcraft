@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import * as logger from '../../logger.js';
 import { History } from './history.js';
 import { Coder } from './coder.js';
 import { VisionInterpreter } from './vision/vision_interpreter.js';
@@ -135,6 +138,80 @@ export class Agent {
         });
     }
 
+    /**
+     * Formats conversation history into a JSON string suitable for vision model logs.
+     * This function replicates formatting logic that would ideally be centralized in `logger.js`.
+     * It's placed in `agent.js` as a workaround due to previous difficulties in directly
+     * modifying `logger.js` to ensure consistent vision log formatting.
+     * @param {Array<Object>} conversationHistory - The conversation history array.
+     * @returns {string} A JSON string representing the formatted history.
+     */
+    formatHistoryForVisionLog(conversationHistory) {
+        if (!conversationHistory || conversationHistory.length === 0) return '';
+
+        const formattedHistory = [];
+
+        for (const turn of conversationHistory) {
+            const formattedTurn = {
+                role: turn.role || 'user', // Default to 'user' if role is missing
+                content: []
+            };
+
+            if (typeof turn.content === 'string') {
+                formattedTurn.content.push({
+                    type: 'text',
+                    text: turn.content
+                });
+            } else if (Array.isArray(turn.content)) {
+                // Process array content to ensure it matches the expected structure
+                turn.content.forEach(contentItem => {
+                    if (typeof contentItem === 'string') { // Handle case where array contains simple strings
+                        formattedTurn.content.push({ type: 'text', text: contentItem });
+                    } else if (contentItem.type === 'text' && contentItem.text) {
+                        formattedTurn.content.push({ type: 'text', text: contentItem.text });
+                    } else if (contentItem.type === 'image_url' && contentItem.image_url && contentItem.image_url.url) {
+                        // Adapt image_url structure if needed, or keep as is if logger handles it
+                        formattedTurn.content.push({ type: 'image', image: contentItem.image_url.url });
+                    } else if (contentItem.type === 'image' && contentItem.image) {
+                         formattedTurn.content.push({ type: 'image', image: contentItem.image });
+                    }
+                    // Add more specific handlers if other content types are expected
+                });
+            } else if (turn.content && typeof turn.content === 'object') {
+                // Handle simple object content (e.g., { text: '...', image: '...' })
+                if (turn.content.text) {
+                    formattedTurn.content.push({
+                        type: 'text',
+                        text: turn.content.text
+                    });
+                }
+                if (turn.content.image) { // Assuming image is a string path or base64
+                    formattedTurn.content.push({
+                        type: 'image',
+                        image: turn.content.image
+                    });
+                }
+                 // If there's an image_url object within the content object
+                if (turn.content.image_url && turn.content.image_url.url) {
+                    formattedTurn.content.push({
+                        type: 'image', // Standardize to 'image' type for logger
+                        image: turn.content.image_url.url
+                    });
+                }
+            }
+
+            // Ensure content is always an array and not empty if there was original content
+            if (turn.content && formattedTurn.content.length === 0) {
+                // If original content existed but wasn't processed, stringify it as a fallback
+                formattedTurn.content.push({ type: 'text', text: JSON.stringify(turn.content) });
+            }
+
+            formattedHistory.push(formattedTurn);
+        }
+
+        return JSON.stringify(formattedHistory);
+    }
+
 
     async _setupEventHandlers(save_data, init_message) {
         const ignore_messages = [
@@ -257,14 +334,51 @@ export class Agent {
         const self_prompt = source === 'system' || source === this.name;
         const from_other_bot = convoManager.isOtherAgent(source);
 
+        // This block handles capturing and logging images when vision_mode is 'always'.
+        // It's processed early for any user message to ensure the visual context is captured
+        // before the message itself is processed further down.
         if (!self_prompt && !from_other_bot) { // from user, check for forced commands
             if (settings.vision_mode === 'always' && this.vision_interpreter && this.vision_interpreter.camera) {
                 try {
                     const screenshotFilename = await this.vision_interpreter.camera.capture();
+                    // latestScreenshotPath stores the filename (e.g., "vision_timestamp_rand.jpg")
+                    // It will be used by logger.logVision and potentially by history.add if the current message
+                    // needs this image associated with it.
                     this.latestScreenshotPath = screenshotFilename;
                     console.log(`[${this.name}] Captured screenshot in always_active mode: ${screenshotFilename}`);
+
+                    const currentHistory = this.history.getHistory(); // Get current history for the log.
+
+                    let imageBuffer = null;
+                    if (this.latestScreenshotPath && this.vision_interpreter.fp) { // fp is the base folder path for vision files.
+                        try {
+                            const fullImagePath = path.join(this.vision_interpreter.fp, this.latestScreenshotPath);
+                            imageBuffer = fs.readFileSync(fullImagePath);
+                        } catch (err) {
+                            console.error(`[${this.name}] Error reading image for always active log: ${err.message}`);
+                        }
+                    }
+
+                    if (imageBuffer) {
+                        // Format the history using the agent's local helper function.
+                        const formattedHistoryString = this.formatHistoryForVisionLog(currentHistory);
+                        // Call logger.logVision:
+                        // 1st arg (currentHistory): The raw history object. logger.js's logVision also calls its
+                        //   own internal formatter on this if the 4th arg is not provided or if its internal logic dictates.
+                        //   However, our goal is to use formattedHistoryString.
+                        // 2nd arg (imageBuffer): The image data.
+                        // 3rd arg ("Image captured..."): A placeholder response/description for this vision log entry.
+                        // 4th arg (formattedHistoryString): This is the crucial part for the workaround.
+                        //   By providing this, logger.js's logVision (as per its modified behavior in a previous subtask)
+                        //   should use this pre-formatted string as the 'text' field in the metadata log.
+                        logger.logVision(currentHistory, imageBuffer, "Image captured for always active vision", formattedHistoryString);
+                        // Note: this.latestScreenshotPath is NOT consumed (set to null) here.
+                        // This allows the same screenshot to be potentially associated with the user's message
+                        // in the main history log if that message immediately follows this capture.
+                    }
+
                 } catch (error) {
-                    console.error(`[${this.name}] Error capturing screenshot in always_active mode:`, error);
+                    console.error(`[${this.name}] Error capturing or logging screenshot in always_active mode:`, error);
                 }
             }
             const user_command_name = containsCommand(message);
@@ -275,18 +389,18 @@ export class Agent {
                 }
                 this.routeResponse(source, `*${source} used ${user_command_name.substring(1)}*`);
                 if (user_command_name === '!newAction') {
-                    // all user-initiated commands are ignored by the bot except for this one
-                    // add the preceding message to the history to give context for newAction
-                    // This is the user's message that contains the !newAction command.
-                    // If a screenshot was taken due to always, it should be associated here.
                     let imagePathForNewActionCmd = null;
-                    if (settings.vision_mode === 'always' && this.latestScreenshotPath && !self_prompt && !from_other_bot) {
-                        imagePathForNewActionCmd = this.latestScreenshotPath;
-                    }
+                    // If an 'always active' screenshot was just taken and should be associated
+                    // specifically with this !newAction command in the history, we could use this.latestScreenshotPath.
+                    // However, the primary 'always active' log is already created above.
+                    // For !newAction, it's more about the textual command context.
+                    // If this.latestScreenshotPath is non-null here, it means an 'always' image was taken.
+                    // We might choose to associate it or not, depending on desired behavior.
+                    // For now, let's assume !newAction itself doesn't add another image to history unless specifically designed to.
+                    // If an 'always' image was taken, it's already logged with its own context.
+                    // If we wanted to associate it here too: imagePathForNewActionCmd = this.latestScreenshotPath;
                     await this.history.add(source, message, imagePathForNewActionCmd);
-                    if (imagePathForNewActionCmd) {
-                        this.latestScreenshotPath = null; // Consume path
-                    }
+                    // if (imagePathForNewActionCmd) this.latestScreenshotPath = null; // Consume if used here.
                 }
                 let execute_res = await executeCommand(this, message);
                 if (execute_res) 
@@ -310,29 +424,25 @@ export class Agent {
             if (behavior_log.length > MAX_LOG) {
                 behavior_log = '...' + behavior_log.substring(behavior_log.length - MAX_LOG);
             }
-            behavior_log = 'Recent behaviors log: \n' + behavior_log;
+            behavior_log = 'Recent behaviors log: \\n' + behavior_log;
             await this.history.add('system', behavior_log, null); // Behavior log unlikely to have an image
         }
 
         // Handle other user messages (or initial system messages)
         let imagePathForInitialMessage = null;
-        if (!self_prompt && !from_other_bot) {
-            // If it's a user message and a screenshot was auto-captured for always
-            if (settings.vision_mode === 'always' && this.latestScreenshotPath) {
-                imagePathForInitialMessage = this.latestScreenshotPath;
-            }
-        } else if (source === 'system' && this.latestScreenshotPath && message.startsWith("You died at position")) {
-            // Example: System death message might use a path if set by some (future) death-capture logic
-            // For now, this is illustrative; death messages don't set latestScreenshotPath.
-            // More relevant if a system message is a direct consequence of an action that *did* set the path.
-            // However, explicit command result handling is better for those.
-            // imagePathForInitialMessage = this.latestScreenshotPath; // Generally, system messages here won't have an image unless specific logic sets it.
+        // If 'always' mode took a screenshot (this.latestScreenshotPath is set) AND this message is from a user,
+        // associate that screenshot with this message in the history.
+        if (!self_prompt && !from_other_bot && settings.vision_mode === 'always' && this.latestScreenshotPath) {
+             imagePathForInitialMessage = this.latestScreenshotPath;
         }
 
 
         await this.history.add(source, message, imagePathForInitialMessage);
         if (imagePathForInitialMessage) {
-            this.latestScreenshotPath = null; // Consume the path if used
+            // The screenshot has now been associated with this specific user message in the history.
+            // We consume it (set to null) so it's not accidentally reused for subsequent unrelated history entries.
+            // The 'always active' log itself has already been created with this image.
+            this.latestScreenshotPath = null;
         }
         this.history.save();
 
@@ -340,8 +450,8 @@ export class Agent {
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
             if (checkInterrupt()) break;
-            let history = this.history.getHistory();
-            let res = await this.prompter.promptConvo(history);
+            let history_for_prompt = this.history.getHistory(); // get fresh history for each prompt turn
+            let res = await this.prompter.promptConvo(history_for_prompt);
 
             console.log(`${this.name} full response to ${source}: ""${res}""`);
 
@@ -385,9 +495,10 @@ export class Agent {
 
                 if (execute_res) {
                     let imagePathForCommandResult = null;
-                    // Vision commands (!lookAtPlayer, !lookAtPosition) set latestScreenshotPath in VisionInterpreter.
-                    // This is relevant if mode is 'on' (analysis done, path stored by VI) or 'always_active' (screenshot taken, path stored by VI).
-                    if (command_name && (command_name === '!lookAtPlayer' || command_name === '!lookAtPosition') && this.latestScreenshotPath) {
+                    // Vision commands might set this.latestScreenshotPath in VisionInterpreter
+                    // (e.g., !lookAtPlayer, !captureFullView).
+                    // If so, associate that image with the command's result in history.
+                    if (command_name && (command_name === '!lookAtPlayer' || command_name === '!lookAtPosition' || command_name === '!captureFullView') && this.latestScreenshotPath) {
                         imagePathForCommandResult = this.latestScreenshotPath;
                     }
                     await this.history.add('system', execute_res, imagePathForCommandResult);
@@ -442,7 +553,7 @@ export class Agent {
         }
         message = (await handleTranslation(to_translate)).trim() + " " + remaining;
         // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
-        message = message.replaceAll('\n', ' ');
+        message = message.replaceAll('\\n', ' ');
 
         if (settings.only_chat_with.length > 0) {
             for (let username of settings.only_chat_with) {
@@ -548,20 +659,30 @@ export class Agent {
     }
     
 
-    cleanKill(msg='Killing agent process...', code=1) {
+    async cleanKill(msg='Killing agent process...', code=1) {
         // Assuming cleanKill messages don't have images
-        await this.history.add('system', msg, null);
-        this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
-        this.history.save();
+        if (this.history) { // Make sure history exists before trying to add to it
+             await this.history.add('system', msg, null);
+             this.history.save();
+        } else {
+            console.warn("[Agent] History not initialized, cannot save cleanKill message.")
+        }
+        if (this.bot) {
+            this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
+        }
         process.exit(code);
     }
     async checkTaskDone() {
-        if (this.task.data) {
+        if (this.task && this.task.data) { // Make sure task and task.data exist
             let res = this.task.isDone();
             if (res) {
                 // Assuming task end messages don't have images
-                await this.history.add('system', `Task ended with score : ${res.score}`, null);
-                await this.history.save();
+                if (this.history) {
+                    await this.history.add('system', `Task ended with score : ${res.score}`, null);
+                    await this.history.save();
+                } else {
+                     console.warn("[Agent] History not initialized, cannot save task end message.")
+                }
                 // await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 second for save to complete
                 console.log('Task finished:', res.message);
                 this.killAll();
