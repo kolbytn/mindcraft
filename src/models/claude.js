@@ -100,7 +100,22 @@ export class Claude {
         if (typeof res === 'string') {
             res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(logMessagesForClaude), res);
+
+        if (imageData) { // If imageData was part of this sendRequest call
+            let visionPromptText = ""; // Attempt to find the text prompt associated with the image
+            if (turns.length > 0) {
+                const lastTurn = messages[messages.length - 1]; // `messages` is strictFormat(turns)
+                if (lastTurn.role === 'user' && Array.isArray(lastTurn.content)) {
+                    const textPart = lastTurn.content.find(part => part.type === 'text');
+                    if (textPart) visionPromptText = textPart.text;
+                } else if (lastTurn.role === 'user' && typeof lastTurn.content === 'string') {
+                    visionPromptText = lastTurn.content;
+                }
+            }
+            logVision(logMessagesForClaude, imageData, res, visionPromptText);
+        } else {
+            log(JSON.stringify(logMessagesForClaude), res);
+        }
         return res;
     }
 
@@ -121,7 +136,7 @@ export class Claude {
         const res = await this.sendRequest(turnsForAPIRequest, systemMessage);
 
         if (imageBuffer && res) {
-            logVision(turns, imageBuffer, res, systemMessage);
+            logVision([{ role: "system", content: systemMessage }].concat(turns), imageBuffer, res, systemMessage);
         }
         return res;
     }
