@@ -60,7 +60,7 @@ export class GroqCloudAPI {
             if (typeof responseText === 'string') {
                 responseText = responseText.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
             }
-            log(JSON.stringify(messages), responseText);
+            log(JSON.stringify([{ role: "system", content: systemMessage }].concat(turns)), responseText);
             // Original cleaning of <think> tags for the *returned* response (not affecting log)
             responseText = responseText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
             return responseText;
@@ -75,7 +75,7 @@ export class GroqCloudAPI {
             if (typeof res === 'string') {
                 res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
             }
-            log(JSON.stringify(messages), res);
+            log(JSON.stringify([{ role: "system", content: systemMessage }].concat(turns)), res);
             return res;
         }
     }
@@ -96,7 +96,7 @@ export class GroqCloudAPI {
         const res = await this.sendRequest(imageMessages, systemMessage);
 
         if (imageBuffer && res) {
-            logVision(original_turns, imageBuffer, res, systemMessage);
+            logVision([{ role: "system", content: systemMessage }].concat(original_turns), imageBuffer, res, systemMessage);
         }
         return res;
     }
