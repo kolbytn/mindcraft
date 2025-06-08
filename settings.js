@@ -52,14 +52,14 @@ const settings = {
     "stt_agent_name": "", // agent name for STT messages, if empty it will send the STT to all bots
     
     // STT Audio Detection Settings
-    "stt_rms_threshold": 1000,       // Higher = less sensitive to background noise
+    "stt_rms_threshold": 3000,       // Raised from 1000 to reduce false triggers
     "stt_silence_duration": 2000,   // 2 seconds of silence before stopping
     "stt_min_audio_duration": 0.5,  // Minimum audio duration in seconds
     "stt_max_audio_duration": 45,   // Maximum audio duration in seconds
-    "stt_debug_audio": false,       // Enable to see audio levels and tune threshold
-    "stt_cooldown_ms": 2000,        // Minimum time between recordings (increased)
-    "stt_speech_threshold_ratio": 0.15, // Percentage of samples that must be above threshold to consider it speech
-    "stt_consecutive_speech_samples": 5, // Consecutive samples above threshold before considering it speech
+    "stt_debug_audio": true,        // Enable to see what's happening
+    "stt_cooldown_ms": 2000,        // Minimum time between recordings
+    "stt_speech_threshold_ratio": 0.05, // Much lower - 5% instead of 15%
+    "stt_consecutive_speech_samples": 3, // Reduced from 5 to 3
 
     "log_normal_data": true, // Logs all inputs / outputs without reasoning or vision data
     "log_reasoning_data": true, // Logs only reasoning inputs / outputs
