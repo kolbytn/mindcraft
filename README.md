@@ -183,10 +183,11 @@ Some of the node modules that we depend on have bugs in them. To add a patch, ch
 ## Citation:
 
 ```
-@misc{mindcraft2023,
-    Author = {Kolby Nottingham and Max Robinson},
-    Title = {MINDcraft: LLM Agents for cooperation, competition, and creativity in Minecraft},
-    Year = {2023},
-    url={https://github.com/kolbytn/mindcraft}
+@article{mindcraft2025,
+  title = {Collaborating Action by Action: A Multi-agent LLM Framework for Embodied Reasoning},
+  author = {White*, Isadora and Nottingham*, Kolby and Maniar, Ayush and Robinson, Max and Lillemark, Hansen and Maheshwari, Mehul and Qin, Lianhui and Ammanabrolu, Prithviraj},
+  journal = {arXiv preprint arXiv:2504.17950},
+  year = {2025},
+  url = {https://arxiv.org/abs/2504.17950},
 }
 ```
