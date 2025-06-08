@@ -48,7 +48,7 @@ export class OpenRouter {
                     return 'No response received.';
                 }
 
-                const logMessages = [{ role: "system", content: processedSystemMessage }].concat(turns);
+                const logMessages = [{ role: "system", content: systemMessage }].concat(turns);
 
                 if (completion.choices[0].finish_reason === 'length') {
                     throw new Error('Context length exceeded');
@@ -58,23 +58,15 @@ export class OpenRouter {
                     try{
                         const reasoning = '<think>\n' + completion.choices[0].message.reasoning + '</think>\n';
                         const content = completion.choices[0].message.content;
-
-                        // --- VISION LOGGING ---
-                        if (visionImageBuffer) {
-                            logVision(turns, visionImageBuffer, reasoning + "\n" + content, visionMessage);
-                        } else {
-                            log(JSON.stringify(logMessages), reasoning + "\n" + content);
-                        }
+                        // Standard logging for text-based responses
+                        log(JSON.stringify(logMessages), reasoning + "\n" + content);
                         res = content;
                     } catch {}
                 } else {
                     try {
                         res = completion.choices[0].message.content;
-                        if (visionImageBuffer) {
-                            logVision(turns, visionImageBuffer, res, visionMessage);
-                        } else {
-                            log(JSON.stringify(logMessages), res);
-                        }
+                        // Standard logging for text-based responses
+                        log(JSON.stringify(logMessages), res);
                     } catch {
                         console.warn("Unable to log due to unknown error!");
                     }
@@ -101,12 +93,13 @@ export class OpenRouter {
         return finalRes;
     }
 
-    async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = [...messages];
-        imageMessages.push({
+    async sendVisionRequest(original_turns, systemMessage, imageBuffer) { // Renamed messages to original_turns
+        const imageFormattedTurns = [...original_turns];
+        imageFormattedTurns.push({
             role: "user",
             content: [
-                { type: "text", text: systemMessage },
+                // The systemMessage is used as the text prompt accompanying the image here
+                { type: "text", text: systemMessage }, 
                 {
                     type: "image_url",
                     image_url: {
@@ -116,10 +109,17 @@ export class OpenRouter {
             ]
         });
         
-        // sendVisionRequest formats its own message array; sendRequest here should not process new imageData.
-        // Pass systemMessage and stop_seq as originally intended by sendRequest.
-        return this.sendRequest(imageMessages, systemMessage, null, stop_seq);
-
+        // Pass the main systemMessage to sendRequest, as it expects a system prompt.
+        // The image-specific prompt is part of imageFormattedTurns.
+        const res = await this.sendRequest(imageFormattedTurns, systemMessage, null, stop_seq); 
+        
+        if (imageBuffer && res) {
+            // For logVision, conversationHistory should be the original turns + system prompt.
+            // The visionMessage (text prompt for the image) is systemMessage in this context.
+            logVision([{ role: "system", content: systemMessage }].concat(original_turns), imageBuffer, res, systemMessage);
+        }
+        
+        return res;
     }
 
     async embed(text) {
