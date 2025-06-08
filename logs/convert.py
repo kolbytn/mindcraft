@@ -41,8 +41,7 @@ while True:
 
 # Define the original usernames.
 ORIGINAL_USERNAMES = [
-    "SweaterDog_YT", "SweaterDog", "Sweaterdog", "Foolish_Pear69", "Farquadthegod72", "Hank",
-    "Gordan", "Perry", "Frederick", "Oliver", "Bill", "Ashley", "Greg", "Treb", "Mia", "Tia", "ALBeRT", "Jason"
+    "Your_username", "Andy"
 ]
 
 # Define outputs that should cause the conversation to be deleted.
