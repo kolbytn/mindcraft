@@ -188,6 +188,22 @@ Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novit
 
 If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
 
+## Dataset collection
+
+Mindcraft has the capabilities to collect data from you playing with the bots, which can be used to generate training data to fine-tune models such as Andy-4. To do this, enable logging inside of `settings.js`, then navigate to the `logs` folder.
+
+Inside of the logs folder, and installing the dependecies, you will find a file named `generate_usernames.py`, you need to run this in order to convert your collected data into a usable dataset. This will generate a bunch of random names to replace the name of your bot, and your username. Both of which improve performance later on.
+
+To run it, run `python generate_usernames.py`. The max amount of usernames will take up multiple Terabytes of data. If for some reason you want to do this, run it with the `--make_all` flag.
+
+Next, you need to set up `convert.py` to include every username that interacted with the bot, as well as the bot's own username. This is done by adding / changing the usernames in the `ORIGINAL_USERNAMES` list.
+
+After this, you are all set up for conversion! Since you might not want to convert all data at once, you must change the names of the `.csv` file*(s)* that you want to convert to `Andy_pre1`. If more than one file is wanted for conversion, change `1` to the next number, this value can be as high as you want.
+
+To convert, run `python convert.py`, if you get a dependency error, ensure you are in a virtual python environment rather than a global one.
+
+For setting up vision datasets, run `convert.py` with the flag of `--vision`, this will do the same thing as the rest of the conversions, but change the format to an image-friendly way.
+
 ## Specifying Profiles via Command Line
 
 By default, the program will use the profiles specified in `settings.js`. You can specify one or more agent profiles using the `--profiles` argument: `node main.js --profiles ./profiles/andy.json ./profiles/jill.json`
