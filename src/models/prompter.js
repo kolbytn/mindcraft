@@ -364,6 +364,9 @@ export class Prompter {
                 console.log("Generated response:", generation); 
                 await this._saveLog(prompt, messages, generation, 'conversation');
 
+                // Remove the incorrect logVision call here since sendRequest should handle it
+                // The model's sendRequest method will call logVision if imageData was provided
+
             } catch (error) {
                 console.error('Error during message generation or file writing:', error);
                 continue;
@@ -465,26 +468,15 @@ export class Prompter {
     }
 
     async _saveLog(prompt, messages, generation, tag) {
-        // NEW LOGIC STARTS
         switch (tag) {
             case 'conversation':
             case 'coding': // Assuming coding logs fall under normal data
             case 'memSaving':
                 if (!settings.log_normal_data) return;
                 break;
-            // Add case for 'vision' if prompter.js starts logging vision prompts/responses via _saveLog
-            // case 'vision':
-            //     if (!settings.log_vision_data) return;
-            //     break;
             default:
-                // If it's an unknown tag, perhaps log it if general logging is on, or ignore.
-                // For safety, let's assume if it's not specified, it doesn't get logged unless a general flag is on.
-                // However, the goal is to use specific flags. So, if a new tag appears, this logic should be updated.
-                // For now, if it doesn't match known tags that map to a setting, it won't log.
                 return;
         }
-        // NEW LOGIC ENDS
-
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         let logEntry;
         let task_id = this.agent.task.task_id;
@@ -511,6 +503,4 @@ export class Prompter {
         logFile = path.join(logDir, logFile);
         await fs.appendFile(logFile, String(logEntry), 'utf-8');
     }
-
-
 }
