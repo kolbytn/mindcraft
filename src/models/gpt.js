@@ -87,7 +87,25 @@ export class GPT {
         if (typeof res === 'string') {
             res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(messages), res);
+
+        if (imageData) {
+            const conversationForLogVision = [{ role: "system", content: systemMessage }].concat(turns);
+            let visionPromptText = "";
+            if (turns.length > 0) {
+                const lastTurn = turns[turns.length - 1];
+                if (lastTurn.role === 'user') {
+                    if (typeof lastTurn.content === 'string') {
+                        visionPromptText = lastTurn.content;
+                    } else if (Array.isArray(lastTurn.content)) {
+                        const textPart = lastTurn.content.find(part => part.type === 'text');
+                        if (textPart) visionPromptText = textPart.text;
+                    }
+                }
+            }
+            logVision(conversationForLogVision, imageData, res, visionPromptText);
+        } else {
+            log(JSON.stringify([{ role: "system", content: systemMessage }].concat(turns)), res);
+        }
         return res;
     }
 
@@ -107,7 +125,8 @@ export class GPT {
         const res = await this.sendRequest(imageFormattedTurns, systemMessage);
 
         if (imageBuffer && res) {
-            logVision(original_turns, imageBuffer, res, systemMessage);
+            // The conversationHistory for logVision should be the state *before* this specific vision interaction's prompt was added.
+            logVision([{ role: "system", content: systemMessage }].concat(original_turns), imageBuffer, res, systemMessage);
         }
         return res;
     }

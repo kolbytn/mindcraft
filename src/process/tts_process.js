@@ -1,7 +1,5 @@
 import settings from '../../settings.js';
 import { GroqCloudTTS } from '../models/groq.js';
-// import portAudio from 'naudiodon'; // Original static import
-// const { AudioIO, SampleFormat16Bit } = portAudio; // Original destructuring
 import wav from 'wav';
 import fs from 'fs';
 import path from 'path';
@@ -12,37 +10,59 @@ import { getIO, getAllInGameAgentNames } from '../server/mind_server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// --- Conditional Naudiodon Import ---
+// Import the audio libraries conditionally
 let portAudio;
 let AudioIO;
 let SampleFormat16Bit;
+let mic; // For mic library
+let activeAudioLibrary = null; // 'naudiodon' or 'mic'
 
 (async () => {
     try {
         const naudiodonModule = await import('naudiodon');
-        portAudio = naudiodonModule.default; // CommonJS modules often export functionality on 'default' when imported into ES modules
+        portAudio = naudiodonModule.default;
         if (portAudio && typeof portAudio.AudioIO === 'function' && typeof portAudio.SampleFormat16Bit !== 'undefined') {
             AudioIO = portAudio.AudioIO;
             SampleFormat16Bit = portAudio.SampleFormat16Bit;
+            activeAudioLibrary = 'naudiodon';
             console.log('[STT] naudiodon loaded successfully.');
         } else if (naudiodonModule.AudioIO && typeof naudiodonModule.SampleFormat16Bit !== 'undefined') {
-            // Fallback if 'default' is not used and properties are directly on the module
             AudioIO = naudiodonModule.AudioIO;
             SampleFormat16Bit = naudiodonModule.SampleFormat16Bit;
-            portAudio = naudiodonModule; // Assign the module itself to portAudio for consistency if needed elsewhere
+            portAudio = naudiodonModule;
+            activeAudioLibrary = 'naudiodon';
             console.log('[STT] naudiodon loaded successfully (direct properties).');
-        }
-        else {
+        } else {
             throw new Error('AudioIO or SampleFormat16Bit not found in naudiodon module exports.');
         }
     } catch (err) {
-        console.warn(`[STT] Failed to load naudiodon, Speech-to-Text will be disabled. Error: ${err.message}`);
+        console.warn(`[STT] Failed to load naudiodon. Error: ${err.message}`);
         portAudio = null;
         AudioIO = null;
         SampleFormat16Bit = null;
+
+        // Attempt to load mic if naudiodon fails
+        try {
+            const micModule = await import('mic');
+            mic = micModule.default; // Assuming mic is also a CommonJS module typically
+            if (mic && typeof mic === 'function') { // mic is often a constructor function
+                 activeAudioLibrary = 'mic';
+                 console.log('[STT] mic loaded successfully as an alternative.');
+            } else if (micModule.Mic) { // Some modules might export it as Mic
+                mic = micModule.Mic;
+                activeAudioLibrary = 'mic';
+                console.log('[STT] mic (Mic) loaded successfully as an alternative.');
+            }
+            else {
+                throw new Error('Mic constructor not found in mic module exports.');
+            }
+        } catch (micErr) {
+            console.warn(`[STT] Failed to load mic as well. Speech-to-Text will be disabled. Error: ${micErr.message}`);
+            mic = null;
+            activeAudioLibrary = null;
+        }
     }
-    // Initialize TTS after attempting to load naudiodon
+    // Initialize TTS after attempting to load audio libraries
     initTTS();
 })();
 
@@ -59,25 +79,35 @@ for (const file of leftover) {
   }
 }
 
-// Configuration
-const RMS_THRESHOLD = 500;     // Lower threshold for faint audio
-const SILENCE_DURATION = 2000; // 2 seconds of silence after speech => stop
+// Configuration from settings
+const RMS_THRESHOLD = settings.stt_rms_threshold || 8000;
+const SILENCE_DURATION = settings.stt_silence_duration || 2000;
+const MIN_AUDIO_DURATION = settings.stt_min_audio_duration || 0.5;
+const MAX_AUDIO_DURATION = settings.stt_max_audio_duration || 15;
+const DEBUG_AUDIO = settings.stt_debug_audio || false;
+const COOLDOWN_MS = settings.stt_cooldown_ms || 2000;
+const SPEECH_THRESHOLD_RATIO = settings.stt_speech_threshold_ratio || 0.15;
+const CONSECUTIVE_SPEECH_SAMPLES = settings.stt_consecutive_speech_samples || 5;
 const SAMPLE_RATE = 16000;
 const BIT_DEPTH = 16;
-const STT_USERNAME = settings.stt_username || "SERVER"; // Name that appears as sender
-const STT_AGENT_NAME = settings.stt_agent_name || "";   // If blank, broadcast to all
+const STT_USERNAME = settings.stt_username || "SERVER";
+const STT_AGENT_NAME = settings.stt_agent_name || "";
 
 // Guards to prevent multiple overlapping recordings
-let isRecording = false;  // Ensures only one recordAndTranscribeOnce at a time
-let sttRunning = false;   // Ensures continuousLoop is started only once
+let isRecording = false;
+let sttRunning = false;
+let sttInitialized = false;
+let lastRecordingEndTime = 0;
 
-/**
- * Records one session, transcribes, and sends to MindServer as a chat message
- */
 async function recordAndTranscribeOnce() {
+  // Check cooldown period
+  const timeSinceLastRecording = Date.now() - lastRecordingEndTime;
+  if (timeSinceLastRecording < COOLDOWN_MS) {
+    return null;
+  }
+
   // If another recording is in progress, just skip
   if (isRecording) {
-    console.log("[STT] Another recording is still in progress; skipping new record attempt.");
     return null;
   }
   isRecording = true;
@@ -89,33 +119,37 @@ async function recordAndTranscribeOnce() {
     bitDepth: BIT_DEPTH
   });
 
-  // This is where AudioIO is crucial
-  if (!AudioIO || !SampleFormat16Bit) {
-      console.warn("[STT] AudioIO or SampleFormat16Bit not available. Cannot record audio.");
-      isRecording = false;
-      return null;
+  if (!activeAudioLibrary) {
+    console.warn("[STT] No audio recording library available.");
+    isRecording = false;
+    return null;
   }
 
-  const ai = new AudioIO({
-    inOptions: {
-      channelCount: 1,
-      sampleFormat: SampleFormat16Bit,
-      sampleRate: SAMPLE_RATE,
-      deviceId: -1,
-      closeOnError: true
-    }
-  });
-
+  let audioInterface;
+  let audioStream;
   let recording = true;
   let hasHeardSpeech = false;
   let silenceTimer = null;
-  let finished = false; // Guard to ensure final processing is done only once
+  let maxDurationTimer = null;
+  let finished = false;
+  
+  // Smart speech detection variables
+  let speechSampleCount = 0;
+  let totalSampleCount = 0;
+  let consecutiveSpeechSamples = 0;
+  let speechLevels = [];
+  let averageSpeechLevel = 0;
+  let adaptiveThreshold = RMS_THRESHOLD;
 
   // Helper to reset silence timer
   function resetSilenceTimer() {
     if (silenceTimer) clearTimeout(silenceTimer);
-    if (hasHeardSpeech) {
-      silenceTimer = setTimeout(() => stopRecording(), SILENCE_DURATION);
+    // Only start silence timer if actual speech has been detected
+    if (hasHeardSpeech && recording) { // also check `recording` to prevent timer after explicit stop
+        silenceTimer = setTimeout(() => {
+            if (DEBUG_AUDIO) console.log('[STT] Silence timeout reached, stopping recording.');
+            stopRecording();
+        }, SILENCE_DURATION);
     }
   }
 
@@ -123,14 +157,81 @@ async function recordAndTranscribeOnce() {
   function stopRecording() {
     if (!recording) return;
     recording = false;
-    ai.quit();
-    fileWriter.end();
+
+    if (silenceTimer) clearTimeout(silenceTimer);
+    if (maxDurationTimer) clearTimeout(maxDurationTimer);
+
+    if (activeAudioLibrary === 'naudiodon' && audioInterface) {
+      try {
+        audioInterface.quit();
+      } catch (err) {
+        // Silent error handling
+      }
+    } else if (activeAudioLibrary === 'mic' && audioInterface) {
+      try {
+        audioInterface.stop();
+      } catch (err) {
+        // Silent error handling
+      }
+    }
+
+    if (fileWriter && !fileWriter.closed) {
+      fileWriter.end();
+    }
   }
 
   // We wrap everything in a promise so we can await the transcription
   return new Promise((resolve, reject) => {
-    // Attach event handlers
-    ai.on('data', (chunk) => {
+    // Set maximum recording duration timer
+    maxDurationTimer = setTimeout(() => {
+      stopRecording();
+    }, MAX_AUDIO_DURATION * 1000);
+
+    if (activeAudioLibrary === 'naudiodon') {
+      if (!AudioIO || !SampleFormat16Bit) {
+          isRecording = false;
+          return reject(new Error("Naudiodon not available"));
+      }
+      audioInterface = new AudioIO({
+        inOptions: {
+          channelCount: 1,
+          sampleFormat: SampleFormat16Bit,
+          sampleRate: SAMPLE_RATE,
+          deviceId: -1,
+          closeOnError: true
+        }
+      });
+      audioStream = audioInterface;
+
+      audioStream.on('error', (err) => {
+        cleanupAndResolve(null);
+      });
+
+    } else if (activeAudioLibrary === 'mic') {
+      audioInterface = new mic({
+        rate: String(SAMPLE_RATE),
+        channels: '1',
+        bitwidth: String(BIT_DEPTH),
+        endian: 'little',
+        encoding: 'signed-integer',
+        device: 'default',
+        debug: false // Don't use mic's debug, we have our own
+      });
+      audioStream = audioInterface.getAudioStream();
+
+      audioStream.on('error', (err) => {
+        cleanupAndResolve(null);
+      });
+
+      audioStream.on('processExitComplete', () => {
+        // Silent
+      });
+    }
+
+    // Common event handling for data (applies to both naudiodon ai and micStream)
+    audioStream.on('data', (chunk) => {
+      if (!recording) return;
+
       fileWriter.write(chunk);
 
       // Calculate RMS for threshold detection
@@ -141,40 +242,65 @@ async function recordAndTranscribeOnce() {
         sumSquares += sample * sample;
       }
       const rms = Math.sqrt(sumSquares / sampleCount);
+      totalSampleCount++;
 
-      // If RMS passes threshold, we've heard speech
-      if (rms > RMS_THRESHOLD) {
-        if (!hasHeardSpeech) {
-          hasHeardSpeech = true;
+      // Simplified speech detection logic
+      if (rms > adaptiveThreshold) {
+        speechSampleCount++;
+        consecutiveSpeechSamples++;
+        speechLevels.push(rms);
+        
+        // Update adaptive threshold based on actual speech levels
+        if (speechLevels.length > 10) {
+          averageSpeechLevel = speechLevels.reduce((a, b) => a + b, 0) / speechLevels.length;
+          adaptiveThreshold = Math.max(RMS_THRESHOLD, averageSpeechLevel * 0.4); // 40% of average speech level
         }
-        resetSilenceTimer();
+        
+        // Trigger speech detection much more easily
+        if (!hasHeardSpeech) {
+          // Either consecutive samples OR sufficient ratio
+          const speechRatio = speechSampleCount / totalSampleCount;
+          if (consecutiveSpeechSamples >= 3 || speechRatio >= 0.05) { // Much lower thresholds
+            hasHeardSpeech = true;
+            console.log(`[STT] Speech detected! (consecutive: ${consecutiveSpeechSamples}, ratio: ${(speechRatio * 100).toFixed(1)}%)`);
+          }
+        }
+        
+        if (hasHeardSpeech) {
+          resetSilenceTimer();
+        }
+      } else {
+        consecutiveSpeechSamples = 0; // Reset consecutive counter
       }
-    });
-
-    ai.on('error', (err) => {
-      console.error("[STT] AudioIO error:", err);
-      cleanupListeners();
-      // Don't reject here, as continuousLoop should continue. Resolve with null.
-      resolve(null);
     });
 
     fileWriter.on('finish', async () => {
       if (finished) return;
       finished = true;
+      lastRecordingEndTime = Date.now();
+      
       try {
-        // Check audio duration
         const stats = fs.statSync(outFile);
-        const headerSize = 44; // standard WAV header size
+        const headerSize = 44;
         const dataSize = stats.size - headerSize;
         const duration = dataSize / (SAMPLE_RATE * (BIT_DEPTH / 8));
-        if (duration < 2.75) {
-          console.log("[STT] Audio too short (<2.75s); discarding.");
-          fs.unlink(outFile, () => {});
-          cleanupListeners();
-          return resolve(null);
+        
+        const speechPercentage = totalSampleCount > 0 ? (speechSampleCount / totalSampleCount) * 100 : 0;
+
+        if (DEBUG_AUDIO) {
+          console.log(`[STT] Audio processed: ${duration.toFixed(2)}s, speech detected: ${hasHeardSpeech}, speech %: ${speechPercentage.toFixed(1)}%`);
         }
 
-        // Transcribe
+        if (duration < MIN_AUDIO_DURATION) {
+          cleanupAndResolve(null);
+          return;
+        }
+
+        if (!hasHeardSpeech || speechPercentage < 3) { // Lowered from 15% to 3%
+          cleanupAndResolve(null);
+          return;
+        }
+
         const groqTTS = new GroqCloudTTS();
         const text = await groqTTS.transcribe(outFile, {
           model: "distil-whisper-large-v3-en",
@@ -184,82 +310,90 @@ async function recordAndTranscribeOnce() {
           temperature: 0.0
         });
 
-        fs.unlink(outFile, () => {}); // cleanup WAV file
-
-        // Basic check for empty or whitespace
         if (!text || !text.trim()) {
-          console.log("[STT] Transcription empty; discarding.");
-          cleanupListeners();
-          return resolve(null);
+          cleanupAndResolve(null);
+          return;
         }
 
-        // Heuristic checks to determine if the transcription is genuine
-
-        // 1. Ensure at least one alphabetical character
+        // Enhanced validation
         if (!/[A-Za-z]/.test(text)) {
-          console.log("[STT] Transcription has no letters; discarding.");
-          cleanupListeners();
-          return resolve(null);
+          cleanupAndResolve(null);
+          return;
         }
 
-        // 2. Check for gibberish repeated sequences
         if (/([A-Za-z])\1{3,}/.test(text)) {
-          console.log("[STT] Transcription looks like gibberish; discarding.");
-          cleanupListeners();
-          return resolve(null);
+          cleanupAndResolve(null);
+          return;
         }
 
-        // 3. Check transcription length, with allowed greetings
+        // Filter out common false positives
+        const falsePositives = ["thank you", "thanks", "bye", ".", ",", "?", "!", "um", "uh", "hmm"];
+        if (falsePositives.includes(text.trim().toLowerCase())) {
+          cleanupAndResolve(null);
+          return;
+        }
+
         const letterCount = text.replace(/[^A-Za-z]/g, "").length;
         const normalizedText = text.trim().toLowerCase();
-        const allowedGreetings = new Set(["hi", "hello", "greetings", "hey"]);
+        const allowedGreetings = new Set(["hi", "hello", "hey", "yes", "no", "okay"]);
 
-        if (letterCount < 8 && !allowedGreetings.has(normalizedText)) {
-          console.log("[STT] Transcription too short and not an allowed greeting; discarding.");
-          cleanupListeners();
-          return resolve(null);
+        if (letterCount < 2 && !allowedGreetings.has(normalizedText)) {
+          cleanupAndResolve(null);
+          return;
         }
 
-        console.log("[STT] Transcription:", text);
+        // Only log successful transcriptions
+        console.log("[STT] Transcribed:", text);
 
-        // Format message so it looks like: "[SERVER] message"
         const finalMessage = `[${STT_USERNAME}] ${text}`;
 
-        // If STT_AGENT_NAME is empty, broadcast to all agents
         if (!STT_AGENT_NAME.trim()) {
-          const agentNames = getAllInGameAgentNames(); // from mind_server
+          const agentNames = getAllInGameAgentNames();
           for (const agentName of agentNames) {
             getIO().emit('send-message', agentName, finalMessage);
           }
         } else {
-          // Otherwise, send only to the specified agent
           getIO().emit('send-message', STT_AGENT_NAME, finalMessage);
         }
 
-        cleanupListeners();
-        resolve(text);
+        cleanupAndResolve(text);
       } catch (err) {
-        console.error("[STT] Error during transcription or sending message:", err);
-        fs.unlink(outFile, () => {}); // Attempt cleanup even on error
-        cleanupListeners();
-        reject(err); // Propagate error for continuousLoop to catch
+        cleanupAndResolve(null);
       }
     });
 
-    ai.start();
+    function cleanupAndResolve(result) {
+      if (silenceTimer) clearTimeout(silenceTimer);
+      if (maxDurationTimer) clearTimeout(maxDurationTimer);
+      
+      try {
+        if (fs.existsSync(outFile)) {
+          fs.unlinkSync(outFile);
+        }
+      } catch (err) {
+        // Silent cleanup
+      }
 
-    function cleanupListeners() {
-      if (ai && typeof ai.removeAllListeners === 'function') {
-        ai.removeAllListeners('data');
-        ai.removeAllListeners('error');
+      if (audioStream && typeof audioStream.removeAllListeners === 'function') {
+        audioStream.removeAllListeners();
       }
       if (fileWriter && typeof fileWriter.removeAllListeners === 'function') {
-        fileWriter.removeAllListeners('finish');
+        fileWriter.removeAllListeners();
       }
-      if (silenceTimer) clearTimeout(silenceTimer);
 
-      // release lock
       isRecording = false;
+      resolve(result);
+    }
+
+    // Start recording
+    try {
+      if (activeAudioLibrary === 'naudiodon') {
+        audioInterface.start();
+      } else if (activeAudioLibrary === 'mic') {
+        audioInterface.start();
+      }
+    } catch (err) {
+      cleanupAndResolve(null);
     }
   });
 }
@@ -268,56 +402,69 @@ async function recordAndTranscribeOnce() {
  * Runs recording sessions sequentially, so only one at a time
  */
 async function continuousLoop() {
-  // This check is now more critical as AudioIO might not be available
-  if (!AudioIO) {
-    console.warn("[STT] AudioIO not available. STT continuous loop cannot start.");
-    sttRunning = false; // Ensure this is marked as not running
+  if (!activeAudioLibrary) {
+    console.warn("[STT] No audio recording library available. STT disabled.");
+    sttRunning = false;
     return;
   }
 
-  while (sttRunning) { // Check sttRunning to allow loop to terminate if STT is disabled later
+  console.log("[STT] Speech-to-text active (Groq Whisper)");
+  let consecutiveErrors = 0;
+  const maxConsecutiveErrors = 3;
+
+  while (sttRunning) {
     try {
-      await recordAndTranscribeOnce();
+      const result = await recordAndTranscribeOnce();
+      consecutiveErrors = 0;
+      
+      // Longer delay between recordings
+      if (sttRunning) {
+        await new Promise(res => setTimeout(res, 1000));
+      }
     } catch (err) {
-      // Errors from recordAndTranscribeOnce (like transcription errors) are caught here
-      console.error("[STT Error in continuousLoop]", err);
-      // Potentially add a longer delay or a backoff mechanism if errors are persistent
-    }
-    // short gap, but only if stt is still supposed to be running
-    if (sttRunning) {
-      await new Promise(res => setTimeout(res, 1000));
+      consecutiveErrors++;
+      
+      if (consecutiveErrors >= maxConsecutiveErrors) {
+        console.error("[STT] Too many errors, stopping STT.");
+        sttRunning = false;
+        break;
+      }
+      
+      if (sttRunning) {
+        const delay = 3000 * consecutiveErrors;
+        await new Promise(res => setTimeout(res, delay));
+      }
     }
   }
-  console.log("[STT] Continuous loop ended.");
 }
 
 export function initTTS() {
   if (!settings.stt_transcription) {
     console.log("[STT] STT transcription is disabled in settings.");
-    sttRunning = false; // Ensure it's marked as not running
+    sttRunning = false;
     return;
   }
 
-  // This check is crucial: if AudioIO (from naudiodon) wasn't loaded, STT cannot run.
-  if (!AudioIO) {
-    console.warn("[STT] AudioIO is not available (naudiodon might have failed to load). STT functionality cannot be initialized.");
-    sttRunning = false; // Ensure sttRunning is false if it was somehow true
+  if (!activeAudioLibrary) {
+    console.warn("[STT] No audio recording library available (naudiodon or mic failed to load). STT functionality cannot be initialized.");
+    sttRunning = false;
     return;
   }
 
-  if (sttRunning) {
-    console.log("[STT] STT loop already running; skipping re-init.");
+  if (sttRunning || sttInitialized) {
+    console.log("[STT] STT already initialized; skipping re-init.");
     return;
   }
 
   console.log("[STT] Initializing STT...");
-  sttRunning = true; // Set before starting the loop
+  sttRunning = true;
+  sttInitialized = true;
 
-  continuousLoop().catch((err) => {
-    console.error("[STT] continuousLoop crashed unexpectedly:", err);
-    sttRunning = false; // Mark as not running if it crashes
-  });
+  setTimeout(() => {
+    continuousLoop().catch((err) => {
+      console.error("[STT] continuousLoop crashed unexpectedly:", err);
+      sttRunning = false;
+      sttInitialized = false;
+    });
+  }, 2000);
 }
-
-// Moved initTTS() call into the async IIFE after naudiodon import attempt.
-// initTTS();

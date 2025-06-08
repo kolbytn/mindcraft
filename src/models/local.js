@@ -93,7 +93,22 @@ export class Local {
         if (typeof finalRes === 'string') {
             finalRes = finalRes.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(messages), finalRes);
+
+        if (imageData) { // If imageData was part of this sendRequest call
+            // `messages` here already includes the system prompt and image data
+            let visionPromptText = "";
+            if (messages.length > 0) {
+                const lastTurn = messages[messages.length -1];
+                 // For Ollama, content is a string, images is a separate array.
+                if (lastTurn.role === 'user' && typeof lastTurn.content === 'string') {
+                    visionPromptText = lastTurn.content;
+                }
+            }
+            logVision(messages, imageData, finalRes, visionPromptText);
+        } else {
+            // messages already includes system prompt if no imageData
+            log(JSON.stringify(messages), finalRes);
+        }
         return finalRes;
     }
 

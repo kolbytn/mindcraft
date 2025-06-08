@@ -75,7 +75,7 @@ export class GLHF {
         if (typeof finalRes === 'string') {
             finalRes = finalRes.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(messages), finalRes);
+        log(JSON.stringify([{ role: 'system', content: systemMessage }].concat(turns)), finalRes);
         return finalRes;
     }
 

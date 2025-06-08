@@ -56,7 +56,7 @@ export class Grok {
         if (typeof finalResponseText === 'string') {
             finalResponseText = finalResponseText.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(messages), finalResponseText);
+        log(JSON.stringify([{ role: "system", content: systemMessage }].concat(turns)), finalResponseText);
         return finalResponseText;
     }
 
@@ -76,7 +76,7 @@ export class Grok {
         const res = await this.sendRequest(imageFormattedTurns, systemMessage);
 
         if (imageBuffer && res) {
-            logVision(original_turns, imageBuffer, res, systemMessage);
+            logVision([{ role: "system", content: systemMessage }].concat(original_turns), imageBuffer, res, systemMessage);
         }
         return res;
     }

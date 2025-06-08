@@ -80,7 +80,21 @@ export class Gemini {
         if (typeof text === 'string') {
             text = text.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(originalTurnsForLog), text);
+
+        if (imageData) { // If imageData was part of this sendRequest call
+            let visionPromptText = ""; // Attempt to find the text prompt associated with the image
+            // `contents` is the array sent to the model
+            if (contents.length > 0) {
+                const lastUserTurnParts = contents[contents.length -1].parts;
+                if (Array.isArray(lastUserTurnParts)) {
+                    const textPart = lastUserTurnParts.find(part => part.text);
+                    if (textPart) visionPromptText = textPart.text;
+                }
+            }
+            logVision(originalTurnsForLog, imageData, text, visionPromptText);
+        } else {
+            log(JSON.stringify(originalTurnsForLog), text);
+        }
         return text;
     }
 
@@ -102,7 +116,7 @@ export class Gemini {
             const text = response.text();
             console.log('Received.');
             if (imageBuffer && text) {
-                logVision(turns, imageBuffer, text, prompt);
+                logVision([{role: 'system', content: systemMessage}, ...turns], imageBuffer, text, prompt);
             }
             if (!text.includes(stop_seq)) return text;
             const idx = text.indexOf(stop_seq);
@@ -118,6 +132,7 @@ export class Gemini {
             if (typeof res === 'string') {
                 res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
             }
+            // For error cases in vision, still use regular log since there's no image to save
             log(JSON.stringify(loggedTurnsForError), res);
         }
         return res;

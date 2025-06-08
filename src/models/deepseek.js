@@ -98,7 +98,24 @@ export class DeepSeek {
         if (typeof res === 'string') {
             res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(messages), res);
+
+        if (imageData) { // If imageData was part of this sendRequest call
+            const conversationForLogVision = [{ role: "system", content: systemMessage }].concat(turns);
+            let visionPromptText = "";
+             if (turns.length > 0) {
+                const lastTurn = messages[messages.length - 1]; // `messages` is after image processing
+                if (lastTurn.role === 'user' && Array.isArray(lastTurn.content)) {
+                    const textPart = lastTurn.content.find(part => part.type === 'text');
+                    if (textPart) visionPromptText = textPart.text;
+                } else if (lastTurn.role === 'user' && typeof lastTurn.content === 'string') {
+                    // This case might not happen if image is added, as content becomes array
+                    visionPromptText = lastTurn.content;
+                }
+            }
+            logVision(conversationForLogVision, imageData, res, visionPromptText);
+        } else {
+            log(JSON.stringify([{ role: "system", content: systemMessage }].concat(turns)), res);
+        }
         return res;
     }
 

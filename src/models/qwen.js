@@ -85,7 +85,24 @@ export class Qwen {
         if (typeof res === 'string') {
             res = res.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
         }
-        log(JSON.stringify(messages), res);
+
+        if (imageData) { // If imageData was part of this sendRequest call
+            // `messages` here includes system prompt and image data
+            let visionPromptText = "";
+             if (messages.length > 0) {
+                const lastTurn = messages[messages.length - 1];
+                if (lastTurn.role === 'user' && Array.isArray(lastTurn.content)) {
+                    const textPart = lastTurn.content.find(part => part.text);
+                    if (textPart) visionPromptText = textPart.text;
+                } else if (lastTurn.role === 'user' && typeof lastTurn.content === 'string'){
+                     visionPromptText = lastTurn.content;
+                }
+            }
+            logVision(messages, imageData, res, visionPromptText);
+        } else {
+            // messages already includes system prompt if no imageData
+            log(JSON.stringify(messages), res);
+        }
         return res;
     }
 

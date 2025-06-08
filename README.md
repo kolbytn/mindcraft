@@ -14,71 +14,6 @@ Do not connect this bot to public servers with coding enabled. This project allo
 - [Node.js Installed](https://nodejs.org/) (at least v14)
 - One of these: [OpenAI API Key](https://openai.com/blog/openai-api) | [Gemini API Key](https://aistudio.google.com/app/apikey) | [Anthropic API Key](https://docs.anthropic.com/claude/docs/getting-access-to-claude) | [Replicate API Key](https://replicate.com/) | [Hugging Face API Key](https://huggingface.co/) | [Groq API Key](https://console.groq.com/keys) | [Ollama Installed](https://ollama.com/download). | [Mistral API Key](https://docs.mistral.ai/getting-started/models/models_overview/) | [Qwen API Key [Intl.]](https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key)/[[cn]](https://help.aliyun.com/zh/model-studio/getting-started/first-api-call-to-qwen?) | [Novita AI API Key](https://novita.ai/settings?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link#key-management) |
 
-## Installation Prerequisites
-
-### `naudiodon` for Speech-to-Text (STT)
-
-The STT (Speech-to-Text) functionality in Mindcraft uses the `naudiodon` package for audio input. `naudiodon` is a native Node.js addon and might require additional steps to compile correctly during `npm install`.
-
-**`naudiodon` is an optional dependency.** This means:
-*   If `naudiodon` fails to install or build, the core Mindcraft application will still run.
-*   However, the Speech-to-Text (STT) feature will be automatically disabled if `naudiodon` is not available. You will see warnings in the console if it fails to load.
-*   If you wish to use STT and encounter build issues with `naudiodon`, please ensure you have the necessary build tools and libraries listed below for your operating system.
-
-**General Requirements for Building `naudiodon`:**
-*   **Node.js:** Ensure Node.js (v14+) is properly installed and added to your system's PATH.
-*   **Python:** `node-gyp` (the tool used to build native addons like `naudiodon`) requires Python. Recent versions of `node-gyp` are compatible with Python 3.x. Make sure Python is installed and accessible.
-*   **C++ Compiler Toolchain:** A C++ compiler (like g++ or MSVC) and related build tools (like `make` or MSBuild) are necessary.
-*   **PortAudio Library:** `naudiodon` specifically requires the PortAudio library.
-
-**Operating System Specifics for `PortAudio` (and `naudiodon` build):**
-
-### Linux
-*   **Debian/Ubuntu:**
-    ```bash
-    sudo apt-get update
-    sudo apt-get install build-essential libasound2-dev libportaudio-dev
-    ```
-    (`build-essential` provides g++, make, etc. `libasound2-dev` is for ALSA, and `libportaudio-dev` is crucial for `naudiodon`.)
-
-*   **Fedora/RHEL/CentOS:**
-    ```bash
-    # For newer Fedora (using dnf)
-    sudo dnf groupinstall "Development Tools"
-    sudo dnf install alsa-lib-devel portaudio-devel
-
-    # For older RHEL/CentOS (using yum)
-    sudo yum groupinstall "Development Tools"
-    sudo yum install alsa-lib-devel portaudio-devel
-    ```
-    (`portaudio-devel` is the equivalent of `libportaudio-dev`.)
-
-### Windows
-*   **Visual Studio C++ Build Tools:** This is the recommended way.
-    1.  Download the [Visual Studio Installer](https://visualstudio.microsoft.com/downloads/).
-    2.  Run the installer and select "Desktop development with C++" under the "Workloads" tab. This will install the necessary C++ compiler, MSBuild, and Windows SDKs.
-    3.  Ensure that Python is correctly configured for `node-gyp`. If you have multiple Python versions, you might need to tell `npm` which one to use (e.g., `npm config set python C:\path\to\python.exe`) or ensure your desired Python version is first in your system's PATH.
-*   **MSYS2/MinGW:** While possible, this can be more complex. You would need to compile/install PortAudio within the MSYS2 environment and ensure `node-gyp` is configured to use the MinGW toolchain. Using the Visual Studio C++ Build Tools is generally more straightforward for `node-gyp` on Windows.
-
-### macOS
-*   **Xcode Command Line Tools:**
-    ```bash
-    xcode-select --install
-    ```
-    (This installs Clang, make, and other necessary build tools.)
-*   **PortAudio:**
-    ```bash
-    brew install portaudio
-    ```
-    (Homebrew is the easiest way to install PortAudio on macOS.)
-*   **pkg-config (if needed):**
-    ```bash
-    brew install pkg-config
-    ```
-    (Sometimes required for build scripts to find library information.)
-
-If you see warnings or errors related to `naudiodon` during `npm install` and you *do not* intend to use the STT feature, these can typically be ignored. If you *do* want STT, ensure the above prerequisites are met.
-
 ## Install and Run
 
 1. Make sure you have the requirements above. If you plan to use the STT (Speech-to-Text) feature, also review the "Installation Prerequisites" section regarding `naudiodon`.
@@ -252,6 +187,22 @@ Embedding models are used to embed and efficiently select relevant examples for 
 Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novita`
 
 If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
+
+## Dataset collection
+
+Mindcraft has the capabilities to collect data from you playing with the bots, which can be used to generate training data to fine-tune models such as Andy-4. To do this, enable logging inside of `settings.js`, then navigate to the `logs` folder.
+
+Inside of the logs folder, and installing the dependecies, you will find a file named `generate_usernames.py`, you need to run this in order to convert your collected data into a usable dataset. This will generate a bunch of random names to replace the name of your bot, and your username. Both of which improve performance later on.
+
+To run it, run `python generate_usernames.py`. The max amount of usernames will take up multiple Terabytes of data. If for some reason you want to do this, run it with the `--make_all` flag.
+
+Next, you need to set up `convert.py` to include every username that interacted with the bot, as well as the bot's own username. This is done by adding / changing the usernames in the `ORIGINAL_USERNAMES` list.
+
+After this, you are all set up for conversion! Since you might not want to convert all data at once, you must change the names of the `.csv` file*(s)* that you want to convert to `Andy_pre1`. If more than one file is wanted for conversion, change `1` to the next number, this value can be as high as you want.
+
+To convert, run `python convert.py`, if you get a dependency error, ensure you are in a virtual python environment rather than a global one.
+
+For setting up vision datasets, run `convert.py` with the flag of `--vision`, this will do the same thing as the rest of the conversions, but change the format to an image-friendly way.
 
 ## Specifying Profiles via Command Line
 
