@@ -389,9 +389,9 @@ export class Agent {
             }
         }
         else {
-	    if (settings.speak) {
-            say(to_translate);
-	    }
+            if (settings.speak) {
+                say(to_translate, this.prompter.profile.speak_model);
+            }
             this.bot.chat(message);
         }
     }
