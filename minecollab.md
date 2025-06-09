@@ -65,6 +65,7 @@ Then, you can run the evaluation_script **from the project root** using `python 
 **MacOS**: 
 1. If brew isn't already installed run `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 2. `brew install tmux`
+
 **Linux**: `apt-get -y install tmux`
 **Windows**: You can not use tmux on Windows, but you can run tasks with the --no-launch-world flag. Run
 ```
