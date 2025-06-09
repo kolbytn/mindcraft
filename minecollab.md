@@ -43,6 +43,12 @@ You can view the crafting task in action [here](https://www.youtube.com/shorts/V
 
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
 
+If you don't own Minecraft you can run a limited version solely for offline games using these instructions: 
+1. Download the TLauncher https://tlauncher.org/en/
+2. Enter a username and select version 1.21.1
+3. Click "Multiplayer" and then "Direct Connection"
+4. Then enter "localhost:55916" and hit `Join Server`
+
 Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. **Unzip the server_data.zip in the base `tasks/` folder**.
 
 Then, set up your conda environment: 
