@@ -67,6 +67,7 @@ Then, you can run the evaluation_script **from the project root** using `python 
 2. `brew install tmux`
 
 **Linux**: `apt-get -y install tmux`
+
 **Windows**: You can not use tmux on Windows, but you can run tasks with the --no-launch-world flag. Run
 ```
 cd /tasks/server_data/
