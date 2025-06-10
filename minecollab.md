@@ -41,6 +41,8 @@ You can view the crafting task in action [here](https://www.youtube.com/shorts/V
 
 ## Installation 
 
+You **DO NOT** need Linux to run this, you can run on Windows with the --no-launch-world flag and by installing git bash. 
+
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
 
 If you don't own Minecraft you can run a limited version solely for offline games using these instructions: 
