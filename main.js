@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import { createMindServer } from './src/server/mind_server.js';
 import { mainProxy } from './src/process/main_proxy.js';
 import { readFileSync } from 'fs';
+import { initTTS } from './src/process/tts_process.js';
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
@@ -39,7 +40,7 @@ async function main() {
     const profiles = getProfiles(args);
     console.log(profiles);
     const { load_memory, init_message } = settings;
-
+    
     for (let i=0; i<profiles.length; i++) {
         const agent_process = new AgentProcess();
         const profile = readFileSync(profiles[i], 'utf8');
@@ -48,6 +49,7 @@ async function main() {
         agent_process.start(profiles[i], load_memory, init_message, i, args.task_path, args.task_id);
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
+    initTTS();
 }
 
 try {

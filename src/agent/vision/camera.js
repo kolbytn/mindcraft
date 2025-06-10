@@ -60,8 +60,8 @@ export class Camera extends EventEmitter {
         const buf = await getBufferFromStream(imageStream);
         await this._ensureScreenshotDirectory();
         await fs.writeFile(`${this.fp}/${filename}.jpg`, buf);
-        console.log('saved', filename);
-        return filename;
+        console.log('saved', filename + '.jpg');
+        return filename + '.jpg';
     }
 
     async _ensureScreenshotDirectory() {

@@ -334,15 +334,38 @@ export class Prompter {
             let prompt = this.profile.conversing;
             prompt = await this.replaceStrings(prompt, messages, this.convo_examples);
             let generation;
+            let imageData = null;
+
+            if (settings.vision_mode === 'always' && messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                // Check if the last message has an imagePath and if the model supports raw image input
+                if (lastMessage.imagePath && this.chat_model.supportsRawImageInput) {
+                    try {
+                        // Construct the full path to the image file
+                        const agentScreenshotDir = path.join('bots', this.agent.name, 'screenshots');
+                        const imageFullPath = path.join(agentScreenshotDir, lastMessage.imagePath);
+
+                        console.log(`[Prompter] Attempting to read image for always_active mode: ${imageFullPath}`);
+                        imageData = await fs.readFile(imageFullPath); // Read as buffer
+                        console.log('[Prompter] Image data prepared for chat model.');
+                    } catch (err) {
+                        console.error(`[Prompter] Error reading image file ${lastMessage.imagePath}:`, err);
+                        imageData = null; // Proceed without image data if reading fails
+                    }
+                }
+            }
 
             try {
-                generation = await this.chat_model.sendRequest(messages, prompt);
+                generation = await this.chat_model.sendRequest(messages, prompt, imageData);
                 if (typeof generation !== 'string') {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');
                 }
                 console.log("Generated response:", generation); 
                 await this._saveLog(prompt, messages, generation, 'conversation');
+
+                // Remove the incorrect logVision call here since sendRequest should handle it
+                // The model's sendRequest method will call logVision if imageData was provided
 
             } catch (error) {
                 console.error('Error during message generation or file writing:', error);
@@ -445,8 +468,15 @@ export class Prompter {
     }
 
     async _saveLog(prompt, messages, generation, tag) {
-        if (!settings.log_all_prompts)
-            return;
+        switch (tag) {
+            case 'conversation':
+            case 'coding': // Assuming coding logs fall under normal data
+            case 'memSaving':
+                if (!settings.log_normal_data) return;
+                break;
+            default:
+                return;
+        }
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         let logEntry;
         let task_id = this.agent.task.task_id;
@@ -473,6 +503,4 @@ export class Prompter {
         logFile = path.join(logDir, logFile);
         await fs.appendFile(logFile, String(logEntry), 'utf-8');
     }
-
-
 }
