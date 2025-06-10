@@ -12,26 +12,21 @@ import { SelfPrompter } from './self_prompter.js';
 import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addBrowserViewer } from './vision/browser_viewer.js';
-import settings from '../../settings.js';
-import { serverProxy } from './agent_proxy.js';
+import { serverProxy } from './mindserver_proxy.js';
+import settings from './settings.js';
 import { Task } from './tasks/tasks.js';
 import { say } from './speak.js';
 
 export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
+    async start(load_mem=false, init_message=null, count_id=0) {
         this.last_sender = null;
         this.count_id = count_id;
-        if (!profile_fp) {
-            throw new Error('No profile filepath provided');
-        }
-        
-        console.log('Starting agent initialization with profile:', profile_fp);
         
         // Initialize components with more detailed error handling
         console.log('Initializing action manager...');
         this.actions = new ActionManager(this);
         console.log('Initializing prompter...');
-        this.prompter = new Prompter(this, profile_fp);
+        this.prompter = new Prompter(this, settings.profile);
         this.name = this.prompter.getName();
         console.log('Initializing history...');
         this.history = new History(this);
@@ -59,18 +54,14 @@ export class Agent {
         } else {
             taskStart = Date.now();
         }
-        this.task = new Task(this, task_path, task_id, taskStart);
+        this.task = new Task(this, settings.task, taskStart);
         this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
         blacklistCommands(this.blocked_actions);
-
-        serverProxy.connect(this);
 
         console.log(this.name, 'logging into minecraft...');
         this.bot = initBot(this.name);
 
         initModes(this);
-
-        
 
         this.bot.on('login', () => {
             console.log(this.name, 'logged in!');
@@ -90,6 +81,8 @@ export class Agent {
             try {
                 clearTimeout(spawnTimeout);
                 addBrowserViewer(this.bot, count_id);
+                console.log('Initializing vision intepreter...');
+                this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
 
                 // wait for a bit so stats are not undefined
                 await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -101,22 +94,19 @@ export class Agent {
                 this.startEvents();
               
                 if (!load_mem) {
-                    if (task_path !== null) {
+                    if (settings.task) {
                         this.task.initBotTask();
                         this.task.setAgentGoal();
                     }
                 } else {
                     // set the goal without initializing the rest of the task
-                    if (task_path !== null) {
+                    if (settings.task) {
                         this.task.setAgentGoal();
                     }
                 }
 
                 await new Promise((resolve) => setTimeout(resolve, 10000));
                 this.checkAllPlayersPresent();
-              
-                console.log('Initializing vision intepreter...');
-                this.vision_interpreter = new VisionInterpreter(this, settings.allow_vision);
 
             } catch (error) {
                 console.error('Error in spawn event:', error);
@@ -160,8 +150,12 @@ export class Agent {
 		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
-        if (settings.profiles.length === 1)
-            this.bot.on('chat', respondFunc);
+        
+        this.bot.on('chat', (username, message) => {
+            if (serverProxy.getNumOtherAgents() > 0) return;
+            // only respond to open chat messages when there are no other agents
+            respondFunc(username, message);
+        });
 
         // Set up auto-eat
         this.bot.autoEat.options = {

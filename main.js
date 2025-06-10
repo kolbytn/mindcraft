@@ -3,7 +3,7 @@ import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createMindServer } from './src/server/mindserver.js';
-import { mindserverProxy } from './src/process/mindserver_proxy.js.js';
+import { mindserverProxy } from './src/process/mindserver_proxy.js';
 import { readFileSync } from 'fs';
 
 function parseArguments() {

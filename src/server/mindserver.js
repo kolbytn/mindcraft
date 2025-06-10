@@ -3,21 +3,41 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as mindcraft from '../../mindcraft.js';
 
-// Mindserver purposes:
-// - central hub for inter-process communication between all agent processes
+// Mindserver is:
+// - central hub for communication between all agent processes
 // - api to control from other languages and remote users 
 // - host for webapp
 
 // Module-level variables
 let io;
 let server;
-const registeredAgents = new Set();
-const inGameAgents = {};
-const agentManagers = {}; // socket for main process that registers/controls agents
+const agent_connections = {};
+
+class AgentConnection {
+    constructor(settings) {
+        this.socket = null;
+        this.settings = settings;
+        this.in_game = false;
+    }
+    
+}
+
+export function registerAgent(settings) {
+    let agentConnection = new AgentConnection(settings);
+    agent_connections[settings.profile.name] = agentConnection;
+}
+
+export function logoutAgent(agentName) {
+    if (agent_connections[agentName]) {
+        agent_connections[agentName].in_game = false;
+        agentsUpdate();
+    }
+}
 
 // Initialize the server
-export function createMindServer(port = 8080) {
+export function createMindServer(host = 'localhost', port = 8080) {
     const app = express();
     server = http.createServer(app);
     io = new Server(server);
@@ -33,109 +53,90 @@ export function createMindServer(port = 8080) {
 
         agentsUpdate(socket);
 
-        socket.on('register-agents', (agentNames) => {
-            console.log(`Registering agents: ${agentNames}`);
-            agentNames.forEach(name => registeredAgents.add(name));
-            for (let name of agentNames) {
-                agentManagers[name] = socket;
+        socket.on('get-settings', (agentName, callback) => {
+            if (agent_connections[agentName]) {
+                callback({ settings: agent_connections[agentName].settings });
+            } else {
+                callback({ error: `Agent '${agentName}' not found.` });
             }
-            socket.emit('register-agents-success');
-            agentsUpdate();
         });
 
         socket.on('login-agent', (agentName) => {
-            if (curAgentName && curAgentName !== agentName) {
-                console.warn(`Agent ${agentName} already logged in as ${curAgentName}`);
-                return;
-            }
-            if (registeredAgents.has(agentName)) {
+            if (agent_connections[agentName]) {
+                agent_connections[agentName].socket = socket;
+                agent_connections[agentName].in_game = true;
                 curAgentName = agentName;
-                inGameAgents[agentName] = socket;
                 agentsUpdate();
-            } else {
-                console.warn(`Agent ${agentName} not registered`);
+            }
+            else {
+                console.warn(`Unregistered agent ${agentName} tried to login`);
             }
         });
 
         socket.on('logout-agent', (agentName) => {
-            if (inGameAgents[agentName]) {
-                delete inGameAgents[agentName];
+            if (agent_connections[agentName]) {
+                agent_connections[agentName].in_game = false;
                 agentsUpdate();
             }
         });
 
         socket.on('disconnect', () => {
             console.log('Client disconnected');
-            if (inGameAgents[curAgentName]) {
-                delete inGameAgents[curAgentName];
+            if (agent_connections[curAgentName]) {
+                agent_connections[curAgentName].in_game = false;
                 agentsUpdate();
             }
         });
 
         socket.on('chat-message', (agentName, json) => {
-            if (!inGameAgents[agentName]) {
+            if (!agent_connections[agentName]) {
                 console.warn(`Agent ${agentName} tried to send a message but is not logged in`);
                 return;
             }
             console.log(`${curAgentName} sending message to ${agentName}: ${json.message}`);
-            inGameAgents[agentName].emit('chat-message', curAgentName, json);
+            agent_connections[agentName].socket.emit('chat-message', curAgentName, json);
         });
 
         socket.on('restart-agent', (agentName) => {
             console.log(`Restarting agent: ${agentName}`);
-            inGameAgents[agentName].emit('restart-agent');
+            agent_connections[agentName].socket.emit('restart-agent');
         });
 
         socket.on('stop-agent', (agentName) => {
-            let manager = agentManagers[agentName];
-            if (manager) {
-                manager.emit('stop-agent', agentName);
-            }
-            else {
-                console.warn(`Stopping unregisterd agent ${agentName}`);
-            }
+            mindcraft.stopAgent(agentName);
         });
 
         socket.on('start-agent', (agentName) => {
-            let manager = agentManagers[agentName];
-            if (manager) {
-                manager.emit('start-agent', agentName);
-            }
-            else {
-                console.warn(`Starting unregisterd agent ${agentName}`);
-            }
+            mindcraft.startAgent(agentName);
         });
 
         socket.on('stop-all-agents', () => {
             console.log('Killing all agents');
-            stopAllAgents();
+            for (let agentName in agent_connections) {
+                mindcraft.stopAgent(agentName);
+            }
         });
 
         socket.on('shutdown', () => {
             console.log('Shutting down');
-            for (let manager of Object.values(agentManagers)) {
-                manager.emit('shutdown');
-            }
-            setTimeout(() => {
-                process.exit(0);
-            }, 2000);
+            process.exit(0);
         });
 
 		socket.on('send-message', (agentName, message) => {
-			if (!inGameAgents[agentName]) {
-				console.warn(`Agent ${agentName} not logged in, cannot send message via MindServer.`);
+			if (!agent_connections[agentName]) {
+				console.warn(`Agent ${agentName} not in game, cannot send message via MindServer.`);
 				return
 			}
 			try {
 				console.log(`Sending message to agent ${agentName}: ${message}`);
-				inGameAgents[agentName].emit('send-message', agentName, message)
+				agent_connections[agentName].socket.emit('send-message', agentName, message)
 			} catch (error) {
 				console.error('Error: ', error);
 			}
 		});
     });
 
-    server.listen(port, 'localhost', () => {
+    server.listen(port, host, () => {
         console.log(`MindServer running on port ${port}`);
     });
 
@@ -147,22 +148,12 @@ function agentsUpdate(socket) {
         socket = io;
     }
     let agents = [];
-    registeredAgents.forEach(name => {
-        agents.push({name, in_game: !!inGameAgents[name]});
-    });
+    for (let agentName in agent_connections) {
+        agents.push({name: agentName, in_game: agent_connections[agentName].in_game});
+    };
     socket.emit('agents-update', agents);
-}
-
-function stopAllAgents() {
-    for (const agentName in inGameAgents) {
-        let manager = agentManagers[agentName];
-        if (manager) {
-            manager.emit('stop-agent', agentName);
-        }
-    }
 }
 
 // Optional: export these if you need access to them from other files
 export const getIO = () => io;
 export const getServer = () => server;
-export const getConnectedAgents = () => connectedAgents; 
