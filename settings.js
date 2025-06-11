@@ -11,9 +11,9 @@ const settings = {
     
     // the base profile is shared by all bots for default prompts/examples/modes
     "profiles": [
-        // "./andy.json",
+        "./andy.json",
         // "./profiles/gpt.json",
-        "./profiles/claude.json",
+        // "./profiles/claude.json",
         // "./profiles/gemini.json",
         // "./profiles/llama.json",
         // "./profiles/qwen.json",
@@ -26,7 +26,7 @@ const settings = {
     ],
 
     // agent settings
-    "base_profile": "./profiles/defaults/god_mode.json", // also see creative.json, god_mode.json
+    "base_profile": "survival", // survival, creative, or god_mode
     "load_memory": false, // load memory from previous session
     "init_message": "Respond with hello world and your name", // sends to all on spawn
     "only_chat_with": [], // users that the bots listen to and send general messages to. if empty it will chat publicly
@@ -40,42 +40,13 @@ const settings = {
     "max_commands": -1, // max number of commands that can be used in consecutive responses. -1 for no limit
     "narrate_behavior": true, // chat simple automatic actions ('Picking up item!')
     "log_all_prompts": false, // log ALL prompts to file
-    "task": {},
-    "task_file": "",
-    "task_name": "",
     "verbose_commands": true, // show full command syntax
     "chat_bot_messages": true, // publicly chat bot-to-bot messages
 
     // mindserver settings
-    "render_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
+    "render_bot_view": false, // show bot's view in browser at localhost:3000, 3001...
     "allow_insecure_coding": true, // allows newAction command and model can write/run code on your computer. enable at own risk
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
-}
-
-// these environment variables override certain settings
-if (process.env.MINECRAFT_PORT) {
-    settings.port = process.env.MINECRAFT_PORT;
-}
-if (process.env.MINDSERVER_PORT) {
-    settings.mindserver_port = process.env.MINDSERVER_PORT;
-}
-if (process.env.PROFILES && JSON.parse(process.env.PROFILES).length > 0) {
-    settings.profiles = JSON.parse(process.env.PROFILES);
-}
-if (process.env.INSECURE_CODING) {
-    settings.allow_insecure_coding = true;
-}
-if (process.env.BLOCKED_ACTIONS) {
-    settings.blocked_actions = JSON.parse(process.env.BLOCKED_ACTIONS);
-}
-if (process.env.MAX_MESSAGES) {
-    settings.max_messages = process.env.MAX_MESSAGES;
-}
-if (process.env.NUM_EXAMPLES) {
-    settings.num_examples = process.env.NUM_EXAMPLES;
-}
-if (process.env.LOG_ALL) {
-    settings.log_all_prompts = process.env.LOG_ALL;
 }
 
 export default settings;

@@ -1,5 +1,5 @@
-import { createMindServer, registerAgent } from './src/server/mindserver.js';
-import { AgentProcess } from './src/process/agent_process.js';
+import { createMindServer, registerAgent } from './mindserver.js';
+import { AgentProcess } from '../process/agent_process.js';
 
 let mindserver;
 let connected = false;
@@ -24,12 +24,13 @@ export async function createAgent(settings) {
         console.error('Agent name is required in profile');
         return;
     }
+    settings = JSON.parse(JSON.stringify(settings));
     let agent_name = settings.profile.name;
     registerAgent(settings);
     let load_memory = settings.load_memory || false;
     let init_message = settings.init_message || null;
-    const agentProcess = new AgentProcess(agent_name);
-    agentProcess.start(load_memory, init_message, agent_count, host, port);
+    const agentProcess = new AgentProcess(agent_name, host, port);
+    agentProcess.start(load_memory, init_message, agent_count);
     agent_count++;
     agent_processes[settings.profile.name] = agentProcess;
 }
@@ -39,8 +40,8 @@ export function getAgentProcess(agentName) {
 }
 
 export function startAgent(agentName) {
-    if (this.agent_processes[agentName]) {
-        this.agent_processes[agentName].continue();
+    if (agent_processes[agentName]) {
+        agent_processes[agentName].continue();
     }
     else {
         console.error(`Cannot start agent ${agentName}; not found`);
@@ -48,21 +49,17 @@ export function startAgent(agentName) {
 }
 
 export function stopAgent(agentName) {
-    if (this.agent_processes[agentName]) {
-        this.agent_processes[agentName].stop();
+    if (agent_processes[agentName]) {
+        agent_processes[agentName].stop();
     }
 }
 
 export function shutdown() {
     console.log('Shutting down');
-    for (let agentName in this.agent_processes) {
-        this.agent_processes[agentName].stop();
+    for (let agentName in agent_processes) {
+        agent_processes[agentName].stop();
     }
     setTimeout(() => {
         process.exit(0);
     }, 2000);
-}
-
-export function logoutAgent(agentName) {
-    this.socket.emit('logout-agent', agentName);
 }

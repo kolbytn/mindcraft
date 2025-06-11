@@ -3,17 +3,20 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import * as mindcraft from '../../mindcraft.js';
+import * as mindcraft from './mindcraft.js';
+import { readFileSync } from 'fs';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Mindserver is:
 // - central hub for communication between all agent processes
 // - api to control from other languages and remote users 
 // - host for webapp
 
-// Module-level variables
 let io;
 let server;
 const agent_connections = {};
+
+const default_settings = JSON.parse(readFileSync(path.join(__dirname, 'default_settings.json'), 'utf8'));
 
 class AgentConnection {
     constructor(settings) {
@@ -53,6 +56,23 @@ export function createMindServer(host = 'localhost', port = 8080) {
 
         agentsUpdate(socket);
 
+        socket.on('create-agent', (settings, callback) => {
+            console.log('API create agent...');
+            settings = { ...default_settings, ...settings };
+            if (settings.profile?.name) {
+                if (settings.profile.name in agent_connections) {
+                    callback({ success: false, error: 'Agent already exists' });
+                    return;
+                }
+                mindcraft.createAgent(settings);
+                callback({ success: true });
+            }
+            else {
+                console.error('Agent name is required in profile');
+                callback({ success: false, error: 'Agent name is required in profile' });
+            }
+        });
+
         socket.on('get-settings', (agentName, callback) => {
             if (agent_connections[agentName]) {
                 callback({ settings: agent_connections[agentName].settings });
@@ -73,16 +93,9 @@ export function createMindServer(host = 'localhost', port = 8080) {
             }
         });
 
-        socket.on('logout-agent', (agentName) => {
-            if (agent_connections[agentName]) {
-                agent_connections[agentName].in_game = false;
-                agentsUpdate();
-            }
-        });
-
         socket.on('disconnect', () => {
-            console.log('Client disconnected');
             if (agent_connections[curAgentName]) {
+                console.log(`Agent ${curAgentName} disconnected`);
                 agent_connections[curAgentName].in_game = false;
                 agentsUpdate();
             }

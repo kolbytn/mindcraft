@@ -35,11 +35,11 @@ export class Prompter {
         this.profile = profile;
         let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
         let base_fp = '';
-        if (settings.base_profile === 'survival') {
+        if (settings.base_profile.includes('survival')) {
             base_fp = './profiles/defaults/survival.json';
-        } else if (settings.base_profile === 'creative') {
+        } else if (settings.base_profile.includes('creative')) {
             base_fp = './profiles/defaults/creative.json';
-        } else if (settings.base_profile === 'god_mode') {
+        } else if (settings.base_profile.includes('god_mode')) {
             base_fp = './profiles/defaults/god_mode.json';
         }
         let base_profile = JSON.parse(readFileSync(base_fp, 'utf8'));

@@ -18,13 +18,18 @@ class MindServerProxy {
         if (this.connected) return;
         
         this.name = name;
-
         this.socket = io(`http://${host}:${port}`);
-        this.connected = true;
 
-        this.socket.on('connect', () => {
-            console.log(name, 'connected to MindServer');
+        await new Promise((resolve, reject) => {
+            this.socket.on('connect', resolve);
+            this.socket.on('connect_error', (err) => {
+                console.error('Connection failed:', err);
+                reject(err);
+            });
         });
+
+        this.connected = true;
+        console.log(name, 'connected to MindServer');
 
         this.socket.on('disconnect', () => {
             console.log('Disconnected from MindServer');
@@ -60,8 +65,8 @@ class MindServerProxy {
         // Request settings and wait for response
         await new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
-                reject(new Error('Settings request timed out after 10 seconds'));
-            }, 10000);
+                reject(new Error('Settings request timed out after 5 seconds'));
+            }, 5000);
 
             this.socket.emit('get-settings', name, (response) => {
                 clearTimeout(timeout);

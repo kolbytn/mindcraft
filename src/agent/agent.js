@@ -23,25 +23,17 @@ export class Agent {
         this.count_id = count_id;
         
         // Initialize components with more detailed error handling
-        console.log('Initializing action manager...');
+        console.log(`Initializing agent ${this.name}...`);
         this.actions = new ActionManager(this);
-        console.log('Initializing prompter...');
         this.prompter = new Prompter(this, settings.profile);
         this.name = this.prompter.getName();
-        console.log('Initializing history...');
         this.history = new History(this);
-        console.log('Initializing coder...');
         this.coder = new Coder(this);
-        console.log('Initializing npc controller...');
         this.npc = new NPCContoller(this);
-        console.log('Initializing memory bank...');
         this.memory_bank = new MemoryBank();
-        console.log('Initializing self prompter...');
         this.self_prompter = new SelfPrompter(this);
         convoManager.initAgent(this);
-        console.log('Initializing examples...');
         await this.prompter.initExamples();
-        console.log('Initializing task...');
 
         // load mem first before doing task
         let save_data = null;

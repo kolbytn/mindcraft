@@ -53,15 +53,15 @@ export const WOOL_COLORS = [
 
 
 export function initBot(username) {
-    mc_version = settings.world.minecraft_version;
+    mc_version = settings.minecraft_version;
     mcdata = minecraftData(mc_version);
     Item = prismarine_items(mc_version);
     let bot = createBot({
         username: username,
 
-        host: settings.world.host,
-        port: settings.world.port,
-        auth: settings.world.auth,
+        host: settings.host,
+        port: settings.port,
+        auth: settings.auth,
 
         version: mc_version,
     });
