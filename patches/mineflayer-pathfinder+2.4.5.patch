@@ -1,8 +1,35 @@
 diff --git a/node_modules/mineflayer-pathfinder/index.js b/node_modules/mineflayer-pathfinder/index.js
-index b38bd30..bf16a63 100644
+index b38bd30..fb39b45 100644
 --- a/node_modules/mineflayer-pathfinder/index.js
 +++ b/node_modules/mineflayer-pathfinder/index.js
-@@ -550,6 +550,7 @@ function inject (bot) {
+@@ -170,6 +170,16 @@ function inject (bot) {
+       const curPoint = path[i]
+       if (curPoint.toBreak.length > 0 || curPoint.toPlace.length > 0) break
+       const b = bot.blockAt(new Vec3(curPoint.x, curPoint.y, curPoint.z))
++
++      // openned doors have small Collision box
++      // that may stop the bot from moving forward
++      if(i === 0 && b.name.includes('door')) {
++        curPoint.x = Math.floor(curPoint.x) + 0.5
++        curPoint.y = Math.floor(curPoint.y)
++        curPoint.z = Math.floor(curPoint.z) + 0.5
++        continue
++      }
++
+       if (b && (b.type === waterType || ((b.type === ladderId || b.type === vineId) && i + 1 < path.length && path[i + 1].y < curPoint.y))) {
+         curPoint.x = Math.floor(curPoint.x) + 0.5
+         curPoint.y = Math.floor(curPoint.y)
+@@ -524,6 +534,9 @@ function inject (bot) {
+         bot.activateBlock(bot.blockAt(new Vec3(placingBlock.x, placingBlock.y, placingBlock.z))).then(() => {
+           lockUseBlock.release()
+           placingBlock = nextPoint.toPlace.shift()
++          if (!placingBlock) {
++            placing = false
++          }
+         }, err => {
+           console.error(err)
+           lockUseBlock.release()
+@@ -550,6 +563,7 @@ function inject (bot) {
              lockEquipItem.release()
              const refBlock = bot.blockAt(new Vec3(placingBlock.x, placingBlock.y, placingBlock.z), false)
              if (!lockPlaceBlock.tryAcquire()) return
@@ -10,7 +37,7 @@ index b38bd30..bf16a63 100644
              if (interactableBlocks.includes(refBlock.name)) {
                bot.setControlState('sneak', true)
              }
-@@ -557,6 +558,7 @@ function inject (bot) {
+@@ -557,6 +571,7 @@ function inject (bot) {
                .then(function () {
                  // Dont release Sneak if the block placement was not successful
                  bot.setControlState('sneak', false)
@@ -18,3 +45,50 @@ index b38bd30..bf16a63 100644
                  if (bot.pathfinder.LOSWhenPlacingBlocks && placingBlock.returnPos) returningPos = placingBlock.returnPos.clone()
                })
                .catch(_ignoreError => {
+diff --git a/node_modules/mineflayer-pathfinder/lib/movements.js b/node_modules/mineflayer-pathfinder/lib/movements.js
+index a7e3505..aa5f59e 100644
+--- a/node_modules/mineflayer-pathfinder/lib/movements.js
++++ b/node_modules/mineflayer-pathfinder/lib/movements.js
+@@ -92,13 +92,15 @@ class Movements {
+       }
+     })
+     registry.blocksArray.forEach(block => {
+-      if (this.interactableBlocks.has(block.name) && block.name.toLowerCase().includes('gate') && !block.name.toLowerCase().includes('iron')) {
++      if (this.interactableBlocks.has(block.name) 
++        && (block.name.toLowerCase().includes('gate') || block.name.toLowerCase().includes('door') )
++        && !block.name.toLowerCase().includes('iron')) {
+         // console.info(block)
+         this.openable.add(block.id)
+       }
+     })
+ 
+-    this.canOpenDoors = false // Causes issues. Probably due to none paper servers.
++    this.canOpenDoors = true
+ 
+     this.exclusionAreasStep = []
+     this.exclusionAreasBreak = []
+@@ -284,6 +286,13 @@ class Movements {
+     cost += this.exclusionStep(block) // Is excluded so can't move or break
+     cost += this.getNumEntitiesAt(block.position, 0, 0, 0) * this.entityCost
+     if (block.safe) return cost
++
++    // process door cost
++    if ((this.canOpenDoors && block.openable)
++      || (block.openable && block._properties?.open === true)) {
++      return cost
++    }
++
+     if (!this.safeToBreak(block)) return 100 // Can't break, so can't move
+     toBreak.push(block.position)
+ 
+@@ -387,8 +396,8 @@ class Movements {
+     cost += this.safeOrBreak(blockB, toBreak)
+     if (cost > 100) return
+ 
+-    // Open fence gates
+-    if (this.canOpenDoors && blockC.openable && blockC.shapes && blockC.shapes.length !== 0) {
++    // Open fence gates and doors
++    if (this.canOpenDoors && blockC.openable && !blockC._properties.open) {
+       toPlace.push({ x: node.x + dir.x, y: node.y, z: node.z + dir.z, dx: 0, dy: 0, dz: 0, useOne: true }) // Indicate that a block should be used on this block not placed
+     } else {
+       cost += this.safeOrBreak(blockC, toBreak)
