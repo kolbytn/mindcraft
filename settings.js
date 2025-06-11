@@ -48,6 +48,21 @@ const settings = {
 }
 
 // these environment variables override certain settings
+if (process.env.SETTINGS_PATH) {
+  try {
+    const cfgPath = path.resolve(process.env.SETTINGS_PATH);
+    if (fs.existsSync(cfgPath)) {
+      const raw = fs.readFileSync(cfgPath, 'utf-8');
+      const overrides = JSON.parse(raw);
+      Object.assign(settings, overrides);
+      console.log(`Loaded overrides from ${cfgPath}`);
+    } else {
+      console.warn(`SETTINGS_PATH file not found: ${cfgPath}`);
+    }
+  } catch (err) {
+    console.error("Failed to load SETTINGS_PATH overrides:", err);
+  }
+}
 if (process.env.MINECRAFT_PORT) {
     settings.port = process.env.MINECRAFT_PORT;
 }
