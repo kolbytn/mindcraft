@@ -406,7 +406,6 @@ export class Task {
     }
 
     async initBotTask() {
-        await this.setAgentGoal();
         await this.agent.bot.chat(`/clear ${this.name}`);
         console.log(`Cleared ${this.name}'s inventory.`);
 
@@ -491,7 +490,7 @@ export class Task {
                 this.agent.killAll();
             }
         }
-
+        await new Promise((resolve) => setTimeout(resolve, 500));
         if (this.data.conversation && this.agent.count_id === 0) {
             let other_name = this.available_agents.filter(n => n !== this.name)[0];
             let waitCount = 0;
@@ -506,8 +505,7 @@ export class Task {
             }
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
-
-        
+        await this.setAgentGoal();
     }
     
     async teleportBots() {
