@@ -2,6 +2,9 @@ import { io } from 'socket.io-client';
 import convoManager from './conversation.js';
 import { setSettings } from './settings.js';
 
+// agents connection to mindserver
+// always connect to localhost
+
 class MindServerProxy {
     constructor() {
         if (MindServerProxy.instance) {
@@ -14,11 +17,11 @@ class MindServerProxy {
         MindServerProxy.instance = this;
     }
 
-    async connect(name, host, port) {
+    async connect(name, port) {
         if (this.connected) return;
         
         this.name = name;
-        this.socket = io(`http://${host}:${port}`);
+        this.socket = io(`http://localhost:${port}`);
 
         await new Promise((resolve, reject) => {
             this.socket.on('connect', resolve);

@@ -2,9 +2,8 @@ import { spawn } from 'child_process';
 import { logoutAgent } from '../mindcraft/mindserver.js';
 
 export class AgentProcess {
-    constructor(name, host, port) {
+    constructor(name, port) {
         this.name = name;
-        this.host = host;
         this.port = port;
     }
 
@@ -19,7 +18,6 @@ export class AgentProcess {
             args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
-        args.push('-h', this.host);
         args.push('-p', this.port);
 
         const agentProcess = spawn('node', args, {
@@ -45,7 +43,7 @@ export class AgentProcess {
                     return;
                 }
                 console.log('Restarting agent...');
-                this.start(true, 'Agent process restarted.', count_id, this.host, this.port);
+                this.start(true, 'Agent process restarted.', count_id, this.port);
                 last_restart = Date.now();
             }
         });

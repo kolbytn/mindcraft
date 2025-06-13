@@ -17,5 +17,11 @@ try:
     
     settings = {"profile": profile_data}
     mindcraft.create_agent(settings)
+
+    settings_copy = settings.copy()
+    settings_copy['profile']['name'] = 'andy2'
+    mindcraft.create_agent(settings_copy)
 except FileNotFoundError:
     print(f"Error: Could not find andy.json at {profile_path}")
+
+mindcraft.wait()

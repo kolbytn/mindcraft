@@ -8,13 +8,12 @@ let agent_count = 0;
 let host = 'localhost';
 let port = 8080;
 
-export async function init(host='localhost', port=8080) {
+export async function init(host_public=false, port=8080) {
     if (connected) {
         console.error('Already initiliazed!');
         return;
     }
-    mindserver = createMindServer(host, port);
-    host = host;
+    mindserver = createMindServer(host_public, port);
     port = port;
     connected = true;
 }
@@ -29,7 +28,7 @@ export async function createAgent(settings) {
     registerAgent(settings);
     let load_memory = settings.load_memory || false;
     let init_message = settings.init_message || null;
-    const agentProcess = new AgentProcess(agent_name, host, port);
+    const agentProcess = new AgentProcess(agent_name, port);
     agentProcess.start(load_memory, init_message, agent_count);
     agent_count++;
     agent_processes[settings.profile.name] = agentProcess;

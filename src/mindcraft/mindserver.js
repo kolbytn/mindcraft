@@ -40,7 +40,7 @@ export function logoutAgent(agentName) {
 }
 
 // Initialize the server
-export function createMindServer(host = 'localhost', port = 8080) {
+export function createMindServer(host_public = false, port = 8080) {
     const app = express();
     server = http.createServer(app);
     io = new Server(server);
@@ -149,6 +149,7 @@ export function createMindServer(host = 'localhost', port = 8080) {
 		});
     });
 
+    let host = host_public ? '0.0.0.0' : 'localhost';
     server.listen(port, host, () => {
         console.log(`MindServer running on port ${port}`);
     });
