@@ -1,68 +1,135 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Mindcraft</title>
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-        #agents {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        h1 {
-            color: #ffffff;
-        }
-        .agent {
-            margin: 10px 0;
-            padding: 10px;
-            background: #363636;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .restart-btn, .start-btn, .stop-btn {
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        .restart-btn {
-            background: #4CAF50;
-        }
-        .start-btn {
-            background: #2196F3;
-        }
-        .stop-btn {
-            background: #f44336;
-        }
-        .restart-btn:hover { background: #45a049; }
-        .start-btn:hover { background: #1976D2; }
-        .stop-btn:hover { background: #d32f2f; }
-        .status-icon {
-            font-size: 12px;
-            margin-right: 8px;
-        }
-        .status-icon.online {
-            color: #4CAF50;
-        }
-        .status-icon.offline {
-            color: #f44336;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <meta viewport="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 <body>
     <h1>Mindcraft</h1>
-    <div id="agents"></div>
+    <div id="agents" class="container"></div>
+    <div id="settings" class="container">
+        <h3>Edit Settings</h3>
+        <button onclick="toggleSettings()" id="settingsToggler">Show Settings</button>
+        <div id="settingsContainer" class="miniContainer" style="display:none;">
+            <br>
+            <em>Edits won't take effect until restarting Mindcraft.</em>
+            <br>
+            <div class="formOption">
+                <label for="mcVersion">Minecraft Version: </label>
+                <input id="mcVersion" type="text" placeholder="Up to 1.21.1">
+            </div>
+            <div class="formOption">
+                <label for="mcHostSelector">Host: </label>
+                <input id="mcHostSelector" type="text" placeholder="localhost">
+            </div>
+            <div class="formOption">
+                <label for="mcPort">Port: </label>
+                <input id="mcPort" type="number" placeholder="55916">
+            </div>
+            <div class="formOption">
+                <label for="mcAuth">Authentication Method: </label>
+                <select id="mcAuth">
+                    <option value="offline">Offline (requires cracked server)</option>
+                    <option value="microsoft">Microsoft Account</option>
+                </select>
+            </div>
+            <div class="formOption">
+                <label for="mcBaseProfile">Base Profile: </label>
+                <select id="mcBaseProfile">
+                    <option value="./profiles/defaults/survival.json">Survival</option>
+                    <option value="./profiles/defaults/creative.json">Creative</option>
+                    <option value="./profiles/defaults/god_mode.json">God Mode</option>
+                </select>
+                <h5>The base profile is shared by all bots for default prompts/examples/modes</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcProfileList">Profiles: </label>
+                <div id="mcProfileList"></div>
+                <button onclick="addProfileItem(`mcProfileList`, `./andy.json`)" class="blue-btn add-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="10" y="2" width="4" height="20"/><rect x="2" y="10" width="20" height="4"/></g></svg>Add Item</button>
+            </div>
+            <div class="formOption">
+                <label for="mcLoadMemory">Load Memory?</label>
+                <input type="radio" name="mcLoadMemory" value="true">Yes</input>
+                <input type="radio" name="mcLoadMemory" value="false" checked>No</input>
+            </div>
+            <div class="formOption">
+                <label for="mcInitMessage">Initial Message</label>
+                <input id="mcInitMessage" type="text" placeholder="Respond with hello world and your name" style="min-width:40%;">
+                <h5>This message gets sent to all bots on spawn.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcOnlyChatWith">Only chat with: (leave empty to chat publicly)</label>
+                <div id="mcOnlyChatWith"></div>
+                <button onclick="addProfileItem(`mcOnlyChatWith`, `Bob123`)" class="blue-btn add-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="10" y="2" width="4" height="20"/><rect x="2" y="10" width="20" height="4"/></g></svg>Add Item</button>
+                <h5>Users that the bots listen to and send general messages to. If empty, it will chat publicly.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcSpeak">Speak?</label>
+                <input type="radio" name="mcSpeak" value="true">Yes</input>
+                <input type="radio" name="mcSpeak" value="false" checked>No</input>
+                <h5>Allows all bots to speak through system text-to-speech.<br>This works on Windows and Mac, but on Linux you may need to run <code>sudo apt install espeak</code> first.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcLanguage">Language: </label>
+                <input id="mcLanguage" type="text" placeholder="en">
+                <h5>Translates chat into specified language. <a href="https://cloud.google.com/translate/docs/languages">Supported languages</a></h5>
+            </div>
+            <div class="formOption">
+                <label for="mcShowBotViews">Show bot views in browser?</label>
+                <input type="radio" name="mcShowBotViews" value="true">Yes</input>
+                <input type="radio" name="mcShowBotViews" value="false" checked>No</input>
+                <h5>Only supports 1.20.4 and previous versions.<br>These can be accessed at http://localhost:3000, 3001, 3002, etc. depending on which bot you want to view.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcAllowInsecureCoding">Allow Insecure Coding?</label>
+                <input type="radio" name="mcAllowInsecureCoding" value="true">Yes</input>
+                <input type="radio" name="mcAllowInsecureCoding" value="false" checked>No</input>
+                <h5>Allows newAction command and model can write/run code on your computer. Enable at your own risk (it's fine if nobody <b>untrustworthy</b> is playing with your bot).</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcAllowVision">Allow Vision?</label>
+                <input type="radio" name="mcAllowVision" value="true">Yes</input>
+                <input type="radio" name="mcAllowVision" value="false" checked>No</input>
+                <h5>Allows the vision model to interpret screenshots as inputs. Requires version 1.20.4 or less.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcBlockedActions">Blocked Actions: </label>
+                <div id="mcBlockedActions"></div>
+                <button onclick="addProfileItem(`mcBlockedActions`, `!setMode`)" class="blue-btn add-btn"><svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="10" y="2" width="4" height="20"/><rect x="2" y="10" width="20" height="4"/></g></svg>Add Item</button>
+                <h5>Commands to disable and remove from the docs.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcMessageHistory">Maxmimum Message History Length: </label>
+                <input id="mcMessageHistory" type="number" placeholder="15">
+                <h5>Maximum number of previous messages to keep in context. Increasing it may produce longer response times and higher cost if using a paid API, but with the benefit of increasing memory.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcVerboseCommands">Verbose Commands?</label>
+                <input type="radio" name="mcVerboseCommands" value="true" checked>Yes</input>
+                <input type="radio" name="mcVerboseCommands" value="false">No</input>
+                <h5>Show full command syntax.</h5>
+            </div>
+            <div class="formOption">
+                <label for="mcNarrateBehavior">Narrate Behavior?</label>
+                <input type="radio" name="mcNarrateBehavior" value="true" checked>Yes</input>
+                <input type="radio" name="mcNarrateBehavior" value="false">No</input>
+                <h5>Chat simple, automatic actions for example <code>Picking up item!</code></h5>
+            </div>
+            <div class="formOption">
+                <label for="mcChatBotMessages">Chat to other bots?</label>
+                <input type="radio" name="mcChatBotMessages" value="true" checked>Yes</input>
+                <input type="radio" name="mcChatBotMessages" value="false">No</input>
+                <h5>Publicly chat messages to other bots.</h5>
+            </div>
+            <div class="formOption" style="display:flex;">
+                <button class="green-btn add-btn" onclick="saveSettings()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16"><path d="M11 2H9v3h2z"/><path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/></svg>Save</button>
+                <button class="red-btn add-btn" onclick="getSettings()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path fill="white" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>Reset</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const socket = io();
@@ -78,17 +145,17 @@
                         </span>
                         <div>
                             ${agent.in_game ? `
-                                <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
-                                <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
-								<input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
+                                <button class="red-btn" onclick="stopAgent('${agent.name}')">Stop</button>
+                                <button class="green-btn" onclick="restartAgent('${agent.name}')">Restart</button>
+                                <input type="text" id="messageInput" placeholder="Enter a message or command..."></input><button class="blue-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput').value)">Send</button>
                             ` : `
-                                <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
+                                <button class="blue-btn" onclick="startAgent('${agent.name}')">Start</button>
                             `}
                         </div>
                     </div>
                 `).join('') + 
-                `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
-                <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
+                `<button class="red-btn" onclick="killAllAgents()">Stop All</button>
+                <button class="red-btn" onclick="shutdown()">Shutdown</button>` :
                 '<div class="agent">No agents connected</div>';
         });
 
@@ -111,10 +178,208 @@
         function shutdown() {
             socket.emit('shutdown');
         }
-		
-		function sendMessage(agentName, message) {
-			socket.emit('send-message', agentName, message)
-		}
+        
+        function sendMessage(agentName, message) {
+            socket.emit('send-message', agentName, message)
+        }
+
+        let pathProfiles;
+        function getProfilesFromPath() {
+            socket.emit('get-profile-dir', (response) => {
+                pathProfiles = response;
+            })
+        }
+
+        function toggleSettings() {
+            document.getElementById("settingsContainer").style.display = document.getElementById("settingsContainer").style.display === "none" ? "block" : "none";
+            document.getElementById("settingsToggler").innerText = document.getElementById("settingsToggler").innerText === "Show Settings" ? "Hide Settings" : "Show Settings";
+            if (document.getElementById("settingsContainer").style.display = "block") {
+                getSettings();
+            }
+        }
+
+        let settings;
+        function getSettings() {
+            socket.emit('get-settings', (response) => {
+                settings = response;
+                console.log(settings);
+                updateSettings(settings);
+            })
+        }
+
+        function saveSettings() {
+            const newSettings = getNewSettings();
+            socket.emit('update-settings', newSettings);
+        }
+
+        function updateListItem(listId, listContent, enabled = true, clear = true) {
+            if (clear) {
+                document.getElementById(listId).innerHTML = "";
+                listContent.forEach(element => {
+                    addProfileItem(listId, element, enabled);
+                });
+            } else {
+                const list = document.getElementById(listId);
+                const existingItemsDivs = document.querySelectorAll(`#${listId} .list-item`);
+                let existingItems = Array.from(existingItemsDivs)
+                    .map(item => item.querySelector('input[type="text"]').value);
+                listContent.forEach(element => {
+                    if (existingItems.includes(element)) {
+                        const item = Array.from(list.querySelectorAll('.list-item'))
+                            .find(item => item.querySelector('input[type="text"]').value === element);
+                        if (item) {
+                            const checkbox = item.querySelector('input[type="checkbox"]');
+                            console.log(`Setting this to ${enabled}: `, checkbox);
+                            console.log("Checkbox in DOM?", document.body.contains(checkbox));
+                            console.log("Before: ", checkbox.checked);
+                            checkbox.checked = enabled;
+                            console.log("After: ", checkbox.checked);
+                            const itemName = item.querySelector('.name');
+                            if (checkbox.checked) {
+                                itemName.classList.remove('not-selected');
+                            } else {
+                                itemName.classList.add('not-selected');
+                            }
+                        } else {
+                            addProfileItem(listId, element, enabled);
+                        }
+                    } else {
+                        addProfileItem(listId, element, enabled);
+                    }
+                })
+            }
+        }
+
+        function updateBooleanRadio(radioName, value) {
+            const trueRadio = document.querySelector(`input[name="${radioName}"][value="true"]`);
+            const falseRadio = document.querySelector(`input[name="${radioName}"][value="false"]`);
+            trueRadio.checked = value;
+            falseRadio.checked = !value;
+        }
+
+        function getBooleanRadio(radioName) {
+            return document.querySelector(`input[name="${radioName}"][value="true"]`).checked;
+        }
+
+        function updateSettings(settings) {
+            // string/integer fields
+            document.getElementById("mcVersion").value = settings["minecraft_version"];
+            document.getElementById("mcHostSelector").value = settings["host"];
+            document.getElementById("mcPort").value = settings["port"];
+            document.getElementById("mcAuth").value = settings["auth"];
+            document.getElementById("mcBaseProfile").value = settings["base_profile"];
+            document.getElementById("mcInitMessage").value = settings["init_message"];
+            document.getElementById("mcLanguage").value = settings["language"];
+            document.getElementById("mcMessageHistory").value = settings["max_messages"];
+
+            // boolean fields
+            updateBooleanRadio("mcLoadMemory", settings["load_memory"]);
+            updateBooleanRadio("mcSpeak", settings["speak"]);
+            updateBooleanRadio("mcShowBotViews", settings["show_bot_views"]);
+            updateBooleanRadio("mcAllowInsecureCoding", settings["allow_insecure_coding"]);
+            updateBooleanRadio("mcAllowVision", settings["allow_vision"]);
+            updateBooleanRadio("mcVerboseCommands", settings["verbose_commands"]);
+            updateBooleanRadio("mcNarrateBehavior", settings["narrate_behavior"]);
+            updateBooleanRadio("mcChatBotMessages", settings["chat_bot_messages"]);
+
+            // array/list fields
+            updateListItem("mcBlockedActions", settings["blocked_actions"]);
+            updateListItem("mcOnlyChatWith", settings["only_chat_with"]);
+
+            // handling profiles is special
+            updateListItem("mcProfileList", settings["profiles"]);
+            pathProfiles = undefined;
+            getProfilesFromPath();
+            const intervalId = setInterval(() => {
+                if (pathProfiles !== undefined) {
+                    clearInterval(intervalId);
+                    updateListItem("mcProfileList", pathProfiles, enabled=false);
+                    updateListItem("mcProfileList", settings["profiles"], enabled=true, clear = false);
+                }
+            }, 50);
+        }
+
+        function getNewSettings() {
+            let settings = {};
+
+            // string/integer fields
+            settings["minecraft_version"] = document.getElementById("mcVersion").value;
+            settings["host"] = document.getElementById("mcHostSelector").value;
+            settings["port"] = parseInt(document.getElementById("mcPort").value, 10); // Convert to integer using base 10
+            settings["auth"] = document.getElementById("mcAuth").value;
+            settings["base_profile"] = document.getElementById("mcBaseProfile").value;
+            settings["init_message"] = document.getElementById("mcInitMessage").value;
+            settings["language"] = document.getElementById("mcLanguage").value;
+            settings["max_messages"] = parseInt(document.getElementById("mcMessageHistory").value, 10); // Convert to integer using base 10
+
+            // boolean fields
+            settings["load_memory"] = getBooleanRadio("mcLoadMemory");
+            settings["speak"] = getBooleanRadio("mcSpeak");
+            settings["show_bot_views"] = getBooleanRadio("mcShowBotViews");
+            settings["allow_insecure_coding"] = getBooleanRadio("mcAllowInsecureCoding");
+            settings["allow_vision"] = getBooleanRadio("mcAllowVision");
+            settings["verbose_commands"] = getBooleanRadio("mcVerboseCommands");
+            settings["narrate_behavior"] = getBooleanRadio("mcNarrateBehavior");
+            settings["chat_bot_messages"] = getBooleanRadio("mcChatBotMessages");
+
+            // array/list fields
+            settings["profiles"] = getItemNames("mcProfileList");
+            settings["blocked_actions"] = getItemNames("mcBlockedActions");
+            settings["only_chat_with"] = getItemNames("mcOnlyChatWith");
+
+            return settings;
+        }
+        
+        function addProfileItem(listName, itemNameArg, enabled) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'list-item';
+
+            const itemName = document.createElement('input');
+            itemName.type = 'text';
+            itemName.className = 'name';
+            itemName.value = itemNameArg;
+
+            const itemCheckbox = document.createElement('input');
+            itemCheckbox.type = 'checkbox';
+            itemCheckbox.checked = enabled;
+            if (itemCheckbox.checked) {
+                itemName.classList.remove('not-selected');
+            } else {
+                itemName.classList.add('not-selected');
+            }
+            itemCheckbox.onchange = function() {
+                if (itemCheckbox.checked) {
+                    itemName.classList.remove('not-selected');
+                } else {
+                    itemName.classList.add('not-selected');
+                }
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = `<svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="white"><rect x="30" y="35" width="40" height="50" rx="5"></rect><rect x="25" y="30" width="50" height="5"></rect><rect x="40" y="20" width="20" height="10"></rect><line x1="40" y1="40" x2="40" y2="75" stroke="red" stroke-width="4"></line><line x1="50" y1="40" x2="50" y2="75" stroke="red" stroke-width="4"></line><line x1="60" y1="40" x2="60" y2="75" stroke="red" stroke-width="4"></line></g></svg>Delete`;
+            deleteButton.style.display = "flex";
+            deleteButton.style.flexDirection = "row";
+            deleteButton.style.alignItems = "center";
+            deleteButton.style.padding = "3px 10px";
+            deleteButton.className = 'red-btn';
+            deleteButton.onclick = function() {
+                itemDiv.remove();
+            };
+
+            itemDiv.appendChild(itemCheckbox);
+            itemDiv.appendChild(itemName);
+            itemDiv.appendChild(deleteButton);
+
+            document.getElementById(listName).appendChild(itemDiv);
+        }
+
+        function getItemNames(listName) {
+            const items = document.querySelectorAll(`#${listName} .list-item`);
+            const names = Array.from(items)
+                .filter(item => item.querySelector('input[type="checkbox"]').checked)
+                .map(item => item.querySelector('input[type="text"]').value);
+            return names;
+        }
     </script>
 </body>
-</html> 
+</html>

@@ -1,0 +1,139 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.container {
+    background: #2d2d2d;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin:20px;
+}
+
+.miniContainer {
+    background: linear-gradient(to bottom, #414141, #3f3f3f);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin: 10px;
+}
+
+.formOption {
+    background: #2d2d2d4f;
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius:4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin:10px;
+}
+
+input[type="text"], input[type="number"], select {
+    background: #cfcfcf;
+    color: #000;
+    border-radius: 4px;
+    padding:5px;
+    border: none;
+}
+
+h1 {
+    color: #ffffff;
+}
+
+h5 {
+    margin-bottom:0;
+}
+
+code {
+    background:#aaaaaa;
+    border-radius:4px;
+    padding:4px;
+    color:#000;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.list-item input[type="text"] {
+    margin-right: 10px;
+}
+
+.list-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.list-item .name.not-selected {
+    text-decoration: line-through;
+    color: #929292
+}
+
+.agent {
+    margin: 10px 0;
+    padding: 10px;
+    background: #363636;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: all 0.3s ease;
+    background: #5c5c5c
+}
+
+button:hover {
+    background: #444;
+}
+
+.add-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 3px 10px;
+    justify-content: space-between;
+}
+
+.add-btn svg {
+    margin-right: 5px;
+}
+
+.green-btn {
+    background: #4CAF50;
+}
+
+.blue-btn {
+    background: #2196F3;
+}
+
+.red-btn {
+    background: #f44336;
+}
+
+.green-btn:hover { background: #45a049; }
+.blue-btn:hover { background: #1976D2; }
+.red-btn:hover { background: #d32f2f; }
+
+.status-icon {
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.status-icon.online {
+    color: #4CAF50;
+}
+
+.status-icon.offline {
+    color: #f44336;
+}

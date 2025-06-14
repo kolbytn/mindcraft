@@ -3,6 +3,8 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import settings, { updateSettings } from '../../settings.js';
+import fs from 'fs';
 
 // Module-level variables
 let io;
@@ -128,6 +130,27 @@ export function createMindServer(port = 8080) {
 				console.error('Error: ', error);
 			}
 		});
+
+        socket.on('get-settings', (callback) => {
+            callback(settings);
+        });
+
+        socket.on('update-settings', (newSettings) => {
+            updateSettings(newSettings);
+        });
+
+        socket.on('get-profile-dir', (callback) => {
+            const profileDir = path.join(__dirname, '../../profiles/');
+            fs.readdir(profileDir, (err, files) => {
+                if (err) {
+                    console.error("Could not list the profiles.", err);
+                    callback([]);
+                }
+
+                const fileNames = files.filter(file => file.endsWith('.json')).map(file => './profiles/' + file);
+                callback(fileNames);
+            });
+        });
     });
 
     server.listen(port, 'localhost', () => {
