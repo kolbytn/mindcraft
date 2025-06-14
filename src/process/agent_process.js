@@ -1,23 +1,24 @@
 import { spawn } from 'child_process';
-import { mainProxy } from './main_proxy.js';
+import { logoutAgent } from '../mindcraft/mindserver.js';
 
 export class AgentProcess {
-    start(profile, load_memory=false, init_message=null, count_id=0, task_path=null, task_id=null) {
-        this.profile = profile;
+    constructor(name, port) {
+        this.name = name;
+        this.port = port;
+    }
+
+    start(load_memory=false, init_message=null, count_id=0) {
         this.count_id = count_id;
         this.running = true;
 
         let args = ['src/process/init_agent.js', this.name];
-        args.push('-p', profile);
+        args.push('-n', this.name);
         args.push('-c', count_id);
         if (load_memory)
             args.push('-l', load_memory);
         if (init_message)
             args.push('-m', init_message);
-        if (task_path)
-            args.push('-t', task_path);
-        if (task_id)
-            args.push('-i', task_id);
+        args.push('-p', this.port);
 
         const agentProcess = spawn('node', args, {
             stdio: 'inherit',
@@ -28,7 +29,7 @@ export class AgentProcess {
         agentProcess.on('exit', (code, signal) => {
             console.log(`Agent process exited with code ${code} and signal ${signal}`);
             this.running = false;
-            mainProxy.logoutAgent(this.name);
+            logoutAgent(this.name);
             
             if (code > 1) {
                 console.log(`Ending task`);
@@ -38,11 +39,11 @@ export class AgentProcess {
             if (code !== 0 && signal !== 'SIGINT') {
                 // agent must run for at least 10 seconds before restarting
                 if (Date.now() - last_restart < 10000) {
-                    console.error(`Agent process ${profile} exited too quickly and will not be restarted.`);
+                    console.error(`Agent process exited too quickly and will not be restarted.`);
                     return;
                 }
                 console.log('Restarting agent...');
-                this.start(profile, true, 'Agent process restarted.', count_id, task_path, task_id);
+                this.start(true, 'Agent process restarted.', count_id, this.port);
                 last_restart = Date.now();
             }
         });
@@ -61,7 +62,7 @@ export class AgentProcess {
 
     continue() {
         if (!this.running) {
-            this.start(this.profile, true, 'Agent process restarted.', this.count_id);
+            this.start(true, 'Agent process restarted.', this.count_id);
         }
     }
 }

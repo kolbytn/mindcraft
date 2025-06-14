@@ -1,5 +1,5 @@
 import minecraftData from 'minecraft-data';
-import settings from '../../settings.js';
+import settings from '../agent/settings.js';
 import { createBot } from 'mineflayer';
 import prismarine_items from 'prismarine-item';
 import { pathfinder } from 'mineflayer-pathfinder';
@@ -8,10 +8,9 @@ import { plugin as collectblock } from 'mineflayer-collectblock';
 import { plugin as autoEat } from 'mineflayer-auto-eat';
 import plugin from 'mineflayer-armor-manager';
 const armorManager = plugin;
-
-const mc_version = settings.minecraft_version;
-const mcdata = minecraftData(mc_version);
-const Item = prismarine_items(mc_version);
+let mc_version = null;
+let mcdata = null;
+let Item = null;
 
 /**
  * @typedef {string} ItemName
@@ -54,6 +53,9 @@ export const WOOL_COLORS = [
 
 
 export function initBot(username) {
+    mc_version = settings.minecraft_version;
+    mcdata = minecraftData(mc_version);
+    Item = prismarine_items(mc_version);
     let bot = createBot({
         username: username,
 

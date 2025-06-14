@@ -4,7 +4,7 @@ import { getCommandDocs } from '../agent/commands/index.js';
 import { SkillLibrary } from "../agent/library/skill_library.js";
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
-import settings from '../../settings.js';
+import settings from '../agent/settings.js';
 
 import { Gemini } from './gemini.js';
 import { GPT } from './gpt.js';
@@ -30,11 +30,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export class Prompter {
-    constructor(agent, fp) {
+    constructor(agent, profile) {
         this.agent = agent;
-        this.profile = JSON.parse(readFileSync(fp, 'utf8'));
+        this.profile = profile;
         let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
-        let base_fp = settings.base_profile;
+        let base_fp = '';
+        if (settings.base_profile.includes('survival')) {
+            base_fp = './profiles/defaults/survival.json';
+        } else if (settings.base_profile.includes('creative')) {
+            base_fp = './profiles/defaults/creative.json';
+        } else if (settings.base_profile.includes('god_mode')) {
+            base_fp = './profiles/defaults/god_mode.json';
+        }
         let base_profile = JSON.parse(readFileSync(base_fp, 'utf8'));
 
         // first use defaults to fill in missing values in the base profile
