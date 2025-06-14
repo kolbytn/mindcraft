@@ -64,6 +64,8 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `glhf.chat` | `GHLF_API_KEY` | `glhf/hf:meta-llama/Llama-3.1-405B-Instruct` | [docs](https://glhf.chat/user-settings/api) |
 | `hyperbolic` | `HYPERBOLIC_API_KEY` | `hyperbolic/deepseek-ai/DeepSeek-V3` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
 | `vllm` | n/a | `vllm/llama3` | n/a |
+| `together` | `TOGETHER_API_KEY` | `together/meta-llama/Llama-3.3-70B-Instruct-Turbo` | [docs](https://docs.together.ai/docs/serverless-models) |
+| `lmstudio` | n/a | `lmstudio/qwen3-8b` | [docs](https://lmstudio.ai/models) |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
 `ollama pull llama3.1 && ollama pull nomic-embed-text`

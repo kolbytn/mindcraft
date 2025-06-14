@@ -22,6 +22,8 @@ import { Hyperbolic } from './hyperbolic.js';
 import { GLHF } from './glhf.js';
 import { OpenRouter } from './openrouter.js';
 import { VLLM } from './vllm.js';
+import { LMStudio } from './lmstudio.js';
+import { Together } from './together.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -110,6 +112,10 @@ export class Prompter {
                 this.embedding_model = new HuggingFace(embedding.model, embedding.url);
             else if (embedding.api === 'novita')
                 this.embedding_model = new Novita(embedding.model, embedding.url);
+            else if (embedding.api === 'lmstudio')
+                this.embedding_model = new LMStudio(embedding.model, embedding.url);
+            else if (embedding.api === 'together')
+                this.embedding_model = new Together(embedding.model, embedding.url);
             else {
                 this.embedding_model = null;
                 let embedding_name = embedding ? embedding.api : '[NOT SPECIFIED]'
@@ -140,6 +146,10 @@ export class Prompter {
                 profile.api = 'openrouter'; // must do first because shares names with other models
             else if (profile.model.includes('ollama/'))
                 profile.api = 'ollama'; // also must do early because shares names with other models
+            else if (profile.model.includes('lmstudio/'))
+                profile.api = 'lmstudio'; // also
+            else if (profile.model.includes('together/'))
+                profile.api = 'together'; // also
             else if (profile.model.includes('gemini'))
                 profile.api = 'google';
             else if (profile.model.includes('vllm/'))
@@ -209,6 +219,10 @@ export class Prompter {
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
         else if (profile.api === 'vllm')
             model = new VLLM(profile.model.replace('vllm/', ''), profile.url, profile.params);
+        else if (profile.api === 'lmstudio')
+            model = new LMStudio(profile.model.replace('lmstudio/', ''), profile.url, profile.params);
+        else if (profile.api === 'together')
+            model = new Together(profile.model.replace('together/', ''), profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;
