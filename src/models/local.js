@@ -1,4 +1,4 @@
-import { strictFormat } from '../utils/text.js';
+import { toSinglePrompt, strictFormat } from '../utils/text.js';
 
 export class Local {
     constructor(model_name, url, params) {
@@ -6,7 +6,8 @@ export class Local {
         this.params = params;
         this.url = url || 'http://127.0.0.1:11434';
         this.chat_endpoint = '/api/chat';
-        this.embedding_endpoint = '/api/embeddings';
+        this.embedding_endpoint = '/api/embed';
+        this.vision_endpoint = 'api/generate';
     }
 
     async sendRequest(turns, systemMessage) {
@@ -78,11 +79,66 @@ export class Local {
         return finalRes;
     }
 
+    async sendVisionRequest(turns, imagePrompt, imageBuffer) {
+        const model = this.model_name || 'llava'; // Default to llava for vision tasks
+        const stop_seq = '***';
+        // Get last 4 non-system messages
+        const recentNonSystemMessages = turns
+            .filter(msg => msg.role !== 'system')
+            .slice(-4); // Take last 3 items
+        const prompt = toSinglePrompt(recentNonSystemMessages, imagePrompt, stop_seq, model);
+
+        // Retry logic for handling errors
+        const maxAttempts = 5;
+        let attempt = 0;
+        let res = null;
+
+        while (attempt < maxAttempts) {
+            attempt++;
+            console.log(`Awaiting vision response... (model: ${model}, attempt: ${attempt})`);
+
+            try {
+                res = await this.send(this.vision_endpoint, {
+                    model: model,
+                    prompt: prompt,
+                    images: [imageBuffer.toString('base64')], // Base64-encoded image
+                    stream: false
+                });
+
+                if (res) {
+                    const response = await res.response;
+                    res = response;
+                    break; // Exit loop if we got a valid response
+                } else {
+                    res = 'No response data.';
+                }
+            } catch (err) {
+                if (err.message.toLowerCase().includes('context length')) {
+                    console.log('Context length exceeded');
+                    // You might want to shorten the prompt here
+                    imagePrompt = imagePrompt.substring(0, Math.floor(imagePrompt.length * 0.3));
+                    console.log('Shortened prompt and retrying...');
+                } else {
+                    console.log('Vision request error:', err);
+                    res = 'My vision is blurry, try again.';
+                    continue;
+                }
+            }
+        }
+
+        if (!res) {
+            console.warn("Could not get a valid response after max attempts.");
+            res = 'I looked too hard, sorry, try again.';
+        }
+
+        return res;
+    }
+
     async embed(text) {
         let model = this.model_name || 'nomic-embed-text';
         let body = { model: model, input: text };
         let res = await this.send(this.embedding_endpoint, body);
-        return res['embedding'];
+        return res['embeddings'];
     }
 
     async send(endpoint, body) {
