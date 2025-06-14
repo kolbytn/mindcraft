@@ -1,6 +1,5 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
-import settings from '../../settings.js';
-import { makeCompartment } from './library/lockdown.js';
+import { makeCompartment, lockdown } from './library/lockdown.js';
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import { Vec3 } from 'vec3';
@@ -27,6 +26,7 @@ export class Coder {
 
     async generateCode(agent_history) {
         this.agent.bot.modes.pause('unstuck');
+        lockdown();
         // this message history is transient and only maintained in this function
         let messages = agent_history.getHistory(); 
         messages.push({role: 'system', content: 'Code generation started. Write code in codeblock in your response:'});
