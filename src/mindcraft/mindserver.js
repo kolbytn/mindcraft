@@ -132,7 +132,15 @@ export function createMindServer(host_public = false, port = 8080) {
 
         socket.on('shutdown', () => {
             console.log('Shutting down');
-            process.exit(0);
+            for (let agentName in agent_connections) {
+                mindcraft.stopAgent(agentName);
+            }
+            // wait 2 seconds
+            setTimeout(() => {
+                console.log('Exiting MindServer');
+                process.exit(0);
+            }, 2000);
+            
         });
 
 		socket.on('send-message', (agentName, message) => {
