@@ -64,9 +64,43 @@
     <h1>Mindcraft</h1>
     <div id="agents"></div>
 
+    <div style="margin-top: 20px;">
+        <button id="createAgentBtn" class="start-btn">Create Agent</button>
+        <input type="file" id="agentConfigFile" accept=".json,application/json" style="display: none">
+    </div>
+
     <script>
         const socket = io();
         const agentsDiv = document.getElementById('agents');
+
+        document.getElementById('createAgentBtn').addEventListener('click', () => {
+            document.getElementById('agentConfigFile').click();
+        });
+
+        document.getElementById('agentConfigFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const profile = JSON.parse(e.target.result);
+                    socket.emit('create-agent', {profile}, (response) => {
+                        if (response.success) {
+                            alert('Agent created successfully!');
+                        } else {
+                            alert(`Error creating agent: ${response.error}`);
+                        }
+                    });
+                } catch (error) {
+                    alert('Error parsing JSON file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            // Reset file input to allow re-uploading the same file
+            event.target.value = '';
+        });
 
         socket.on('agents-update', (agents) => {
             agentsDiv.innerHTML = agents.length ? 

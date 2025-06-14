@@ -1,7 +1,6 @@
 import { readFileSync , writeFileSync, existsSync} from 'fs';
 import { executeCommand } from '../commands/index.js';
 import { getPosition } from '../library/world.js';
-import settings from '../../../settings.js';
 import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
 import { CookingTaskInitiator } from './cooking_tasks.js';
 
@@ -233,27 +232,26 @@ class CookingCraftingTaskValidator {
 }
 
 export class Task {
-    constructor(agent, task_path, task_id, taskStartTime = null) {
+    constructor(agent, task_data, taskStartTime = null) {
         this.agent = agent;
         this.data = null;
         if (taskStartTime !== null)
             this.taskStartTime = taskStartTime;
         else
             this.taskStartTime = Date.now();
-        console.log("Task start time set to", this.taskStartTime);
         this.validator = null;
         this.reset_function = null;
         this.blocked_actions = [];
-        this.task_id = task_id;
-
-        if (task_path && task_id) {
-            console.log('Starting task', task_id);
-            if (task_id.endsWith('hells_kitchen')) {
+        this.task_data = task_data;
+        if (task_data) {
+            console.log('Starting task', task_data.task_id);
+            console.log("Task start time set to", this.taskStartTime);
+            if (task_data.task_id.endsWith('hells_kitchen')) {
                 // Reset hells_kitchen progress when a new task starts
-                hellsKitchenProgressManager.resetTask(task_id);
+                hellsKitchenProgressManager.resetTask(task_data.task_id);
                 console.log('Reset Hells Kitchen progress for new task');
             }
-            this.data = this.loadTask(task_path, task_id);
+            this.data = task_data;
             this.task_type = this.data.type;
             if (this.task_type === 'construction' && this.data.blueprint) {
                 this.blueprint = new Blueprint(this.data.blueprint);
@@ -300,7 +298,11 @@ export class Task {
         }
 
         this.name = this.agent.name;
-        this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+        this.available_agents = []
+    }
+
+    updateAvailableAgents(agents) {
+        this.available_agents = agents
     }
 
     // Add this method if you want to manually reset the hells_kitchen progress
@@ -358,28 +360,6 @@ export class Task {
         }
 
         return null;
-    }
-
-    loadTask(task_path, task_id) {
-        try {
-            const tasksFile = readFileSync(task_path, 'utf8');
-            const tasks = JSON.parse(tasksFile);
-            let task = tasks[task_id];
-            task['task_id'] = task_id;
-            console.log(task);
-            console.log(this.agent.count_id);
-            if (!task) {
-                throw new Error(`Task ${task_id} not found`);
-            }
-            // if ((!task.agent_count || task.agent_count <= 1) && this.agent.count_id > 0) {
-            //     task = null;
-            // }
-
-            return task;
-        } catch (error) {
-            console.error('Error loading task:', error);
-            process.exit(1);
-        }
     }
 
     isDone() {

@@ -1,7 +1,7 @@
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
-import settings from '../../settings.js'
+import settings from './settings.js'
 import convoManager from './conversation.js';
 
 async function say(agent, message) {
