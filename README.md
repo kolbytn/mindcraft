@@ -40,6 +40,45 @@ Tasks are defined in json files in the `tasks` folder, and can be run with: `pyt
 
 For full evaluations, you will need to [download and install the task suite. Full instructions.](minecollab.md#installation)
 
+## Enhanced Task Evaluation
+
+The evaluation system has been significantly improved to provide more detailed and robust analysis of task performance.
+
+### Key Improvements
+- **Granular Outcome Reporting**: Get detailed success/failure reasons for each task.
+- **Automated Analysis**: A new analysis script provides comprehensive reports on success rates, completion status, and more.
+- **Parallel Execution**: Run large-scale evaluations much faster.
+
+### Documentation
+
+For detailed information on how to use the new system, please refer to the following guides:
+
+*   **[User Guide](docs/USER_GUIDE.md)**: Learn how to run evaluations and analyze results.
+*   **[Developer Guide](docs/DEVELOPER_GUIDE.md)**: Get technical details on the architecture, API, and data structures.
+
+The main scripts for the new evaluation system are:
+- [`tasks/evaluation_script.py`](tasks/evaluation_script.py:1): For running evaluation experiments.
+- [`tasks/analyse_results.py`](tasks/analyse_results.py:1): For analyzing the results of experiments.
+
+### Features
+
+*   **Comprehensive Analysis**: Get detailed reports on success rates, completion status, and task metrics.
+*   **Parallel Execution**: Run large-scale evaluations in parallel to save time.
+*   **S3 Integration**: Automatically download experiment results from AWS S3.
+*   **Rich Data Output**: Generates detailed CSV and JSON reports for in-depth analysis.
+*   **Extensible**: Easily add new metrics and analysis scripts.
+
+### Quickstart
+
+1.  **Run an experiment**:
+    ```bash
+    python tasks/evaluation_script.py --task_path tasks/example_tasks.json --exp_name my_first_eval
+    ```
+2.  **Analyze the results**:
+    ```bash
+    python tasks/analyse_results.py --local_dir experiments/my_first_eval --task_file_path tasks/example_tasks.json
+    ```
+
 ## Model Customization
 
 You can configure project details in `settings.js`. [See file.](settings.js)
