@@ -55,7 +55,7 @@ export class GroqCloudAPI {
                 ...(this.params || {})
             });
 
-            res = completion.choices[0].message;
+            res = completion.choices[0].message.content;
 
             res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
         }
