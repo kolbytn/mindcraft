@@ -29,3 +29,7 @@ server_data*
 **/.DS_Store
 .venv/
 tasks/__pycache__/
+
+# npm cache
+.npm-cache/
+.npm/
