@@ -39,7 +39,7 @@ graph TD
     end
 
     A -- "Calls" --> E
-    B -- "Calls" --> E
+    B -- "Calls" --> F
     C -- "Calls" --> E
 
     E -- "Iterates over agent logs, calls" --> D
@@ -155,7 +155,7 @@ def aggregate_results_to_dataframe(task_outcomes: List[Dict[str, Any]]) -> pd.Da
     *   After the loop, it will call `evaluation.aggregate_results_to_dataframe()` to get the final DataFrame.
     *   All analysis (e.g., calculating overall success rate) will be done using the resulting DataFrame.
 3.  **Refactor `tasks/analyse_results.py`:**
-    *   This script will follow the same refactoring pattern as `evaluation_script.py`.
+    *   It calls the `aggregate_results` function which is an enhanced version of `aggregate_results` from `evaluation.py` that adds model name extraction.
     *   The complex, name-based categorization (`is_base`, `base_without_plan`) will be entirely replaced by simple Pandas `groupby()` operations on the DataFrame's columns (e.g., `df.groupby('task_type').success_rate.mean()`).
 4.  **Refactor `tasks/analyze_cooking_tasks.py`:**
     *   This script will also be refactored to use the new `evaluation` module.

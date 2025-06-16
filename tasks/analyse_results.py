@@ -13,9 +13,7 @@ import concurrent.futures
 # Set up basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-from tasks.evaluation import (
-    aggregate_results,
-)
+from tasks.evaluation import aggregate_results as original_aggregate_results
 
 # --- Constants and Setup ---
 # Calculate project root directory to allow for absolute path resolution
@@ -115,7 +113,7 @@ def analyze_results_with_model_extraction(local_folders: List[str], task_definit
         pd.DataFrame: A DataFrame containing the detailed evaluation results with model names.
     """
     # Use the centralized function with progress bar enabled
-    results_df = aggregate_results(local_folders, task_definitions, use_tqdm=True)
+    results_df = original_aggregate_results(local_folders, task_definitions, use_tqdm=True)
     
     # Extract model names from folder paths if possible
     if not results_df.empty and 'task_id' in results_df.columns:
@@ -138,6 +136,11 @@ def analyze_results_with_model_extraction(local_folders: List[str], task_definit
         results_df['model_name'] = model_names
     
     return results_df
+
+
+# Re-export the enhanced function under the name `aggregate_results`
+aggregate_results = analyze_results_with_model_extraction
+
 
 def get_immediate_subdirectories(a_dir: str) -> List[str]:
     """
@@ -203,7 +206,7 @@ def main() -> None:
         return
 
     # --- Step 3: Aggregate Results into a DataFrame ---
-    results_df = analyze_results_with_model_extraction(folders_to_analyze, task_definitions)
+    results_df = aggregate_results(folders_to_analyze, task_definitions)
 
     if results_df.empty:
         logging.warning("Analysis generated no results. Exiting.")
