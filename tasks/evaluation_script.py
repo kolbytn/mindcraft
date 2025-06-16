@@ -7,13 +7,16 @@ from datetime import datetime
 import re
 import sys
 import os
-import time
-import filecmp
-import json
-import glob
-import socket
+import logging
+import pandas as pd
 
-import boto3
+# Set up basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+from tasks.evaluation import (
+    extract_task_outcome,
+    aggregate_results_to_dataframe,
+)
 
 BLOCKED_ACTIONS_COOKING = [
     '!activate', '!attackPlayer', '!checkBlueprint', '!checkBlueprintLevel',
@@ -39,164 +42,128 @@ BLOCKED_ACTIONS_CONSTRUCTION = [
     '!stop', '!takeFromChest', '!viewChest', '!craftRecipe', '!smeltItem'
 ]
 
-def analyze_json_file(file_path):
+
+from typing import List, Dict, Any, Tuple
+
+def aggregate_results(local_folders: List[str], task_definitions: Dict[str, Any]) -> pd.DataFrame:
     """
-    Analyzes a single JSON file to extract the task outcome.
+    Aggregates experiment results from local folders into a DataFrame.
+
+    This function iterates through a list of folders, each representing a single
+    task run. It uses the `extract_task_outcome` function to analyze the agent
+    logs within each folder and compiles the results into a structured DataFrame.
 
     Args:
-        file_path (str): Path to the JSON file.
+        local_folders (List[str]): A list of paths to the task run folders.
+        task_definitions (Dict[str, Any]): A dictionary of all task definitions,
+                                           keyed by task_id.
 
     Returns:
-        str or None: The task outcome string if found, otherwise None.
+        pd.DataFrame: A DataFrame containing the detailed evaluation results.
     """
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-            if "turns" in data:
-                for turn in data["turns"]:
-                    if turn.get("role") == "system" and "content" in turn:
-                        if isinstance(turn["content"], str) and "Task ended with score : " in turn["content"]:
-                            if "Task ended with score : 1" in turn["content"]:
-                                return 1
-                            elif "Task ended with score : 0" in turn["content"]:
-                                return 0
-                            else:
-                                score = float(turn["content"].split(":")[-1].strip())
-                                return score
-                            
-                            
-        return None
-    except FileNotFoundError:
-        print(f"Error: File not found: {file_path}")
-        return None
-    except json.JSONDecodeError:
-        print(f"Error: Invalid JSON format in: {file_path}")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred while processing {file_path}: {e}")
-        return None
-    
-def extract_result(folder_path):
-    folder_name = os.path.basename(folder_path)
-    json_files = glob.glob(os.path.join(folder_path, "*.json"))
-    # assert len(json_files) == 2, f"Expected 2 json files in {folder_name}, found {len(json_files)}"
-
-    if not json_files:
-        return None
-    else: 
-        score = None
-        curr_score = 0
-        for json_file in json_files:
-            score = analyze_json_file(json_file)
-            if score is not None:
-                max_score = max(score, curr_score)
-                curr_score = max_score
-
-        return curr_score
-    
-def aggregate_results(local_folders):
-    """
-    Aggregates the analysis results for each folder.
-
-    Args:
-        local_folders (list): List of local folder paths containing the JSON files.
-
-    Returns:
-        dict: A dictionary where keys are folder names and values are the aggregated outcomes.
-    """
-    aggregated_data = {}
-
-    total = 0
-    successful = 0
-    successful_tasks = []
-
-    task_type = local_folders[0].split("/")[-2]
-    if "cooking" in task_type:
-        task_type = "cooking"
-    elif "techtree" in task_type:
-        task_type = "techtree"
-    elif "construction" in task_type:
-        task_type = "construction"
-
+    task_outcomes = []
     for folder_path in local_folders:
-        folder_name = os.path.basename(folder_path)
+        # Extract the task_id from the folder name. This assumes the folder is named after the task_id.
+        task_id = os.path.basename(folder_path.strip(os.sep))
+        task_def = task_definitions.get(task_id)
 
-        try: 
-            result = extract_result(folder_path)
-            
-            if result == 1:
-                successful_tasks.append(folder_name)
-            if result is not None:
-                total += 1
-                successful += result
+        if not task_def:
+            logging.warning(f"No task definition found for task_id '{task_id}'. Skipping folder '{folder_path}'.")
+            continue
+        
+        # The task definition from the file might not have the task_id in it, so we add it.
+        if 'task_id' not in task_def:
+            task_def['task_id'] = task_id
+
+        try:
+            outcome = extract_task_outcome(folder_path, task_def)
+            task_outcomes.append(outcome)
         except Exception as e:
-            print(f"Error processing {folder_name}: {e}")
+            logging.error(f"Error processing folder {folder_path}: {e}")
 
-    successful_tasks.sort()
+    return aggregate_results_to_dataframe(task_outcomes)
 
-    if task_type == "construction":
-        successful = successful / total
-    
-    return {
-        "total": total,
-        "successful": successful,
-    }
 
-def check_folder_results(folder_path):
+def check_folder_results(folder_path: str, task_file_path: str) -> pd.DataFrame:
     """
-    Evaluate all JSON files in a folder and its subfolders and calculate success metrics.
-    
+    Evaluates all subfolders in a given directory and prints a summary.
+
+    This function serves as a high-level entry point for analyzing an experiment
+    folder. It finds all immediate subdirectories, loads task definitions,
+    aggregates results, and prints a summary of success rates and completion
+    statuses.
+
     Args:
-        folder_path (str): Path to the folder containing JSON log files.
-        
+        folder_path (str): The path to the main experiment folder containing subfolders
+                           for each task run.
+        task_file_path (str): The path to the JSON file containing task definitions.
+
     Returns:
-        dict: A dictionary with success metrics.
+        pd.DataFrame: A DataFrame with the full evaluation results, or None if a
+                      critical error occurs.
     """
-    print(f"Checking results in folder: {folder_path}")
+    logging.info(f"Checking results in folder: {folder_path}")
     
-    # Check if the folder exists
-    if not os.path.exists(folder_path):
-        print(f"Error: Folder not found: {folder_path}")
+    if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
+        logging.error(f"Folder not found or is not a directory: {folder_path}")
         return None
+
+    try:
+        with open(task_file_path, 'r') as f:
+            task_definitions = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.error(f"Error reading or parsing task definition file {task_file_path}: {e}")
+        return None
+
+    subfolders = [f.path for f in os.scandir(folder_path) if f.is_dir()]
+    if not subfolders:
+        logging.warning("No subfolders found to evaluate.")
+        return pd.DataFrame()
+
+    logging.info(f"Found {len(subfolders)} subfolders to evaluate.")
+    results_df = aggregate_results(subfolders, task_definitions)
+
+    if results_df.empty:
+        logging.warning("No results were generated.")
+        return results_df
+
+    # Calculate and print summary statistics from the DataFrame
+    total_tasks = len(results_df)
+    successful_tasks = results_df['overall_is_successful'].sum()
+    success_rate = (successful_tasks / total_tasks) if total_tasks > 0 else 0.0
     
-    # Find all subfolders (task IDs) in the given folder
-    if os.path.isdir(folder_path):
-        subfolders = [f for f in glob.glob(os.path.join(folder_path, "*")) if os.path.isdir(f)]
-        if subfolders:
-            # If there are subfolders, evaluate each subfolder
-            print(f"Found {len(subfolders)} subfolders to evaluate")
-            results = aggregate_results(subfolders)
-        else:
-            # If no subfolders, treat the folder itself as a results folder
-            print("No subfolders found, evaluating the folder itself")
-            results = aggregate_results([folder_path])
-            
-        # Calculate success rate
-        if results["total"] > 0:
-            results["success_rate"] = results["successful"] / results["total"]
-        else:
-            results["success_rate"] = 0.0
-            
-        # Print summary
-        print("\n=== Evaluation Results ===")
-        print("\nEvaluating Tasks!")
-        print(f"Results so far: {results['total']}")
+    logging.info("\n=== Evaluation Results Summary ===")
+    logging.info(f"Total tasks evaluated: {total_tasks}")
+    logging.info(f"Successful tasks: {successful_tasks}")
+    logging.info(f"Overall Success Rate: {success_rate:.2%}")
 
-        if "construction" not in folder_path:
-            print(f"Successful tasks: {results['successful']}")
+    # You can add more detailed analysis here, e.g., by task type
+    if 'task_type' in results_df.columns:
+        logging.info("\n--- Success Rate by Task Type ---")
+        type_success = results_df.groupby('task_type')['overall_is_successful'].mean().map("{:.2%}".format)
+        logging.info(type_success)
 
-        if "construction" not in folder_path:
-            print(f"Success rate: {results['success_rate']:.2f}")
-        else:
-            print(f"Success rate: {results['successful']:.2f}")
+    if 'overall_completion_status' in results_df.columns:
+        logging.info("\n--- Completion Status Distribution ---")
+        status_dist = results_df['overall_completion_status'].value_counts(normalize=True).map("{:.2%}".format)
+        logging.info(status_dist)
         
-        return results
-    else:
-        print(f"Error: {folder_path} is not a directory")
-        return None
+    return results_df
 
-def read_settings(file_path):
-    """Read and parse the settings.js file to get agent profiles."""
+def read_settings(file_path: str) -> List[str]:
+    """
+    Reads and parses a settings.js file to extract agent profile names.
+
+    This function is designed to handle the JavaScript export format by stripping
+    comments, trailing commas, and the 'export default' statement before parsing
+    it as JSON.
+
+    Args:
+        file_path (str): The path to the settings.js file.
+
+    Returns:
+        List[str]: A list of agent names extracted from the profiles.
+    """
     with open(file_path, 'r', encoding='utf-8') as file:
         content = file.read()
 
@@ -222,8 +189,14 @@ def read_settings(file_path):
     agent_names = [profile.split('/')[-1].split('.')[0] for profile in profiles]
     return agent_names 
 
-def update_keys_json():
-    """Update the keys.json file with the specified key-value pair."""
+def update_keys_json() -> None:
+    """
+    Updates the keys.json file with values from environment variables.
+
+    This function reads `keys.example.json`, iterates through its keys, and
+    replaces the values with corresponding environment variables if they exist.
+    The result is written to `keys.json`.
+    """
     with open("keys.example.json", 'r', encoding='utf-8') as file:
         content = file.read()
     data = json.loads(content)
@@ -237,27 +210,61 @@ def update_keys_json():
     with open("keys.json", 'w', encoding='utf-8') as file:
         json.dump(data, file, indent=4)
 
-def set_environment_variable_tmux_session(session_name, key, value):
-    """Set an environment variable for the current process."""
+def set_environment_variable_tmux_session(session_name: str, key: str, value: Any) -> None:
+    """
+    Sets an environment variable within a running tmux session.
+
+    Args:
+        session_name (str): The name of the target tmux session.
+        key (str): The environment variable key to set.
+        value (Any): The value to assign to the key.
+    """
     subprocess.run(["tmux", "send-keys", "-t", session_name, f"export {key}={value}", "C-m"])
 
-def launch_parallel_experiments(task_path, 
-                                num_exp, 
-                                exp_name, 
-                                num_agents=2, 
-                                model="gpt-4o-mini",
-                                api="openai",
-                                num_parallel=1,
-                                s3=False, 
-                                bucket_name="mindcraft-experiments", 
-                                template_profile="profiles/tasks/collab_profile.json", 
-                                insecure_coding=False, 
-                                url="http://127.0.0.1:8000/v1", 
-                                max_messages=15,
-                                num_examples=2, 
-                                no_pruning=False,
-                                block_conversation=False, 
-                                run_in_tmux=True):
+def launch_parallel_experiments(task_path: str,
+                                num_exp: int,
+                                exp_name: str,
+                                num_agents: int = 2,
+                                model: str = "gpt-4o-mini",
+                                api: str = "openai",
+                                num_parallel: int = 1,
+                                s3: bool = False,
+                                bucket_name: str = "mindcraft-experiments",
+                                template_profile: str = "profiles/tasks/collab_profile.json",
+                                insecure_coding: bool = False,
+                                url: str = "http://127.0.0.1:8000/v1",
+                                max_messages: int = 15,
+                                num_examples: int = 2,
+                                no_pruning: bool = False,
+                                block_conversation: bool = False,
+                                run_in_tmux: bool = True) -> None:
+    """
+    Orchestrates the launch of parallel experiments and monitors their progress.
+
+    This function splits tasks among a specified number of parallel servers,
+    launches them, and then enters a monitoring loop. It periodically checks
+    the experiment folder, aggregates results, prints progress, and uploads
+    to S3 if configured.
+
+    Args:
+        task_path (str): Path to the task definition file.
+        num_exp (int): Number of times to repeat each task.
+        exp_name (str): A unique name for this experiment run.
+        num_agents (int): The number of agents to use per task.
+        model (str): The model name to be used by the agents.
+        api (str): The API provider for the model.
+        num_parallel (int): The number of parallel servers/experiments to run.
+        s3 (bool): If True, upload results to S3.
+        bucket_name (str): The S3 bucket to use for uploads.
+        template_profile (str): Path to the agent profile template.
+        insecure_coding (bool): If True, enables insecure coding mode.
+        url (str): The URL for the model API (if applicable).
+        max_messages (int): Maximum number of messages before summarization.
+        num_examples (int): Number of examples to use in the prompt.
+        no_pruning (bool): If True, disables action pruning.
+        block_conversation (bool): If True, blocks conversation actions.
+        run_in_tmux (bool): If True, runs servers and scripts in tmux sessions.
+    """
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -322,63 +329,126 @@ def launch_parallel_experiments(task_path,
     total_num_tasks = len(task_ids)
     total_num_experiments = total_num_tasks * num_exp
     total_run = 0
+
+    with open(task_path, 'r') as f:
+        task_definitions = json.load(f)
+
     while total_run < total_num_experiments:
-        results = aggregate_results([f"{experiments_folder}/{task_id}" for task_id in task_ids])
-        total_run = results["total"]
-        print(f"Total tasks run: {total_run}/{total_num_experiments}")
-        print(results)
-        results["exp_name"] = exp_name
-        results["template_profile"] = template_profile
-        results["model"] = model
-        results["api"] = api
-        results["num_agents"] = num_agents
-        results["task_path"] = task_path
-        results["task_type"] = task_type
-        results["max_messages"] = max_messages
-        results["num_examples"] = num_examples
-        with open(f"{experiments_folder}/results.txt", "w") as file:
-            file.write(str(results))
-        if s3: 
-            cmd = f"aws s3 cp {experiments_folder}/results.txt s3://{s3_path}/results.txt"
-            print(cmd)
-            subprocess.run(cmd.split())
+        # Get all subfolders that have been created
+        try:
+            evaluated_folders = [f.path for f in os.scandir(experiments_folder) if f.is_dir()]
+        except FileNotFoundError:
+            evaluated_folders = []
+
+        if not evaluated_folders:
+            logging.info("No experiment folders found yet. Waiting...")
+            time.sleep(60)
+            continue
+
+        results_df = aggregate_results(evaluated_folders, task_definitions)
+        
+        if results_df.empty:
+            total_run = 0
+            success_rate = 0.0
+            status_dist_str = "No results yet."
+        else:
+            total_run = len(results_df)
+            success_rate = results_df['overall_is_successful'].mean()
+            status_dist = results_df['overall_completion_status'].value_counts(normalize=True).to_dict()
+            status_dist_str = ", ".join([f"{k.value}: {v:.2%}" for k, v in status_dist.items()])
+
+
+        logging.info(f"\n--- Progress Update ({datetime.now().strftime('%H:%M:%S')}) ---")
+        logging.info(f"Total tasks run: {total_run}/{total_num_experiments}")
+        logging.info(f"Overall Success Rate: {success_rate:.2%}")
+        logging.info(f"Completion Status: {status_dist_str}")
+        
+        # Create a summary dictionary for logging
+        results_summary = {
+            "total_evaluated": total_run,
+            "success_rate": success_rate,
+            "completion_status_distribution": status_dist,
+            "exp_name": exp_name,
+            "template_profile": template_profile,
+            "model": model,
+            "api": api,
+            "num_agents": num_agents,
+            "task_path": task_path,
+            "task_type": task_type,
+            "max_messages": max_messages,
+            "num_examples": num_examples
+        }
+
+        # Save summary and detailed results
+        with open(f"{experiments_folder}/results.json", "w") as f:
+            json.dump(results_summary, f, indent=4)
+        if not results_df.empty:
+            # Convert Enum members to their string values for CSV compatibility
+            df_for_csv = results_df.copy()
+            df_for_csv['overall_completion_status'] = df_for_csv['overall_completion_status'].apply(lambda x: x.value)
+            df_for_csv.to_csv(f"{experiments_folder}/detailed_results.csv", index=False)
+
+        if s3:
+            cmd_results = f"aws s3 cp {experiments_folder}/results.json s3://{s3_path}/results.json"
+            logging.info(cmd_results)
+            subprocess.run(cmd_results.split(), capture_output=True, text=True)
+            if not results_df.empty:
+                cmd_csv = f"aws s3 cp {experiments_folder}/detailed_results.csv s3://{s3_path}/detailed_results.csv"
+                logging.info(cmd_csv)
+                subprocess.run(cmd_csv.split(), capture_output=True, text=True)
         
         time.sleep(60)
 
-def launch_server_experiment(task_path, 
-                             task_ids, 
-                             num_exp, 
-                             server, 
-                             experiments_folder,
-                             exp_name="exp", 
-                             num_agents=2, 
-                             model="gpt-4o",
-                             api="openai", 
-                             s3=False, 
-                             bucket_name="mindcraft-experiments", 
-                             template_profile="profiles/tasks/collab_profile.json", 
-                             insecure_coding=False, 
-                             url="http://127.0.0.1:8000/v1", 
-                             task_type="techtree", 
-                             s3_path="", 
-                             max_messages=15, 
-                             num_examples=2, 
-                             no_pruning=False,
-                             block_conversation=False, 
-                             run_in_tmux=True):
-    
+def launch_server_experiment(task_path: str,
+                             task_ids: List[str],
+                             num_exp: int,
+                             server: Tuple[str, int],
+                             experiments_folder: str,
+                             exp_name: str = "exp",
+                             num_agents: int = 2,
+                             model: str = "gpt-4o",
+                             api: str = "openai",
+                             s3: bool = False,
+                             bucket_name: str = "mindcraft-experiments",
+                             template_profile: str = "profiles/tasks/collab_profile.json",
+                             insecure_coding: bool = False,
+                             url: str = "http://127.0.0.1:8000/v1",
+                             task_type: str = "techtree",
+                             s3_path: str = "",
+                             max_messages: int = 15,
+                             num_examples: int = 2,
+                             no_pruning: bool = False,
+                             block_conversation: bool = False,
+                             run_in_tmux: bool = True) -> None:
     """
-    Launch a Minecraft server and run experiments on it.
-    @param task_path: Path to the task file
-    @param task_ids: IDs of the tasks to run
-    @param num_exp: Number of experiments to run
-    @param server: Tuple containing server path and port
-    @param experiments_folder: Folder to store experiment results
-    @param exp_name: Name of the experiment for wandb dataset
-    @param num_agents: Number of agents to run
-    @param model: Model to use for the agents
-    @param s3: Boolean flag to enable S3 upload
-    @param bucket_name: Name of the S3 bucket
+    Launches and configures a single server instance for running experiments.
+
+    This function handles the setup for one of the parallel experiment instances.
+    It configures server properties, creates agent profiles, sets up tmux sessions
+    (if enabled), and generates the script that will run the tasks.
+
+    Args:
+        task_path (str): Path to the task definition file.
+        task_ids (List[str]): The specific task IDs this server will run.
+        num_exp (int): Number of times to repeat each task.
+        server (Tuple[str, int]): A tuple containing the server's path and port.
+        experiments_folder (str): The root folder for storing experiment results.
+        exp_name (str): The name of the experiment.
+        num_agents (int): The number of agents to use.
+        model (str): The model name to use.
+        api (str): The API provider for the model.
+        s3 (bool): If True, enable S3 uploads.
+        bucket_name (str): The name of the S3 bucket.
+        template_profile (str): Path to the agent profile template.
+        insecure_coding (bool): If True, enable insecure coding mode.
+        url (str): The URL for the model API.
+        task_type (str): The type of task being run.
+        s3_path (str): The base S3 path for uploads.
+        max_messages (int): Maximum messages before summarization.
+        num_examples (int): Number of examples for the prompt.
+        no_pruning (bool): If True, disable action pruning.
+        block_conversation (bool): If True, block conversation actions.
+        run_in_tmux (bool): If True, run in a tmux session.
     """
     server_path, server_port = server
     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
@@ -412,17 +482,17 @@ def launch_server_experiment(task_path,
         agent_profiles_str = f"'[\"{agent_profiles[0]}\"]'"
     elif num_agents == 2:
         agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
-    else: 
+    else:
         agent_profiles_str = "'["
         for agent in agent_profiles[:-1]:
             agent_profiles_str += f'\"{agent}\", '
         agent_profiles_str += f"\"{agent_profiles[-1]}\"]'"
-    print(agent_profiles_str)
+    logging.info(agent_profiles_str)
     if run_in_tmux:
-        print("run in tmux is true")
+        logging.info("run in tmux is true")
         launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names, port=server_port)
 
-        subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
+        subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     # set environment variables
     if run_in_tmux:
         set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
@@ -437,9 +507,9 @@ def launch_server_experiment(task_path,
     else: 
         agent_profiles_str = "["
         for agent in agent_profiles[:-1]:
-            agent_profiles_str += f"\"{agent}\", " 
+            agent_profiles_str += f"\"{agent}\", "
         agent_profiles_str += f"\"{agent_profiles[-1]}\"]"
-        # print(agent_profiles_str)
+        logging.debug(agent_profiles_str)
         os.environ["PROFILES"] = agent_profiles_str
         os.environ["MAX_MESSAGES"] = str(max_messages)
         os.environ["NUM_EXAMPLES"] = str(num_examples)
@@ -456,23 +526,42 @@ def launch_server_experiment(task_path,
                session_name=session_name, 
                run_in_tmux=run_in_tmux)
 
-def run_script(task_path, 
-               task_ids, 
-               num_exp,
-               experiments_folder, 
-               agent_names,
-               server_path,
-               s3=False,
-               s3_path="mindcraft-experiments",
-               session_name="0",
-               run_in_tmux=True,):
+def run_script(task_path: str,
+               task_ids: List[str],
+               num_exp: int,
+               experiments_folder: str,
+               agent_names: List[str],
+               server_path: str,
+               s3: bool = False,
+               s3_path: str = "mindcraft-experiments",
+               session_name: str = "0",
+               run_in_tmux: bool = True) -> None:
+    """
+    Generates and executes a shell script to run a sequence of tasks.
+
+    This function creates a shell script that contains the `node main.js` commands
+    to run each task, along with commands to copy the resulting log files to the
+    correct experiment folder and upload them to S3 if enabled.
+
+    Args:
+        task_path (str): Path to the task definition file.
+        task_ids (List[str]): The list of task IDs to be run.
+        num_exp (int): The number of times to repeat each task.
+        experiments_folder (str): The root folder for storing results.
+        agent_names (List[str]): The names of the agents participating.
+        server_path (str): The path to the server directory.
+        s3 (bool): If True, include S3 upload commands in the script.
+        s3_path (str): The base S3 path for uploads.
+        session_name (str): The tmux session name to run the script in.
+        run_in_tmux (bool): If True, execute the script via tmux.
+    """
     script_content = ""
     for task_id in task_ids:
         # Create a separate folder for each task_id
         task_folder = os.path.join(experiments_folder, str(task_id))
         os.makedirs(task_folder, exist_ok=True)
         assert os.path.exists(task_folder), f"Directory {task_folder} was not created"
-        print(f"Created directory: {task_folder}")
+        logging.info(f"Created directory: {task_folder}")
         
         cmd = f"node main.js --task_path \'{task_path}\' --task_id {task_id}"
         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
@@ -502,9 +591,18 @@ def run_script(task_path,
     make_script_file_and_run(script_content, script_file, session_name=session_name, run_in_tmux=run_in_tmux)
 
 
-def make_ops(agent_names, session_name):
-    """Make the agents operators in the Minecraft world."""
-    print('Making agents operators...')
+def make_ops(agent_names: List[str], session_name: str) -> None:
+    """
+    Makes the specified agents operators (ops) in the Minecraft world.
+
+    This is achieved by running a debug task to get the agents into the server,
+    then issuing the /op command from the server console.
+
+    Args:
+        agent_names (List[str]): A list of agent names to be made ops.
+        session_name (str): The tmux session name where the agents are running.
+    """
+    logging.info('Making agents operators...')
 
     cmd = f"node main.js --task_path tasks/example_tasks.json --task_id debug_{len(agent_names)}_agent_timeout"
 
@@ -516,12 +614,22 @@ def make_ops(agent_names, session_name):
 
     agents_op = check_agent_ops(agent_names, ops_file=f"./tasks/server_data_{session_name}/ops.json")
     if agents_op:
-        print("Agents are operators! You are good to go :D")
-    else: 
-        print("Agents are not operators! We will need to try making them operators again!")
+        logging.info("Agents are operators! You are good to go :D")
+    else:
+        logging.warning("Agents are not operators! We will need to try making them operators again!")
         make_ops(agent_names, session_name)
 
-def check_agent_ops(agent_names, ops_file="ops.json"):
+def check_agent_ops(agent_names: List[str], ops_file: str = "ops.json") -> bool:
+    """
+    Checks the ops.json file to verify that all agents are operators.
+
+    Args:
+        agent_names (List[str]): The list of agent names to check.
+        ops_file (str): The path to the ops.json file.
+
+    Returns:
+        bool: True if all agents are listed in the ops file, False otherwise.
+    """
     with open(ops_file, "r") as f:
         ops_data = json.load(f)
     
@@ -532,14 +640,23 @@ def check_agent_ops(agent_names, ops_file="ops.json"):
             return False 
     return True
 
-def make_script_file_and_run(script_content, 
-                             file_name, 
-                             session_name="0",
-                             run_in_tmux=True):
+def make_script_file_and_run(script_content: str,
+                             file_name: str,
+                             session_name: str = "0",
+                             run_in_tmux: bool = True) -> None:
+    """
+    Writes content to a script file and executes it.
+
+    Args:
+        script_content (str): The shell script content to write.
+        file_name (str): The path to the script file to be created.
+        session_name (str): The tmux session to run the script in.
+        run_in_tmux (bool): If True, run via tmux; otherwise, run directly.
+    """
     script_dir = os.path.dirname(file_name)
     os.makedirs(script_dir, exist_ok=True)
     assert os.path.exists(script_dir), f"Script directory {script_dir} was not created"
-    print(f"Created script directory: {script_dir}")
+    logging.info(f"Created script directory: {script_dir}")
 
     # Call the function before writing the script file
     with open(file_name, 'w') as f:
@@ -554,7 +671,21 @@ def make_script_file_and_run(script_content,
     else:
         subprocess.run(script_file_run.split())
 
-def make_profiles(agent_names, models, apis, template_profile="profiles/collab_profile.json", url="http://127.0.0.1:8000/v1"):
+def make_profiles(agent_names: List[str],
+                  models: List[str],
+                  apis: List[str],
+                  template_profile: str = "profiles/collab_profile.json",
+                  url: str = "http://127.0.0.1:8000/v1") -> None:
+    """
+    Generates JSON profile files for each agent based on a template.
+
+    Args:
+        agent_names (List[str]): List of agent names.
+        models (List[str]): List of model names corresponding to each agent.
+        apis (List[str]): List of API providers for each agent.
+        template_profile (str): Path to the template profile JSON file.
+        url (str): The API URL to use for vLLM models.
+    """
     assert len(agent_names) == len(models)
 
     with open(template_profile, 'r') as f:
@@ -582,22 +713,40 @@ def make_profiles(agent_names, models, apis, template_profile="profiles/collab_p
         with open(f"{agent_names[index]}.json", 'w') as f:
             json.dump(profile, f, indent=4)
 
-def create_server_files(source_path, num_copies, world_name="Forest"):
-    """Create multiple copies of server files for parallel experiments."""
-    print("Creating server files...")
-    print(num_copies)
+def create_server_files(source_path: str, num_copies: int, world_name: str = "Forest") -> List[Tuple[str, int]]:
+    """
+    Creates multiple copies of server files for parallel experiments.
+
+    Args:
+        source_path (str): The path to the source server files directory.
+        num_copies (int): The number of server copies to create.
+        world_name (str): The name of the world to set in server.properties.
+
+    Returns:
+        List[Tuple[str, int]]: A list of tuples, each containing the path and port
+                               of a created server instance.
+    """
+    logging.info("Creating server files...")
+    logging.info(num_copies)
     servers = []
     for i in range(num_copies):
         dest_path = f"./tasks/server_data_{i}/"
         copy_server_files(source_path, dest_path)
-        print(dest_path)
-        edit_file(dest_path + "server.properties", {"server-port": 55916 + i, 
+        logging.info(dest_path)
+        edit_file(dest_path + "server.properties", {"server-port": 55916 + i,
                                                     "level-name": world_name})
         # edit_server_properties_file(dest_path, 55916 + i)
         servers.append((dest_path, 55916 + i))
     return servers
 
-def edit_file(file, content_dict):
+def edit_file(file: str, content_dict: Dict[str, Any]) -> None:
+    """
+    Edits a properties-style file by replacing values for given keys.
+
+    Args:
+        file (str): The path to the file to edit.
+        content_dict (Dict[str, Any]): A dictionary of key-value pairs to update.
+    """
     try:
         with open(file, 'r') as f:
             lines = f.readlines()
@@ -608,90 +757,122 @@ def edit_file(file, content_dict):
                         f.write(f"{key}={value}\n")
                     else:
                         f.write(line)
-        print(f"{file} updated with {content_dict}")  
+        logging.info(f"{file} updated with {content_dict}")
     except Exception as e:
-        print(f"Error editing file {file}: {e}")
+        logging.error(f"Error editing file {file}: {e}")
 
-def clean_up_server_files(num_copies):
-    """Delete server files from multiple locations."""
+def clean_up_server_files(num_copies: int) -> None:
+    """
+    Deletes the server file directories created for parallel experiments.
+
+    Args:
+        num_copies (int): The number of server directories to delete.
+    """
     for i in range(num_copies):
         dest_path = f"./tasks/server_data_{i}/"
         delete_server_files(dest_path)
 
-def copy_server_files(source_path, dest_path):
-    """Copy server files to the specified location."""
+def copy_server_files(source_path: str, dest_path: str) -> None:
+    """
+    Recursively copies server files from a source to a destination.
+
+    Args:
+        source_path (str): The source directory.
+        dest_path (str): The destination directory.
+    """
     try:
         shutil.copytree(source_path, dest_path)
-        print(f"Server files copied to {dest_path}")
+        logging.info(f"Server files copied to {dest_path}")
     except Exception as e:
-        print(f"Error copying server files: {e}")
+        logging.error(f"Error copying server files: {e}")
     time.sleep(10)
 
     same_files = check_same_files(source_path, dest_path)
     if not same_files:
         copy_server_files(source_path, dest_path)
-        print("The destination path does not contain all the same files as the source path.")
+        logging.warning("The destination path does not contain all the same files as the source path.")
     else:
-        print("The destination path contains all the same files as the source path.")
+        logging.info("The destination path contains all the same files as the source path.")
 
-def check_same_files(d1, d2):
+def check_same_files(d1: str, d2: str) -> bool:
+    """
+    Checks if two directories contain the same set of file and directory names.
+    This is a shallow check and does not compare file contents.
 
-    items1 = set(os.listdir(d1))
-    items2 = set(os.listdir(d2))
+    Args:
+        d1 (str): Path to the first directory.
+        d2 (str): Path to the second directory.
 
-    if items1 != items2:
+    Returns:
+        bool: True if the contents are the same, False otherwise.
+    """
+    try:
+        items1 = set(os.listdir(d1))
+        items2 = set(os.listdir(d2))
+        return items1 == items2
+    except FileNotFoundError as e:
+        logging.error(f"Directory not found for comparison: {e}")
         return False
-    return True
 
-def delete_server_files(dest_path):
-    """Delete server files from the specified location."""
+def delete_server_files(dest_path: str) -> None:
+    """
+    Deletes the server files at the specified destination path.
+
+    Args:
+        dest_path (str): The path to the server directory to delete.
+    """
     try:
         shutil.rmtree(dest_path)
-        print(f"Server files deleted from {dest_path}")
+        logging.info(f"Server files deleted from {dest_path}")
     except Exception as e:
-        print(f"Error deleting server files: {e}")
+        logging.error(f"Error deleting server files: {e}")
     if not os.path.exists(dest_path):
-        print("Server files deleted successfully.")
+        logging.info("Server files deleted successfully.")
     # else:
-    #     print("Error deleting server files.")
+    #     logging.error("Error deleting server files.")
     #     delete_server_files(dest_path)
     
 
-def launch_world(server_path="./tasks/server_data/", agent_names=["andy", "jill"], session_name="server", port=55916):
-    """Launch the Minecraft world."""
-    print(f"Launching Minecraft world with port {port}...")
+def launch_world(server_path: str = "./tasks/server_data/",
+                 agent_names: List[str] = ["andy", "jill"],
+                 session_name: str = "server",
+                 port: int = 55916) -> None:
+    """
+    Launches the Minecraft server in a new tmux session.
+
+    Args:
+        server_path (str): The path to the server directory.
+        agent_names (List[str]): A list of agent names (used for logging).
+        session_name (str): The name for the new tmux session.
+        port (int): The port the server will run on.
+    """
+    logging.info(f"Launching Minecraft world with port {port}...")
     cmd = f"cd {server_path} && java -jar server.jar"
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-    time.sleep(10)
-    if not test_server_running(port):
-        print("Server failed to start. Retrying...")
-        launch_world(server_path, agent_names, session_name, port)
+    time.sleep(30) # Increased sleep time to ensure server starts
+    logging.info("Server launch command sent. Continuing with experiment setup.")
 
-def test_server_running(port=55916):
-    host = 'localhost'
+def kill_world(session_name: str = "server") -> None:
+    """
+    Kills the Minecraft server's tmux session.
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.connect((host, port))
-            print("Server is running on port 55916")
-            return True
-        except ConnectionRefusedError:
-            print("Server is not running on port 55916")
-            return False
-
-def kill_world(session_name="server"):
-    """Kill the Minecraft world."""
+    Args:
+        session_name (str): The name of the tmux session to kill.
+    """
     subprocess.run(["tmux", "send-keys", "-t", session_name, "stop", "C-m"])
     time.sleep(5)
     subprocess.run(["tmux", "kill-session", "-t", session_name])
 
-def detach_process(command):
+def detach_process(command: List[str]) -> int | None:
     """
-    Launches a subprocess and detaches from it, allowing it to run independently.
+    Launches a subprocess and detaches it to run independently.
 
     Args:
-        command: A list of strings representing the command to execute, e.g., ['python', 'my_script.py'].
+        command (List[str]): A list of strings representing the command to execute.
+
+    Returns:
+        Optional[int]: The PID of the detached process, or None on failure.
     """
 
     try:
@@ -701,27 +882,30 @@ def detach_process(command):
         if sys.platform == 'win32':
             kwargs.update(creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)  # Windows specific
 
-        process = subprocess.Popen(command, 
+        process = subprocess.Popen(command,
                                    stdin=subprocess.PIPE, # Prevent stdin blocking
                                    stdout=subprocess.PIPE, # Redirect stdout
                                    stderr=subprocess.PIPE, # Redirect stderr
                                    close_fds=True,  # Close open file descriptors
                                    **kwargs)
 
-        print(f"Process launched with PID: {process.pid}")
+        logging.info(f"Process launched with PID: {process.pid}")
         return process.pid  # Return the PID of the detached process
 
     except FileNotFoundError:
-        print(f"Error: Command not found: {command}")
+        logging.error(f"Error: Command not found: {command}")
         return None
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
         return None
 
-def main():
-    # edit_settings("settings.js", {"profiles": ["./andy.json", "./jill.json"], "port": 55917})
-    # edit_server_properties_file("../server_data/", 55917)
+def main() -> None:
+    """
+    Main entry point for the evaluation script.
 
+    Parses command-line arguments and orchestrates the experiment launch or
+    results-checking process.
+    """
     parser = argparse.ArgumentParser(description='Run Minecraft AI agent experiments')
     parser.add_argument('--no_launch_world', action='store_true', help='Do not launch the Minecraft world')
     parser.add_argument('--task_path', default="tasks/multiagent_crafting_tasks.json", help='Path to the task file')
@@ -746,18 +930,19 @@ def main():
     parser.add_argument('--usernames', default="", help='Comma-separated list of usernames for the agents')
 
     args = parser.parse_args()
-    print(args)
+    logging.info(args)
     
     # If --check flag is provided, evaluate results in the specified folder and exit
     if args.check:
-        check_folder_results(args.check)
+        # The check function now also requires the task definition file.
+        check_folder_results(args.check, args.task_path)
         return
     
     if not args.no_launch_world:
-        try: 
+        try:
             subprocess.run(['tmux', 'kill-server'], check=True)
-        except: 
-            print("No tmux session to kill")
+        except:
+            logging.info("No tmux session to kill")
     
     # delete all server files
     if not args.no_launch_world:

@@ -1,420 +1,258 @@
 import os
 import json
 import re
-from collections import defaultdict
-from prettytable import PrettyTable
-import pandas as pd
-import glob
 import argparse
+import pandas as pd
+from prettytable import PrettyTable
+from tqdm import tqdm
+import logging
+from typing import List, Dict, Any
 
-# Calculate project root directory
+# Import from our new centralized evaluation module
+from tasks.evaluation import extract_task_outcome, aggregate_results_to_dataframe
+
+# Set up basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Constants and Setup ---
+# Calculate project root directory for reliable path resolution
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# Define output directory for analysis results
+# Define a centralized output directory for analysis results
 analysis_output_dir = os.path.join(project_root, "experiments", "analysis_results")
 # Ensure the output directory exists
 os.makedirs(analysis_output_dir, exist_ok=True)
 
-def extract_cooking_items(exp_dir):
-    """Extract cooking items from experiment directory name."""
-    # Remove prefix and blocked access part
-    clean_name = re.sub(r'^multiagent_cooking_', '', exp_dir)
-    clean_name = re.sub(r'_blocked_access_[0-9_]+$', '', clean_name)
+def get_immediate_subdirectories(a_dir: str) -> List[str]:
+    """
+    Returns a list of full paths to immediate subdirectories.
     
-    # Extract individual items
-    items = []
-    for item_match in re.finditer(r'([0-9]+)_([a-zA-Z_]+)', clean_name):
-        count = int(item_match.group(1))
-        item = item_match.group(2)
-        # Remove trailing underscores to fix the item name issue
-        item = item.rstrip('_')
-        items.append(item)
+    Args:
+        a_dir (str): The directory to scan.
+        
+    Returns:
+        List[str]: A list of absolute paths to the subdirectories.
+    """
+    if not os.path.isabs(a_dir):
+        a_dir = os.path.join(project_root, a_dir)
+    if not os.path.isdir(a_dir):
+        return []
+    return [f.path for f in os.scandir(a_dir) if f.is_dir()]
+
+def enrich_dataframe_with_cooking_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Enriches the DataFrame with cooking-specific metrics by parsing the 'task_id'.
     
-    return items
+    Warning: This function relies on a specific naming convention for task_id.
+    A more robust long-term solution is to store these metrics directly in the
+    task definition's metadata.
 
-def analyze_experiments(root_dir, model_name):
-    # Store results by number of blocked agents
-    blocked_access_results = defaultdict(lambda: {
-        "success": 0, 
-        "total": 0
-    })
+    Args:
+        df (pd.DataFrame): The DataFrame to enrich.
+
+    Returns:
+        pd.DataFrame: The enriched DataFrame with new 'num_blocked_agents' and
+                      'target_items' columns.
+    """
+    if df.empty:
+        return df
+
+    logging.warning("The 'enrich_dataframe_with_cooking_metrics' function relies on parsing task_id. "
+                    "This is fragile and should be replaced by storing metrics directly in the task definition.")
+
+    def get_blocked_agents_from_task_id(task_id: str) -> int:
+        """Extracts the number of blocked agents from the task_id string."""
+        if not isinstance(task_id, str):
+            return 0
+        match = re.search(r'blocked_access_([0-9_]+)$', task_id)
+        if match:
+            return len(match.group(1).split('_'))
+        return 0
     
-    # Store results by cooking item
-    cooking_item_results = defaultdict(lambda: {
-        "success": 0,
-        "total": 0
-    })
-    
-    # Keep track of all unique cooking items
-    all_cooking_items = set()
-    
-    # Keep track of ignored tasks
-    ignored_tasks = []
-    
-    # Get a list of all experiment directories
-    experiment_dirs = [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d)) 
-                      and d.startswith("multiagent_cooking_")]
-    
-    for exp_dir in experiment_dirs:
-        # Extract cooking items
-        cooking_items = extract_cooking_items(exp_dir)
-        
-        # Add to unique items set
-        all_cooking_items.update(cooking_items)
-        
-        # Extract blocked access information from directory name
-        blocked_access_match = re.search(r'blocked_access_([0-9_]+)$', exp_dir)
-        
-        if blocked_access_match:
-            blocked_access_str = blocked_access_match.group(1)
-            # Count how many agents have blocked access
-            num_blocked_agents = len(blocked_access_str.split('_'))
-            blocked_key = f"{num_blocked_agents} agent(s)"
-        else:
-            # No agents blocked
-            blocked_key = "0 agent(s)"
-        
-        # Check if the task was successful
-        is_successful = False
-        score_found = False
-        full_exp_path = os.path.join(root_dir, exp_dir)
-        
-        # Get all JSON files in the experiment directory
-        agent_files = [f for f in os.listdir(full_exp_path) if f.endswith(".json")]
-        
-        # Check each agent file for success information
-        for agent_file in agent_files:
-            agent_file_path = os.path.join(full_exp_path, agent_file)
-            
-            try:
-                with open(agent_file_path, 'r') as f:
-                    agent_data = json.load(f)
-                    
-                # Check for score information in the turns data
-                if "turns" in agent_data:
-                    for turn in agent_data["turns"]:
-                        if turn.get("role") == "system" and "content" in turn:
-                            if isinstance(turn["content"], str) and "Task ended with score : " in turn["content"]:
-                                score_found = True
-                                if "Task ended with score : 1" in turn["content"]:
-                                    is_successful = True
-                                    break
-                
-                # If we found success, no need to check other files
-                if is_successful:
-                    break
-                    
-            except (json.JSONDecodeError, IOError) as e:
-                print(f"Error reading {agent_file_path}: {e}")
-                # Continue to check other agent files instead of failing
-                continue
-        
-        # If no score information was found in any agent file, ignore this task
-        if not score_found:
-            ignored_tasks.append(exp_dir)
-            continue
-        
-        # Update cooking item results
-        for item in cooking_items:
-            cooking_item_results[item]["total"] += 1
-            if is_successful:
-                cooking_item_results[item]["success"] += 1
-        
-        # Update the blocked access counters
-        blocked_access_results[blocked_key]["total"] += 1
-        if is_successful:
-            blocked_access_results[blocked_key]["success"] += 1
-    
-    # Print information about ignored tasks
-    if ignored_tasks:
-        print(f"\n{model_name}: Ignored {len(ignored_tasks)} tasks with no score information:")
-        for task in ignored_tasks:
-            print(f"  - {task}")
-    
-    return blocked_access_results, cooking_item_results, all_cooking_items, ignored_tasks
+    df['num_blocked_agents'] = df['task_id'].apply(get_blocked_agents_from_task_id)
 
-def print_model_comparison_blocked(models_results):
-    print("\nModel Comparison by Number of Agents with Blocked Access:")
-    print("=" * 100)
-
-    # Get all possible blocked access keys
-    all_blocked_keys = set()
-    for model_results in models_results.values():
-        all_blocked_keys.update(model_results.keys())
-
-    # Sort the keys
-    sorted_keys = sorted(all_blocked_keys, key=lambda x: int(x.split()[0]))
-
-    # Create the table
-    table = PrettyTable()
-    table.field_names = ["Blocked Agents"] + [
-        f"{model_name} (Success Rate | Success/Total)" for model_name in models_results.keys()
-    ]
-
-    # Calculate and add rows for each blocked key
-    model_totals = {model: {"success": 0, "total": 0} for model in models_results.keys()}
-
-    for key in sorted_keys:
-        row = [key]
-
-        for model_name, model_results in models_results.items():
-            if key in model_results:
-                success = model_results[key]["success"]
-                total = model_results[key]["total"]
-
-                model_totals[model_name]["success"] += success
-                model_totals[model_name]["total"] += total
-
-                success_rate = (success / total * 100) if total > 0 else 0
-                row.append(f"{success_rate:.2f}% | {success}/{total}")
-            else:
-                row.append("N/A")
-
-        table.add_row(row)
-
-    # Print the table
-    print(table)
-
-    # Print the overall results
-    overall_row = ["Overall"]
-    for model_name, totals in model_totals.items():
-        success = totals["success"]
-        total = totals["total"]
-        success_rate = (success / total * 100) if total > 0 else 0
-        overall_row.append(f"{success_rate:.2f}% | {success}/{total}")
-
-    table.add_row(overall_row)
-    print(table)
-
-def print_model_comparison_items(models_item_results, all_cooking_items):
-    print("\nModel Comparison by Cooking Item:")
-    print("=" * 100)
-
-    # Create the table
-    table = PrettyTable()
-    table.field_names = ["Cooking Item"] + [
-        f"{model_name} (Success Rate | Success/Total)" for model_name in models_item_results.keys()
-    ]
-
-    # Calculate and add rows for each cooking item
-    model_totals = {model: {"success": 0, "total": 0} for model in models_item_results.keys()}
-
-    for item in sorted(all_cooking_items):
-        row = [item]
-
-        for model_name, model_results in models_item_results.items():
-            if item in model_results:
-                success = model_results[item]["success"]
-                total = model_results[item]["total"]
-
-                model_totals[model_name]["success"] += success
-                model_totals[model_name]["total"] += total
-
-                success_rate = (success / total * 100) if total > 0 else 0
-                row.append(f"{success_rate:.2f}% | {success}/{total}")
-            else:
-                row.append("N/A")
-
-        table.add_row(row)
-
-    # Print the table
-    print(table)
-
-    # Print the overall results
-    overall_row = ["Overall"]
-    for model_name, totals in model_totals.items():
-        success = totals["success"]
-        total = totals["total"]
-        success_rate = (success / total * 100) if total > 0 else 0
-        overall_row.append(f"{success_rate:.2f}% | {success}/{total}")
-
-    table.add_row(overall_row)
-    print(table)
-
-def print_model_comparison_items_by_blocked(models_data, all_cooking_items):
-    print("\nDetailed Model Comparison by Cooking Item and Blocked Agent Count:")
-    print("=" * 120)
-
-    # For each cooking item, create a comparison table by blocked agent count
-    for item in sorted(all_cooking_items):
-        print(f"\nResults for cooking item: {item}")
-        print("-" * 100)
-
-        # Create the table
-        table = PrettyTable()
-        table.field_names = ["Blocked Agents"] + [
-            f"{model_name} Success Rate" for model_name in models_data.keys()
-        ] + [
-            f"{model_name} Success/Total" for model_name in models_data.keys()
+    def get_target_items_from_task_id(task_id: str) -> List[str]:
+        """Extracts the list of target cooking items from the task_id string."""
+        if not isinstance(task_id, str):
+            return []
+        clean_name = re.sub(r'^multiagent_cooking_', '', task_id)
+        clean_name = re.sub(r'_blocked_access_[0-9_]+$', '', clean_name)
+        items = [
+            match.group(2).rstrip('_')
+            for match in re.finditer(r'([0-9]+)_([a-zA-Z_]+)', clean_name)
         ]
+        return items
 
-        # Get all possible blocked agent counts
-        all_blocked_keys = set()
-        for model_name, model_data in models_data.items():
-            _, _, item_blocked_data = model_data
-            for blocked_key in item_blocked_data.get(item, {}).keys():
-                all_blocked_keys.add(blocked_key)
+    df['target_items'] = df['task_id'].apply(get_target_items_from_task_id)
+    return df
 
-        # Sort the keys
-        sorted_keys = sorted(all_blocked_keys, key=lambda x: int(x.split()[0]))
+def print_blocked_agents_summary(df: pd.DataFrame) -> None:
+    """
+    Prints a summary table of success rates by the number of blocked agents.
 
-        # Add rows for each blocked key
-        for blocked_key in sorted_keys:
-            row = [blocked_key]
+    Args:
+        df (pd.DataFrame): The DataFrame containing the analysis results.
+    """
+    logging.info("\n--- Analysis by Number of Blocked Agents ---")
+    if df.empty or 'num_blocked_agents' not in df.columns or df['num_blocked_agents'].sum() == 0:
+        logging.warning("No data on blocked agents available for analysis.")
+        return
 
-            for model_name, model_data in models_data.items():
-                _, _, item_blocked_data = model_data
-
-                if item in item_blocked_data and blocked_key in item_blocked_data[item]:
-                    success = item_blocked_data[item][blocked_key]["success"]
-                    total = item_blocked_data[item][blocked_key]["total"]
-
-                    if total > 0:
-                        success_rate = (success / total * 100)
-                        row.append(f"{success_rate:.2f}%")
-                        row.append(f"{success}/{total}")
-                    else:
-                        row.append("N/A")
-                        row.append("0/0")
-                else:
-                    row.append("N/A")
-                    row.append("N/A")
-
-            table.add_row(row)
-
-        # Print the table
-        print(table)
-
-        # Print item summary for each model
-        overall_row = ["Overall"]
-        for model_name, model_data in models_data.items():
-            _, item_results, _ = model_data
-
-            if item in item_results:
-                success = item_results[item]["success"]
-                total = item_results[item]["total"]
-
-                if total > 0:
-                    success_rate = (success / total * 100)
-                    overall_row.append(f"{success_rate:.2f}%")
-                    overall_row.append(f"{success}/{total}")
-                else:
-                    overall_row.append("N/A")
-                    overall_row.append("0/0")
-            else:
-                overall_row.append("N/A")
-                overall_row.append("N/A")
-
-        table.add_row(overall_row)
-        print(table)
-
-def generate_item_blocked_data(experiments_root):
-    # Organize data by item and blocked agent count
-    item_blocked_data = defaultdict(lambda: defaultdict(lambda: {"success": 0, "total": 0}))
+    summary = df.groupby(['model_name', 'num_blocked_agents'])['overall_is_successful'].agg(['sum', 'count'])
+    summary['success_rate'] = (summary['sum'] / summary['count']) * 100
     
-    # Keep track of ignored tasks
-    ignored_tasks = []
+    try:
+        pivot = summary.reset_index().pivot(
+            index='num_blocked_agents', 
+            columns='model_name', 
+            values=['success_rate', 'sum', 'count']
+        )
+    except KeyError:
+        logging.error("Could not create pivot table for blocked agents. Check DataFrame content.")
+        return
     
-    # Populate the data structure
-    for exp_dir in os.listdir(experiments_root):
-        if not os.path.isdir(os.path.join(experiments_root, exp_dir)) or not exp_dir.startswith("multiagent_cooking_"):
-            continue
-        
-        # Extract cooking items
-        cooking_items = extract_cooking_items(exp_dir)
-        
-        # Extract blocked access information
-        blocked_access_match = re.search(r'blocked_access_([0-9_]+)$', exp_dir)
-        if blocked_access_match:
-            blocked_access_str = blocked_access_match.group(1)
-            num_blocked_agents = len(blocked_access_str.split('_'))
-            blocked_key = f"{num_blocked_agents} agent(s)"
-        else:
-            blocked_key = "0 agent(s)"
-        
-        # Check if the task was successful and if score information exists
-        is_successful = False
-        score_found = False
-        full_exp_path = os.path.join(experiments_root, exp_dir)
-        agent_files = [f for f in os.listdir(full_exp_path) if f.endswith(".json")]
-        
-        for agent_file in agent_files:
+    table = PrettyTable()
+    model_names = sorted(df['model_name'].unique())
+    table.field_names = ["Blocked Agents"] + [f"{model} (Rate | Success/Total)" for model in model_names]
+    
+    for num_blocked in sorted(df['num_blocked_agents'].unique()):
+        row = [f"{num_blocked} agent(s)"]
+        for model in model_names:
             try:
-                with open(os.path.join(full_exp_path, agent_file), 'r') as f:
-                    agent_data = json.load(f)
-                    
-                if "turns" in agent_data:
-                    for turn in agent_data["turns"]:
-                        if turn.get("role") == "system" and "content" in turn:
-                            if isinstance(turn["content"], str) and "Task ended with score : " in turn["content"]:
-                                score_found = True
-                                if "Task ended with score : 1" in turn["content"]:
-                                    is_successful = True
-                                    break
-                
-                if is_successful:
-                    break
-            except:
-                continue
+                rate = pivot.loc[num_blocked, ('success_rate', model)]
+                successes = pivot.loc[num_blocked, ('sum', model)]
+                total = pivot.loc[num_blocked, ('count', model)]
+                row.append(f"{rate:.2f}% | {int(successes)}/{int(total)}")
+            except KeyError:
+                row.append("N/A")
+        table.add_row(row)
         
-        # If no score information was found, skip this task
-        if not score_found:
-            ignored_tasks.append(exp_dir)
-            continue
-            
-        # Update the item-blocked data
-        for item in cooking_items:
-            item_blocked_data[item][blocked_key]["total"] += 1
-            if is_successful:
-                item_blocked_data[item][blocked_key]["success"] += 1
+    logging.info("\n" + table.get_string())
+
+def print_cooking_item_summary(df: pd.DataFrame) -> None:
+    """
+    Prints a summary table of success rates by target cooking item.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the analysis results.
+    """
+    logging.info("\n--- Analysis by Cooking Item ---")
+    if df.empty or 'target_items' not in df.columns:
+        logging.warning("No data on cooking items available for analysis.")
+        return
+
+    df_items = df.explode('target_items')
+    if df_items.empty:
+        logging.warning("No cooking items found to analyze.")
+        return
     
-    return item_blocked_data, ignored_tasks
+    summary = df_items.groupby(['model_name', 'target_items'])['overall_is_successful'].agg(['sum', 'count'])
+    summary['success_rate'] = (summary['sum'] / summary['count']) * 100
 
-def analyze_cooking_log(log_file):
-    # Placeholder for the actual analysis logic if it exists
-    # This function needs to be implemented based on the script's purpose
-    print(f"Analyzing {log_file}...") # Example print
-    # Example: return a dictionary of results
-    return {"file": os.path.basename(log_file), "score": 1} # Dummy result
+    try:
+        pivot = summary.reset_index().pivot(
+            index='target_items',
+            columns='model_name',
+            values=['success_rate', 'sum', 'count']
+        )
+    except KeyError:
+        logging.error("Could not create pivot table for cooking items. Check DataFrame content.")
+        return
 
-def main():
-    parser = argparse.ArgumentParser(description='Analyze cooking task logs.')
-    # Change default input dir to 'experiments' relative to project root
-    parser.add_argument('--log_dir', type=str, default='experiments', 
-                        help='Directory containing the log files (relative to project root)')
-    # Removed --output_file argument
-    # parser.add_argument('--output_file', type=str, default='cooking_analysis_results.csv', 
-    #                     help='Output CSV file name (relative to project root)')
+    table = PrettyTable()
+    model_names = sorted(df['model_name'].unique())
+    table.field_names = ["Cooking Item"] + [f"{model} (Rate | Success/Total)" for model in model_names]
+
+    for item in sorted(df_items['target_items'].unique()):
+        row = [item]
+        for model in model_names:
+            try:
+                rate = pivot.loc[item, ('success_rate', model)]
+                successes = pivot.loc[item, ('sum', model)]
+                total = pivot.loc[item, ('count', model)]
+                row.append(f"{rate:.2f}% | {int(successes)}/{int(total)}")
+            except KeyError:
+                row.append("N/A")
+        table.add_row(row)
+    
+    logging.info("\n" + table.get_string())
+
+def main() -> None:
+    """
+    Main function to run the cooking task analysis pipeline.
+    
+    Parses arguments, finds relevant cooking experiment folders, runs the
+    evaluation, enriches the data with cooking-specific metrics, and prints
+    summary tables.
+    """
+    parser = argparse.ArgumentParser(description='Analyze cooking task experiment results.')
+    parser.add_argument('--log_dir', type=str, default='experiments',
+                        help='Directory containing experiment folders (relative to project root).')
+    parser.add_argument('--task_file_path', required=True, type=str,
+                        help='Path to the task definition JSON file for cooking tasks.')
     args = parser.parse_args()
 
-    # Resolve log_dir path relative to project root
+    # --- Step 1: Find Cooking-Specific Experiment Folders ---
     log_dir_abs = args.log_dir
     if not os.path.isabs(log_dir_abs):
         log_dir_abs = os.path.join(project_root, log_dir_abs)
-        
-    # Hardcode output file path
-    output_file_abs = os.path.join(analysis_output_dir, "cooking_analysis.csv")
+    
+    all_exp_folders = get_immediate_subdirectories(log_dir_abs)
+    # Filter for folders that are explicitly for cooking tasks
+    cooking_folders = [f for f in all_exp_folders if 'cooking' in os.path.basename(f).lower()]
+    
+    if not cooking_folders:
+        logging.warning(f"No cooking experiment folders found in '{log_dir_abs}'. Exiting.")
+        return
 
-    all_results = []
-    # Use absolute log directory path
-    log_pattern = os.path.join(log_dir_abs, '*.json')
-    print(f"Searching for logs in: {log_pattern}")
-    log_files_found = glob.glob(log_pattern)
-    print(f"Found {len(log_files_found)} log files.")
+    logging.info(f"Found {len(cooking_folders)} cooking experiment folders to analyze.")
+
+    # --- Step 2: Load Task Definitions ---
+    try:
+        with open(args.task_file_path, 'r') as f:
+            task_definitions = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.error(f"Error reading or parsing task file '{args.task_file_path}': {e}")
+        return
+
+    # --- Step 3: Run Core Evaluation and Aggregation ---
+    task_outcomes = []
+    for folder in tqdm(cooking_folders, desc="Analyzing cooking tasks"):
+        task_id = os.path.basename(folder.strip(os.sep))
+        task_def = task_definitions.get(task_id)
+        if not task_def:
+            logging.warning(f"No task definition found for '{task_id}'. Skipping.")
+            continue
+        
+        if 'task_id' not in task_def:
+            task_def['task_id'] = task_id
+            
+        outcome = extract_task_outcome(folder, task_def)
+        
+        try:
+            model_name = os.path.basename(os.path.dirname(folder))
+            outcome.model_name = model_name
+        except IndexError:
+            pass
+
+        task_outcomes.append(outcome)
+
+    df = aggregate_results_to_dataframe(task_outcomes)
     
-    for log_file in log_files_found:
-        results = analyze_cooking_log(log_file)
-        if results:
-            all_results.append(results) # Append the results dictionary
+    if df.empty:
+        logging.warning("Analysis did not produce any results.")
+        return
+
+    # --- Step 4: Enrich with Cooking Metrics and Analyze ---
+    df_enriched = enrich_dataframe_with_cooking_metrics(df)
     
-    if all_results:
-        df = pd.DataFrame(all_results)
-        # Ensure the output directory exists
-        os.makedirs(os.path.dirname(output_file_abs), exist_ok=True)
-        # Save to hardcoded absolute output file path
-        df.to_csv(output_file_abs, index=False)
-        print(f"Analysis complete. Results saved to {output_file_abs}")
-    else:
-        print("No results generated from log files.")
+    print_blocked_agents_summary(df_enriched)
+    print_cooking_item_summary(df_enriched)
+
+    # --- Step 5: Save Results ---
+    output_filename = f"{os.path.basename(os.path.normpath(log_dir_abs))}_cooking_analysis.csv"
+    output_path = os.path.join(analysis_output_dir, output_filename)
+    df_enriched.to_csv(output_path, index=False)
+    logging.info(f"\nDetailed cooking task analysis saved to: {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -3,289 +3,250 @@ import os
 import json
 import re
 from botocore.exceptions import ClientError
-import json
 import argparse
 from tqdm import tqdm
-import glob
+from typing import List, Dict, Any
+import pandas as pd
+import logging
+import concurrent.futures
 
-# Calculate project root directory
+# Set up basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+from tasks.evaluation import (
+    extract_task_outcome,
+    aggregate_results_to_dataframe,
+)
+
+# --- Constants and Setup ---
+# Calculate project root directory to allow for absolute path resolution
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# Define output directory for analysis results
+# Define a centralized output directory for all analysis results
 analysis_output_dir = os.path.join(project_root, "experiments", "analysis_results")
-# Ensure the output directory exists
+# Ensure the output directory exists, creating it if necessary
 os.makedirs(analysis_output_dir, exist_ok=True)
 
-def download_s3_folders(bucket_name, s3_prefix, local_base_dir):
+def download_s3_folders(bucket_name: str, s3_prefix: str, local_base_dir: str, max_workers: int = 10) -> List[str]:
     """
-    Downloads groups of folders from S3 based on the next level of prefixes.
+    Downloads experiment folders and their contents from S3 concurrently.
+
+    This function uses a thread pool to parallelize the download of log files,
+    which can significantly speed up the process for large-scale experiments.
 
     Args:
-        bucket_name (str): Name of the S3 bucket.
-        s3_prefix (str): Prefix where the folders are located (e.g., 'my-experiments/').
-        local_base_dir (str): Local directory to download the folders to.
+        bucket_name (str): The name of the S3 bucket.
+        s3_prefix (str): The S3 prefix (folder path) where the experiments are stored.
+        local_base_dir (str): The local directory to download the folders into.
+        max_workers (int): The maximum number of concurrent download threads.
 
     Returns:
-        list: List of downloaded local folder paths.
+        List[str]: A list of local paths to the downloaded folders.
     """
     s3_client = boto3.client('s3')
     downloaded_folders = []
-
-    # Ensure local_base_dir is relative to project root if not absolute
+    
     if not os.path.isabs(local_base_dir):
         local_base_dir = os.path.join(project_root, local_base_dir)
 
+    def download_file(s3_key, local_path):
+        try:
+            s3_client.download_file(bucket_name, s3_key, local_path)
+            logging.debug(f"Successfully downloaded {s3_key} to {local_path}")
+        except ClientError as e:
+            logging.error(f"Failed to download {s3_key}: {e}")
+
     try:
-        # List objects with the prefix, delimited by '/' to find sub-prefixes (folders)
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=s3_prefix, Delimiter='/')
+        paginator = s3_client.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=bucket_name, Prefix=s3_prefix, Delimiter='/')
 
-        if 'CommonPrefixes' not in response:
-            print(f"No folders found under s3://{bucket_name}/{s3_prefix}")
-            return downloaded_folders
+        s3_folder_prefixes = []
+        for page in pages:
+            if 'CommonPrefixes' in page:
+                s3_folder_prefixes.extend([p['Prefix'] for p in page['CommonPrefixes']])
+        
+        if not s3_folder_prefixes:
+            logging.warning(f"No folders found under s3://{bucket_name}/{s3_prefix}")
+            return []
 
-        s3_folder_prefixes = [prefix['Prefix'] for prefix in response['CommonPrefixes']]
-        subfolder = s3_prefix.split('/')[-2]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_key = {}
+            for s3_folder_prefix in tqdm(s3_folder_prefixes, desc="Queueing downloads"):
+                folder_name = s3_folder_prefix.rstrip('/').split('/')[-1]
+                local_folder_path = os.path.join(local_base_dir, folder_name)
+                os.makedirs(local_folder_path, exist_ok=True)
+                downloaded_folders.append(local_folder_path)
 
-        for s3_folder_prefix in tqdm(s3_folder_prefixes):
-            folder_name = s3_folder_prefix.split('/')[-2] # Extract folder name
-            local_folder_path = os.path.join(local_base_dir, subfolder, folder_name)
-            os.makedirs(local_folder_path, exist_ok=True)
-            downloaded_folders.append(local_folder_path)
-
-            # Download files within the folder
-            objects_in_folder = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=s3_folder_prefix)
-            if 'Contents' in objects_in_folder:
-                for obj in objects_in_folder['Contents']:
-                    s3_key = obj['Key']
-                    local_file_path = os.path.join(local_folder_path, os.path.basename(s3_key))
-                    try:
-                        s3_client.download_file(bucket_name, s3_key, local_file_path)
-                    except Exception as e:
-                        print(f"Error downloading {s3_key}: {e}")
+                # List objects and submit download tasks
+                obj_pages = paginator.paginate(Bucket=bucket_name, Prefix=s3_folder_prefix)
+                for page in obj_pages:
+                    if 'Contents' in page:
+                        for obj in page['Contents']:
+                            s3_key = obj['Key']
+                            if not s3_key.endswith('/'): # Don't download "folders"
+                                local_file_path = os.path.join(local_folder_path, os.path.basename(s3_key))
+                                future = executor.submit(download_file, s3_key, local_file_path)
+                                future_to_key[future] = s3_key
             
-            else:
-                print(f"No files found in {s3_folder_prefix}")
+            for future in tqdm(concurrent.futures.as_completed(future_to_key), total=len(future_to_key), desc="Downloading files"):
+                s3_key = future_to_key[future]
+                try:
+                    future.result()
+                except Exception as exc:
+                    logging.error(f'{s3_key} generated an exception: {exc}')
 
     except ClientError as e:
-        print(f"Error accessing S3: {e}")
+        logging.error(f"Error accessing S3: {e}")
         return []
 
     return downloaded_folders
 
-def analyze_json_file(file_path):
+
+def aggregate_results(local_folders: List[str], task_definitions: Dict[str, Any]) -> pd.DataFrame:
     """
-    Analyzes a single JSON file to extract the task outcome.
+    Aggregates experiment results from a list of local folders into a DataFrame.
+
+    This function serves as the core analysis engine, iterating through each task
+    folder, extracting outcomes, and compiling them into a single, comprehensive
+    DataFrame for further analysis.
 
     Args:
-        file_path (str): Path to the JSON file.
+        local_folders (List[str]): A list of paths to the task run folders.
+        task_definitions (Dict[str, Any]): A dictionary of all task definitions,
+                                           keyed by task_id.
 
     Returns:
-        str or None: The task outcome string if found, otherwise None.
+        pd.DataFrame: A DataFrame containing the detailed evaluation results.
     """
-    try:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-            if 'turns' in data and isinstance(data['turns'], list):
-                for turn in reversed(data['turns']):  # Check turns from the end
-                    if turn.get('role') == 'system' and isinstance(turn.get('content'), str):
-                        if "Task successful ended with code : 2" in turn['content'] or "Task ended with score : 1" in turn["content"] or "Task ended in score: 1" in turn["content"]:
-                            return True
-        return False
-    except FileNotFoundError:
-        print(f"Error: File not found: {file_path}")
-        return None
-    except json.JSONDecodeError:
-        print(f"Error: Invalid JSON format in: {file_path}")
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred while processing {file_path}: {e}")
-        return None
+    task_outcomes = []
+    for folder_path in tqdm(local_folders, desc="Analyzing task folders"):
+        task_id = os.path.basename(folder_path.strip(os.sep))
+        task_def = task_definitions.get(task_id)
 
-def extract_result(folder_path):
-    folder_name = os.path.basename(folder_path)
-    json_files = glob.glob(os.path.join(folder_path, "*.json"))
-    assert len(json_files) == 2, f"Expected 2 json files in {folder_name}, found {len(json_files)}"
+        if not task_def:
+            logging.warning(f"No task definition found for task_id '{task_id}'. Skipping folder '{folder_path}'.")
+            continue
+        
+        if 'task_id' not in task_def:
+            task_def['task_id'] = task_id
 
-    if not json_files:
-        print(f"No JSON files found in {folder_name}")
-        return None
-    else: 
-        outcome = False
-        for json_file in json_files:
-            outcome = analyze_json_file(json_file)
-            if outcome:
-                return True
-        return False
-    
-def is_base(folder_path):
-    return "full_plan" in folder_path and "depth_0" in folder_path and "missing" not in folder_path
+        try:
+            # Use the core evaluation function
+            outcome = extract_task_outcome(folder_path, task_def)
+            # The model name is often part of the folder structure, let's try to extract it
+            # This is an example, and might need to be adapted based on the actual folder structure
+            try:
+                # e.g. experiments/my_exp_date/claude-3-5-sonnet-latest/task_1
+                model_name = folder_path.split(os.sep)[-2]
+                outcome.model_name = model_name
+            except IndexError:
+                outcome.model_name = "unknown"
 
-def base_without_plan(folder_path):
-    return "no_plan" in folder_path and "depth_0" in folder_path and "missing" in folder_path
-
-def aggregate_results(local_folders):
-    """
-    Aggregates the analysis results for each folder.
-
-    Args:
-        local_folders (list): List of local folder paths containing the JSON files.
-
-    Returns:
-        dict: A dictionary where keys are folder names and values are the aggregated outcomes.
-    """
-    aggregated_data = {}
-
-    total = 0
-    successful = 0
-
-    base_successful = 0
-    base_total = 0
-
-    base_no_plan_successful = 0
-    base_no_plan_total = 0
-
-    missing_successful = 0
-    missing_total = 0
-
-    full_plan_successful = 0
-    full_plan_total = 0
-
-    partial_plan_successful = 0
-    partial_plan_total = 0
-
-    no_plan_successful = 0
-    no_plan_total = 0
-
-    high_depth_successful = 0
-    high_depth_total = 0
-    for folder_path in tqdm(local_folders):
-        folder_name = os.path.basename(folder_path)
-
-        try: 
-            total += 1
-            result = extract_result(folder_path)
-            success = int(extract_result(folder_path))
-            successful += success
-
-            if "missing" in folder_path and not is_base(folder_path):
-                missing_successful += success
-                missing_total += 1
-            if is_base(folder_path):
-                base_successful += success
-                base_total += 1
-            if base_without_plan(folder_path):
-                base_no_plan_successful += success
-                base_no_plan_total += 1
-            if "full_plan" in folder_path and not is_base(folder_path):
-                full_plan_successful += success
-                full_plan_total += 1
-            if "partial_plan" in folder_path and not is_base(folder_path):
-                partial_plan_successful += success
-                partial_plan_total += 1
-            if "no_plan" in folder_path and not is_base(folder_path):
-                no_plan_successful += success
-                no_plan_total += 1
-            if "depth_1" in folder_path or "depth_2" in folder_path and not is_base(folder_path):
-                high_depth_successful += success
-                high_depth_total += 1
+            task_outcomes.append(outcome)
         except Exception as e:
-            print(f"Error processing {folder_name}: {e}")
-    
-    return {
-        "total": total,
-        "successful": successful,
-        "success_rate": successful / total if total > 0 else 0,
-        "base_total": base_total,
-        "base_successful": base_successful,
-        "base_success_rate": base_successful / base_total if base_total > 0 else 0,
-        "base_no_plan_total": base_no_plan_total,
-        "base_no_plan_successful": base_no_plan_successful,
-        "base_no_plan_success_rate": base_no_plan_successful / base_no_plan_total if base_no_plan_total > 0 else 0,
-        "missing_total": missing_total,
-        "missing_successful": missing_successful,
-        "missing_success_rate": missing_successful / missing_total if missing_total > 0 else 0,
-        "full_plan_total": full_plan_total,
-        "full_plan_successful": full_plan_successful,
-        "full_plan_success_rate": full_plan_successful / full_plan_total if full_plan_total > 0 else 0,
-        "partial_plan_total": partial_plan_total,
-        "partial_plan_successful": partial_plan_successful,
-        "partial_plan_success_rate": partial_plan_successful / partial_plan_total if partial_plan_total > 0 else 0,
-        "no_plan_total": no_plan_total,
-        "no_plan_successful": no_plan_successful,
-        "no_plan_success_rate": no_plan_successful / no_plan_total if no_plan_total > 0 else 0,
-        "high_depth_total": high_depth_total,
-        "high_depth_successful": high_depth_successful,
-        "high_depth_success_rate": high_depth_successful / high_depth_total if high_depth_total > 0 else 0
-    }
+            logging.error(f"Error processing folder {folder_path}: {e}")
 
-def get_immediate_subdirectories(a_dir):
-    # Ensure a_dir is relative to project root if not absolute
+    # Convert the list of dictionaries to a DataFrame
+    return aggregate_results_to_dataframe(task_outcomes)
+
+
+def get_immediate_subdirectories(a_dir: str) -> List[str]:
+    """
+    Gets a list of immediate subdirectories within a given directory.
+
+    Args:
+        a_dir (str): The directory to scan.
+
+    Returns:
+        List[str]: A list of full paths to the immediate subdirectories.
+    """
+    # Ensure a_dir is an absolute path for reliable processing
     if not os.path.isabs(a_dir):
         a_dir = os.path.join(project_root, a_dir)
+    
+    if not os.path.isdir(a_dir):
+        logging.warning(f"Directory not found: {a_dir}")
+        return []
+        
     return [os.path.join(a_dir, name) for name in os.listdir(a_dir)
             if os.path.isdir(os.path.join(a_dir, name))]
 
+def main() -> None:
+    """
+    Main function to run the analysis pipeline.
 
-# --- Main Execution ---
-if __name__ == "__main__":
-    # 1. Download folders from AWS or use local directory
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--s3_download', action="store_true", help='Download folders from S3')
-    parser.add_argument('--aws_bucket_name', default="mindcraft" , type=str, help='AWS bucket name')
-    parser.add_argument('--s3_folder_prefix', default="", type=str, help='S3 folder prefix')
-    # Change default input dir to 'experiments' relative to project root
-    parser.add_argument('--local_download_dir', default="experiments", type=str, help='Local directory containing results (relative to project root)')
+    Parses command-line arguments, downloads data from S3 if requested,
+    analyzes the experiment logs, and saves the results to a CSV file.
+    """
+    parser = argparse.ArgumentParser(description="Analyze Mindcraft experiment results.")
+    parser.add_argument('--s3_download', action="store_true", help='Download folders from S3 before analysis.')
+    parser.add_argument('--aws_bucket_name', default="mindcraft-experiments", type=str, help='The name of the AWS S3 bucket.')
+    parser.add_argument('--s3_folder_prefix', default="", type=str, help='The S3 prefix (folder) to download from.')
+    parser.add_argument('--local_dir', default="experiments", type=str, help='Local directory with experiment results (relative to project root).')
+    parser.add_argument('--task_file_path', required=True, type=str, help='Path to the task definition JSON file.')
     args = parser.parse_args()
 
-    AWS_BUCKET_NAME = args.aws_bucket_name
-    S3_FOLDER_PREFIX = args.s3_folder_prefix
-    
-    # Resolve local_download_dir relative to project root
-    local_download_dir_abs = args.local_download_dir
-    if not os.path.isabs(local_download_dir_abs):
-        local_download_dir_abs = os.path.join(project_root, local_download_dir_abs)
-        
-    # Construct LOCAL_DOWNLOAD_DIR based on the absolute path
-    if args.local_download_dir != "": # Original check seems redundant now, but kept logic
-        LOCAL_DOWNLOAD_DIR = local_download_dir_abs # Already includes prefix if s3_download
-        if args.s3_download and S3_FOLDER_PREFIX: # Append S3 prefix if downloading
-             LOCAL_DOWNLOAD_DIR = os.path.join(local_download_dir_abs, S3_FOLDER_PREFIX.replace('/', '_').rstrip('_'))
+    # --- Step 1: Determine Folders to Analyze ---
+    local_dir_abs = args.local_dir
+    if not os.path.isabs(local_dir_abs):
+        local_dir_abs = os.path.join(project_root, local_dir_abs)
+
+    if args.s3_download:
+        if not args.s3_folder_prefix:
+            logging.error("S3 folder prefix (--s3_folder_prefix) is required for S3 download.")
+            return
+        logging.info(f"Downloading folders from s3://{args.aws_bucket_name}/{args.s3_folder_prefix} to {local_dir_abs}...")
+        folders_to_analyze = download_s3_folders(args.aws_bucket_name, args.s3_folder_prefix, local_dir_abs)
     else:
-        LOCAL_DOWNLOAD_DIR = local_download_dir_abs # Should not happen with default
+        logging.info(f"Analyzing local folders in: {local_dir_abs}")
+        folders_to_analyze = get_immediate_subdirectories(local_dir_abs)
+
+    if not folders_to_analyze:
+        logging.warning("No folders found to analyze. Exiting.")
+        return
+
+    # --- Step 2: Load Task Definitions ---
+    try:
+        with open(args.task_file_path, 'r') as f:
+            task_definitions = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.error(f"Could not read or parse task file at '{args.task_file_path}': {e}")
+        return
+
+    # --- Step 3: Aggregate Results into a DataFrame ---
+    results_df = aggregate_results(folders_to_analyze, task_definitions)
+
+    if results_df.empty:
+        logging.warning("Analysis generated no results. Exiting.")
+        return
+
+    # --- Step 4: Perform High-Level Analysis and Print Summary ---
+    logging.info("\n--- Overall Results ---")
+    if 'overall_is_successful' in results_df.columns:
+        overall_success_rate = results_df['overall_is_successful'].mean()
+        logging.info(f"Total Tasks Analyzed: {len(results_df)}")
+        logging.info(f"Overall Success Rate: {overall_success_rate:.2%}")
+
+    logging.info("\n--- Analysis by Task Type ---")
+    if 'task_type' in results_df.columns:
+        success_by_type = results_df.groupby('task_type')['overall_is_successful'].agg(['mean', 'count'])
+        success_by_type.rename(columns={'mean': 'success_rate'}, inplace=True)
+        logging.info("\n" + success_by_type.to_string())
     
-    if (args.s3_download):
-        print(f"Downloading folders from s3://{AWS_BUCKET_NAME}/{S3_FOLDER_PREFIX} to {LOCAL_DOWNLOAD_DIR}...")
-        # Pass the absolute base path for downloads
-        folders = download_s3_folders(AWS_BUCKET_NAME, S3_FOLDER_PREFIX, local_download_dir_abs)
-    else: 
-        folders = get_immediate_subdirectories(local_download_dir_abs)
-        print(folders)
-        
-    if not folders:
-        print("No folders found or downloaded. Exiting.")
-        exit()
-        
-    results = aggregate_results(folders)
-    print(results)
-    # Hardcode output path within experiments/analysis_results/
-    results_file_path = os.path.join(analysis_output_dir, "analyse_results_output.txt")
-    with open(results_file_path, "w") as file:
-        file.write("Results\n")
-        for key, value in results.items():
-            file.write(f"{key}: {value}\n")
-    print(f"Results saved to {results_file_path}")
-    # if not downloaded_local_folders:
-    #     print("No folders downloaded. Exiting.")
-    #     exit()
+    logging.info("\n--- Analysis by Model Name ---")
+    if 'model_name' in results_df.columns:
+        success_by_model = results_df.groupby('model_name')['overall_is_successful'].agg(['mean', 'count'])
+        success_by_model.rename(columns={'mean': 'success_rate'}, inplace=True)
+        logging.info("\n" + success_by_model.to_string())
 
-    # print("\n--- Analyzing downloaded files ---")
-    # # 2. & 3. Analyze files and aggregate results
-    # results = aggregate_results(downloaded_local_folders)
+    # --- Step 5: Save Results to CSV ---
+    if args.s3_folder_prefix:
+        output_filename_base = args.s3_folder_prefix.strip('/').replace('/', '_')
+    else:
+        output_filename_base = os.path.basename(os.path.normpath(local_dir_abs))
+    
+    results_csv_path = os.path.join(analysis_output_dir, f"{output_filename_base}_analysis_results.csv")
+    results_df.to_csv(results_csv_path, index=False)
+    logging.info(f"\nDetailed analysis results saved to: {results_csv_path}")
 
-    # print("\n--- Aggregated Results ---")
-    # for folder, outcome in results.items():
-    #     print(f"Folder: {folder} -> {outcome}")
-
-    # Optional: Clean up downloaded files
-    # import shutil
-    # shutil.rmtree(LOCAL_DOWNLOAD_DIR)
-    # print(f"\nCleaned up {LOCAL_DOWNLOAD_DIR}")
+if __name__ == "__main__":
+    main()

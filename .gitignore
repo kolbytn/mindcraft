@@ -27,3 +27,5 @@ tasks/construction_tasks/test/**
 tasks/construction_tasks/train/**
 server_data*
 **/.DS_Store
+.venv/
+tasks/__pycache__/
