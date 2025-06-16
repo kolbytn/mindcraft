@@ -67,6 +67,8 @@ class TaskRunOutcome:
 
 import json
 import re
+import pandas as pd
+from tqdm import tqdm
 
 def analyze_agent_log(file_path: str) -> AgentOutcome:
     """
@@ -206,34 +208,129 @@ def extract_task_outcome(folder_path: str, task_definition: Dict[str, Any]) -> T
 def aggregate_results_to_dataframe(task_outcomes: List[TaskRunOutcome]) -> pd.DataFrame:
     """
     Converts a list of TaskRunOutcome objects into a Pandas DataFrame.
-
     This function is a key step in the analysis pipeline, transforming the raw
     outcome objects into a structured DataFrame suitable for advanced analysis,
     visualization, and reporting. It flattens nested metric dictionaries for
     easier access.
-
     Args:
         task_outcomes (List[TaskRunOutcome]): A list of task outcome objects to be aggregated.
-
     Returns:
         pd.DataFrame: A DataFrame where each row represents a single task run.
     """
     if not task_outcomes:
         return pd.DataFrame()
 
-    # Convert list of dataclasses to list of dicts
     outcome_dicts = [vars(outcome) for outcome in task_outcomes]
-    
-    # Create DataFrame
     df = pd.DataFrame(outcome_dicts)
-    
-    # Flatten the 'task_definition_metrics' dictionary into separate columns
+
     if 'task_definition_metrics' in df.columns:
         metrics_df = df['task_definition_metrics'].apply(pd.Series)
         metrics_df = metrics_df.add_prefix('metric_')
         df = pd.concat([df.drop(['task_definition_metrics'], axis=1), metrics_df], axis=1)
 
-    # The 'agent_outcomes' is a complex object (list of dataclasses).
-    # For now, we'll leave it as is, but it can be flattened further if needed.
-    
+    # Convert Enum members to their string values for CSV compatibility
+    if 'overall_completion_status' in df.columns:
+        df['overall_completion_status'] = df['overall_completion_status'].apply(lambda x: x.value)
+
     return df
+
+def aggregate_results(local_folders: List[str], task_definitions: Dict[str, Any], use_tqdm: bool = False) -> pd.DataFrame:
+    """
+    Aggregates experiment results from local folders into a DataFrame.
+    This function iterates through a list of folders, each representing a single
+    task run. It uses the `extract_task_outcome` function to analyze the agent
+    logs within each folder and compiles the results into a structured DataFrame.
+    Args:
+        local_folders (List[str]): A list of paths to the task run folders.
+        task_definitions (Dict[str, Any]): A dictionary of all task definitions,
+                                           keyed by task_id.
+        use_tqdm (bool): If True, display a progress bar.
+    Returns:
+        pd.DataFrame: A DataFrame containing the detailed evaluation results.
+    """
+    task_outcomes = []
+    
+    iterable = tqdm(local_folders, desc="Analyzing task folders") if use_tqdm else local_folders
+
+    for folder_path in iterable:
+        task_id = os.path.basename(folder_path.strip(os.sep))
+        task_def = task_definitions.get(task_id)
+
+        if not task_def:
+            logging.warning(f"No task definition found for task_id '{task_id}'. Skipping folder '{folder_path}'.")
+            continue
+        
+        if 'task_id' not in task_def:
+            task_def['task_id'] = task_id
+
+        try:
+            outcome = extract_task_outcome(folder_path, task_def)
+            task_outcomes.append(outcome)
+        except Exception as e:
+            logging.error(f"Error processing folder {folder_path}: {e}")
+
+    return aggregate_results_to_dataframe(task_outcomes)
+
+
+def check_folder_results(folder_path: str, task_file_path: str) -> pd.DataFrame:
+    """
+    Evaluates all subfolders in a given directory and prints a summary.
+    This function serves as a high-level entry point for analyzing an experiment
+    folder. It finds all immediate subdirectories, loads task definitions,
+    aggregates results, and prints a summary of success rates and completion
+    statuses.
+    Args:
+        folder_path (str): The path to the main experiment folder containing subfolders
+                           for each task run.
+        task_file_path (str): The path to the JSON file containing task definitions.
+    Returns:
+        pd.DataFrame: A DataFrame with the full evaluation results, or None if a
+                      critical error occurs.
+    """
+    logging.info(f"Checking results in folder: {folder_path}")
+    
+    if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
+        logging.error(f"Folder not found or is not a directory: {folder_path}")
+        return None
+
+    try:
+        with open(task_file_path, 'r') as f:
+            task_definitions = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.error(f"Error reading or parsing task definition file {task_file_path}: {e}")
+        return None
+
+    subfolders = [f.path for f in os.scandir(folder_path) if f.is_dir()]
+    if not subfolders:
+        logging.warning("No subfolders found to evaluate.")
+        return pd.DataFrame()
+
+    logging.info(f"Found {len(subfolders)} subfolders to evaluate.")
+    results_df = aggregate_results(subfolders, task_definitions)
+
+    if results_df.empty:
+        logging.warning("No results were generated.")
+        return results_df
+
+    # Calculate and print summary statistics from the DataFrame
+    total_tasks = len(results_df)
+    successful_tasks = results_df['overall_is_successful'].sum()
+    success_rate = (successful_tasks / total_tasks) if total_tasks > 0 else 0.0
+    
+    logging.info("\n=== Evaluation Results Summary ===")
+    logging.info(f"Total tasks evaluated: {total_tasks}")
+    logging.info(f"Successful tasks: {successful_tasks}")
+    logging.info(f"Overall Success Rate: {success_rate:.2%}")
+
+    # You can add more detailed analysis here, e.g., by task type
+    if 'task_type' in results_df.columns:
+        logging.info("\n--- Success Rate by Task Type ---")
+        type_success = results_df.groupby('task_type')['overall_is_successful'].mean().map("{:.2%}".format)
+        logging.info(type_success)
+
+    if 'overall_completion_status' in results_df.columns:
+        logging.info("\n--- Completion Status Distribution ---")
+        status_dist = results_df['overall_completion_status'].value_counts(normalize=True).map("{:.2%}".format)
+        logging.info(status_dist)
+        
+    return results_df

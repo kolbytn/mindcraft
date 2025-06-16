@@ -27,8 +27,11 @@ tasks/construction_tasks/test/**
 tasks/construction_tasks/train/**
 server_data*
 **/.DS_Store
+# Python
 .venv/
-tasks/__pycache__/
+__pycache__/
+*.pyc
+*~
 
 # npm cache
 .npm-cache/

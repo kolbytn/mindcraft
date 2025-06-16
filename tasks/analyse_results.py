@@ -14,8 +14,7 @@ import concurrent.futures
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 from tasks.evaluation import (
-    extract_task_outcome,
-    aggregate_results_to_dataframe,
+    aggregate_results,
 )
 
 # --- Constants and Setup ---
@@ -100,54 +99,45 @@ def download_s3_folders(bucket_name: str, s3_prefix: str, local_base_dir: str, m
 
     return downloaded_folders
 
-
-def aggregate_results(local_folders: List[str], task_definitions: Dict[str, Any]) -> pd.DataFrame:
+def analyze_results_with_model_extraction(local_folders: List[str], task_definitions: Dict[str, Any]) -> pd.DataFrame:
     """
-    Aggregates experiment results from a list of local folders into a DataFrame.
-
-    This function serves as the core analysis engine, iterating through each task
-    folder, extracting outcomes, and compiling them into a single, comprehensive
-    DataFrame for further analysis.
-
+    Analyzes experiment results and attempts to extract model names from folder structure.
+    
+    This function wraps the centralized aggregate_results function but adds
+    model name extraction specific to the analysis script's needs.
+    
     Args:
         local_folders (List[str]): A list of paths to the task run folders.
         task_definitions (Dict[str, Any]): A dictionary of all task definitions,
                                            keyed by task_id.
-
+    
     Returns:
-        pd.DataFrame: A DataFrame containing the detailed evaluation results.
+        pd.DataFrame: A DataFrame containing the detailed evaluation results with model names.
     """
-    task_outcomes = []
-    for folder_path in tqdm(local_folders, desc="Analyzing task folders"):
-        task_id = os.path.basename(folder_path.strip(os.sep))
-        task_def = task_definitions.get(task_id)
-
-        if not task_def:
-            logging.warning(f"No task definition found for task_id '{task_id}'. Skipping folder '{folder_path}'.")
-            continue
+    # Use the centralized function with progress bar enabled
+    results_df = aggregate_results(local_folders, task_definitions, use_tqdm=True)
+    
+    # Extract model names from folder paths if possible
+    if not results_df.empty and 'task_id' in results_df.columns:
+        model_names = []
+        folder_map = {os.path.basename(folder.strip(os.sep)): folder for folder in local_folders}
         
-        if 'task_id' not in task_def:
-            task_def['task_id'] = task_id
-
-        try:
-            # Use the core evaluation function
-            outcome = extract_task_outcome(folder_path, task_def)
-            # The model name is often part of the folder structure, let's try to extract it
-            # This is an example, and might need to be adapted based on the actual folder structure
-            try:
-                # e.g. experiments/my_exp_date/claude-3-5-sonnet-latest/task_1
-                model_name = folder_path.split(os.sep)[-2]
-                outcome.model_name = model_name
-            except IndexError:
-                outcome.model_name = "unknown"
-
-            task_outcomes.append(outcome)
-        except Exception as e:
-            logging.error(f"Error processing folder {folder_path}: {e}")
-
-    # Convert the list of dictionaries to a DataFrame
-    return aggregate_results_to_dataframe(task_outcomes)
-
+        for task_id in results_df['task_id']:
+            matching_folder = folder_map.get(task_id)
+            
+            if matching_folder:
+                try:
+                    # e.g. experiments/my_exp_date/claude-3-5-sonnet-latest/task_1
+                    model_name = os.path.basename(os.path.dirname(matching_folder))
+                    model_names.append(model_name)
+                except IndexError:
+                    model_names.append("unknown")
+            else:
+                model_names.append("unknown")
+        
+        results_df['model_name'] = model_names
+    
+    return results_df
 
 def get_immediate_subdirectories(a_dir: str) -> List[str]:
     """
@@ -213,7 +203,7 @@ def main() -> None:
         return
 
     # --- Step 3: Aggregate Results into a DataFrame ---
-    results_df = aggregate_results(folders_to_analyze, task_definitions)
+    results_df = analyze_results_with_model_extraction(folders_to_analyze, task_definitions)
 
     if results_df.empty:
         logging.warning("Analysis generated no results. Exiting.")
