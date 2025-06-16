@@ -16,7 +16,7 @@ let io;
 let server;
 const agent_connections = {};
 
-const default_settings = JSON.parse(readFileSync(path.join(__dirname, 'default_settings.json'), 'utf8'));
+const settings_spec = JSON.parse(readFileSync(path.join(__dirname, 'public/settings_spec.json'), 'utf8'));
 
 class AgentConnection {
     constructor(settings) {
@@ -58,7 +58,22 @@ export function createMindServer(host_public = false, port = 8080) {
 
         socket.on('create-agent', (settings, callback) => {
             console.log('API create agent...');
-            settings = { ...default_settings, ...settings };
+            for (let key in settings_spec) {
+                if (!(key in settings)) {
+                    if (settings_spec[key].required) {
+                        callback({ success: false, error: `Setting ${key} is required` });
+                        return;
+                    }
+                    else {
+                        settings[key] = settings_spec[key].default;
+                    }
+                }
+            }
+            for (let key in settings) {
+                if (!(key in settings_spec)) {
+                    delete settings[key];
+                }
+            }
             if (settings.profile?.name) {
                 if (settings.profile.name in agent_connections) {
                     callback({ success: false, error: 'Agent already exists' });

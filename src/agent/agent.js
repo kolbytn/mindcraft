@@ -23,10 +23,10 @@ export class Agent {
         this.count_id = count_id;
         
         // Initialize components with more detailed error handling
-        console.log(`Initializing agent ${this.name}...`);
         this.actions = new ActionManager(this);
         this.prompter = new Prompter(this, settings.profile);
         this.name = this.prompter.getName();
+        console.log(`Initializing agent ${this.name}...`);
         this.history = new History(this);
         this.coder = new Coder(this);
         this.npc = new NPCContoller(this);
