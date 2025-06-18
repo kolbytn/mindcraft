@@ -179,7 +179,8 @@ def check_folder_results(folder_path):
             
         # Print summary
         print("\n=== Evaluation Results ===")
-        print(f"Total tasks evaluated: {results['total']}")
+        print("\nEvaluating Tasks!")
+        print(f"Results so far: {results['total']}")
 
         if "construction" not in folder_path:
             print(f"Successful tasks: {results['successful']}")
@@ -517,7 +518,7 @@ def make_ops(agent_names, session_name):
     if agents_op:
         print("Agents are operators! You are good to go :D")
     else: 
-        print("Agents are not operators! Something went wrong :(")
+        print("Agents are not operators! We will need to try making them operators again!")
         make_ops(agent_names, session_name)
 
 def check_agent_ops(agent_names, ops_file="ops.json"):

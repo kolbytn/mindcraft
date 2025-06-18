@@ -48,6 +48,7 @@ export class VLLM {
         try {
             console.log('Awaiting openai api response...')
             // console.log('Messages:', messages);
+            // todo set max_tokens, temperature, top_p, etc. in pack
             let completion = await this.vllm.chat.completions.create(pack);
             if (completion.choices[0].finish_reason == 'length')
                 throw new Error('Context length exceeded');

@@ -1,0 +1,127 @@
+{
+    "profile": {
+        "type": "object",
+        "required": true,
+        "description": "The profile object to use, including name, prompts, and examples"
+    },
+    "minecraft_version": {
+        "type": "string",
+        "description": "The version of Minecraft to use",
+        "default": "1.21.1"
+    },
+    "host": {
+        "type": "string",
+        "description": "The minecraft server host address to connect to",
+        "default": "127.0.0.1"
+    },
+    "port": {
+        "type": "number",
+        "description": "The minecraft server port to connect to",
+        "default": 55916
+    },
+    "auth": {
+        "type": "string",
+        "description": "The authentication method to use",
+        "default": "offline"
+    },
+    "base_profile": {
+        "type": "string",
+        "description": "Allowed values: survival, creative, god_mode. Each has fine tuned settings for different game modes.",
+        "default": "survival"
+    },
+    "load_memory": {
+        "type": "boolean",
+        "description": "Whether to load bot's previous memory",
+        "default": false
+    },
+    "init_message": {
+        "type": "string",
+        "description": "The initial message to send to the bot",
+        "default": "Respond with hello world and your name"
+    },
+    "only_chat_with": {
+        "type": "array",
+        "description": "List of agents to only chat with. If empty, the bot will chat publicly",
+        "default": []
+    },
+    "speak": {
+        "type": "boolean",
+        "description": "Whether to enable text-to-speech reading on the host machine",
+        "default": false
+    },
+    "language": {
+        "type": "string",
+        "description": "The language to automatically translate to and from using google translate",
+        "default": "en"
+    },
+    "allow_vision": {
+        "type": "boolean",
+        "description": "Whether to allow vision capabilities",
+        "default": false
+    },
+    "blocked_actions": {
+        "type": "array",
+        "description": "List of actions that are blocked",
+        "default": ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"]
+    },
+    "relevant_docs_count": {
+        "type": "number",
+        "description": "Number of relevant function documents to include in the prompt for LLM code writing",
+        "default": 5
+    },
+    "max_messages": {
+        "type": "number",
+        "description": "Maximum number of recent messages to keep in context for LLM",
+        "default": 15
+    },
+    "num_examples": {
+        "type": "number",
+        "description": "Number of examples to select to help prompt better LLM responses",
+        "default": 2
+    },
+    "max_commands": {
+        "type": "number",
+        "description": "Maximum number of commands allowed in consecutive responses. -1 for no limit",
+        "default": -1
+    },
+    "narrate_behavior": {
+        "type": "boolean",
+        "description": "Whether to openly chat automatic behavior like 'Picking up item!'",
+        "default": true
+    },
+    "log_all_prompts": {
+        "type": "boolean",
+        "description": "Whether to log all prompts to file. Can be very verbose.",
+        "default": false
+    },
+    "verbose_commands": {
+        "type": "boolean",
+        "description": "Whether to show full command syntax in bot responses. If false will use a shortened syntax.",
+        "default": true
+    },
+    "chat_bot_messages": {
+        "type": "boolean",
+        "description": "Whether to publicly chat messages to and from other bots",
+        "default": true
+    },
+    "render_bot_view": {
+        "type": "boolean",
+        "description": "Whether to render bot view for user observation. Does not give bot vision.",
+        "default": false
+    },
+    "allow_insecure_coding": {
+        "type": "boolean",
+        "description": "Whether to allow newAction command that let's LLM write/run code on host computer. Despite sandboxxing, it is potentially insecure.",
+        "default": false
+    },
+    "code_timeout_mins": {
+        "type": "number",
+        "description": "Number of minutes to allow code execution. -1 for no timeout",
+        "default": -1
+    },
+    "task": {
+        "type": "object",
+        "description": "The task object to give the agent on start. If null, the agent will not have a task.",
+        "default": null
+    }
+}

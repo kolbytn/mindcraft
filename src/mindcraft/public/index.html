@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mindcraft</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        #agents {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #ffffff;
+        }
+        .agent {
+            margin: 10px 0;
+            padding: 10px;
+            background: #363636;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .restart-btn, .start-btn, .stop-btn {
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .restart-btn {
+            background: #4CAF50;
+        }
+        .start-btn {
+            background: #2196F3;
+        }
+        .stop-btn {
+            background: #f44336;
+        }
+        .restart-btn:hover { background: #45a049; }
+        .start-btn:hover { background: #1976D2; }
+        .stop-btn:hover { background: #d32f2f; }
+        .status-icon {
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .status-icon.online {
+            color: #4CAF50;
+        }
+        .status-icon.offline {
+            color: #f44336;
+        }
+        #settingsForm {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .setting-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #3a3a3a;
+            padding: 6px 8px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+        .setting-wrapper label {
+            flex: 0 0 50%;
+            font-size: 0.9em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .setting-wrapper input[type="text"],
+        .setting-wrapper input[type="number"] {
+            flex: 1 1 0;
+            background: #262626;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            border-radius: 4px;
+            padding: 4px 6px;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .setting-wrapper input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+        .agent-viewer {
+            width: 200px;
+            height: 150px;
+            border: none;
+            margin-left: 10px;
+        }
+        .start-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .agent-view-container {
+            margin-top: 6px;
+            display: flex;
+            justify-content: flex-start;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mindcraft</h1>
+    <div id="agents"></div>
+
+    <div id="createAgentSection" style="margin-top:20px;background:#2d2d2d;padding:20px;border-radius:8px;">
+        <h2>Create Agent</h2>
+        <div id="settingsForm"></div>
+        <div id="profileStatus" style="margin-top:6px;font-style:italic;color:#cccccc;">Profile: Not uploaded</div>
+        <div style="margin-top:10px;">
+            <button id="uploadProfileBtn" class="start-btn">Upload Profile</button>
+            <input type="file" id="profileFileInput" accept=".json,application/json" style="display:none">
+            <button id="submitCreateAgentBtn" class="start-btn" disabled>Create Agent</button>
+        </div>
+        <div id="createError" style="color:#f44336;margin-top:10px;"></div>
+    </div>
+
+    <script>
+        const socket = io();
+        const agentsDiv = document.getElementById('agents');
+        let settingsSpec = {};
+        let profileData = null;
+        const agentSettings = {};
+
+        fetch('/settings_spec.json')
+            .then(r => r.json())
+            .then(spec => {
+                settingsSpec = spec;
+                const form = document.getElementById('settingsForm');
+                Object.keys(spec).forEach(key => {
+                    if (key === 'profile') return; // profile handled via upload
+                    const cfg = spec[key];
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'setting-wrapper';
+                    const label = document.createElement('label');
+                    label.textContent = key;
+                    label.title = cfg.description || '';
+                    let input;
+                    switch (cfg.type) {
+                        case 'boolean':
+                            input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cfg.default === true;
+                            break;
+                        case 'number':
+                            input = document.createElement('input');
+                            input.type = 'number';
+                            input.value = cfg.default;
+                            break;
+                        default:
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.value = typeof cfg.default === 'object' ? JSON.stringify(cfg.default) : cfg.default;
+                    }
+                    input.title = cfg.description || '';
+                    input.id = `setting-${key}`;
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(input);
+                    form.appendChild(wrapper);
+                });
+            });
+
+        document.getElementById('uploadProfileBtn').addEventListener('click', () => {
+            document.getElementById('profileFileInput').click();
+        });
+
+        document.getElementById('profileFileInput').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    profileData = JSON.parse(ev.target.result);
+                    document.getElementById('submitCreateAgentBtn').disabled = false;
+                    document.getElementById('profileStatus').textContent = `Profile: ${profileData.name || 'Uploaded'}`;
+                    document.getElementById('createError').textContent = '';
+                } catch (err) {
+                    document.getElementById('createError').textContent = 'Invalid profile JSON: ' + err.message;
+                    profileData = null;
+                    document.getElementById('submitCreateAgentBtn').disabled = true;
+                    document.getElementById('profileStatus').textContent = 'Profile: Not uploaded';
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        document.getElementById('submitCreateAgentBtn').addEventListener('click', () => {
+            if (!profileData) return;
+            const settings = { profile: profileData };
+            Object.keys(settingsSpec).forEach(key => {
+                if (key === 'profile') return;
+                const input = document.getElementById(`setting-${key}`);
+                if (!input) return;
+                const type = settingsSpec[key].type;
+                let val;
+                if (type === 'boolean') val = input.checked;
+                else if (type === 'number') val = Number(input.value);
+                else if (type === 'array' || type === 'object') {
+                    try { val = JSON.parse(input.value); }
+                    catch { val = input.value; }
+                } else val = input.value;
+                settings[key] = val;
+            });
+            socket.emit('create-agent', settings, res => {
+                if (!res.success) {
+                    document.getElementById('createError').textContent = res.error || 'Unknown error';
+                } else {
+                    // reset on success
+                    profileData = null;
+                    document.getElementById('submitCreateAgentBtn').disabled = true;
+                    document.getElementById('profileStatus').textContent = 'Profile: Not uploaded';
+                    document.getElementById('createError').textContent = '';
+                }
+            });
+        });
+
+        function fetchAgentSettings(name) {
+            return new Promise((resolve) => {
+                if (agentSettings[name]) { resolve(agentSettings[name]); return; }
+                socket.emit('get-settings', name, res => {
+                    if (res.settings) {
+                        agentSettings[name] = res.settings;
+                        resolve(res.settings);
+                    } else resolve(null);
+                });
+            });
+        }
+
+        async function renderAgents(agents) {
+            // fetch settings for any new agents
+            await Promise.all(agents.map(a => fetchAgentSettings(a.name)));
+
+            agentsDiv.innerHTML = agents.length ?
+                agents.map((agent, idx) => {
+                    const cfg = agentSettings[agent.name] || {};
+                    const showViewer = cfg.render_bot_view === true;
+                    const viewerHTML = showViewer ? `<div class="agent-view-container"><iframe class="agent-viewer" src="http://localhost:${3000 + idx}"></iframe></div>` : '';
+                    return `
+                    <div class="agent">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span><span class="status-icon ${agent.in_game ? 'online' : 'offline'}">●</span>${agent.name}</span>
+                            <div style="display:flex;align-items:center;">
+                                ${agent.in_game ? `
+                                    <button class="stop-btn" onclick="stopAgent('${agent.name}')">Stop</button>
+                                    <button class="restart-btn" onclick="restartAgent('${agent.name}')">Restart</button>
+                                    <input type="text" id="messageInput-${agent.name}" placeholder="Enter message..." style="margin-left:4px;">
+                                    <button class="start-btn" onclick="sendMessage('${agent.name}', document.getElementById('messageInput-${agent.name}').value)">Send</button>
+                                ` : `
+                                    <button class="start-btn" onclick="startAgent('${agent.name}')">Start</button>
+                                `}
+                            </div>
+                        </div>
+                        ${viewerHTML}
+                    </div>`;
+                }).join('') +
+                `<button class="stop-btn" onclick="killAllAgents()">Stop All</button>
+                 <button class="stop-btn" onclick="shutdown()">Shutdown</button>` :
+                '<div class="agent">No agents connected</div>';
+        }
+
+        socket.on('agents-update', agents => { renderAgents(agents); });
+
+        function restartAgent(n) { socket.emit('restart-agent', n); }
+        function startAgent(n) { socket.emit('start-agent', n); }
+        function stopAgent(n) { socket.emit('stop-agent', n); }
+        function killAllAgents() { socket.emit('stop-all-agents'); }
+        function shutdown() { socket.emit('shutdown'); }
+        function sendMessage(n, m) { socket.emit('send-message', n, m); }
+    </script>
+</body>
+</html> 

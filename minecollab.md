@@ -41,7 +41,15 @@ You can view the crafting task in action [here](https://www.youtube.com/shorts/V
 
 ## Installation 
 
+You **DO NOT** need Linux to run this, you can run on Windows with the --no-launch-world flag and by installing git bash. 
+
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
+
+If you don't own Minecraft you can run a limited version solely for offline games using these instructions: 
+1. Download the TLauncher https://tlauncher.org/en/
+2. Enter a username and select version 1.21.1
+3. Click "Multiplayer" and then "Direct Connection"
+4. Then enter "localhost:55916" and hit `Join Server`
 
 Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. **Unzip the server_data.zip in the base `tasks/` folder**.
 
@@ -55,9 +63,22 @@ pip install -r requirements.txt
 
 Then, you can run the evaluation_script **from the project root** using `python tasks/evaluation_script.py --task_path {your-task-path} --model {model you want to use}`. 
 
+### Tmux Installation
+**MacOS**: 
+1. If brew isn't already installed run `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+2. `brew install tmux`
+
+**Linux**: `apt-get -y install tmux`
+
+**Windows**: You can not use tmux on Windows, but you can run tasks with the --no-launch-world flag. Run
+```
+cd /tasks/server_data/
+java -jar server.jar
+```
+
 If you want to run with vllm be sure to run with `--api vllm --url {your_url_for_vllm} --model {model_name}`, by default vllm will use http://127.0.0.1:8000/v1 as the url for quering the model!
 
-When running with construction tasks, make sure to set the flag `--insecure_coding` so that the agents can be allowed to write freeform javascript code to complete the tasks. However, when using insecure coding it is highly recommended to use a docker container to avoid damage to your computer. 
+When running with construction tasks, make sure to set the flag `--insecure_coding` so that the agents can be allowed to write freeform javascript code to complete the tasks. However, when using insecure coding it is **highly recommended** to use a docker container to avoid damage to your computer. 
 
 When running an experiment that requires more than 2 agents, use the `--num_agents` flag to match the number of agents in your task file. For example, if you are running a task file with 3 agents, use `--num_agents 3`. 
 
@@ -81,7 +102,7 @@ python tasks/evaluation_script.py --task_path {path_to_two_agent_construction_ta
 
 When you launch the evaluation script, you will see the minecraft server being launched. If you want to join this world, you can connect to it on the port localhost:55916 the way you would a standard Minecraft world (go to single player -> direct connection -> type in localhost:55916) It may take a few minutes for everything to be properly loaded - as first the agents need to be added to the world and given the correct permissions to use cheats and add inventory. After about 5 minutes everything should be loaded and working. If you wish to kill the experiment run `tmux kill-server`. Sometimes there will be issues copying the files, if this happens you can run the python file twice. 
 
-## Installation (without tmux)
+## Windows Installation (without tmux)
 
 If you are on a machine that can't run tmux (like a Windows PC without WSL) or you don't care about doing evaluations only running tasks you can run the following script 
 
@@ -99,7 +120,7 @@ As you run, the evalaution script will evaluate the performance so far. It will 
 
 ### Running multiple worlds in parallel
 
-You can use `--num_parallel` to run multiple Minecraft worlds in parallel. This will launch `n` tmux shells, claled `server_i` and shell `i`, where `i` corresponds to ith parallel world. It will also copy worlds into `server_data_i` as well. On an M3 Mac with 34 GB of RAM, we can normally support up to 4 parallel worlds. When running an open source model, it is more likely you will be constrained by the throughput and size of your GPU RAM. On a cluster of 8 H100s you can expect to run 4 experiments in parallel. However, for best performance it is advisable to only use one parallel world. 
+You can use `--num_parallel` to run multiple Minecraft worlds in parallel. This will launch `n` tmux shells, called `server_i` and shell `i`, where `i` corresponds to ith parallel world. It will also copy worlds into `server_data_i` as well. On an M3 Mac with 34 GB of RAM, we can normally support up to 4 parallel worlds. When running an open source model, it is more likely you will be constrained by the throughput and size of your GPU RAM. On a cluster of 8 H100s you can expect to run 4 experiments in parallel. However, for best performance it is advisable to only use one parallel world. 
 
 ### Using an S3 Bucket to store files 
 To use S3 set the --s3 flag and the --bucket_name to use an s3 bucket to log all the files collected. It will also copy the /bots folder in this case with all of the files in there. 

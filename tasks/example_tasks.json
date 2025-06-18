@@ -26,7 +26,7 @@
             }
         },
         "type": "debug",
-        "timeout": 60
+        "timeout": 25
     },
     "debug_2_agent_timeout": {
         "goal": "Just stand at a place and don't do anything",
