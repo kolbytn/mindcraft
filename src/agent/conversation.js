@@ -1,10 +1,9 @@
-import settings from '../../settings.js';
-import { readFileSync } from 'fs';
+import settings from './settings.js';
 import { containsCommand } from './commands/index.js';
-import { sendBotChatToServer } from './agent_proxy.js';
+import { sendBotChatToServer } from './mindserver_proxy.js';
 
 let agent;
-let agent_names = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
+let agent_names = [];
 let agents_in_game = [];
 
 class Conversation {

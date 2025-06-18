@@ -62,8 +62,8 @@ export class GroqCloudAPI {
             }
             log(JSON.stringify([{ role: "system", content: systemMessage }].concat(turns)), responseText);
             // Original cleaning of <think> tags for the *returned* response (not affecting log)
-            responseText = responseText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-            return responseText;
+            res = responseText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            return res;
         } catch(err) {
             if (err.message.includes("content must be a string")) {
                 res = "Vision is only supported by certain models.";

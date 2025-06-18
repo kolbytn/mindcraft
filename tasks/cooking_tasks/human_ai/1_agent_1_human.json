@@ -1,0 +1,38 @@
+{
+    "multiagent_cooking_bread_golden_apple": {
+        "type": "cooking",
+        "recipes": {
+            "bread": [
+                "Step 1: Go to the farm and collect 3 wheat.",
+                "Step 2: Go to the crafting table and use the wheat to craft bread."
+            ],
+            "golden_apple": [
+                "Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.",
+                "Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple."
+            ]
+        },
+        "agent_count": 1,
+        "human_count": 1,
+        "target": {
+            "bread": 1,
+            "golden_apple": 1
+        },
+        "initial_inventory": {
+            "0": {
+                "gold_ingot": 4,
+                "apple": 1
+            },
+            "1": {
+                "gold_ingot": 4
+            }
+        },
+        "goal": {
+            "0": "Collaborate with other agents around you to make bread, golden_apple, The recipes are as follows:\nRecipe for bread:\n['Step 1: Go to the farm and collect 3 wheat.', 'Step 2: Go to the crafting table and use the wheat to craft bread.']\nRecipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']\n",
+            "1": "Collaborate with other agents around you to make bread, golden_apple, The recipes are as follows:\nRecipe for bread:\n['Step 1: Go to the farm and collect 3 wheat.', 'Step 2: Go to the crafting table and use the wheat to craft bread.']\nRecipe for golden_apple:\n['Step 1: Get 1 apple and 8 gold ingots from your inventory or other bots.', 'Step 2: Go to the crafting table and surround the apple with the gold ingots to create a golden apple.']\n"
+        },
+        "conversation": "Let's collaborate to make bread, golden_apple, ",
+        "usernames": [
+            "izzycw"
+        ]
+    }
+}

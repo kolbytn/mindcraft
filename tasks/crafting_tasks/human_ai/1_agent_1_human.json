@@ -1,0 +1,31 @@
+{
+    "multiagent_crafting_pink_wool_full_plan__depth_0": {
+        "goal": "Collaborate with other agents to craft an pink_wool",
+        "conversation": "Let's work together to craft an pink_wool.",
+        "initial_inventory": {
+            "0": {
+                "pink_dye": 1
+            },
+            "1": {
+                "black_wool": 1
+            }
+        },
+        "agent_count": 1,
+        "target": "pink_wool",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 1,
+        "depth": 0,
+        "timeout": 300,
+        "blocked_actions": {
+            "0": [],
+            "1": []
+        },
+        "missing_items": [],
+        "human_count": 1,
+        "usernames": [
+            "izzycw"
+        ],
+        "requires_ctable": false
+    }
+}
