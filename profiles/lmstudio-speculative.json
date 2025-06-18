@@ -1,0 +1,10 @@
+{
+    "name": "qwen3",
+    "model": {
+        "url": "ws://127.0.0.1:1234",
+        "model": "lmstudio/qwen2.5-14b-instruct",
+        "params": {
+            "draftModel": "qwen2.5-1.5b-instruct"
+        }
+    }
+}
