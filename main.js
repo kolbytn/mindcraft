@@ -3,6 +3,7 @@ import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { readFileSync } from 'fs';
+import { initTTS } from './src/process/tts_process.js';
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
@@ -70,3 +71,4 @@ for (let profile of settings.profiles) {
     settings.profile = profile_json;
     Mindcraft.createAgent(settings);
 }
+initTTS();

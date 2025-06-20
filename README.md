@@ -16,13 +16,13 @@ Do not connect this bot to public servers with coding enabled. This project allo
 
 ## Install and Run
 
-1. Make sure you have the requirements above.
+1. Make sure you have the requirements above. If you plan to use the STT (Speech-to-Text) feature, also review the "Installation Prerequisites" section regarding `naudiodon`.
 
 2. Clone or download this repository (big green button) 'git clone https://github.com/kolbytn/mindcraft.git'
 
 3. Rename `keys.example.json` to `keys.json` and fill in your API keys (you only need one). The desired model is set in `andy.json` or other profiles. For other models refer to the table below.
 
-4. In terminal/command prompt, run `npm install` from the installed directory
+4. In terminal/command prompt, run `npm install` from the installed directory. (Note: If `naudiodon` fails to build and you don't need STT, you can usually proceed.)
 
 5. Start a minecraft world and open it to LAN on localhost port `55916`
 
@@ -53,7 +53,7 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `anthropic` | `ANTHROPIC_API_KEY` | `claude-3-haiku-20240307` | [docs](https://docs.anthropic.com/claude/docs/models-overview) |
 | `xai` | `XAI_API_KEY` | `grok-2-1212` | [docs](https://docs.x.ai/docs) |
 | `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` | [docs](https://api-docs.deepseek.com/) |
-| `ollama` (local) | n/a | `ollama/llama3.1` | [docs](https://ollama.com/library) |
+| `ollama` (local) | n/a | `ollama/sweaterdog/andy-4` | [docs](https://ollama.com/library) |
 | `qwen` | `QWEN_API_KEY` | `qwen-max` | [Intl.](https://www.alibabacloud.com/help/en/model-studio/developer-reference/use-qwen-by-calling-api)/[cn](https://help.aliyun.com/zh/model-studio/getting-started/models) |
 | `mistral` | `MISTRAL_API_KEY` | `mistral-large-latest` | [docs](https://docs.mistral.ai/getting-started/models/models_overview/) |
 | `replicate` | `REPLICATE_API_KEY` | `replicate/meta/meta-llama-3-70b-instruct` | [docs](https://replicate.com/collections/language-models) |
@@ -66,7 +66,25 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `vllm` | n/a | `vllm/llama3` | n/a |
 
 If you use Ollama, to install the models used by default (generation and embedding), execute the following terminal command:
-`ollama pull llama3.1 && ollama pull nomic-embed-text`
+`ollama pull sweaterdog/andy-4 && ollama pull nomic-embed-text`
+<details>
+  <summary>Additional info about Andy-4...</summary>
+  
+  ![image](https://github.com/user-attachments/assets/215afd01-3671-4bb6-b53f-4e51e710239a)
+
+
+  Andy-4 is a community made, open-source model made by Sweaterdog to play Minecraft.
+  Since Andy-4 is open-source, which means you can download the model, and play with it offline and for free.
+
+  The Andy-4 collection of models has reasoning and non-reasoning modes, sometimes the model will reason automatically without being prompted.
+  If you want to specifically enable reasoning, use the `andy-4-reasoning.json` profile.
+  Some Andy-4 models may not be able to disable reasoning, no matter what profile is used.
+
+  Andy-4 has many different models, and come in different sizes.
+  For more information about which model size is best for you, check [Sweaterdog's Ollama page](https://ollama.com/Sweaterdog/Andy-4)
+
+  If you have any Issues, join the Mindcraft server, and ping `@Sweaterdog` with your issue, or leave an issue on the [Andy-4 huggingface repo](https://huggingface.co/Sweaterdog/Andy-4/discussions/new)
+</details>
 
 ### Online Servers
 To connect to online servers your bot will need an official Microsoft/Minecraft account. You can use your own personal one, but will need another account if you want to connect too and play with it. To connect, change these lines in `settings.js`:
@@ -101,6 +119,21 @@ When running in docker, if you want the bot to join your local minecraft server,
 ```
 
 To connect to an unsupported minecraft version, you can try to use [viaproxy](services/viaproxy/README.md)
+
+## STT in Mindcraft
+
+STT allows you to speak to the model if you have a microphone
+
+STT can be enabled in `settings.js` under the section that looks like this:
+```javascript
+    "stt_transcription": true, // Change this to "true" to enable STT
+    "stt_username": "SYSTEM",
+    "stt_agent_name": ""
+```
+
+The Text to Speech engine will begin listening on the system default input device. **Note:** Successful STT operation depends on the `naudiodon` package, which is an optional dependency. If `naudiodon` failed to install or build (see "Installation Prerequisites" for troubleshooting), STT will be disabled.
+
+When using STT, you **need** a [GroqCloud API key](https://console.groq.com/keys) as Groq is used for Audio transcription
 
 # Bot Profiles
 
@@ -154,6 +187,22 @@ Embedding models are used to embed and efficiently select relevant examples for 
 Supported Embedding APIs: `openai`, `google`, `replicate`, `huggingface`, `novita`
 
 If you try to use an unsupported model, then it will default to a simple word-overlap method. Expect reduced performance, recommend mixing APIs to ensure embedding support.
+
+## Dataset collection
+
+Mindcraft has the capabilities to collect data from you playing with the bots, which can be used to generate training data to fine-tune models such as Andy-4. To do this, enable logging inside of `settings.js`, then navigate to the `logs` folder.
+
+Inside of the logs folder, and installing the dependecies, you will find a file named `generate_usernames.py`, you need to run this in order to convert your collected data into a usable dataset. This will generate a bunch of random names to replace the name of your bot, and your username. Both of which improve performance later on.
+
+To run it, run `python generate_usernames.py`. The max amount of usernames will take up multiple Terabytes of data. If for some reason you want to do this, run it with the `--make_all` flag.
+
+Next, you need to set up `convert.py` to include every username that interacted with the bot, as well as the bot's own username. This is done by adding / changing the usernames in the `ORIGINAL_USERNAMES` list.
+
+After this, you are all set up for conversion! Since you might not want to convert all data at once, you must change the names of the `.csv` file*(s)* that you want to convert to `Andy_pre1`. If more than one file is wanted for conversion, change `1` to the next number, this value can be as high as you want.
+
+To convert, run `python convert.py`, if you get a dependency error, ensure you are in a virtual python environment rather than a global one.
+
+For setting up vision datasets, run `convert.py` with the flag of `--vision`, this will do the same thing as the rest of the conversions, but change the format to an image-friendly way.
 
 ## Specifying Profiles via Command Line
 
