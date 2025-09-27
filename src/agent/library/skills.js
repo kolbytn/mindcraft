@@ -2020,9 +2020,9 @@ export async function useToolOn(bot, toolName, targetName) {
     }
 
     return true;
- }
+}
 
- export async function useToolOnBlock(bot, toolName, block) {
+export async function useToolOnBlock(bot, toolName, block) {
     /**
      * Use a tool on a specific block.
      * @param {MinecraftBot} bot
@@ -2071,4 +2071,175 @@ export async function useToolOn(bot, toolName, targetName) {
     }
     log(bot, `Used ${toolName} on ${block.name}.`);
     return true;
- }
+}
+
+
+export async function buildLavaPortal(bot) {
+    /**
+     * Attempt to build a nether portal if a nearby lava pool is found and a water bucket is in the inventory.
+     * @param {MinecraftBot} bot
+     * @returns {Promise<boolean>} true if action succeeded
+     */
+    const equipped = await equip(bot, 'water_bucket');
+    if (!equipped) {
+        log(bot, `Water bucket not found.`);
+        return false;
+    }
+
+    // needs 12 lava source blocks.
+    let blocks = world.getNearestBlocks(bot, 'lava');
+
+    if (blocks.length < 12) {
+        if (blocks.length === 0) {
+            log(bot, "No lava found nearby.");
+        } else {
+            log(bot, "Nearby lava pool is not large enough.");
+        }
+        return false;
+    }
+
+    // Find 4 consecutive lava blocks in a line
+    let consecutiveLavaBlocks = null;
+    const directions = [
+        new Vec3(1, 0, 0),  // East
+        new Vec3(-1, 0, 0), // West
+        new Vec3(0, 0, 1),  // South
+        new Vec3(0, 0, -1)  // North
+    ];
+
+    const adjacentDirections = [
+        new Vec3(1, 0, 0),
+        new Vec3(-1, 0, 0),
+        new Vec3(0, 0, 1),
+        new Vec3(0, 0, -1),
+        // exclude y directions.
+    ];
+
+    const mcdata = mc.getMcData();
+
+    const isBlockValid = (block) => {
+        if (!block || block.name !== 'lava' || block.metadata !== 0) {
+            return false;
+        }
+
+        for (const adjDirection of adjacentDirections) {
+            const adjacentBlock = bot.blockAt(block.position.plus(adjDirection));
+            if (!adjacentBlock) {
+                continue;
+            }
+
+            const adjacentBlockData = mcdata.blocks[adjacentBlock.type];
+            if (adjacentBlockData && adjacentBlockData.boundingBox === 'block' && adjacentBlock.name !== 'lava') {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    function findNonFlammableBlocks() {
+        const mc = mcdata;
+        if (!mc) {
+            log(bot, "mcData not initialized, cannot find non-flammable blocks.");
+            return { totalCount: 0, items: [] };
+        }
+
+        const inventoryItems = bot.inventory.items();
+        const foundBlocks = [];
+        let totalCount = 0;
+
+        for (const item of inventoryItems) {
+            // Get the block's properties from minecraft-data using the item's name
+            const blockData = mc.blocksByName[item.name];
+
+            // A block is considered valid if:
+            // 1. It's actually a block (blockData exists).
+            // 2. It's a "full" solid block (boundingBox === 'block'). This excludes things like signs or torches.
+            // 3. It is not flammable (!blockData.flammable).
+            if (blockData && blockData.boundingBox === 'block' && !blockData.flammable) {
+                foundBlocks.push(item);
+                totalCount += item.count;
+            }
+        }
+
+        return { totalCount, items: foundBlocks };
+    }
+
+    const availableBlocks = findNonFlammableBlocks()
+
+    if (availableBlocks.totalCount < 8) {
+        log(bot, "Not enough solid non-flammable blocks in inventory. You need at least 8.")
+        return;
+    }
+
+    const highestYLevel = Math.max(...blocks.map(block => block.position.y));
+
+    for (const startBlock of blocks) {
+        const startPos = startBlock.position;
+
+        if (startPos.y !== highestYLevel) {
+            continue;
+        }
+
+        if (!isBlockValid(startBlock)) {
+            continue;
+        }
+
+        for (const direction of directions) {
+            let line = [startBlock];
+            let allBlocksInLineAreValid = true;
+
+            for (let i = 1; i < 4; i++) {
+                const nextPos = startPos.plus(direction.scaled(i));
+                const nextBlock = bot.blockAt(nextPos);
+
+                if (isBlockValid(nextBlock)) {
+                    line.push(nextBlock);
+                } else {
+                    allBlocksInLineAreValid = false;
+                    break;
+                }
+            }
+
+            if (line.length === 4 && allBlocksInLineAreValid) {
+                consecutiveLavaBlocks = line;
+                break;
+            }
+        }
+        if (consecutiveLavaBlocks) break;
+    }
+
+    if (!consecutiveLavaBlocks) {
+        log(bot, "Could not find 4 consecutive lava blocks in a line, with each adjacent to a solid block.");
+        return false;
+    }
+
+    // log(bot, `${consecutiveLavaBlocks.map(b => b.position).join(', ')}`);
+
+    const basePosition1 = consecutiveLavaBlocks[1].position;
+    const buildingBlock = availableBlocks.items[0];
+
+    let success; // success is used multiple times
+
+    success = await placeBlock(bot, buildingBlock.name, basePosition1.x, basePosition1.y, basePosition1.z);
+    if (!success) {
+        log(bot, "Failed to build the first part of the portal base. Aborting.");
+        return false;
+    }
+
+    const waterTargetPosition = consecutiveLavaBlocks[2].position;
+    bot.chat(`Placing water at ${waterTargetPosition}`)
+    await equip(bot, 'water_bucket');
+    // success = await placeBlock(bot, 'water', waterTargetPosition.x, waterTargetPosition.y, waterTargetPosition.z);
+    // for some reason, this doesn't tell the bot to place off the block we just placed down, which we should.
+    const referenceBlockObject = bot.blockAt(basePosition1);
+    const faceVec = waterTargetPosition.minus(basePosition1);
+    await bot.activateBlock(referenceBlockObject, faceVec);
+
+    // wait for obsidian
+    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5-second delay is like the maximum for the most laggiest servers
+    
+    // TODO: Complete
+    
+    return true;
+}

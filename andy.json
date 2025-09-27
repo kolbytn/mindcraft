@@ -1,6 +1,6 @@
 {
     "name": "andy",
 
-    "model": "gpt-5-nano"
+    "model": "gemini-2.0-flash"
 
 }
