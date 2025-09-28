@@ -494,6 +494,7 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
         try {
             let success = false;
             if (isLiquid) {
+                await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
                 success = await useToolOnBlock(bot, 'bucket', block);
             }
             else if (mc.mustCollectManually(blockType)) {
@@ -2118,6 +2119,7 @@ export async function buildLavaPortal(bot) {
     const mcdata = mc.getMcData();
 
     const isBlockValid = (block) => {
+        // if no block or block isn't lava or block is flowing
         if (!block || block.name !== 'lava' || block.metadata !== 0) {
             return false;
         }
@@ -2216,7 +2218,7 @@ export async function buildLavaPortal(bot) {
 
     // log(bot, `${consecutiveLavaBlocks.map(b => b.position).join(', ')}`);
 
-    const basePosition1 = consecutiveLavaBlocks[1].position;
+    const basePosition1 = consecutiveLavaBlocks[2].position;
     const buildingBlock = availableBlocks.items[0];
 
     let success; // success is used multiple times
@@ -2227,18 +2229,75 @@ export async function buildLavaPortal(bot) {
         return false;
     }
 
-    const waterTargetPosition = consecutiveLavaBlocks[2].position;
-    bot.chat(`Placing water at ${waterTargetPosition}`)
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const waterTargetPosition = consecutiveLavaBlocks[1].position;
     await equip(bot, 'water_bucket');
     // success = await placeBlock(bot, 'water', waterTargetPosition.x, waterTargetPosition.y, waterTargetPosition.z);
     // for some reason, this doesn't tell the bot to place off the block we just placed down, which we should.
-    const referenceBlockObject = bot.blockAt(basePosition1);
+    // const referenceBlockObject = bot.blockAt(basePosition1);
     const faceVec = waterTargetPosition.minus(basePosition1);
-    await bot.activateBlock(referenceBlockObject, faceVec);
+    // await bot.activateBlock(referenceBlockObject, faceVec);
+    await goToPosition(bot, basePosition1.x, basePosition1.y, basePosition1.z, 2);
+    const blockCenter = basePosition1.offset(0.5, 0.5, 0.5);
+    const lookAtTarget = blockCenter.plus(faceVec.scaled(0.5));
+    await bot.lookAt(lookAtTarget);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await bot.activateItem();
+    
+    // await useToolOnBlock(bot, 'water_bucket', referenceBlockObject);
 
     // wait for obsidian
-    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5-second delay is like the maximum for the most laggiest servers
-    
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    await breakBlockAt(bot, basePosition1.x, basePosition1.y, basePosition1.z)
+
+    const bottomPositions = [
+        consecutiveLavaBlocks[1],
+        consecutiveLavaBlocks[2],
+    ].map(block => block.position);
+
+    const originalMode = bot.modes.isOn('unstuck')
+    bot.modes.setOn('unstuck', false)
+
+    let safePos = null;
+    for (const pos of bottomPositions) {
+        if (safePos) await goToPosition(bot, safePos.x, safePos.y, safePos.z);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        success = await breakBlockAt(bot, pos.x, pos.y - 1, pos.z);
+        if (!success) {
+            log(bot, "Failed to break block.");
+            return false;
+        }
+        // await bot.chat(`Broken!`)
+        // await bot.chat(`Pos: ${pos}`)
+        if (!safePos) safePos = bot.entity.position;
+        await bot.chat(`SafePos: ${safePos}`)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (safePos) await goToPosition(bot, safePos.x, safePos.y, safePos.z);
+        success = await collectBlock(bot, 'lava', 1);
+        if (!success) {
+            log(bot, "Failed to retrieve more lava.");
+            return false;
+        }
+        // await bot.chat(`Collected!`);
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+        await goToPosition(bot, pos.x, pos.y, pos.z, 4)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        success = placeBlock(bot, 'lava', pos.x, pos.y-1, pos.z)
+        if (!success) {
+            log(bot, "Failed to place lava.");
+            return false;
+        }
+        // await useToolOnBlock(bot, 'lava_bucket', bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)));
+        await bot.chat(`Placed!`)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    bot.modes.setOn('unstuck', originalMode)
+
+
+
     // TODO: Complete
     
     return true;
