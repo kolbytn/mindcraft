@@ -2088,7 +2088,7 @@ export async function buildLavaPortal(bot) {
     }
 
     // needs 12 lava source blocks.
-    let blocks = world.getNearestBlocks(bot, 'lava');
+    let blocks = world.getNearestBlocks(bot, 'lava', 64);
 
     if (blocks.length < 12) {
         if (blocks.length === 0) {
@@ -2216,6 +2216,9 @@ export async function buildLavaPortal(bot) {
         return false;
     }
 
+    // block state:
+    /* L L L L */
+
     // log(bot, `${consecutiveLavaBlocks.map(b => b.position).join(', ')}`);
 
     const basePosition1 = consecutiveLavaBlocks[2].position;
@@ -2228,6 +2231,9 @@ export async function buildLavaPortal(bot) {
         log(bot, "Failed to build the first part of the portal base. Aborting.");
         return false;
     }
+
+    // block state:
+    /* L L S L */
 
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -2250,7 +2256,13 @@ export async function buildLavaPortal(bot) {
     // wait for obsidian
     await new Promise(resolve => setTimeout(resolve, 200));
 
+    // block state:
+    /* O W S L */
+
     await breakBlockAt(bot, basePosition1.x, basePosition1.y, basePosition1.z)
+
+    // block state:
+    /* O W W O */
 
     const bottomPositions = [
         consecutiveLavaBlocks[1],
@@ -2296,7 +2308,52 @@ export async function buildLavaPortal(bot) {
 
     bot.modes.setOn('unstuck', originalMode)
 
+    // block state:
+    /* G G G G */
+    /* O W W O */
 
+    consecutiveLavaBlocks[0]
+
+    // desired block state:
+    /* G G G D */ // (D: dirt / other building block in inventory, G: grass, or other block behind the 4 lava blocks)
+    /* O W W O */
+
+    // also can be seen like
+
+    /* G G G G G G */
+    /* G O W W O G */
+    /* L L L L L L */
+
+    // direction of rest of portal base
+    const portalDirection = consecutiveLavaBlocks[1].position.minus(consecutiveLavaBlocks[0].position);
+
+    // find the two blocks on the side of that
+    const side1Direction = new Vec3(portalDirection.z, 0, -portalDirection.x);
+    const side2Direction = new Vec3(-portalDirection.z, 0, portalDirection.x);
+
+    // check which block isn't lava block
+    const side1BlockPos = consecutiveLavaBlocks[0].position.plus(side1Direction);
+    const side1Block = bot.blockAt(side1BlockPos);
+
+    let buildSideDirection;
+    if (side1Block && side1Block.name !== 'lava') {
+        buildSideDirection = side1Direction;
+    } else {
+        buildSideDirection = side2Direction;
+    }
+
+    await bot.chat(`Building on the side with direction: ${buildSideDirection}`);
+
+    // build the pillar
+    const rightMostGPos = consecutiveLavaBlocks[0].position.plus(buildSideDirection);
+    const pillarBase = rightMostGPos;
+    const buildingBlockName = availableBlocks.items[0].name;
+
+    if (!await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 1, pillarBase.z)) return false;
+    if (!await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 2, pillarBase.z)) return false;
+    if (!await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 3, pillarBase.z)) return false;
+
+    if (!await placeBlock(bot, buildingBlockName, consecutiveLavaBlocks[0].position.x, pillarBase.y + 3, consecutiveLavaBlocks[0].position.z)) return false;
 
     // TODO: Complete
     
