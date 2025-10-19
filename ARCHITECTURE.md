@@ -117,6 +117,14 @@ graph TB
     class SOCKET,PROXY communication
     class PROMPTER,CODER,ACTIONS,TASKS,HISTORY,MODES,VISION data
 
+    %% Subgraph Background Styling
+    style EXTERNAL fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000,fill-opacity:0.3
+    style COMM fill:#fff8e1,stroke:#f57c00,stroke-width:3px,color:#000,fill-opacity:0.3
+    style AGENT_LOGIC fill:#e8f5e8,stroke:#388e3c,stroke-width:3px,color:#000,fill-opacity:0.2
+    style PERCEPTION fill:#e8f5e8,stroke:#4caf50,stroke-width:2px,color:#000,fill-opacity:0.4
+    style PLANNING fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000,fill-opacity:0.4
+    style EXECUTION fill:#ffebee,stroke:#f44336,stroke-width:2px,color:#000,fill-opacity:0.4
+
     %% Link Styling - Organized by Flow Type
     %% System Initialization (Blue)
     linkStyle 0 stroke:#2196F3,stroke-width:3px
@@ -186,6 +194,14 @@ graph TB
 - 🔴 **Red** - Action execution and game interactions
 - 🔵 **Cyan** - External AI/LLM integration
 - 🟣 **Purple (Dashed)** - Multi-agent coordination
+
+### **Subgraph Background Colors:**
+- 🔵 **Light Blue** - External Systems (Minecraft, LLMs, Web UI)
+- 🟠 **Light Orange** - Communication Layer (Socket.IO, Proxy)
+- 🟢 **Light Green** - AI Agent Internal Logic (main agent container)
+- 🟢 **Darker Green** - Perception & Memory (Vision, History)
+- 🟡 **Light Yellow** - Planning & Decision Making (Tasks, Modes, Prompter)
+- 🔴 **Light Red** - Code Generation & Execution (Coder, Actions)
 
 ### **Flow Patterns:**
 1. **System Startup**: Blue arrows from main.js
