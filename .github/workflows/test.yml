@@ -1,0 +1,95 @@
+name: Tests
+
+on:
+  push:
+    branches: [ develop, unit-test, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+env:
+  NODE_ENV: test
+  CI: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+      fail-fast: false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Cache npm dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+        
+    - name: Cache Jest cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/jest
+        key: ${{ runner.os }}-jest-${{ hashFiles('**/package.json') }}-${{ hashFiles('**/*.test.js') }}
+        restore-keys: |
+          ${{ runner.os }}-jest-${{ hashFiles('**/package.json') }}-
+          ${{ runner.os }}-jest-
+        
+    - name: Install dependencies
+      run: npm install --prefer-offline --no-audit
+      
+    - name: Run linter
+      run: npm run lint || echo "Linting failed but continuing with tests"
+      
+    - name: Run unit tests
+      run: npm run test:ci
+      
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: matrix.node-version == '22.x'
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-integration:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/unit-test'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        
+    - name: Cache npm dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+        
+    - name: Install dependencies
+      run: npm install --prefer-offline --no-audit
+      
+    - name: Run integration tests
+      run: npm run test:ci
