@@ -2,105 +2,103 @@
 
 ```mermaid
 graph TB
-    %% Application Entry
+    %% Top Level - Application Entry
     MAIN[main.js<br/>Application Entry]:::core
-    MINDSERVER[MindServer<br/>Central Hub]:::core
 
-    %% External Systems Subgraph
+    %% External Systems - Top Right
     subgraph EXTERNAL["🌐 External Systems"]
-        MC[Minecraft Server<br/>Game World]:::external
-        LLM[LLM APIs<br/>GPT-4, Claude, Gemini, etc.]:::external
         UI[Web UI<br/>MindServer Dashboard]:::external
+        LLM[LLM APIs<br/>GPT-4, Claude, Gemini, etc.]:::external
+        MC[Minecraft Server<br/>Game World]:::external
     end
 
-    %% Communication Layer Subgraph
+    %% Central Hub - Middle
+    MINDSERVER[MindServer<br/>Central Hub]:::core
+
+    %% Communication Layer - Below MindServer
     subgraph COMM["📡 Communication Layer"]
         SOCKET[Socket.IO<br/>Real-time Communication]:::communication
         PROXY[Server Proxy<br/>Agent-Server Bridge]:::communication
     end
 
-    %% AI Agent Internal Logic Subgraph
+    %% AI Agent - Left Side with Vertical Flow
     subgraph AGENT_LOGIC["🤖 AI Agent Internal Logic"]
         AGENT[Agent Process<br/>Individual AI Agent]:::agent
         
-        %% Perception & Memory Subgraph
+        %% Perception & Memory - Top of Agent
         subgraph PERCEPTION["🧠 Perception & Memory"]
             VISION[Vision Interpreter<br/>Screen Analysis]:::data
             HISTORY[History<br/>Conversation Memory]:::data
         end
         
-        %% Planning & Decision Making Subgraph
+        %% Planning & Decision Making - Middle of Agent
         subgraph PLANNING["💡 Planning & Decision Making"]
             TASKS[Task System<br/>Goal Management]:::data
             MODES[Modes<br/>Behavioral States]:::data
             PROMPTER[Prompter<br/>LLM Integration]:::data
         end
         
-        %% Code Generation & Execution Subgraph
+        %% Code Generation & Execution - Bottom of Agent
         subgraph EXECUTION["✍️ Code Generation & Execution"]
             CODER[Coder<br/>Code Generation & Execution]:::data
             ACTIONS[ActionManager<br/>Action Execution]:::data
         end
         
-        %% Minecraft Interface
+        %% Minecraft Interface - Right of Agent
         BOT[Mineflayer Bot<br/>Minecraft Client]:::agent
     end
 
-    %% Main Application Flow (Blue - System Initialization)
+    %% System Initialization Flow (Blue)
     MAIN -->|"🚀 Initialize"| MINDSERVER
-    MAIN -->|"🚀 Initialize"| AGENT_LOGIC
+    MAIN -->|"🚀 Initialize"| AGENT
 
-    %% MindServer Connections (Purple - Central Hub)
-    MINDSERVER -->|"📡 Manage"| COMM
+    %% Central Hub Management (Purple)
     MINDSERVER -->|"🖥️ Serve"| UI
+    MINDSERVER -->|"📡 Manage"| COMM
     MINDSERVER -->|"🤖 Control"| AGENT
 
-    %% Communication Layer Flow (Orange - Communication)
+    %% Communication Layer (Orange)
     SOCKET -->|"📡 Real-time"| UI
     PROXY -->|"🔗 Connect"| AGENT
     PROXY -->|"📡 Report"| MINDSERVER
 
-    %% Agent Internal Flow - Perception (Green - Data Input)
+    %% Agent Internal Flow - Top to Bottom (Green/Yellow/Red)
     AGENT -->|"👁️ Observe"| VISION
     AGENT -->|"🧠 Remember"| HISTORY
-    VISION -->|"📊 Visual Data"| PROMPTER
-    HISTORY -->|"📚 Context"| PROMPTER
-
-    %% Agent Internal Flow - Planning (Yellow - Decision Making)
     AGENT -->|"🎯 Set Goals"| TASKS
     AGENT -->|"🎭 Set Mode"| MODES
     AGENT -->|"💭 Think"| PROMPTER
-    TASKS -->|"📋 Task Context"| PROMPTER
-    TASKS -->|"✅ Validate"| ACTIONS
-
-    %% Agent Internal Flow - Execution (Red - Action Execution)
     AGENT -->|"💻 Generate"| CODER
     AGENT -->|"⚡ Execute"| ACTIONS
     AGENT -->|"🎮 Control"| BOT
-    PROMPTER -->|"🤖 AI Decision"| CODER
-    CODER -->|"⚡ Code Execution"| ACTIONS
-    ACTIONS -->|"🎮 Game Action"| BOT
 
-    %% LLM Integration (Cyan - External AI)
+    %% Perception to Planning (Green)
+    VISION -->|"📊 Visual Data"| PROMPTER
+    HISTORY -->|"📚 Context"| PROMPTER
+
+    %% Planning to Execution (Yellow)
+    TASKS -->|"📋 Task Context"| PROMPTER
+    TASKS -->|"✅ Validate"| ACTIONS
+    MODES -->|"Behavior Control"| ACTIONS
+    MODES -->|"State Management"| BOT
+
+    %% AI Integration (Cyan) - Right side connections
     PROMPTER -->|"🤖 Query"| LLM
     CODER -->|"🤖 Query"| LLM
     VISION -->|"🤖 Query"| LLM
 
-    %% Code Execution Flow (Red - Game Actions)
-    CODER -->|"Generate Code"| ACTIONS
-    ACTIONS -->|"Execute Code"| BOT
+    %% Execution Flow (Red) - Bottom to Right
+    PROMPTER -->|"🤖 AI Decision"| CODER
+    CODER -->|"⚡ Code Execution"| ACTIONS
+    ACTIONS -->|"🎮 Game Action"| BOT
     BOT -->|"Game Actions"| MC
+
+    %% Feedback Loop (Red/Green) - Right to Left
     MC -->|"Game State"| BOT
     BOT -->|"State Updates"| AGENT
-
-    %% Memory and Learning (Green - Learning)
     HISTORY -->|"Context"| CODER
 
-    %% Behavioral Control (Yellow - Control)
-    MODES -->|"Behavior Control"| ACTIONS
-    MODES -->|"State Management"| BOT
-
-    %% Multi-Agent Coordination (Purple - Coordination)
+    %% Multi-Agent Coordination (Purple Dashed) - Top connections
     AGENT -.->|"💬 Chat Messages"| MINDSERVER
     MINDSERVER -.->|"📤 Route Messages"| AGENT
     AGENT -.->|"📊 State Updates"| MINDSERVER
@@ -119,44 +117,62 @@ graph TB
     class SOCKET,PROXY communication
     class PROMPTER,CODER,ACTIONS,TASKS,HISTORY,MODES,VISION data
 
-    %% Link Styling
+    %% Link Styling - Organized by Flow Type
+    %% System Initialization (Blue)
     linkStyle 0 stroke:#2196F3,stroke-width:3px
     linkStyle 1 stroke:#2196F3,stroke-width:3px
+    
+    %% Central Hub Management (Purple)
     linkStyle 2 stroke:#9C27B0,stroke-width:2px
     linkStyle 3 stroke:#9C27B0,stroke-width:2px
     linkStyle 4 stroke:#9C27B0,stroke-width:2px
+    
+    %% Communication Layer (Orange)
     linkStyle 5 stroke:#FF9800,stroke-width:2px
     linkStyle 6 stroke:#FF9800,stroke-width:2px
     linkStyle 7 stroke:#FF9800,stroke-width:2px
+    
+    %% Agent Internal Flow (Mixed colors)
     linkStyle 8 stroke:#4CAF50,stroke-width:2px
     linkStyle 9 stroke:#4CAF50,stroke-width:2px
-    linkStyle 10 stroke:#4CAF50,stroke-width:2px
-    linkStyle 11 stroke:#4CAF50,stroke-width:2px
+    linkStyle 10 stroke:#FFEB3B,stroke-width:2px
+    linkStyle 11 stroke:#FFEB3B,stroke-width:2px
     linkStyle 12 stroke:#FFEB3B,stroke-width:2px
-    linkStyle 13 stroke:#FFEB3B,stroke-width:2px
-    linkStyle 14 stroke:#FFEB3B,stroke-width:2px
-    linkStyle 15 stroke:#FFEB3B,stroke-width:2px
-    linkStyle 16 stroke:#FFEB3B,stroke-width:2px
-    linkStyle 17 stroke:#F44336,stroke-width:2px
-    linkStyle 18 stroke:#F44336,stroke-width:2px
-    linkStyle 19 stroke:#F44336,stroke-width:2px
-    linkStyle 20 stroke:#F44336,stroke-width:2px
-    linkStyle 21 stroke:#F44336,stroke-width:2px
-    linkStyle 22 stroke:#F44336,stroke-width:2px
+    linkStyle 13 stroke:#F44336,stroke-width:2px
+    linkStyle 14 stroke:#F44336,stroke-width:2px
+    linkStyle 15 stroke:#F44336,stroke-width:2px
+    
+    %% Perception to Planning (Green)
+    linkStyle 16 stroke:#4CAF50,stroke-width:2px
+    linkStyle 17 stroke:#4CAF50,stroke-width:2px
+    
+    %% Planning to Execution (Yellow)
+    linkStyle 18 stroke:#FFEB3B,stroke-width:2px
+    linkStyle 19 stroke:#FFEB3B,stroke-width:2px
+    linkStyle 20 stroke:#FFEB3B,stroke-width:2px
+    linkStyle 21 stroke:#FFEB3B,stroke-width:2px
+    
+    %% AI Integration (Cyan)
+    linkStyle 22 stroke:#00BCD4,stroke-width:2px
     linkStyle 23 stroke:#00BCD4,stroke-width:2px
     linkStyle 24 stroke:#00BCD4,stroke-width:2px
-    linkStyle 25 stroke:#00BCD4,stroke-width:2px
+    
+    %% Execution Flow (Red)
+    linkStyle 25 stroke:#F44336,stroke-width:2px
     linkStyle 26 stroke:#F44336,stroke-width:2px
     linkStyle 27 stroke:#F44336,stroke-width:2px
     linkStyle 28 stroke:#F44336,stroke-width:2px
+    
+    %% Feedback Loop (Mixed)
     linkStyle 29 stroke:#F44336,stroke-width:2px
-    linkStyle 30 stroke:#4CAF50,stroke-width:2px
-    linkStyle 31 stroke:#FFEB3B,stroke-width:2px
-    linkStyle 32 stroke:#FFEB3B,stroke-width:2px
+    linkStyle 30 stroke:#F44336,stroke-width:2px
+    linkStyle 31 stroke:#4CAF50,stroke-width:2px
+    
+    %% Multi-Agent Coordination (Purple Dashed)
+    linkStyle 32 stroke:#9C27B0,stroke-width:2px,stroke-dasharray: 5 5
     linkStyle 33 stroke:#9C27B0,stroke-width:2px,stroke-dasharray: 5 5
     linkStyle 34 stroke:#9C27B0,stroke-width:2px,stroke-dasharray: 5 5
     linkStyle 35 stroke:#9C27B0,stroke-width:2px,stroke-dasharray: 5 5
-    linkStyle 36 stroke:#9C27B0,stroke-width:2px,stroke-dasharray: 5 5
 ```
 
 ## Color-Coded Data Flow Legend
