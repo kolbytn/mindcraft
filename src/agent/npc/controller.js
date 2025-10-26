@@ -151,7 +151,7 @@ export class NPCContoller {
         // If we need more blocks to complete a building, get those first
         let goals = this.temp_goals.concat(this.data.goals);
         if (this.data.curr_goal)
-            goals = goals.concat([this.data.curr_goal])
+            goals = goals.concat([this.data.curr_goal]);
         this.temp_goals = [];
 
         let acted = false;
@@ -191,7 +191,7 @@ export class NPCContoller {
                     this.temp_goals.push({
                         name: block_name,
                         quantity: res.missing[block_name]
-                    })
+                    });
                 }
                 if (res.acted) {
                     acted = true;

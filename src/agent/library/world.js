@@ -97,7 +97,7 @@ export function getFirstBlockAboveHead(bot, ignore_types=null, distance=32) {
     }
     // The block above, stops when it finds a solid block .
     let block_above = {name: 'air'};
-    let height = 0
+    let height = 0;
     for (let i = 0; i < distance; i++) {
         let block = bot.blockAt(bot.entity.position.offset(0, i+2, 0));
         if (!block) block = {name: 'air'};
@@ -405,7 +405,7 @@ export async function isClearPath(bot, target) {
      * @param {Entity} target - The target to path to.
      * @returns {boolean} - True if there is a clear path, false otherwise.
      */
-    let movements = new pf.Movements(bot)
+    let movements = new pf.Movements(bot);
     movements.canDig = false;
     movements.canPlaceOn = false;
     movements.canOpenDoors = false;

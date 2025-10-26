@@ -125,7 +125,7 @@ export class Coder {
             result += 'These functions do not exist.\n';
             result += '### FUNCTIONS NOT FOUND ###\n';
             result += missingSkills.join('\n');
-            console.log(result)
+            console.log(result);
             return result;
         }
 
@@ -200,7 +200,7 @@ export class Coder {
 
     _sanitizeCode(code) {
         code = code.trim();
-        const remove_strs = ['Javascript', 'javascript', 'js']
+        const remove_strs = ['Javascript', 'javascript', 'js'];
         for (let r of remove_strs) {
             if (code.startsWith(r)) {
                 code = code.slice(r.length);

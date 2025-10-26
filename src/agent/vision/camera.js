@@ -25,7 +25,7 @@ export class Camera extends EventEmitter {
         this.viewer = new Viewer(this.renderer);
         this._init().then(() => {
             this.emit('ready');
-        })
+        });
     }
   
     async _init () {

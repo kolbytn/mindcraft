@@ -17,7 +17,7 @@ const blacklist = [
     'crimson',
     'warped',
     'dye'
-]
+];
 
 
 class ItemNode {
@@ -218,7 +218,7 @@ class ItemWrapper {
                     if (includes_blacklisted) break;
                 }
                 if (includes_blacklisted) continue;
-                this.add_method(new ItemNode(this.manager, this, this.name).setRecipe(recipe))
+                this.add_method(new ItemNode(this.manager, this, this.name).setRecipe(recipe));
             }
         }
 
@@ -263,7 +263,7 @@ class ItemWrapper {
                 best_method = method;
             }
         }
-        return best_method
+        return best_method;
     }
 
     isDone(q=1) {
