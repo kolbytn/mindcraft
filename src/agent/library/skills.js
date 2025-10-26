@@ -846,12 +846,27 @@ export async function discard(bot, itemName, num=-1) {
      * await skills.discard(bot, "oak_log");
      **/
     let discarded = 0;
+    // Helper: find an item by name anywhere in the inventory slots (including off-hand)
+    function findItemByName(name) {
+        // prefer the inventory.items() convenience list
+        let it = bot.inventory.items().find(i => i.name === name);
+        if (it) return it;
+        // fallback: scan all slots (this will include off-hand and armor slots)
+        const slots = bot.inventory.slots || {};
+        for (const key of Object.keys(slots)) {
+            const slot = slots[key];
+            if (slot && slot.name === name) return slot;
+        }
+        return null;
+    }
+
     while (true) {
-        let item = bot.inventory.items().find(item => item.name === itemName);
+        let item = findItemByName(itemName);
         if (!item) {
             break;
         }
         let to_discard = num === -1 ? item.count : Math.min(num - discarded, item.count);
+        // Use toss with the item type (toss will remove from any slot containing that type)
         await bot.toss(item.type, null, to_discard);
         discarded += to_discard;
         if (num !== -1 && discarded >= num) {
