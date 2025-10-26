@@ -21,7 +21,18 @@ export async function init(host_public=false, port=8080, auto_open_ui=true) {
         setTimeout(() => {
             // check if browser listener is already open
             if (numStateListeners() === 0) {
-                open('http://localhost:'+port);
+                // dynamically import `open` only when we need to open the UI so
+                // running the code (or tests) without the `open` package
+                // installed won't fail at module import time.
+                (async () => {
+                    try {
+                        const openModule = await import('open');
+                        const open = openModule?.default || openModule;
+                        open('http://localhost:'+port);
+                    } catch (e) {
+                        console.warn('`open` package not available, skipping auto-open of UI');
+                    }
+                })();
             }
         }, 3000);
     }
