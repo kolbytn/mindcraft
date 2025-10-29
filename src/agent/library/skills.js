@@ -494,7 +494,7 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
         try {
             let success = false;
             if (isLiquid) {
-                await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
+                // await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
                 success = await useToolOnBlock(bot, 'bucket', block);
             }
             else if (mc.mustCollectManually(blockType)) {
@@ -2296,13 +2296,32 @@ export async function buildLavaPortal(bot) {
         // await new Promise(resolve => setTimeout(resolve, 1000));
         await goToPosition(bot, pos.x, pos.y, pos.z, 4)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        success = placeBlock(bot, 'lava', pos.x, pos.y-1, pos.z)
+        // const targetPos = new Vec3(pos.x, pos.y-1, pos.z)
+        // while (bot.blockAt(targetPos) != 'lava') {
+        //     await placeBlock(bot, 'lava', targetPos.x, targetPos.y, targetPos.z);
+        //     // will need a timeout of sorts to stop infinite loops
+        // }
+        success = await placeBlock(bot, 'lava', pos.x, pos.y-1, pos.z)
         if (!success) {
-            log(bot, "Failed to place lava.");
-            return false;
+            // log(bot, "Failed to place lava.");
+            // return false;
+            // ignore this, it will always return false because it placed obsidian rather than lava
         }
+        if (bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)) != 'lava') {
+            // await bot.chat(`.... oh no ....`)
+            // here is the real error check
+            // no, it is not, because during testing he keeps firing this even though he placed it correct
+            // oh right i'm supposed to check for obsidian, not lava, my bad
+        }
+        if (bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)) != 'obsidian') {
+            // await bot.chat(`.... oh no ....`);
+            // for some reason even this triggers
+            // i'm going to leave it alone for now
+        }
+        /*** IGNORE MY MONOLOGUES (I WILL CLEAN THEM UP LATER) ***/
+        
         // await useToolOnBlock(bot, 'lava_bucket', bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)));
-        await bot.chat(`Placed!`)
+        // await bot.chat(`Placed!`)
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
@@ -2320,7 +2339,7 @@ export async function buildLavaPortal(bot) {
 
     // also can be seen like
 
-    /* G G G G G G */
+    /* G G G G D G */
     /* G O W W O G */
     /* L L L L L L */
 
@@ -2342,18 +2361,59 @@ export async function buildLavaPortal(bot) {
         buildSideDirection = side2Direction;
     }
 
-    await bot.chat(`Building on the side with direction: ${buildSideDirection}`);
-
-    // build the pillar
+    // build the pillar:
     const rightMostGPos = consecutiveLavaBlocks[0].position.plus(buildSideDirection);
     const pillarBase = rightMostGPos;
     const buildingBlockName = availableBlocks.items[0].name;
 
-    if (!await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 1, pillarBase.z)) return false;
-    if (!await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 2, pillarBase.z)) return false;
-    if (!await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 3, pillarBase.z)) return false;
+    // three blocks up...
+    await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 1, pillarBase.z);
+    await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 2, pillarBase.z);
+    await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 3, pillarBase.z);
 
-    if (!await placeBlock(bot, buildingBlockName, consecutiveLavaBlocks[0].position.x, pillarBase.y + 3, consecutiveLavaBlocks[0].position.z)) return false;
+    // ...and one block out
+    await placeBlock(bot, buildingBlockName, consecutiveLavaBlocks[0].position.x, pillarBase.y + 3, consecutiveLavaBlocks[0].position.z);
+
+    // now we want:
+    /* G D D G D G */
+    /* G O W W O G */
+    /* L L L L L L */
+
+    // now the other two
+    for (const num of [2, 3]) {
+        const pos = consecutiveLavaBlocks[num].position.plus(buildSideDirection);
+        await placeBlock(bot, buildingBlockName, pos.x, pos.y + 1, pos.z);
+    }
+
+    // 2-block air gap
+
+    const air1 = consecutiveLavaBlocks[1].position.plus(buildSideDirection);
+    const air2 = air1.plus(buildSideDirection);
+
+    for (const airPos of [air1, air2]) {
+        const airBlock = bot.blockAt(airPos);
+        if (airBlock && airBlock.name !== 'air') {
+            await breakBlockAt(bot, airPos.x, airPos.y + 1, airPos.z);
+        }
+    }
+
+    await collectBlock(bot, 'water', 1) // pick up the water we placed earlier
+
+    const waterPos = air1.plus(new Vec3(0, 3, 0));
+    await equip(bot, 'water_bucket');
+    // success = await placeBlock(bot, 'water', waterTargetPosition.x, waterTargetPosition.y, waterTargetPosition.z);
+    const referenceBlockObject = bot.blockAt(new Vec3(consecutiveLavaBlocks[0].position.x, pillarBase.y + 3, consecutiveLavaBlocks[0].position.z));
+    const face = waterPos.minus(referenceBlockObject.position);
+    // await bot.activateBlock(referenceBlockObject, face);
+    await goToPosition(bot, referenceBlockObject.position.x, referenceBlockObject.position.y, referenceBlockObject.position.z, 2);
+    const center = referenceBlockObject.position.offset(0.5, 0.5, 0.5);
+    const target = center.plus(face.scaled(0.5));
+    await bot.lookAt(target);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await bot.activateItem();
+    
+    // await useToolOnBlock(bot, 'water_bucket', referenceBlockObject);
+    
 
     // TODO: Complete
     
