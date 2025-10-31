@@ -13,7 +13,8 @@ export class SelfPrompter {
     }
 
     start(prompt) {
-        console.log('Self-prompting started.');
+        console.log('[SELF-PROMPTER] Self-prompting started.');
+        console.log('[SELF-PROMPTER] Prompt:', prompt);
         if (!prompt) {
             if (!this.prompt)
                 return 'No prompt specified. Ignoring request.';
@@ -21,6 +22,7 @@ export class SelfPrompter {
         }
         this.state = ACTIVE;
         this.prompt = prompt;
+        console.log('[SELF-PROMPTER] State set to ACTIVE, starting loop...');
         this.startLoop();
     }
 
@@ -55,33 +57,41 @@ export class SelfPrompter {
 
     async startLoop() {
         if (this.loop_active) {
-            console.warn('Self-prompt loop is already active. Ignoring request.');
+            console.warn('[SELF-PROMPTER] Loop is already active. Ignoring request.');
             return;
         }
-        console.log('starting self-prompt loop')
+        console.log('[SELF-PROMPTER] Starting self-prompt loop')
         this.loop_active = true;
         let no_command_count = 0;
         const MAX_NO_COMMAND = 3;
+        let iteration = 0;
         while (!this.interrupt) {
+            iteration++;
+            console.log(`[SELF-PROMPTER] Loop iteration ${iteration}, no_command_count: ${no_command_count}`);
             const msg = `You are self-prompting with the goal: '${this.prompt}'. Your next response MUST contain a command with this syntax: !commandName. Respond:`;
-            
+
+            console.log('[SELF-PROMPTER] Sending prompt to agent...');
             let used_command = await this.agent.handleMessage('system', msg, -1);
+            console.log(`[SELF-PROMPTER] Agent response: used_command=${used_command}`);
+
             if (!used_command) {
                 no_command_count++;
+                console.warn(`[SELF-PROMPTER] No command used! Count: ${no_command_count}/${MAX_NO_COMMAND}`);
                 if (no_command_count >= MAX_NO_COMMAND) {
                     let out = `Agent did not use command in the last ${MAX_NO_COMMAND} auto-prompts. Stopping auto-prompting.`;
                     this.agent.openChat(out);
-                    console.warn(out);
+                    console.warn('[SELF-PROMPTER]', out);
                     this.state = STOPPED;
                     break;
                 }
             }
             else {
                 no_command_count = 0;
+                console.log(`[SELF-PROMPTER] Command used! Waiting ${this.cooldown}ms before next iteration...`);
                 await new Promise(r => setTimeout(r, this.cooldown));
             }
         }
-        console.log('self prompt loop stopped')
+        console.log('[SELF-PROMPTER] Self prompt loop stopped')
         this.loop_active = false;
         this.interrupt = false;
     }
@@ -89,13 +99,22 @@ export class SelfPrompter {
     update(delta) {
         // automatically restarts loop
         if (this.state === ACTIVE && !this.loop_active && !this.interrupt) {
-            if (this.agent.isIdle())
+            const isIdle = this.agent.isIdle();
+            if (isIdle) {
                 this.idle_time += delta;
-            else
+                if (this.idle_time % 5000 < delta) { // Log every ~5 seconds
+                    console.log(`[SELF-PROMPTER] Waiting for idle cooldown: ${this.idle_time}ms / ${this.cooldown}ms`);
+                }
+            }
+            else {
+                if (this.idle_time > 0) {
+                    console.log(`[SELF-PROMPTER] Agent no longer idle, resetting idle_time`);
+                }
                 this.idle_time = 0;
+            }
 
             if (this.idle_time >= this.cooldown) {
-                console.log('Restarting self-prompting...');
+                console.log('[SELF-PROMPTER] Restarting self-prompting after idle cooldown...');
                 this.startLoop();
                 this.idle_time = 0;
             }

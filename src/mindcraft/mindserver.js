@@ -15,7 +15,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let io;
 let server;
 const agent_connections = {};
+const agent_connections_id = Math.random().toString(36).substring(7);
 const agent_listeners = [];
+
+console.log(`[MindServer] ========================================`);
+console.log(`[MindServer] agent_connections instance ID: ${agent_connections_id}`);
+console.log(`[MindServer] Loaded by process PID: ${process.pid}`);
+console.log(`[MindServer] import.meta.url: ${import.meta.url}`);
+console.log(`[MindServer] Stack trace:`);
+const stack = new Error().stack;
+const stackLines = stack.split('\n').slice(1, 10);  // First 10 stack frames
+stackLines.forEach(line => console.log(`  ${line.trim()}`));
+console.log(`[MindServer] ========================================`);
 
 const settings_spec = JSON.parse(readFileSync(path.join(__dirname, 'public/settings_spec.json'), 'utf8'));
 
@@ -33,14 +44,22 @@ class AgentConnection {
 }
 
 export function registerAgent(settings, viewer_port) {
+    console.log(`[MindServer:${agent_connections_id}] registerAgent called for '${settings.profile.name}'`);
+    console.log(`[MindServer:${agent_connections_id}] BEFORE: Registered agents: ${Object.keys(agent_connections).join(', ') || '(none)'}`);
     let agentConnection = new AgentConnection(settings, viewer_port);
     agent_connections[settings.profile.name] = agentConnection;
+    console.log(`[MindServer:${agent_connections_id}] AFTER: Registered agents: ${Object.keys(agent_connections).join(', ')}`);
+    console.log(`[MindServer:${agent_connections_id}] Agent '${settings.profile.name}' registered. Total agents: ${Object.keys(agent_connections).length}`);
 }
 
 export function logoutAgent(agentName) {
+    console.log(`[MindServer] logoutAgent called for '${agentName}'`);
     if (agent_connections[agentName]) {
         agent_connections[agentName].in_game = false;
+        console.log(`[MindServer] Agent '${agentName}' logged out (still registered, just not in-game)`);
         agentsStatusUpdate();
+    } else {
+        console.log(`[MindServer] WARNING: logoutAgent called for unknown agent '${agentName}'`);
     }
 }
 
@@ -49,6 +68,14 @@ export function createMindServer(host_public = false, port = 8080) {
     const app = express();
     server = http.createServer(app);
     io = new Server(server);
+
+    // DEBUG: Periodic check disabled to reduce log spam
+    // setInterval(() => {
+    //     const agents = Object.keys(agent_connections);
+    //     if (agents.length > 0) {
+    //         console.log(`[MindServer] PERIODIC CHECK: Registered agents: ${agents.join(', ')}`);
+    //     }
+    // }, 2000);
 
     // Serve static files
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,8 +115,10 @@ export function createMindServer(host_public = false, port = 8080) {
                 callback({ success: returned.success, error: returned.error });
                 let name = settings.profile.name;
                 if (!returned.success && agent_connections[name]) {
+                    console.log(`[MindServer] DELETING failed agent '${name}' from agent_connections`);
                     mindcraft.destroyAgent(name);
                     delete agent_connections[name];
+                    console.log(`[MindServer] Remaining agents: ${Object.keys(agent_connections).join(', ') || '(none)'}`);
                 }
                 agentsStatusUpdate();
             }
@@ -100,6 +129,8 @@ export function createMindServer(host_public = false, port = 8080) {
         });
 
         socket.on('get-settings', (agentName, callback) => {
+            console.log(`[MindServer:${agent_connections_id}] get-settings request for '${agentName}'`);
+            console.log(`[MindServer:${agent_connections_id}] Registered agents: ${Object.keys(agent_connections).join(', ') || '(none)'}`);
             if (agent_connections[agentName]) {
                 callback({ settings: agent_connections[agentName].settings });
             } else {
@@ -170,8 +201,10 @@ export function createMindServer(host_public = false, port = 8080) {
 
         socket.on('destroy-agent', (agentName) => {
             if (agent_connections[agentName]) {
+                console.log(`[MindServer] DELETING agent '${agentName}' via destroy-agent event`);
                 mindcraft.destroyAgent(agentName);
                 delete agent_connections[agentName];
+                console.log(`[MindServer] Remaining agents: ${Object.keys(agent_connections).join(', ') || '(none)'}`);
             }
             agentsStatusUpdate();
         });
@@ -229,11 +262,16 @@ function agentsStatusUpdate(socket) {
     if (!socket) {
         socket = io;
     }
+    // FIX: Prevent crash if socket is undefined or doesn't have emit
+    if (!socket || typeof socket.emit !== 'function') {
+        console.warn('[MindServer] Warning: Cannot update agents status - socket not available');
+        return;
+    }
     let agents = [];
     for (let agentName in agent_connections) {
         const conn = agent_connections[agentName];
         agents.push({
-            name: agentName, 
+            name: agentName,
             in_game: conn.in_game,
             viewerPort: conn.viewer_port,
             socket_connected: !!conn.socket

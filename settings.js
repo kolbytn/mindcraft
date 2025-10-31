@@ -1,14 +1,14 @@
 const settings = {
     "minecraft_version": "auto", // or specific version like "1.21.6"
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
-    "port": 55916, // set to -1 to automatically scan for open ports
+    "port": 25565, // set to -1 to automatically scan for open ports
     "auth": "offline", // or "microsoft"
 
     // the mindserver manages all agents and hosts the UI
     "mindserver_port": 8080,
     "auto_open_ui": true, // opens UI in browser on startup
     
-    "base_profile": "assistant", // survival, assistant, creative, or god_mode
+    "base_profile": "survival", // survival, assistant, creative, or god_mode
     "profiles": [
         "./andy.json",
         // "./profiles/gpt.json",
@@ -40,7 +40,7 @@ const settings = {
     "language": "en", // translate to/from this language. Supports these language names: https://cloud.google.com/translate/docs/languages
     "render_bot_view": false, // show bot's view in browser at localhost:3000, 3001...
 
-    "allow_insecure_coding": false, // allows newAction command and model can write/run code on your computer. enable at own risk
+    "allow_insecure_coding": true, // allows newAction command and model can write/run code on your computer. enable at own risk
     "allow_vision": false, // allows vision model to interpret screenshots as inputs
     "blocked_actions" : ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"] , // commands to disable and remove from docs. Ex: ["!setMode"]
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
@@ -55,8 +55,21 @@ const settings = {
 
     "spawn_timeout": 30, // num seconds allowed for the bot to spawn before throwing error. Increase when spawning takes a while.
     "block_place_delay": 0, // delay between placing blocks (ms) if using newAction. helps avoid bot being kicked by anti-cheat mechanisms on servers.
-  
+
     "log_all_prompts": false, // log ALL prompts to file
+
+    // Bot name pool configuration (for whitelist management)
+    // These names must be pre-whitelisted on the Minecraft server
+    // See: scripts/whitelist_bots.txt for whitelist commands
+    "bot_name_pool": {
+        "Gatherer": 20,    // gatherer-1 through gatherer-20
+        "Crafter": 20,     // crafter-1 through crafter-20
+        "Builder": 20,     // builder-1 through builder-20
+        "Scout": 10,       // scout-1 through scout-10
+        "Architect": 10,   // architect-1 through architect-10
+        "Tester": 10       // tester-1 through tester-10
+    },
+    // Total: 90 concurrent bot slots
 
 }
 

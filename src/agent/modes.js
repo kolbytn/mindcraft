@@ -35,11 +35,38 @@ const modes_list = [
             let blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
             if (!block) block = {name: 'air'}; // hacky fix when blocks are not loaded
             if (!blockAbove) blockAbove = {name: 'air'};
-            if (blockAbove.name === 'water') {
-                // does not call execute so does not interrupt other actions
-                if (!bot.pathfinder.goal) {
-                    bot.setControlState('jump', true);
-                }
+            // WATER ESCAPE: Actively escape from water instead of just jumping
+            if (blockAbove.name === 'water' || block.name === 'water') {
+                say(agent, 'I\'m in water! Getting out!');
+                execute(this, agent, async () => {
+                    // Find nearest solid ground (shore)
+                    const landBlocks = ['grass_block', 'dirt', 'stone', 'sand', 'gravel', 'oak_log', 'birch_log', 'spruce_log'];
+                    let nearestLand = null;
+                    let minDistance = Infinity;
+
+                    // Search for land blocks within 30 block radius
+                    for (const blockType of landBlocks) {
+                        const block = world.getNearestBlock(bot, blockType, 30);
+                        if (block) {
+                            const distance = bot.entity.position.distanceTo(block.position);
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                nearestLand = block;
+                            }
+                        }
+                    }
+
+                    if (nearestLand) {
+                        // Go to shore at same or higher Y level (don't dive deeper)
+                        const targetY = Math.max(nearestLand.position.y, bot.entity.position.y);
+                        await skills.goToPosition(bot, nearestLand.position.x, targetY, nearestLand.position.z, 1);
+                        say(agent, 'Back on land!');
+                    } else {
+                        // Emergency: swim upward and move away
+                        bot.setControlState('jump', true);
+                        await skills.moveAway(bot, 10);
+                    }
+                });
             }
             else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
                 execute(this, agent, async () => {

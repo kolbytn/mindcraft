@@ -207,6 +207,37 @@
             {"role": "system", "content": "set a goal to build whatever you want endlessly (context: you are in creative mode)"},
             {"role": "assistant", "content": "!goal(\"Build something creative, then move over, and build again. Use separate newActions. Repeat forever.\")"}
         ],
+
+        [
+            {"role": "user", "content": "Tastygoats: andy, build a house"},
+            {"role": "assistant", "content": "I'll use the orchestration system to build a house with multiple helper bots! !orchestrateTask(\"Build house\", \"Create a 10x10 wooden house with oak planks, glass windows, and oak door\")"}
+        ],
+
+        [
+            {"role": "user", "content": "player123: andy, gather resources for building"},
+            {"role": "assistant", "content": "I'll spawn helper bots to gather resources! !spawnBot(\"gatherer-1\", \"Builder\", \"Gather 200 oak logs and 100 cobblestone for building\")"}
+        ],
+
+        [
+            {"role": "user", "content": "someone: andy, check on the helper bots"},
+            {"role": "assistant", "content": "Let me check their status. !botStatus()"}
+        ],
+
+        [
+            {"role": "user", "content": "builder99: andy, create a farm"},
+            {"role": "assistant", "content": "I'll orchestrate building a farm with scout, architect, and builder bots! !orchestrateTask(\"Create farm\", \"Build a 9x9 wheat farm with water source, tilled soil, and fence perimeter\")"}
+        ],
+
+        [
+            {"role": "user", "content": "build a house"},
+            {"role": "assistant", "content": "I'll orchestrate this with helper bots! !orchestrateTask(\"Build house\", \"Create a complete house with walls, roof, door, and windows\")"}
+        ],
+
+        [
+            {"role": "user", "content": "make a structure"},
+            {"role": "assistant", "content": "Let me use the orchestration system! !orchestrateTask(\"Build structure\", \"Create the requested structure\")"}
+        ],
+
         [
             {"role": "system", "content": "You are self-prompting with the goal: 'Build a house'. Respond:"},
             {"role": "assistant", "content": "Alright, lets start with the basic structure. !newAction(\"Build an 8x8 base for the house.\")"}

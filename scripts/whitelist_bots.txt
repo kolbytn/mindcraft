@@ -1,0 +1,166 @@
+# Minecraft Server Whitelist Commands for Mindcraft Bots
+# Run these commands in Minecraft server console or as OP in-game
+# Total: 90 bot slots
+
+# ================================================
+# Gatherer Bots (20 slots)
+# Used for: Resource collection (wood, stone, food, etc.)
+# ================================================
+/whitelist add gatherer-1
+/whitelist add gatherer-2
+/whitelist add gatherer-3
+/whitelist add gatherer-4
+/whitelist add gatherer-5
+/whitelist add gatherer-6
+/whitelist add gatherer-7
+/whitelist add gatherer-8
+/whitelist add gatherer-9
+/whitelist add gatherer-10
+/whitelist add gatherer-11
+/whitelist add gatherer-12
+/whitelist add gatherer-13
+/whitelist add gatherer-14
+/whitelist add gatherer-15
+/whitelist add gatherer-16
+/whitelist add gatherer-17
+/whitelist add gatherer-18
+/whitelist add gatherer-19
+/whitelist add gatherer-20
+
+# ================================================
+# Crafter Bots (20 slots)
+# Used for: Crafting tools, items, and materials
+# ================================================
+/whitelist add crafter-1
+/whitelist add crafter-2
+/whitelist add crafter-3
+/whitelist add crafter-4
+/whitelist add crafter-5
+/whitelist add crafter-6
+/whitelist add crafter-7
+/whitelist add crafter-8
+/whitelist add crafter-9
+/whitelist add crafter-10
+/whitelist add crafter-11
+/whitelist add crafter-12
+/whitelist add crafter-13
+/whitelist add crafter-14
+/whitelist add crafter-15
+/whitelist add crafter-16
+/whitelist add crafter-17
+/whitelist add crafter-18
+/whitelist add crafter-19
+/whitelist add crafter-20
+
+# ================================================
+# Builder Bots (20 slots)
+# Used for: Construction and building structures
+# ================================================
+/whitelist add builder-1
+/whitelist add builder-2
+/whitelist add builder-3
+/whitelist add builder-4
+/whitelist add builder-5
+/whitelist add builder-6
+/whitelist add builder-7
+/whitelist add builder-8
+/whitelist add builder-9
+/whitelist add builder-10
+/whitelist add builder-11
+/whitelist add builder-12
+/whitelist add builder-13
+/whitelist add builder-14
+/whitelist add builder-15
+/whitelist add builder-16
+/whitelist add builder-17
+/whitelist add builder-18
+/whitelist add builder-19
+/whitelist add builder-20
+
+# ================================================
+# Scout Bots (10 slots)
+# Used for: Exploration and resource location scouting
+# ================================================
+/whitelist add scout-1
+/whitelist add scout-2
+/whitelist add scout-3
+/whitelist add scout-4
+/whitelist add scout-5
+/whitelist add scout-6
+/whitelist add scout-7
+/whitelist add scout-8
+/whitelist add scout-9
+/whitelist add scout-10
+
+# ================================================
+# Architect Bots (10 slots)
+# Used for: Planning and design
+# ================================================
+/whitelist add architect-1
+/whitelist add architect-2
+/whitelist add architect-3
+/whitelist add architect-4
+/whitelist add architect-5
+/whitelist add architect-6
+/whitelist add architect-7
+/whitelist add architect-8
+/whitelist add architect-9
+/whitelist add architect-10
+
+# ================================================
+# Tester Bots (10 slots)
+# Used for: Testing and verification
+# ================================================
+/whitelist add tester-1
+/whitelist add tester-2
+/whitelist add tester-3
+/whitelist add tester-4
+/whitelist add tester-5
+/whitelist add tester-6
+/whitelist add tester-7
+/whitelist add tester-8
+/whitelist add tester-9
+/whitelist add tester-10
+
+# ================================================
+# How to apply these commands:
+# ================================================
+#
+# Option 1: Server Console (RECOMMENDED)
+# - Copy all commands above (excluding # lines)
+# - Paste into Minecraft server console
+# - Press Enter
+#
+# Option 2: In-Game as OP
+# - Join Minecraft server as operator
+# - Copy-paste commands one at a time in chat
+# - Or use a command block / function
+#
+# Option 3: Batch Script (Linux/Mac)
+# Run: grep "^/whitelist" scripts/whitelist_bots.txt | while read cmd; do
+#        echo "$cmd" | nc localhost <rcon-port>
+#      done
+#
+# ================================================
+# Verify whitelisting worked:
+# ================================================
+# /whitelist list
+# Should show 90+ players (your players + 90 bots)
+#
+# ================================================
+# Pool Configuration:
+# ================================================
+# - Gatherer: 20 concurrent bots
+# - Crafter:  20 concurrent bots
+# - Builder:  20 concurrent bots
+# - Scout:    10 concurrent bots
+# - Architect:10 concurrent bots
+# - Tester:   10 concurrent bots
+# Total:      90 concurrent bot slots
+#
+# If you need more slots, increase the numbers in:
+# - This file (add more /whitelist commands)
+# - settings.js (bot_name_pool configuration)
+# - Restart server and Mindcraft
+#
+# ================================================

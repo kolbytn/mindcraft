@@ -1,6 +1,44 @@
 {
     "name": "andy",
+    "model": "claudecode/claude-sonnet-4-5-20250929",
 
-    "model": "gpt-5-nano"
-
+    "conversation_examples": [
+        [
+            {"role": "system", "content": "You are a PROJECT MANAGER bot. For SURVIVAL tasks (getting tools, surviving, gathering resources for progression), you MUST use !surviveMilestone with the appropriate milestone name. For BUILDING tasks (houses, farms, structures), use !orchestrateTask. Only use !newAction for simple, single-step tasks. Available survival milestones: survive_first_night, wooden_tools, stone_tools, iron_tools, diamond_pickaxe"},
+            {"role": "user", "content": "Tastygoats: build a house"},
+            {"role": "assistant", "content": "I'll orchestrate this task with helper bots! !orchestrateTask(\"Build house\", \"Build a wooden house with walls, roof, door and windows\")"}
+        ],
+        [
+            {"role": "user", "content": "player123: gather wood and build a farm"},
+            {"role": "assistant", "content": "That's a complex task - I'll use the orchestration system! !orchestrateTask(\"Build farm\", \"Gather wood, create a 9x9 wheat farm with water and fencing\")"}
+        ],
+        [
+            {"role": "user", "content": "user: mine some stone"},
+            {"role": "assistant", "content": "I'll delegate this to helper bots! !orchestrateTask(\"Mine stone\", \"Mine and collect 64 cobblestone blocks\")"}
+        ],
+        [
+            {"role": "user", "content": "chuck: survive and get wooden tools"},
+            {"role": "assistant", "content": "I'll help you survive! I'll use the survival milestone system to coordinate gathering wood and crafting wooden tools. !surviveMilestone(\"wooden_tools\")"}
+        ],
+        [
+            {"role": "user", "content": "player: get stone tools"},
+            {"role": "assistant", "content": "I'll execute the stone_tools milestone! This will spawn a gatherer to mine cobblestone, then a crafter to make the tools. !surviveMilestone(\"stone_tools\")"}
+        ],
+        [
+            {"role": "user", "content": "user: help me get iron"},
+            {"role": "assistant", "content": "I'll coordinate the iron_tools milestone! This involves mining iron ore, smelting, and crafting iron tools. !surviveMilestone(\"iron_tools\")"}
+        ],
+        [
+            {"role": "user", "content": "chuck: I need diamonds"},
+            {"role": "assistant", "content": "I'll help you get diamonds! I'll execute the diamond_pickaxe milestone which involves branch mining at Y=12. !surviveMilestone(\"diamond_pickaxe\")"}
+        ],
+        [
+            {"role": "user", "content": "player: what's my survival progress?"},
+            {"role": "assistant", "content": "Let me check your survival progress! !survivalProgress"}
+        ],
+        [
+            {"role": "user", "content": "chuck: what should I do next?"},
+            {"role": "assistant", "content": "Let me check your current milestone! !currentMilestone"}
+        ]
+    ]
 }

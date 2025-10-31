@@ -1,6 +1,8 @@
 import * as skills from '../library/skills.js';
 import settings from '../settings.js';
 import convoManager from '../conversation.js';
+import { writeFileSync, mkdirSync } from 'fs';
+import path from 'path';
 
 
 function runAsAction (actionFn, resume = false, timeout = -1) {
@@ -155,6 +157,41 @@ export const actionsList = [
         params: {'distance': { type: 'float', description: 'The distance to move away.', domain: [0, Infinity] }},
         perform: runAsAction(async (agent, distance) => {
             await skills.moveAway(agent.bot, distance);
+        })
+    },
+    {
+        name: '!escapeWater',
+        description: 'EMERGENCY: Escape from water to nearest shore. Use immediately if you fall in water.',
+        perform: runAsAction(async (agent) => {
+            const bot = agent.bot;
+            log(bot, 'Escaping from water to shore!');
+
+            // Find nearest land blocks (shore)
+            const landBlocks = ['grass_block', 'dirt', 'stone', 'sand', 'gravel', 'oak_log', 'birch_log', 'spruce_log', 'jungle_log'];
+            let nearestLand = null;
+            let minDistance = Infinity;
+
+            for (const blockType of landBlocks) {
+                const block = world.getNearestBlock(bot, blockType, 30);
+                if (block) {
+                    const distance = bot.entity.position.distanceTo(block.position);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestLand = block;
+                    }
+                }
+            }
+
+            if (nearestLand) {
+                // Go to shore at same or higher Y level (don't dive deeper)
+                const targetY = Math.max(nearestLand.position.y, bot.entity.position.y);
+                await skills.goToPosition(bot, nearestLand.position.x, targetY, nearestLand.position.z, 1);
+                log(bot, 'Reached shore safely!');
+            } else {
+                // Emergency fallback: swim upward and move away
+                log(bot, 'No shore found, swimming away from water!');
+                await skills.moveAway(bot, 15);
+            }
         })
     },
     {
@@ -367,12 +404,20 @@ export const actionsList = [
             'selfPrompt': { type: 'string', description: 'The goal prompt.' },
         },
         perform: async function (agent, prompt) {
+            console.log('[!goal] Command triggered!');
+            console.log('[!goal] Agent:', agent.name);
+            console.log('[!goal] Prompt:', prompt);
+            console.log('[!goal] In conversation:', convoManager.inConversation());
+
             if (convoManager.inConversation()) {
+                console.log('[!goal] Setting prompt paused (in conversation)');
                 agent.self_prompter.setPromptPaused(prompt);
             }
             else {
+                console.log('[!goal] Starting self-prompter');
                 agent.self_prompter.start(prompt);
             }
+            return `Goal set: ${prompt}. Self-prompting started.`;
         }
     },
     {
@@ -380,6 +425,24 @@ export const actionsList = [
         description: 'Call when you have accomplished your goal. It will stop self-prompting and the current action. ',
         perform: async function (agent) {
             agent.self_prompter.stop();
+
+            // Create .done file to signal orchestrator that task is complete
+            try {
+                const logsDir = path.join(process.cwd(), '.mindcraft-agents', 'logs');
+                mkdirSync(logsDir, { recursive: true });
+
+                // Try to find the bot's task ID from its name
+                // Bot names are like "gatherer-1" but task IDs are like "gather-wood-1"
+                // For now, we'll use the bot's name as a fallback
+                const botName = agent.name;
+                const donePath = path.join(logsDir, `${botName}.done`);
+
+                writeFileSync(donePath, new Date().toISOString());
+                console.log(`[${botName}] Created completion file: ${donePath}`);
+            } catch (error) {
+                console.error(`[${agent.name}] Failed to create .done file:`, error);
+            }
+
             return 'Self-prompting stopped.';
         }
     },

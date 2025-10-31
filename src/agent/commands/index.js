@@ -1,10 +1,11 @@
 import { getBlockId, getItemId } from "../../utils/mcdata.js";
 import { actionsList } from './actions.js';
 import { queryList } from './queries.js';
+import { mcpCommandList } from './mcp.js';
 
 let suppressNoDomainWarning = true;
 
-const commandList = queryList.concat(actionsList);
+const commandList = queryList.concat(actionsList).concat(mcpCommandList);
 const commandMap = {};
 for (let command of commandList) {
     commandMap[command.name] = command;
@@ -223,8 +224,13 @@ export async function executeCommand(agent, message) {
         if (numArgs !== numParams(command))
             return `Command ${command.name} was given ${numArgs} args, but requires ${numParams(command)} args.`;
         else {
-            const result = await command.perform(agent, ...parsed.args);
-            return result;
+            try {
+                const result = await command.perform(agent, ...parsed.args);
+                return result;
+            } catch (error) {
+                console.error(`Error executing command ${command.name}:`, error);
+                return `❌ Command ${command.name} failed: ${error.message}`;
+            }
         }
     }
 }

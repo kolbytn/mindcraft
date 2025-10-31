@@ -1,0 +1,164 @@
+{
+  "survive_first_night": {
+    "name": "Survive First Night",
+    "description": "Build shelter before nightfall and survive until dawn",
+    "required_inventory": [],
+    "success_criteria": "bot.health > 0 AND time == 0 AND shelter_exists",
+    "parallel": false,
+    "tasks": [
+      {
+        "id": "gather-building-materials",
+        "role": "ResourceGatherer",
+        "task": "Gather 64 dirt or cobblestone for shelter building",
+        "priority": "urgent",
+        "timeout": 300,
+        "output_file": "gather-shelter-materials.md"
+      },
+      {
+        "id": "build-shelter",
+        "role": "ShelterBuilder",
+        "task": "Build 5x5 shelter with door and torches before nightfall",
+        "dependencies": ["gather-building-materials"],
+        "priority": "urgent",
+        "timeout": 600,
+        "output_file": "build-shelter.md"
+      }
+    ],
+    "estimated_duration": 900,
+    "difficulty": "easy"
+  },
+
+  "wooden_tools": {
+    "name": "Wooden Tools",
+    "description": "Gather wood and craft basic wooden tools",
+    "required_inventory": [],
+    "success_criteria": "inventory.wooden_pickaxe >= 1 AND inventory.wooden_axe >= 1",
+    "parallel": false,
+    "tasks": [
+      {
+        "id": "gather-wood",
+        "role": "ResourceGatherer",
+        "task": "Gather 10 oak_log or similar wood from nearby trees",
+        "priority": "high",
+        "timeout": 300,
+        "output_file": "gather-wood.md"
+      },
+      {
+        "id": "craft-wooden-tools",
+        "role": "SurvivalCrafter",
+        "task": "Craft wooden_pickaxe and wooden_axe from gathered wood. Need: 6 planks + 4 sticks",
+        "dependencies": ["gather-wood"],
+        "priority": "high",
+        "timeout": 180,
+        "output_file": "craft-wooden-tools.md"
+      }
+    ],
+    "estimated_duration": 480,
+    "difficulty": "easy"
+  },
+
+  "stone_tools": {
+    "name": "Stone Tools",
+    "description": "Mine cobblestone and craft stone tools",
+    "required_inventory": ["wooden_pickaxe"],
+    "success_criteria": "inventory.stone_pickaxe >= 1 AND inventory.stone_axe >= 1 AND inventory.stone_sword >= 1",
+    "parallel": false,
+    "tasks": [
+      {
+        "id": "mine-cobblestone",
+        "role": "ResourceGatherer",
+        "task": "Mine 64 cobblestone using wooden_pickaxe. Find stone underground or in caves",
+        "priority": "high",
+        "timeout": 600,
+        "output_file": "mine-cobblestone.md"
+      },
+      {
+        "id": "craft-stone-tools",
+        "role": "SurvivalCrafter",
+        "task": "Craft stone_pickaxe, stone_axe, and stone_sword. Need: 8 cobblestone + 5 sticks",
+        "dependencies": ["mine-cobblestone"],
+        "priority": "high",
+        "timeout": 300,
+        "output_file": "craft-stone-tools.md"
+      }
+    ],
+    "estimated_duration": 900,
+    "difficulty": "medium"
+  },
+
+  "iron_tools": {
+    "name": "Iron Tools",
+    "description": "Find iron ore, smelt it, and craft iron tools",
+    "required_inventory": ["stone_pickaxe"],
+    "success_criteria": "inventory.iron_pickaxe >= 1 AND inventory.iron_sword >= 1",
+    "parallel": false,
+    "tasks": [
+      {
+        "id": "mine-iron-ore",
+        "role": "ResourceGatherer",
+        "task": "Mine 12 iron_ore using stone_pickaxe. Iron spawns at Y < 64, most common at Y = 16",
+        "priority": "high",
+        "timeout": 1200,
+        "output_file": "mine-iron-ore.md"
+      },
+      {
+        "id": "gather-fuel",
+        "role": "ResourceGatherer",
+        "task": "Gather 12 coal or 3 logs for smelting fuel",
+        "dependencies": ["mine-iron-ore"],
+        "priority": "medium",
+        "timeout": 300,
+        "output_file": "gather-fuel.md"
+      },
+      {
+        "id": "smelt-iron",
+        "role": "SurvivalCrafter",
+        "task": "Build furnace if needed, smelt 12 iron_ore into iron_ingots using fuel",
+        "dependencies": ["gather-fuel"],
+        "priority": "high",
+        "timeout": 600,
+        "output_file": "smelt-iron.md"
+      },
+      {
+        "id": "craft-iron-tools",
+        "role": "SurvivalCrafter",
+        "task": "Craft iron_pickaxe and iron_sword. Need: 5 iron_ingots + 3 sticks",
+        "dependencies": ["smelt-iron"],
+        "priority": "high",
+        "timeout": 300,
+        "output_file": "craft-iron-tools.md"
+      }
+    ],
+    "estimated_duration": 2400,
+    "difficulty": "hard"
+  },
+
+  "diamond_pickaxe": {
+    "name": "Diamond Pickaxe",
+    "description": "Find diamonds and craft diamond pickaxe (MVP complete!)",
+    "required_inventory": ["iron_pickaxe"],
+    "success_criteria": "inventory.diamond_pickaxe >= 1",
+    "parallel": false,
+    "tasks": [
+      {
+        "id": "mine-diamonds",
+        "role": "ResourceGatherer",
+        "task": "Mine 3 diamonds using iron_pickaxe. Diamonds spawn at Y < 16, most common at Y = 12. Use branch mining technique.",
+        "priority": "critical",
+        "timeout": 1800,
+        "output_file": "mine-diamonds.md"
+      },
+      {
+        "id": "craft-diamond-pickaxe",
+        "role": "SurvivalCrafter",
+        "task": "Craft diamond_pickaxe. Need: 3 diamonds + 2 sticks",
+        "dependencies": ["mine-diamonds"],
+        "priority": "critical",
+        "timeout": 180,
+        "output_file": "craft-diamond-pickaxe.md"
+      }
+    ],
+    "estimated_duration": 3600,
+    "difficulty": "very_hard"
+  }
+}

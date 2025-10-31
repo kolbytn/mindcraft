@@ -290,7 +290,17 @@ async function _scheduleProcessInMessage(sender, received, convo) {
     else if (!agent.isIdle()) {
         // I'm busy but other bot isn't
         let canTalkOver = talkOverActions.some(a => agent.actions.currentActionLabel.includes(a));
+
+        // Check if both are orchestrated bots (from bot pool: gatherer-1, crafter-1, etc.)
+        const isOrchestratedBot = (name) => /^(gatherer|crafter|builder|scout|architect|tester)-\d+$/i.test(name);
+        const bothOrchestrated = isOrchestratedBot(agent.name) && isOrchestratedBot(sender);
+
         if (canTalkOver) {
+            scheduleResponse(fastDelay);
+        }
+        else if (bothOrchestrated) {
+            // Orchestrated bots always respond to each other for coordination
+            console.log(`${agent.name} responding to orchestrated bot ${sender}`);
             scheduleResponse(fastDelay);
         }
         else {
