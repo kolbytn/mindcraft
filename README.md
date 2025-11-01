@@ -41,6 +41,38 @@ Do not connect this bot to public servers with coding enabled. This project allo
 
 If you encounter issues, check the [FAQ](https://github.com/mindcraft-bots/mindcraft/blob/main/FAQ.md) or find support on [discord](https://discord.gg/mp73p35dzC). We are currently not very responsive to github issues. To run tasks please refer to [Minecollab Instructions](minecollab.md#installation)
 
+## Bot Orchestration 🤖
+
+Andy can spawn helper bots to work on tasks autonomously! Command multiple bots at once to gather resources, build structures, or complete survival milestones.
+
+### Quick Examples
+
+```
+/msg andy spawn a gatherer to collect 64 oak logs
+/msg andy survive and get wooden tools
+/msg andy orchestrate building a wooden house
+/msg andy spawn five gatherers to stockpile resources
+```
+
+**[📋 Full Command Reference - Bot Spawn Examples](BOT_SPAWN_EXAMPLES.md)** - Copy/paste ready commands for spawning 1-20+ bots!
+
+### Key Features
+
+- **Survival Milestones**: Auto-spawn coordinated gatherer + crafter bots for tech progression
+- **Multi-bot Orchestration**: Scout→Architect→Builder→Tester pattern for complex builds
+- **Shared Resource Map**: Bots log discovered resources, Andy finds nearest locations intelligently
+- **Bot Pool System**: Pre-whitelisted 90 bot names (20 gatherers, 20 crafters, 20 builders, 10 scouts, 10 architects, 10 testers)
+- **Bot Management**: Kill bots, check status, monitor resource pool
+- **Toggle On/Off**: Enable/disable orchestration in `settings.js`
+
+### Documentation
+
+- [Bot Spawn Examples](BOT_SPAWN_EXAMPLES.md) - Quick reference for spawning bots
+- [Bot Lifecycle Commands](BOT_LIFECYCLE_COMMANDS.md) - Managing and killing bots
+- [Resource Map System](RESOURCE_MAP_SYSTEM.md) - Shared resource discovery and querying
+- [Orchestration Toggle](ORCHESTRATION_TOGGLE.md) - Enable/disable bot spawning
+- [Bot Communication Fix](BOT_COMMUNICATION_FIX.md) - How bots coordinate
+
 ## Tasks
 
 Bot performance can be roughly evaluated with Tasks. Tasks automatically intialize bots with a goal to acquire specific items or construct predefined buildings, and remove the bot once the goal is achieved.

@@ -326,10 +326,13 @@ export class BotOrchestrator {
         switch (role) {
             case 'Scout':
                 // Scout: Fast exploration ONLY (no collecting)
+                // CRITICAL: Disable self_preservation to prevent water death loops
                 return {
                     ...baseModes,
-                    hunting: false,         // No hunting - just scout
-                    item_collecting: false, // NO COLLECTING - just exploring!
+                    self_preservation: false,  // DISABLED - scouts get stuck in water loops
+                    self_defense: false,       // DISABLED - focus on scouting, not fighting
+                    hunting: false,            // No hunting - just scout
+                    item_collecting: false,    // NO COLLECTING - just exploring!
                     torch_placing: false,
                     cheat: false
                 };
