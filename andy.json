@@ -1,6 +1,28 @@
 {
     "name": "andy",
 
-    "model": "gpt-5-nano"
+    "model": "gpt-5-nano",
+    
+    "commentline1": "You will have to put your AI model in \"gpt-5-nano\" before using.",
+    "commentline2": "Example: gpt-4o-mini",
+    "commentline3": "Lists of avalible AIs name is below this",
 
+    "$commentline4": "Provider       | Config Variable       | Example Model Name                                 ",
+    "$commentline5": "--------------------------------------------------------------------------------------------",
+    "$commentline6": "openai         | OPENAI_API_KEY        | gpt-4o-mini                                        ",
+    "$commentline7": "google         | GEMINI_API_KEY        | gemini-2.0-flash                                   ",
+    "$commentline8": "anthropic      | ANTHROPIC_API_KEY     | claude-3-haiku-20240307                            ",
+    "$commentline9": "xai            | XAI_API_KEY           | grok-2-1212                                        ",
+    "commentline10": "deepseek       | DEEPSEEK_API_KEY      | deepseek-chat                                      ",
+    "commentline11": "ollama (local) | n/a                   | ollama/llama3.1                                    ",
+    "commentline12": "qwen           | QWEN_API_KEY          | qwen-max                                           ",
+    "commentline13": "mistral        | MISTRAL_API_KEY       | mistral-large-latest                               ",
+    "commentline14": "replicate      | REPLICATE_API_KEY     | replicate/meta/meta-llama-3-70b-instruct           ",
+    "commentline15": "groq           | GROQCLOUD_API_KEY     | groq/mixtral-8x7b-32768                            ",
+    "commentline16": "huggingface    | HUGGINGFACE_API_KEY   | huggingface/mistralai/Mistral-Nemo-Instruct-2407   ",
+    "commentline17": "novita         | NOVITA_API_KEY        | novita/deepseek/deepseek-r1                        ",
+    "commentline18": "openrouter     | OPENROUTER_API_KEY    | openrouter/anthropic/claude-3.5-sonnet             ",
+    "commentline19": "glhf.chat      | GHLF_API_KEY          | glhf/hf:meta-llama/Llama-3.1-405B-Instruct         ",
+    "commentline20": "hyperbolic     | HYPERBOLIC_API_KEY    | hyperbolic/deepseek-ai/DeepSeek-V3                 ",
+    "commentline21": "vllm (local)   | n/a                   | vllm/llama3                                        "
 }
