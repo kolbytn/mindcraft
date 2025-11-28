@@ -63,12 +63,8 @@ export class ReplicateAPI {
 		);
 		const embeddingModel = isEmbeddingModel ? this.model_name : DEFAULT_EMBEDDING_MODEL;
 		
-		try {
-			const output = await this.replicate.run(
-				embeddingModel,
-				{ input: { text } }
-			);
-			// Handle different embedding model output formats
+		// Helper to extract embedding from various output formats
+		const extractEmbedding = (output) => {
 			if (output.vectors) {
 				return output.vectors;
 			} else if (Array.isArray(output)) {
@@ -79,11 +75,39 @@ export class ReplicateAPI {
 			} else if (output.embeddings) {
 				return Array.isArray(output.embeddings[0]) ? output.embeddings[0] : output.embeddings;
 			}
-			console.warn('Unexpected embedding output format:', JSON.stringify(output).slice(0, 200));
-			throw new Error('Unknown embedding output format');
-		} catch (err) {
-			console.error('Replicate embed error:', err.message || err);
-			throw err;
+			return null;
+		};
+		
+		// Try different input formats since models have varying expectations
+		const inputFormats = [
+			{ text },           // Most common: { text: "..." }
+			{ texts: [text] },  // Some models expect array: { texts: ["..."] }
+			{ input: text },    // Alternative: { input: "..." }
+			{ content: text },  // Another alternative: { content: "..." }
+		];
+		
+		let lastError;
+		for (const inputFormat of inputFormats) {
+			try {
+				const output = await this.replicate.run(
+					embeddingModel,
+					{ input: inputFormat }
+				);
+				const embedding = extractEmbedding(output);
+				if (embedding) {
+					return embedding;
+				}
+				console.warn('Unexpected embedding output format:', JSON.stringify(output).slice(0, 200));
+			} catch (err) {
+				lastError = err;
+				// If it's not an input validation error, don't try other formats
+				if (!err.message?.includes('422') && !err.message?.includes('validation')) {
+					throw err;
+				}
+			}
 		}
+		
+		console.error('Replicate embed error: All input formats failed. Last error:', lastError?.message || lastError);
+		throw lastError || new Error('Unknown embedding error');
 	}
 }
