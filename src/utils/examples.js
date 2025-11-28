@@ -1,12 +1,14 @@
 import { cosineSimilarity } from './math.js';
 import { stringifyTurns, wordOverlapScore } from './text.js';
+import { embedWithProgress } from './rate_limiter.js';
 
 export class Examples {
-    constructor(model, select_num=2) {
+    constructor(model, select_num=2, cacheKey='examples') {
         this.examples = [];
         this.model = model;
         this.select_num = select_num;
         this.embeddings = {};
+        this.cacheKey = cacheKey;
     }
 
     turnsToText(turns) {
@@ -26,17 +28,23 @@ export class Examples {
             return;
 
         try {
-            // Create array of promises first
-            const embeddingPromises = examples.map(example => {
-                const turn_text = this.turnsToText(example);
-                return this.model.embed(turn_text)
-                    .then(embedding => {
-                        this.embeddings[turn_text] = embedding;
-                    });
-            });
+            const textsToEmbed = examples.map(example => this.turnsToText(example));
+            const modelName = this.model.model_name || this.model.constructor?.name || 'unknown';
             
-            // Wait for all embeddings to complete
-            await Promise.all(embeddingPromises);
+            const embeddings = await embedWithProgress(
+                textsToEmbed,
+                async (text) => await this.model.embed(text),
+                this.cacheKey,
+                {
+                    cacheKey: this.cacheKey,
+                    modelName: modelName,
+                    getTextFn: (text) => text
+                }
+            );
+            
+            for (const [text, embedding] of embeddings) {
+                this.embeddings[text] = embedding;
+            }
         } catch (err) {
             console.warn('Error with embedding model, using word-overlap instead.');
             this.model = null;

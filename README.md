@@ -50,6 +50,10 @@ If you encounter issues, check the [FAQ](https://github.com/mindcraft-bots/mindc
 
 You can configure project details in `settings.js`. [See file.](settings.js)
 
+### Remote UI access
+
+Set `"host_public": true` in `settings.js` when you need the web UI reachable from other machines; this binds the MindServer to `0.0.0.0`. Make sure your firewall only exposes the port to trusted networks.
+
 You can configure the agent's name, model, and prompts in their profile like `andy.json`. The model can be specified with the `model` field, with values like `model: "gemini-2.5-pro"`. You will need the correct API key for the API provider you choose. See all supported APIs below.
 
 <details>
