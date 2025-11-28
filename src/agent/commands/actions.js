@@ -239,6 +239,16 @@ export const actionsList = [
         })
     },
     {
+        name: '!searchChests',
+        description: 'Search and list the contents of all nearby chests. Useful for finding materials before gathering new resources.',
+        params: {
+            'range': { type: 'int', description: 'The search range for chests (default 32 blocks).', domain: [8, 64], optional: true }
+        },
+        perform: runAsAction(async (agent, range=32) => {
+            await skills.searchNearbyChests(agent.bot, range);
+        })
+    },
+    {
         name: '!discard',
         description: 'Discard the given item from the inventory.',
         params: {

@@ -192,6 +192,20 @@
         [
             {"role": "system", "content": "You are self-prompting with the goal: \"Get a wooden pickaxe\". Respond:"},
             {"role": "assistant", "content": "What's around me? !nearbyBlocks"},
+            {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- chest\n- cobblestone"},
+            {"role": "assistant", "content": "I see a chest nearby! Let me check if there are any useful materials in it first. !searchChests"},
+            {"role": "system", "content": "Found 1 chest(s) nearby. Checking contents...\nChest at (10, 64, 20):\n  12 oak_planks\n  8 stick\n  3 cobblestone\n\nTotal items found in all chests:\n  12 oak_planks\n  8 stick\n  3 cobblestone"},
+            {"role": "assistant", "content": "Nice! There are already oak planks and sticks in the chest. I can use those to craft a wooden pickaxe instead of gathering from scratch. !takeFromChest(\"oak_planks\", 3)"},
+            {"role": "system", "content": "Successfully took 3 oak_planks from the chest."},
+            {"role": "assistant", "content": "Now I'll grab some sticks. !takeFromChest(\"stick\", 2)"},
+            {"role": "system", "content": "Successfully took 2 stick from the chest."},
+            {"role": "assistant", "content": "Perfect, now I have the materials. !craftRecipe(\"wooden_pickaxe\", 1)"},
+            {"role": "system", "content": "Successfully crafted 1 wooden_pickaxe."},
+            {"role": "assistant", "content": "Wooden pickaxe crafted using materials from the chest! Goal accomplished. !endGoal"}
+        ],
+        [
+            {"role": "system", "content": "You are self-prompting with the goal: \"Get a wooden pickaxe\". Respond:"},
+            {"role": "assistant", "content": "What's around me? !nearbyBlocks"},
             {"role": "system", "content": "NEARBY_BLOCKS\n- oak_log\n- dirt\n- cobblestone"},
             {"role": "assistant", "content": "I see some oak logs, dirt, and cobblestone nearby. My goal is to craft a wooden pickaxe. I'll start by collecting some wood. !collectBlock(\"oak_log\", 10)"},
             {"role": "system", "content": "Successfully collected 9 wood."},
@@ -202,6 +216,16 @@
             {"role": "assistant", "content": "I have crafted 2 sticks. Now I can craft a wooden pickaxe. !craftItem(\"wooden_pickaxe\", 1)"},
             {"role": "system", "content": "Successfully crafted 1 wooden_pickaxe."},
             {"role": "assistant", "content": "Looks like I have a wooden pickaxe now! Goal accomplished. !endGoal"}
+        ],
+        [
+            {"role": "user", "content": "mike: Get me some iron tools"},
+            {"role": "assistant", "content": "Let me first check if there's anything useful in nearby chests. !nearbyBlocks"},
+            {"role": "system", "content": "NEARBY_BLOCKS\n- stone\n- chest\n- dirt\n- crafting_table"},
+            {"role": "assistant", "content": "I see a chest nearby. !searchChests"},
+            {"role": "system", "content": "Found 1 chest(s) nearby. Checking contents...\nChest at (15, 63, -8):\n  5 iron_ingot\n  1 iron_pickaxe\n  16 coal\n\nTotal items found in all chests:\n  5 iron_ingot\n  1 iron_pickaxe\n  16 coal"},
+            {"role": "assistant", "content": "There's already an iron pickaxe in the chest! Let me grab it. !takeFromChest(\"iron_pickaxe\", 1)"},
+            {"role": "system", "content": "Successfully took 1 iron_pickaxe from the chest."},
+            {"role": "assistant", "content": "Got an iron pickaxe from the chest. I can craft more iron tools with the 5 iron ingots if you need them."}
         ],
         [
             {"role": "system", "content": "set a goal to build whatever you want endlessly (context: you are in creative mode)"},

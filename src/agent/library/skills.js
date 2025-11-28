@@ -970,6 +970,72 @@ export async function viewChest(bot) {
     return true;
 }
 
+export async function searchNearbyChests(bot, range=32) {
+    /**
+     * Search all nearby chests and report their contents.
+     * Useful for finding materials before gathering new resources.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} range, the search range for chests (default 32 blocks).
+     * @returns {Promise<object>} An object with chest locations and their contents, or null if no chests found.
+     * @example
+     * await skills.searchNearbyChests(bot);
+     * **/
+    let chests = world.getNearestBlocks(bot, 'chest', range, 16);
+    if (!chests || chests.length === 0) {
+        log(bot, `No chests found within ${range} blocks.`);
+        return null;
+    }
+    
+    log(bot, `Found ${chests.length} chest(s) nearby. Checking contents...`);
+    
+    let allContents = {};
+    let summary = {};
+    
+    for (let chest of chests) {
+        const pos = chest.position;
+        const posKey = `(${pos.x}, ${pos.y}, ${pos.z})`;
+        
+        try {
+            await goToPosition(bot, pos.x, pos.y, pos.z, 2);
+            const chestContainer = await bot.openContainer(chest);
+            let items = chestContainer.containerItems();
+            
+            allContents[posKey] = [];
+            
+            if (items.length > 0) {
+                log(bot, `Chest at ${posKey}:`);
+                for (let item of items) {
+                    log(bot, `  ${item.count} ${item.name}`);
+                    allContents[posKey].push({name: item.name, count: item.count});
+                    
+                    // Build summary of all items across all chests
+                    if (summary[item.name]) {
+                        summary[item.name] += item.count;
+                    } else {
+                        summary[item.name] = item.count;
+                    }
+                }
+            } else {
+                log(bot, `Chest at ${posKey}: empty`);
+            }
+            
+            await chestContainer.close();
+        } catch (e) {
+            log(bot, `Could not open chest at ${posKey}: ${e.message}`);
+        }
+    }
+    
+    // Log a summary of all items found
+    if (Object.keys(summary).length > 0) {
+        log(bot, `\nTotal items found in all chests:`);
+        for (let [itemName, count] of Object.entries(summary)) {
+            log(bot, `  ${count} ${itemName}`);
+        }
+    }
+    
+    return {chests: allContents, summary: summary};
+}
+
 export async function consume(bot, itemName="") {
     /**
      * Eat/drink the given item.
