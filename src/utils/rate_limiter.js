@@ -2,6 +2,8 @@
  * Utility for rate-limited operations with exponential backoff retry
  */
 
+import { getEmbeddingsWithCache } from './embedding_cache.js';
+
 /**
  * Execute an async function with exponential backoff retry on rate limit errors
  * @param {Function} fn - Async function to execute
@@ -48,18 +50,51 @@ export async function withRetry(fn, options = {}) {
 }
 
 /**
- * Process items with embedding, showing progress and handling rate limits
+ * Process items with embedding, showing progress, handling rate limits, and caching
  * @param {Array} items - Items to process
  * @param {Function} embedFn - Async function to embed an item: (item, index) => embedding
  * @param {string} label - Label for progress display (e.g., "examples", "skills")
- * @param {Object} options - Retry options
+ * @param {Object} options - Options including retry options and cache settings
+ * @param {string} options.cacheKey - Cache key for persistent storage
+ * @param {string} options.modelName - Model name for cache invalidation
+ * @param {Function} options.getTextFn - Function to extract text from item for caching
  * @returns {Promise<Map>} Map of item -> embedding
  */
 export async function embedWithProgress(items, embedFn, label = 'items', options = {}) {
-    const results = new Map();
+    const { cacheKey, modelName, getTextFn } = options;
     const total = items.length;
     
-    if (total === 0) return results;
+    if (total === 0) return new Map();
+    
+    // If caching is enabled, use the cache system
+    if (cacheKey && modelName && getTextFn) {
+        const progressFn = (current, total, item) => {
+            const percent = Math.round((current / total) * 100);
+            const bar = '█'.repeat(Math.floor(percent / 5)) + '░'.repeat(20 - Math.floor(percent / 5));
+            console.log(`Embedding ${label}: ${bar} ${percent}% [${current}/${total}]`);
+        };
+        
+        const embedWithRetry = async (text) => {
+            return await withRetry(() => embedFn(text), options);
+        };
+        
+        const results = await getEmbeddingsWithCache(
+            items,
+            getTextFn,
+            embedWithRetry,
+            cacheKey,
+            modelName,
+            progressFn
+        );
+        
+        if (results.size > 0) {
+            console.log(`Finished loading ${results.size} ${label} embeddings.`);
+        }
+        return results;
+    }
+    
+    // Fallback to non-cached embedding
+    const results = new Map();
     
     for (let i = 0; i < total; i++) {
         const item = items[i];
@@ -71,7 +106,6 @@ export async function embedWithProgress(items, embedFn, label = 'items', options
             const embedding = await withRetry(() => embedFn(item, i), options);
             results.set(item, embedding);
             
-            // Log progress on separate lines to avoid conflicts with other output
             console.log(`Embedding ${label}: ${bar} ${percent}% ${progress}`);
         } catch (err) {
             console.error(`Failed to embed ${label} item ${i + 1}: ${err.message}`);

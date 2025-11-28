@@ -21,10 +21,17 @@ export class SkillLibrary {
                     text: doc.split('\n').slice(0, 2).join('')
                 }));
                 
+                const modelName = this.embedding_model.model_name || this.embedding_model.constructor?.name || 'unknown';
+                
                 const embeddings = await embedWithProgress(
                     docsToEmbed,
                     async (item) => await this.embedding_model.embed(item.text),
-                    'skills'
+                    'skills',
+                    {
+                        cacheKey: 'skills',
+                        modelName: modelName,
+                        getTextFn: (item) => item.text
+                    }
                 );
                 
                 for (const [item, embedding] of embeddings) {
