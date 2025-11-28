@@ -32,7 +32,6 @@ export class ReplicateAPI {
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');
-			console.log('  Model:', model_name);
 			let result = '';
 			for await (const event of this.replicate.stream(model_name, { input })) {
 				result += event;
@@ -43,11 +42,8 @@ export class ReplicateAPI {
 				}
 			}
 			res = result;
-			if (!res || res.trim() === '') {
-				console.log('Warning: Replicate returned empty response');
-			}
 		} catch (err) {
-			console.log('Replicate error:', err);
+			console.log(err);
 			res = 'My brain disconnected, try again.';
 		}
 		console.log('Received.');
@@ -60,7 +56,6 @@ export class ReplicateAPI {
 		
 		// Validate text input
 		if (!text || typeof text !== 'string') {
-			console.error('Replicate embed: Invalid text input:', typeof text, text ? `(length: ${String(text).length})` : '(empty)');
 			throw new Error('Text is required for embedding');
 		}
 		
@@ -98,12 +93,9 @@ export class ReplicateAPI {
 			if (embedding) {
 				return embedding;
 			}
-			console.warn('Unexpected embedding output format:', JSON.stringify(output).slice(0, 200));
 			throw new Error('Unknown embedding output format');
 		} catch (err) {
 			console.error('Replicate embed error:', err.message || err);
-			console.error('  Model:', embeddingModel);
-			console.error('  Text preview:', text.substring(0, 100) + (text.length > 100 ? '...' : ''));
 			throw err;
 		}
 	}
