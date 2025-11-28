@@ -61,8 +61,6 @@ export async function embedWithProgress(items, embedFn, label = 'items', options
     
     if (total === 0) return results;
     
-    console.log(`Embedding ${total} ${label}...`);
-    
     for (let i = 0; i < total; i++) {
         const item = items[i];
         const progress = `[${i + 1}/${total}]`;
@@ -73,14 +71,14 @@ export async function embedWithProgress(items, embedFn, label = 'items', options
             const embedding = await withRetry(() => embedFn(item, i), options);
             results.set(item, embedding);
             
-            // Update progress bar (using \r to overwrite line)
-            process.stdout.write(`\r${label}: ${bar} ${percent}% ${progress}`);
+            // Log progress on separate lines to avoid conflicts with other output
+            console.log(`Embedding ${label}: ${bar} ${percent}% ${progress}`);
         } catch (err) {
-            console.error(`\nFailed to embed ${label} item ${i + 1}: ${err.message}`);
+            console.error(`Failed to embed ${label} item ${i + 1}: ${err.message}`);
             throw err;
         }
     }
     
-    console.log(); // New line after progress bar
+    console.log(`Finished embedding ${total} ${label}.`);
     return results;
 }
