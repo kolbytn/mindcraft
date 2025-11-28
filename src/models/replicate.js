@@ -51,9 +51,21 @@ export class ReplicateAPI {
 	}
 
 	async embed(text) {
+		// Always use a dedicated embedding model, not the chat model
+		const DEFAULT_EMBEDDING_MODEL = "mark3labs/embeddings-gte-base:d619cff29338b9a37c3d06605042e1ff0594a8c3eff0175fd6967f5643fc4d47";
+		
+		// Check if model_name is an embedding model or a chat model
+		// Chat models (like meta/meta-llama-3-70b-instruct) won't work for embeddings
+		const isEmbeddingModel = this.model_name && (
+			this.model_name.includes('embed') || 
+			this.model_name.includes('gte') ||
+			this.model_name.includes('e5-')
+		);
+		const embeddingModel = isEmbeddingModel ? this.model_name : DEFAULT_EMBEDDING_MODEL;
+		
 		try {
 			const output = await this.replicate.run(
-				this.model_name || "mark3labs/embeddings-gte-base:d619cff29338b9a37c3d06605042e1ff0594a8c3eff0175fd6967f5643fc4d47",
+				embeddingModel,
 				{ input: { text } }
 			);
 			// Handle different embedding model output formats
