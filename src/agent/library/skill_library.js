@@ -25,7 +25,7 @@ export class SkillLibrary {
                 
                 const embeddings = await embedWithProgress(
                     docsToEmbed,
-                    async (item) => await this.embedding_model.embed(item.text),
+                    async (text) => await this.embedding_model.embed(text),
                     'skills',
                     {
                         cacheKey: 'skills',
