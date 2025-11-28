@@ -54,6 +54,12 @@ export class ReplicateAPI {
 		// Always use a dedicated embedding model, not the chat model
 		const DEFAULT_EMBEDDING_MODEL = "mark3labs/embeddings-gte-base:d619cff29338b9a37c3d06605042e1ff0594a8c3eff0175fd6967f5643fc4d47";
 		
+		// Validate text input
+		if (!text || typeof text !== 'string') {
+			console.error('Replicate embed: Invalid text input:', typeof text, text ? `(length: ${String(text).length})` : '(empty)');
+			throw new Error('Text is required for embedding');
+		}
+		
 		// Check if model_name is an embedding model or a chat model
 		// Chat models (like meta/meta-llama-3-70b-instruct) won't work for embeddings
 		const isEmbeddingModel = this.model_name && (
@@ -79,35 +85,22 @@ export class ReplicateAPI {
 		};
 		
 		// Try different input formats since models have varying expectations
-		const inputFormats = [
-			{ text },           // Most common: { text: "..." }
-			{ texts: [text] },  // Some models expect array: { texts: ["..."] }
-			{ input: text },    // Alternative: { input: "..." }
-			{ content: text },  // Another alternative: { content: "..." }
-		];
-		
-		let lastError;
-		for (const inputFormat of inputFormats) {
-			try {
-				const output = await this.replicate.run(
-					embeddingModel,
-					{ input: inputFormat }
-				);
-				const embedding = extractEmbedding(output);
-				if (embedding) {
-					return embedding;
-				}
-				console.warn('Unexpected embedding output format:', JSON.stringify(output).slice(0, 200));
-			} catch (err) {
-				lastError = err;
-				// If it's not an input validation error, don't try other formats
-				if (!err.message?.includes('422') && !err.message?.includes('validation')) {
-					throw err;
-				}
+		try {
+			const output = await this.replicate.run(
+				embeddingModel,
+				{ input: { text } }
+			);
+			const embedding = extractEmbedding(output);
+			if (embedding) {
+				return embedding;
 			}
+			console.warn('Unexpected embedding output format:', JSON.stringify(output).slice(0, 200));
+			throw new Error('Unknown embedding output format');
+		} catch (err) {
+			console.error('Replicate embed error:', err.message || err);
+			console.error('  Model:', embeddingModel);
+			console.error('  Text preview:', text.substring(0, 100) + (text.length > 100 ? '...' : ''));
+			throw err;
 		}
-		
-		console.error('Replicate embed error: All input formats failed. Last error:', lastError?.message || lastError);
-		throw lastError || new Error('Unknown embedding error');
 	}
 }
