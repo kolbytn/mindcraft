@@ -68,12 +68,6 @@ export async function embedWithProgress(items, embedFn, label = 'items', options
     
     // If caching is enabled, use the cache system
     if (cacheKey && modelName && getTextFn) {
-        const progressFn = (current, total, item) => {
-            const percent = Math.round((current / total) * 100);
-            const bar = '█'.repeat(Math.floor(percent / 5)) + '░'.repeat(20 - Math.floor(percent / 5));
-            console.log(`Embedding ${label}: ${bar} ${percent}% [${current}/${total}]`);
-        };
-        
         const embedWithRetry = async (text) => {
             return await withRetry(() => embedFn(text), options);
         };
@@ -84,35 +78,28 @@ export async function embedWithProgress(items, embedFn, label = 'items', options
             embedWithRetry,
             cacheKey,
             modelName,
-            progressFn
+            null  // No per-item progress to avoid spam
         );
         
-        if (results.size > 0) {
-            console.log(`Finished loading ${results.size} ${label} embeddings.`);
-        }
         return results;
     }
     
     // Fallback to non-cached embedding
     const results = new Map();
+    console.log(`${label}: Embedding ${total} items...`);
     
     for (let i = 0; i < total; i++) {
         const item = items[i];
-        const progress = `[${i + 1}/${total}]`;
-        const percent = Math.round(((i + 1) / total) * 100);
-        const bar = '█'.repeat(Math.floor(percent / 5)) + '░'.repeat(20 - Math.floor(percent / 5));
         
         try {
             const embedding = await withRetry(() => embedFn(item, i), options);
             results.set(item, embedding);
-            
-            console.log(`Embedding ${label}: ${bar} ${percent}% ${progress}`);
         } catch (err) {
-            console.error(`Failed to embed ${label} item ${i + 1}: ${err.message}`);
+            console.error(`${label}: Failed to embed item ${i + 1}: ${err.message}`);
             throw err;
         }
     }
     
-    console.log(`Finished embedding ${total} ${label}.`);
+    console.log(`${label}: Done (${total} embedded)`);
     return results;
 }

@@ -100,20 +100,16 @@ export async function getEmbeddingsWithCache(items, getTextFn, embedFn, cacheKey
     }
     
     if (toEmbed.length === 0) {
-        console.log(`All ${items.length} ${cacheKey} embeddings loaded from cache`);
+        console.log(`${cacheKey}: All ${items.length} embeddings loaded from cache`);
         return results;
     }
     
-    console.log(`Embedding ${toEmbed.length} new ${cacheKey} (${items.length - toEmbed.length} cached)...`);
+    console.log(`${cacheKey}: Embedding ${toEmbed.length} items (${items.length - toEmbed.length} cached)...`);
     
     // Embed missing items
     const newEmbeddings = {};
     for (let i = 0; i < toEmbed.length; i++) {
         const { item, text, hash } = toEmbed[i];
-        
-        if (progressFn) {
-            progressFn(i + 1, toEmbed.length, item);
-        }
         
         const embedding = await embedFn(text);
         results.set(item, embedding);
@@ -123,6 +119,7 @@ export async function getEmbeddingsWithCache(items, getTextFn, embedFn, cacheKey
     
     // Save updated cache
     saveEmbeddingCache(cacheKey, modelName, cachedEmbeddings);
+    console.log(`${cacheKey}: Done (${toEmbed.length} embedded, ${results.size} total)`);
     
     return results;
 }
