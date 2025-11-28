@@ -6,6 +6,7 @@ const settings = {
 
     // the mindserver manages all agents and hosts the UI
     "mindserver_port": 8080,
+    "host_public": false, // set true to bind the UI to 0.0.0.0 for remote access
     "auto_open_ui": true, // opens UI in browser on startup
     
     "base_profile": "assistant", // survival, assistant, creative, or god_mode

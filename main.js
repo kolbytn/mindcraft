@@ -63,7 +63,7 @@ if (process.env.LOG_ALL) {
     settings.log_all_prompts = process.env.LOG_ALL;
 }
 
-Mindcraft.init(false, settings.mindserver_port, settings.auto_open_ui);
+Mindcraft.init(settings.host_public ?? false, settings.mindserver_port, settings.auto_open_ui);
 
 for (let profile of settings.profiles) {
     const profile_json = JSON.parse(readFileSync(profile, 'utf8'));
