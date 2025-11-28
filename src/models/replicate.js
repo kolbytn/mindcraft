@@ -62,6 +62,7 @@ export class ReplicateAPI {
 			}
 			res = result;
 			console.log('Received. Events:', eventCount, 'Response length:', res.length);
+			console.log('Response:', res.substring(0, 500));
 			if (!res || res.trim() === '') {
 				console.log('WARNING: Empty response from model');
 			}
