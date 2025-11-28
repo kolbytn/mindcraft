@@ -51,10 +51,27 @@ export class ReplicateAPI {
 	}
 
 	async embed(text) {
-		const output = await this.replicate.run(
-			this.model_name || "mark3labs/embeddings-gte-base:d619cff29338b9a37c3d06605042e1ff0594a8c3eff0175fd6967f5643fc4d47",
-			{ input: {text} }
-		);
-		return output.vectors;
+		try {
+			const output = await this.replicate.run(
+				this.model_name || "mark3labs/embeddings-gte-base:d619cff29338b9a37c3d06605042e1ff0594a8c3eff0175fd6967f5643fc4d47",
+				{ input: { text } }
+			);
+			// Handle different embedding model output formats
+			if (output.vectors) {
+				return output.vectors;
+			} else if (Array.isArray(output)) {
+				// Some models return the embedding array directly
+				return output;
+			} else if (output.embedding) {
+				return output.embedding;
+			} else if (output.embeddings) {
+				return Array.isArray(output.embeddings[0]) ? output.embeddings[0] : output.embeddings;
+			}
+			console.warn('Unexpected embedding output format:', JSON.stringify(output).slice(0, 200));
+			throw new Error('Unknown embedding output format');
+		} catch (err) {
+			console.error('Replicate embed error:', err.message || err);
+			throw err;
+		}
 	}
 }
