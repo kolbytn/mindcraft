@@ -100,6 +100,33 @@ To connect to online servers your bot will need an official Microsoft/Minecraft 
 
 To use different accounts, Mindcraft will connect with the account that the Minecraft launcher is currently using. You can switch accounts in the launcher, then run `node main.js`, then switch to your main account after the bot has connected.
 
+## Local Settings Override
+
+To avoid modifying `settings.js` (which is tracked by git), you can create a `settings_local.json` file that overrides default settings. This file is gitignored, so your local configuration won't be affected by branch switches or git pulls.
+
+```bash
+# Copy the example file
+cp settings_local.json.example settings_local.json
+
+# Edit with your settings
+nano settings_local.json  # or use any editor
+```
+
+Example `settings_local.json`:
+```json
+{
+    "minecraft_version": "1.21.8",
+    "host": "192.168.1.100",
+    "port": 25565,
+    "auto_open_ui": false,
+    "profiles": [
+        "./profiles/gemini.json"
+    ]
+}
+```
+
+Only include the settings you want to override. Any settings not specified will use the defaults from `settings.js`.
+
 ## Tasks
 
 Tasks automatically start the bot with a prompt and a goal item to aquire or blueprint to construct. To run a simple task that involves collecting 4 oak_logs run 

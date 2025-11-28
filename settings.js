@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 const settings = {
     "minecraft_version": "auto", // or specific version like "1.21.6"
     "host": "127.0.0.1", // or "localhost", "your.ip.address.here"
@@ -58,6 +61,18 @@ const settings = {
   
     "log_all_prompts": false, // log ALL prompts to file
 
+}
+
+// Load local settings override if it exists (not tracked by git)
+const localSettingsPath = path.join(process.cwd(), 'settings_local.json');
+if (fs.existsSync(localSettingsPath)) {
+    try {
+        const localSettings = JSON.parse(fs.readFileSync(localSettingsPath, 'utf8'));
+        Object.assign(settings, localSettings);
+        console.log('Loaded local settings from settings_local.json');
+    } catch (err) {
+        console.error('Error loading settings_local.json:', err.message);
+    }
 }
 
 export default settings;

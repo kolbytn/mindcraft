@@ -1,0 +1,9 @@
+{
+    "minecraft_version": "1.21.8",
+    "host": "10.1.1.232",
+    "port": 25565,
+    "auto_open_ui": false,
+    "profiles": [
+        "./profiles/gemini.json"
+    ]
+}
