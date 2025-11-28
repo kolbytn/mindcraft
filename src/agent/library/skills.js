@@ -1960,6 +1960,101 @@ export async function digDown(bot, distance = 10) {
     return true;
 }
 
+export async function digStairsDown(bot, distance = 10) {
+    /**
+     * Digs a staircase down a specified distance. Safer than digDown as it creates a walkable staircase.
+     * The staircase spirals in a 2x1 pattern, going down one block at a time.
+     * Will stop if it reaches lava, water, or bedrock.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {int} distance, vertical distance to dig down.
+     * @returns {Promise<boolean>} true if successfully dug the staircase.
+     * @example
+     * await skills.digStairsDown(bot, 12);
+     **/
+    
+    // Direction offsets for spiral: north, east, south, west
+    const directions = [
+        { x: 0, z: -1, name: 'north' },
+        { x: 1, z: 0, name: 'east' },
+        { x: 0, z: 1, name: 'south' },
+        { x: -1, z: 0, name: 'west' }
+    ];
+    
+    let currentPos = bot.entity.position.floored();
+    let dirIndex = 0;
+    let blocksDown = 0;
+    
+    while (blocksDown < distance) {
+        const dir = directions[dirIndex % 4];
+        
+        // Calculate next position (move horizontally and down 1)
+        const nextX = currentPos.x + dir.x;
+        const nextY = currentPos.y - 1;
+        const nextZ = currentPos.z + dir.z;
+        
+        // Check blocks we need to dig: the floor block and the head-height block
+        const floorBlock = bot.blockAt(new Vec3(nextX, nextY, nextZ));
+        const bodyBlock = bot.blockAt(new Vec3(nextX, nextY + 1, nextZ));
+        const headBlock = bot.blockAt(new Vec3(nextX, nextY + 2, nextZ));
+        
+        if (!floorBlock) {
+            log(bot, `Dug staircase down ${blocksDown} blocks, reached end of world.`);
+            return true;
+        }
+        
+        // Check for dangerous blocks
+        const dangerBlocks = ['lava', 'water', 'bedrock'];
+        for (const block of [floorBlock, bodyBlock, headBlock]) {
+            if (block && dangerBlocks.includes(block.name)) {
+                log(bot, `Dug staircase down ${blocksDown} blocks, stopped at ${block.name}.`);
+                return block.name === 'bedrock'; // Success if we hit bedrock, failure for lava/water
+            }
+        }
+        
+        // Dig the floor block (where we'll stand)
+        if (floorBlock.name !== 'air' && floorBlock.name !== 'cave_air') {
+            const dug = await breakBlockAt(bot, nextX, nextY, nextZ);
+            if (!dug) {
+                log(bot, `Failed to dig floor block at ${nextX}, ${nextY}, ${nextZ}`);
+                return false;
+            }
+        }
+        
+        // Dig the body block (torso height)
+        if (bodyBlock && bodyBlock.name !== 'air' && bodyBlock.name !== 'cave_air') {
+            const dug = await breakBlockAt(bot, nextX, nextY + 1, nextZ);
+            if (!dug) {
+                log(bot, `Failed to dig body block at ${nextX}, ${nextY + 1}, ${nextZ}`);
+                return false;
+            }
+        }
+        
+        // Dig the head block (head height when standing on floor)
+        if (headBlock && headBlock.name !== 'air' && headBlock.name !== 'cave_air') {
+            const dug = await breakBlockAt(bot, nextX, nextY + 2, nextZ);
+            if (!dug) {
+                log(bot, `Failed to dig head block at ${nextX}, ${nextY + 2}, ${nextZ}`);
+                return false;
+            }
+        }
+        
+        // Move to the new position
+        await goToPosition(bot, nextX, nextY + 1, nextZ, 0);
+        
+        currentPos = new Vec3(nextX, nextY + 1, nextZ);
+        blocksDown++;
+        dirIndex++;
+        
+        // Log progress every 5 blocks
+        if (blocksDown % 5 === 0) {
+            log(bot, `Dug staircase down ${blocksDown}/${distance} blocks...`);
+        }
+    }
+    
+    log(bot, `Successfully dug staircase down ${blocksDown} blocks.`);
+    return true;
+}
+
 export async function goToSurface(bot) {
     /**
      * Navigate to the surface (highest non-air block at current x,z).
