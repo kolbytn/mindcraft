@@ -32,8 +32,12 @@ export class ReplicateAPI {
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');
+			console.log('  Model:', model_name);
+			console.log('  Prompt length:', prompt.length);
 			let result = '';
+			let eventCount = 0;
 			for await (const event of this.replicate.stream(model_name, { input })) {
+				eventCount++;
 				result += event;
 				if (result === '') break;
 				if (result.includes(stop_seq)) {
@@ -42,11 +46,15 @@ export class ReplicateAPI {
 				}
 			}
 			res = result;
+			console.log('Received. Events:', eventCount, 'Response length:', res.length);
+			if (!res || res.trim() === '') {
+				console.log('WARNING: Empty response from model');
+				console.log('  First 500 chars of prompt:', prompt.substring(0, 500));
+			}
 		} catch (err) {
-			console.log(err);
+			console.log('Replicate error:', err);
 			res = 'My brain disconnected, try again.';
 		}
-		console.log('Received.');
 		return res;
 	}
 
