@@ -15,13 +15,17 @@ export class SkillLibrary {
         this.skill_docs = skillDocs;
         if (this.embedding_model) {
             try {
-                const embeddingPromises = skillDocs.map((doc) => {
-                    return (async () => {
-                        let func_name_desc = doc.split('\n').slice(0, 2).join('');
-                        this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
-                    })();
-                });
-                await Promise.all(embeddingPromises);
+                // Process embeddings sequentially with delay to avoid rate limits
+                for (let i = 0; i < skillDocs.length; i++) {
+                    const doc = skillDocs[i];
+                    let func_name_desc = doc.split('\n').slice(0, 2).join('');
+                    this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
+                    
+                    // Add delay between requests to avoid rate limiting (skip after last)
+                    if (i < skillDocs.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 5000));
+                    }
+                }
             } catch (error) {
                 console.warn('Error with embedding model, using word-overlap instead.');
                 this.embedding_model = null;

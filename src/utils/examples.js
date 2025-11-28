@@ -26,17 +26,18 @@ export class Examples {
             return;
 
         try {
-            // Create array of promises first
-            const embeddingPromises = examples.map(example => {
+            // Process embeddings sequentially with delay to avoid rate limits
+            for (let i = 0; i < examples.length; i++) {
+                const example = examples[i];
                 const turn_text = this.turnsToText(example);
-                return this.model.embed(turn_text)
-                    .then(embedding => {
-                        this.embeddings[turn_text] = embedding;
-                    });
-            });
-            
-            // Wait for all embeddings to complete
-            await Promise.all(embeddingPromises);
+                const embedding = await this.model.embed(turn_text);
+                this.embeddings[turn_text] = embedding;
+                
+                // Add delay between requests to avoid rate limiting (skip after last)
+                if (i < examples.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                }
+            }
         } catch (err) {
             console.warn('Error with embedding model, using word-overlap instead.');
             this.model = null;
