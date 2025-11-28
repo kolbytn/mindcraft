@@ -1,6 +1,7 @@
 import { cosineSimilarity } from '../../utils/math.js';
 import { getSkillDocs } from './index.js';
 import { wordOverlapScore } from '../../utils/text.js';
+import { embedWithProgress } from '../../utils/rate_limiter.js';
 
 export class SkillLibrary {
     constructor(agent,embedding_model) {
@@ -15,13 +16,27 @@ export class SkillLibrary {
         this.skill_docs = skillDocs;
         if (this.embedding_model) {
             try {
-                const embeddingPromises = skillDocs.map((doc) => {
-                    return (async () => {
-                        let func_name_desc = doc.split('\n').slice(0, 2).join('');
-                        this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
-                    })();
-                });
-                await Promise.all(embeddingPromises);
+                const docsToEmbed = skillDocs.map(doc => ({
+                    doc,
+                    text: doc.split('\n').slice(0, 2).join('')
+                }));
+                
+                const modelName = this.embedding_model.model_name || this.embedding_model.constructor?.name || 'unknown';
+                
+                const embeddings = await embedWithProgress(
+                    docsToEmbed,
+                    async (text) => await this.embedding_model.embed(text),
+                    'skills',
+                    {
+                        cacheKey: 'skills',
+                        modelName: modelName,
+                        getTextFn: (item) => item.text
+                    }
+                );
+                
+                for (const [item, embedding] of embeddings) {
+                    this.skill_docs_embeddings[item.doc] = embedding;
+                }
             } catch (error) {
                 console.warn('Error with embedding model, using word-overlap instead.');
                 this.embedding_model = null;
