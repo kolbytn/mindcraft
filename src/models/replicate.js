@@ -24,16 +24,31 @@ export class ReplicateAPI {
 		const prompt = toSinglePrompt(turns, null, stop_seq);
 		let model_name = this.model_name || 'meta/meta-llama-3-70b-instruct';
 
-		const input = { 
-			prompt, 
-			system_prompt: systemMessage,
-			...(this.params || {})
-		};
+		// Detect model type to use correct input format
+		const isGemini = model_name.includes('gemini');
+		const isLlama = model_name.includes('llama') || model_name.includes('meta/');
+		
+		let input;
+		if (isGemini) {
+			// Gemini models use system_instruction and expect the full prompt with system message
+			const fullPrompt = systemMessage + '\n\n' + prompt;
+			input = { 
+				prompt: fullPrompt,
+				...(this.params || {})
+			};
+		} else {
+			// Llama and other models use system_prompt
+			input = { 
+				prompt, 
+				system_prompt: systemMessage,
+				...(this.params || {})
+			};
+		}
+		
 		let res = null;
 		try {
 			console.log('Awaiting Replicate API response...');
-			console.log('  Model:', model_name);
-			console.log('  Prompt length:', prompt.length);
+			console.log('  Model:', model_name, isGemini ? '(Gemini format)' : '(Llama format)');
 			let result = '';
 			let eventCount = 0;
 			for await (const event of this.replicate.stream(model_name, { input })) {
@@ -49,7 +64,6 @@ export class ReplicateAPI {
 			console.log('Received. Events:', eventCount, 'Response length:', res.length);
 			if (!res || res.trim() === '') {
 				console.log('WARNING: Empty response from model');
-				console.log('  First 500 chars of prompt:', prompt.substring(0, 500));
 			}
 		} catch (err) {
 			console.log('Replicate error:', err);
