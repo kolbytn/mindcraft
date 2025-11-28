@@ -49,19 +49,41 @@ export class ReplicateAPI {
 		try {
 			console.log('Awaiting Replicate API response...');
 			console.log('  Model:', model_name, isGemini ? '(Gemini format)' : '(Llama format)');
-			let result = '';
-			let eventCount = 0;
-			for await (const event of this.replicate.stream(model_name, { input })) {
-				eventCount++;
-				result += event;
-				if (result === '') break;
-				if (result.includes(stop_seq)) {
-					result = result.slice(0, result.indexOf(stop_seq));
-					break;
+			
+			if (isGemini) {
+				// Gemini doesn't stream well on Replicate, use run() instead
+				const output = await this.replicate.run(model_name, { input });
+				console.log('Gemini raw output:', JSON.stringify(output).substring(0, 500));
+				// Output might be a string or an array
+				if (Array.isArray(output)) {
+					res = output.join('');
+				} else if (typeof output === 'string') {
+					res = output;
+				} else {
+					res = String(output);
 				}
+			} else {
+				// Use streaming for other models
+				let result = '';
+				let eventCount = 0;
+				for await (const event of this.replicate.stream(model_name, { input })) {
+					eventCount++;
+					result += event;
+					if (result === '') break;
+					if (result.includes(stop_seq)) {
+						result = result.slice(0, result.indexOf(stop_seq));
+						break;
+					}
+				}
+				res = result;
+				console.log('Received. Events:', eventCount, 'Response length:', res.length);
 			}
-			res = result;
-			console.log('Received. Events:', eventCount, 'Response length:', res.length);
+			
+			// Trim stop sequence if present
+			if (res && res.includes(stop_seq)) {
+				res = res.slice(0, res.indexOf(stop_seq));
+			}
+			
 			console.log('Response:', res.substring(0, 500));
 			if (!res || res.trim() === '') {
 				console.log('WARNING: Empty response from model');
