@@ -1,5 +1,6 @@
 import { cosineSimilarity } from './math.js';
 import { stringifyTurns, wordOverlapScore } from './text.js';
+import { embedWithProgress } from './rate_limiter.js';
 
 export class Examples {
     constructor(model, select_num=2) {
@@ -26,17 +27,15 @@ export class Examples {
             return;
 
         try {
-            // Process embeddings sequentially with delay to avoid rate limits
-            for (let i = 0; i < examples.length; i++) {
-                const example = examples[i];
-                const turn_text = this.turnsToText(example);
-                const embedding = await this.model.embed(turn_text);
-                this.embeddings[turn_text] = embedding;
-                
-                // Add delay between requests to avoid rate limiting (skip after last)
-                if (i < examples.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 5000));
-                }
+            const textsToEmbed = examples.map(example => this.turnsToText(example));
+            const embeddings = await embedWithProgress(
+                textsToEmbed,
+                async (text) => await this.model.embed(text),
+                'examples'
+            );
+            
+            for (const [text, embedding] of embeddings) {
+                this.embeddings[text] = embedding;
             }
         } catch (err) {
             console.warn('Error with embedding model, using word-overlap instead.');

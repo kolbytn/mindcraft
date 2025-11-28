@@ -1,6 +1,7 @@
 import { cosineSimilarity } from '../../utils/math.js';
 import { getSkillDocs } from './index.js';
 import { wordOverlapScore } from '../../utils/text.js';
+import { embedWithProgress } from '../../utils/rate_limiter.js';
 
 export class SkillLibrary {
     constructor(agent,embedding_model) {
@@ -15,16 +16,19 @@ export class SkillLibrary {
         this.skill_docs = skillDocs;
         if (this.embedding_model) {
             try {
-                // Process embeddings sequentially with delay to avoid rate limits
-                for (let i = 0; i < skillDocs.length; i++) {
-                    const doc = skillDocs[i];
-                    let func_name_desc = doc.split('\n').slice(0, 2).join('');
-                    this.skill_docs_embeddings[doc] = await this.embedding_model.embed(func_name_desc);
-                    
-                    // Add delay between requests to avoid rate limiting (skip after last)
-                    if (i < skillDocs.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 5000));
-                    }
+                const docsToEmbed = skillDocs.map(doc => ({
+                    doc,
+                    text: doc.split('\n').slice(0, 2).join('')
+                }));
+                
+                const embeddings = await embedWithProgress(
+                    docsToEmbed,
+                    async (item) => await this.embedding_model.embed(item.text),
+                    'skills'
+                );
+                
+                for (const [item, embedding] of embeddings) {
+                    this.skill_docs_embeddings[item.doc] = embedding;
                 }
             } catch (error) {
                 console.warn('Error with embedding model, using word-overlap instead.');
