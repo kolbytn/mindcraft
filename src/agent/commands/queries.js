@@ -70,12 +70,21 @@ export const queryList = [
             let bot = agent.bot;
             let inventory = world.getInventoryCounts(bot);
             let res = 'INVENTORY';
-            for (const item in inventory) {
-                if (inventory[item] && inventory[item] > 0)
-                    res += `\n- ${item}: ${inventory[item]}`;
+            
+            // Sort items by count (descending) for better readability
+            const sortedItems = Object.entries(inventory)
+                .filter(([item, count]) => count && count > 0)
+                .sort((a, b) => b[1] - a[1]);
+            
+            for (const [item, count] of sortedItems) {
+                res += `\n- ${item}: ${count}`;
             }
-            if (res === 'INVENTORY') {
+            
+            if (sortedItems.length === 0) {
                 res += ': Nothing';
+                // Debug: Log raw inventory state
+                console.log('[INVENTORY DEBUG] inventory.items():', bot.inventory.items().map(i => i ? `${i.name}:${i.count}` : 'null'));
+                console.log('[INVENTORY DEBUG] Total slots:', bot.inventory.slots.length);
             }
             else if (agent.bot.game.gameMode === 'creative') {
                 res += '\n(You have infinite items in creative mode. You do not need to gather resources!!)';
@@ -96,6 +105,12 @@ export const queryList = [
                 res += `\nFeet: ${boots.name}`;
             if (!helmet && !chestplate && !leggings && !boots)
                 res += 'Nothing';
+            
+            // Also show held item
+            const heldItem = bot.inventory.slots[bot.quickBarSlot + 36];
+            if (heldItem) {
+                res += `\nHOLDING: ${heldItem.name}`;
+            }
 
             return pad(res);
         }
@@ -133,14 +148,53 @@ export const queryList = [
         name: "!craftable",
         description: "Get the craftable items with the bot's inventory.",
         perform: function (agent) {
-            let craftable = world.getCraftableItems(agent.bot);
+            const bot = agent.bot;
+            let craftable = world.getCraftableItems(bot);
             let res = 'CRAFTABLE_ITEMS';
+            
+            // Categorize craftable items for better readability
+            const tools = [];
+            const weapons = [];
+            const armor = [];
+            const blocks = [];
+            const other = [];
+            
             for (const item of craftable) {
-                res += `\n- ${item}`;
+                if (item.includes('pickaxe') || item.includes('axe') || item.includes('shovel') || item.includes('hoe')) {
+                    tools.push(item);
+                } else if (item.includes('sword') || item.includes('bow') || item.includes('crossbow')) {
+                    weapons.push(item);
+                } else if (item.includes('helmet') || item.includes('chestplate') || item.includes('leggings') || item.includes('boots')) {
+                    armor.push(item);
+                } else if (item.includes('block') || item.includes('planks') || item.includes('slab') || item.includes('stairs')) {
+                    blocks.push(item);
+                } else {
+                    other.push(item);
+                }
             }
-            if (res == 'CRAFTABLE_ITEMS') {
+            
+            if (tools.length > 0) res += '\nTools: ' + tools.join(', ');
+            if (weapons.length > 0) res += '\nWeapons: ' + weapons.join(', ');
+            if (armor.length > 0) res += '\nArmor: ' + armor.join(', ');
+            if (blocks.length > 0) res += '\nBlocks: ' + blocks.slice(0, 10).join(', ') + (blocks.length > 10 ? '...' : '');
+            if (other.length > 0) res += '\nOther: ' + other.slice(0, 15).join(', ') + (other.length > 15 ? '...' : '');
+            
+            if (craftable.length === 0) {
                 res += ': none';
+                // Give hint about what could be crafted with raw materials
+                const inventory = world.getInventoryCounts(bot);
+                const hints = [];
+                if (Object.keys(inventory).some(k => k.includes('log'))) {
+                    hints.push('You have logs - craft planks first, then crafting_table, then sticks, then tools');
+                }
+                if (Object.keys(inventory).some(k => k.includes('planks'))) {
+                    hints.push('You have planks - craft crafting_table, sticks, or more planks');
+                }
+                if (hints.length > 0) {
+                    res += '\nHINT: ' + hints.join('. ');
+                }
             }
+            
             return pad(res);
         }
     },
