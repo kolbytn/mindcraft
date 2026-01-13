@@ -321,7 +321,7 @@ export class Agent {
 
             console.log(`${this.name} full response to ${source}: ""${res}""`);
 
-            if (res.trim().length === 0) {
+            if (res.trim().length === 0 || res.trim() === '\t') {
                 console.warn('no response')
                 break; // empty response ends loop
             }
