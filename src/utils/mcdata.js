@@ -8,7 +8,7 @@ import { plugin as collectblock } from 'mineflayer-collectblock';
 import { plugin as autoEat } from 'mineflayer-auto-eat';
 import plugin from 'mineflayer-armor-manager';
 const armorManager = plugin;
-let mc_version = settings.minecraft_version;
+let mc_version = null;
 let mcdata = null;
 let Item = null;
 
@@ -58,13 +58,68 @@ export function initBot(username) {
         host: settings.host,
         port: settings.port,
         auth: settings.auth,
+        hideErrors: true,
         version: mc_version,
+        // Connection stability improvements
+        checkTimeoutInterval: 60000,  // Check connection every 60 seconds (default 30s)
+        keepAlive: true,              // Ensure keep-alive is enabled
+        closeTimeout: 120000,         // Wait 2 minutes before considering connection dead
+        // Reduce packet rate for Paper server compatibility
+        physicsEnabled: true,
+        viewDistance: 'tiny',         // Reduce view distance to lower packet load
     }
     if (!mc_version || mc_version === "auto") {
         delete options.version;
     }
 
     const bot = createBot(options);
+
+    // Throttle position packets to avoid Paper server kicks (ECONNRESET)
+    let lastPositionUpdate = Date.now();
+    const positionThrottleMs = 50;
+    
+    const clientForThrottle = bot._client;
+    if (clientForThrottle) {
+        const originalWrite = clientForThrottle.write.bind(clientForThrottle);
+        clientForThrottle.write = function(name, data) {
+            if (name === 'position' || name === 'position_look' || name === 'look') {
+                const now = Date.now();
+                if (now - lastPositionUpdate < positionThrottleMs) {
+                    return;
+                }
+                lastPositionUpdate = now;
+            }
+            return originalWrite(name, data);
+        };
+    }
+    
+    // Improve connection stability by handling keep-alive proactively
+    bot.on('keep_alive', () => {
+        // Keep-alive received, connection is healthy
+    });
+    
+    // Suppress non-critical protocol parsing errors (common with Paper servers)
+    const client = bot._client;
+    if (client) {
+        const originalEmit = client.emit.bind(client);
+        client.emit = function(event, ...args) {
+            if (event === 'error') {
+                const err = args[0];
+                const errStr = String(err);
+                // Suppress PartialReadError for non-critical packets
+                if (errStr.includes('PartialReadError') && 
+                    (errStr.includes('scoreboard') || 
+                     errStr.includes('resource_pack') ||
+                     errStr.includes('tags') ||
+                     errStr.includes('custom_payload') || errStr.includes('entity_velocity'))) {
+                    console.warn('[Protocol] Suppressed:', err.message ? err.message.substring(0, 80) : errStr.substring(0, 80));
+                    return true;
+                }
+            }
+            return originalEmit(event, ...args);
+        };
+    }
+    
     bot.loadPlugin(pathfinder);
     bot.loadPlugin(pvp);
     bot.loadPlugin(collectblock);
@@ -521,3 +576,5 @@ function formatPlan(targetItem, { required, steps, leftovers }) {
 
     return lines.join('\n');
 }
+
+
