@@ -261,8 +261,16 @@ export function getVillagerProfession(entity) {
 
 export function getInventoryStacks(bot) {
     let inventory = [];
+    // Get items from main inventory (slots 9-44)
     for (const item of bot.inventory.items()) {
         if (item != null) {
+            inventory.push(item);
+        }
+    }
+    // Also check hotbar and armor slots explicitly
+    for (let slot = 0; slot < bot.inventory.slots.length; slot++) {
+        const item = bot.inventory.slots[slot];
+        if (item != null && !inventory.find(i => i.slot === item.slot)) {
             inventory.push(item);
         }
     }
@@ -281,14 +289,75 @@ export function getInventoryCounts(bot) {
      * let hasWoodenPickaxe = inventory['wooden_pickaxe'] > 0;
      **/
     let inventory = {};
-    for (const item of bot.inventory.items()) {
-        if (item != null) {
+    
+    // Method 1: Check ALL slots directly - this is the most reliable method
+    // Minecraft inventory slots:
+    // 0: crafting output, 1-4: crafting input, 5-8: armor
+    // 9-35: main inventory, 36-44: hotbar
+    if (bot.inventory && bot.inventory.slots) {
+        for (let slot = 0; slot < bot.inventory.slots.length; slot++) {
+            const item = bot.inventory.slots[slot];
+            if (item != null && item.name) {
+                // Skip crafting output slot (0) as it's temporary
+                if (slot === 0) continue;
+                
+                if (inventory[item.name] == null) {
+                    inventory[item.name] = 0;
+                }
+                inventory[item.name] += item.count;
+            }
+        }
+    }
+    
+    // Method 2: Also use items() as backup in case slots missed something
+    if (bot.inventory && typeof bot.inventory.items === 'function') {
+        for (const item of bot.inventory.items()) {
+            if (item != null && item.name) {
+                // Check if we already counted this slot
+                const existingCount = inventory[item.name] || 0;
+                // Only add if the slot wasn't counted (items() returns main inventory + hotbar)
+                // slots 9-44 are what items() returns
+                if (item.slot >= 9 && item.slot <= 44) {
+                    // This should already be counted from slots, but verify
+                    const slotItem = bot.inventory.slots[item.slot];
+                    if (!slotItem) {
+                        // Item exists in items() but not in slots - add it
+                        if (inventory[item.name] == null) {
+                            inventory[item.name] = 0;
+                        }
+                        inventory[item.name] += item.count;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Method 3: Check cursor/held item (item being moved with mouse)
+    if (bot.inventory && bot.inventory.selectedItem) {
+        const item = bot.inventory.selectedItem;
+        if (item && item.name) {
             if (inventory[item.name] == null) {
                 inventory[item.name] = 0;
             }
             inventory[item.name] += item.count;
         }
     }
+    
+    // Method 4: Check the cursor slot directly (slot -1 in some implementations)
+    try {
+        if (bot.currentWindow && bot.currentWindow.selectedItem) {
+            const item = bot.currentWindow.selectedItem;
+            if (item && item.name) {
+                if (inventory[item.name] == null) {
+                    inventory[item.name] = 0;
+                }
+                inventory[item.name] += item.count;
+            }
+        }
+    } catch (e) {
+        // Ignore errors from accessing currentWindow
+    }
+    
     return inventory;
 }
 

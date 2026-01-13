@@ -7,6 +7,14 @@ import settings from "../../../settings.js";
 const blockPlaceDelay = settings.block_place_delay == null ? 0 : settings.block_place_delay;
 const useDelay = blockPlaceDelay > 0;
 
+// Helper function to create Paper-safe movements (avoids anti-cheat kicks)
+function createSafeMovements(bot) {
+    const movements = new pf.Movements(bot);
+    movements.allowSprinting = false;  // Paper kicks for sprint-related movement
+    movements.allowParkour = false;    // Parkour jumps can trigger fly-kick
+    return movements;
+}
+
 export function log(bot, message) {
     bot.output += message + '\n';
 }
@@ -33,82 +41,425 @@ async function equipHighestAttack(bot) {
         await bot.equip(weapon, 'hand');
 }
 
-export async function craftRecipe(bot, itemName, num=1) {
+export async function craftRecipe(bot, itemName, num=1, _recursionDepth=0) {
     /**
      * Attempt to craft the given item name from a recipe. May craft many items.
+     * Automatically creates crafting table if needed and has materials.
+     * Automatically crafts prerequisite items (like sticks from planks).
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {string} itemName, the item name to craft.
+     * @param {number} num, how many to craft.
+     * @param {number} _recursionDepth, internal parameter to prevent infinite recursion.
      * @returns {Promise<boolean>} true if the recipe was crafted, false otherwise.
      * @example
      * await skills.craftRecipe(bot, "stick");
      **/
+    
+    // Prevent infinite recursion
+    const MAX_RECURSION = 5;
+    if (_recursionDepth > MAX_RECURSION) {
+        log(bot, `Cannot craft ${itemName}: crafting chain too deep (possible circular dependency).`);
+        return false;
+    }
+    
     let placedTable = false;
 
-    if (mc.getItemCraftingRecipes(itemName).length == 0) {
+    // Validate recipe exists
+    const allRecipes = mc.getItemCraftingRecipes(itemName);
+    if (!allRecipes || allRecipes.length === 0) {
         log(bot, `${itemName} is either not an item, or it does not have a crafting recipe!`);
         return false;
     }
 
-    // get recipes that don't require a crafting table
+    // Get current inventory
+    let inventory = world.getInventoryCounts(bot);
+    
+    // Log current inventory for debugging
+    console.log('[CRAFT] Current inventory:', JSON.stringify(inventory));
+    console.log('[CRAFT] Attempting to craft:', itemName);
+
+    // get recipes that don't require a crafting table (2x2 grid recipes)
     let recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null); 
     let craftingTable = null;
-    const craftingTableRange = 16;
-    placeTable: if (!recipes || recipes.length === 0) {
+    const craftingTableRange = 32;
+    
+    // Check if we need a crafting table (3x3 grid recipes)
+    const needsCraftingTable = !recipes || recipes.length === 0;
+    
+    if (needsCraftingTable) {
+        // Get recipes that require crafting table
         recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, true);
-        if(!recipes || recipes.length === 0) break placeTable; //Don't bother going to the table if we don't have the required resources.
-
-        // Look for crafting table
-        craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
-        if (craftingTable === null){
-
-            // Try to place crafting table
-            let hasTable = world.getInventoryCounts(bot)['crafting_table'] > 0;
-            if (hasTable) {
-                let pos = world.getNearestFreeSpace(bot, 1, 6);
-                await placeBlock(bot, 'crafting_table', pos.x, pos.y, pos.z);
-                craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
-                if (craftingTable) {
-                    recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
-                    placedTable = true;
+        
+        if (!recipes || recipes.length === 0) {
+            // No recipes available even with table - try to craft missing ingredients first!
+            const requiredItems = allRecipes[0][0];
+            const missing = [];
+            let canCraftMissing = true;
+            
+            for (const [ingredient, count] of Object.entries(requiredItems)) {
+                const have = inventory[ingredient] || 0;
+                if (have < count) {
+                    const needed = count - have;
+                    missing.push({ item: ingredient, need: count, have: have, needed: needed });
                 }
             }
-            else {
-                log(bot, `Crafting ${itemName} requires a crafting table.`)
+            
+            if (missing.length > 0 && _recursionDepth < MAX_RECURSION) {
+                log(bot, `Missing ingredients for ${itemName}: ${missing.map(m => `${m.item} (need ${m.need}, have ${m.have})`).join(', ')}. Attempting to craft them...`);
+                
+                // Try to craft each missing ingredient
+                for (const missingItem of missing) {
+                    // Check if this ingredient has a recipe
+                    const ingredientRecipes = mc.getItemCraftingRecipes(missingItem.item);
+                    if (ingredientRecipes && ingredientRecipes.length > 0) {
+                        log(bot, `Attempting to craft ${missingItem.needed} ${missingItem.item}...`);
+                        const success = await craftRecipe(bot, missingItem.item, missingItem.needed, _recursionDepth + 1);
+                        if (!success) {
+                            canCraftMissing = false;
+                            log(bot, `Failed to craft prerequisite ${missingItem.item}.`);
+                        } else {
+                            // Wait for inventory to sync after recursive craft
+                            await new Promise(resolve => setTimeout(resolve, 300));
+                            await bot.waitForTicks(5);
+                            // Update inventory after crafting
+                            inventory = world.getInventoryCounts(bot);
+                            console.log(`[CRAFT] Inventory after crafting ${missingItem.item}:`, JSON.stringify(inventory));
+                        }
+                    } else {
+                        canCraftMissing = false;
+                        log(bot, `${missingItem.item} cannot be crafted - must be gathered/mined.`);
+                    }
+                }
+                
+                if (canCraftMissing) {
+                    // Wait additional time for all crafting to settle
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await bot.waitForTicks(5);
+                    // Refresh recipes after crafting prerequisites
+                    recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, true);
+                }
+            }
+            
+            // Still no recipes after trying to craft ingredients
+            if (!recipes || recipes.length === 0) {
+                const stillMissing = [];
+                inventory = world.getInventoryCounts(bot);
+                for (const [ingredient, count] of Object.entries(requiredItems)) {
+                    const have = inventory[ingredient] || 0;
+                    if (have < count) {
+                        stillMissing.push(`${ingredient} (need ${count}, have ${have})`);
+                    }
+                }
+                if (stillMissing.length > 0) {
+                    log(bot, `Cannot craft ${itemName}. Still missing: ${stillMissing.join(', ')}`);
+                } else {
+                    log(bot, `Cannot craft ${itemName}. Have ingredients but recipe not available.`);
+                }
                 return false;
             }
         }
-        else {
+
+        // Look for existing crafting table nearby
+        craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
+        
+        if (craftingTable === null) {
+            // No crafting table nearby - check if we have one in inventory
+            let hasTable = inventory['crafting_table'] > 0;
+            
+            if (!hasTable) {
+                // Need to craft a crafting table first!
+                log(bot, `Need a crafting table to craft ${itemName}. Attempting to craft one...`);
+                
+                // Check if we have planks to make a crafting table
+                const plankTypes = ['oak_planks', 'spruce_planks', 'birch_planks', 'jungle_planks', 
+                                   'acacia_planks', 'dark_oak_planks', 'mangrove_planks', 'cherry_planks',
+                                   'bamboo_planks', 'crimson_planks', 'warped_planks'];
+                let totalPlanks = 0;
+                for (const plankType of plankTypes) {
+                    totalPlanks += inventory[plankType] || 0;
+                }
+                
+                if (totalPlanks >= 4) {
+                    // We have enough planks - craft a crafting table
+                    const tableSuccess = await craftRecipe(bot, 'crafting_table', 1, _recursionDepth + 1);
+                    if (!tableSuccess) {
+                        log(bot, `Failed to craft crafting table!`);
+                        return false;
+                    }
+                    hasTable = true;
+                } else {
+                    // Need to make planks first - check for logs
+                    const logTypes = ['oak_log', 'spruce_log', 'birch_log', 'jungle_log', 
+                                     'acacia_log', 'dark_oak_log', 'mangrove_log', 'cherry_log',
+                                     'crimson_stem', 'warped_stem'];
+                    let hasLogs = false;
+                    for (const logType of logTypes) {
+                        if ((inventory[logType] || 0) > 0) {
+                            hasLogs = true;
+                            // Craft planks from logs first
+                            log(bot, `Crafting planks from ${logType}...`);
+                            const planksSuccess = await craftRecipe(bot, logType.replace('_log', '_planks').replace('_stem', '_planks'), 1, _recursionDepth + 1);
+                            if (planksSuccess) {
+                                // Now try to craft the crafting table
+                                const tableSuccess = await craftRecipe(bot, 'crafting_table', 1, _recursionDepth + 1);
+                                if (tableSuccess) {
+                                    hasTable = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Also check stripped logs
+                    const strippedLogTypes = logTypes.map(l => 'stripped_' + l);
+                    if (!hasTable) {
+                        for (const logType of strippedLogTypes) {
+                            if ((inventory[logType] || 0) > 0) {
+                                hasLogs = true;
+                                const baseName = logType.replace('stripped_', '').replace('_log', '_planks').replace('_stem', '_planks');
+                                log(bot, `Crafting planks from ${logType}...`);
+                                const planksSuccess = await craftRecipe(bot, baseName, 1, _recursionDepth + 1);
+                                if (planksSuccess) {
+                                    const tableSuccess = await craftRecipe(bot, 'crafting_table', 1, _recursionDepth + 1);
+                                    if (tableSuccess) {
+                                        hasTable = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!hasTable && !hasLogs) {
+                        log(bot, `Cannot craft ${itemName}: need a crafting table, but have no planks or logs to make one.`);
+                        return false;
+                    }
+                    
+                    if (!hasTable) {
+                        log(bot, `Failed to create crafting table from available materials.`);
+                        return false;
+                    }
+                }
+            }
+            
+            // Now we should have a crafting table in inventory - place it
+            if (hasTable || inventory['crafting_table'] > 0 || world.getInventoryCounts(bot)['crafting_table'] > 0) {
+                let pos = world.getNearestFreeSpace(bot, 1, 6);
+                if (pos) {
+                    await placeBlock(bot, 'crafting_table', pos.x, pos.y, pos.z);
+                    craftingTable = world.getNearestBlock(bot, 'crafting_table', craftingTableRange);
+                    if (craftingTable) {
+                        recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
+                        placedTable = true;
+                    }
+                } else {
+                    log(bot, `No suitable place to put crafting table nearby.`);
+                    return false;
+                }
+            }
+        } else {
+            // Found existing crafting table
             recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
         }
     }
+    
+    // Final check - do we have valid recipes? If not, try to craft missing ingredients
     if (!recipes || recipes.length === 0) {
-        log(bot, `You do not have the resources to craft a ${itemName}. It requires: ${Object.entries(mc.getItemCraftingRecipes(itemName)[0][0]).map(([key, value]) => `${key}: ${value}`).join(', ')}.`);
+        const requiredItems = allRecipes[0][0];
+        inventory = world.getInventoryCounts(bot);
+        const missing = [];
+        
+        for (const [ingredient, count] of Object.entries(requiredItems)) {
+            const have = inventory[ingredient] || 0;
+            if (have < count) {
+                missing.push({ item: ingredient, need: count, have: have, needed: count - have });
+            }
+        }
+        
+        // Try to craft missing ingredients
+        if (missing.length > 0 && _recursionDepth < MAX_RECURSION) {
+            log(bot, `Missing for ${itemName}: ${missing.map(m => `${m.item}`).join(', ')}. Trying to craft them...`);
+            let craftedAny = false;
+            
+            for (const missingItem of missing) {
+                const ingredientRecipes = mc.getItemCraftingRecipes(missingItem.item);
+                if (ingredientRecipes && ingredientRecipes.length > 0) {
+                    const success = await craftRecipe(bot, missingItem.item, missingItem.needed, _recursionDepth + 1);
+                    if (success) {
+                        craftedAny = true;
+                    }
+                }
+            }
+            
+            if (craftedAny) {
+                // Refresh recipes after crafting prerequisites
+                if (craftingTable) {
+                    recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, craftingTable);
+                } else {
+                    recipes = bot.recipesFor(mc.getItemId(itemName), null, 1, null);
+                }
+            }
+        }
+        
+        // Final final check
+        if (!recipes || recipes.length === 0) {
+            inventory = world.getInventoryCounts(bot);
+            const stillMissing = [];
+            for (const [ingredient, count] of Object.entries(requiredItems)) {
+                const have = inventory[ingredient] || 0;
+                if (have < count) {
+                    stillMissing.push(`${ingredient} (need ${count}, have ${have})`);
+                }
+            }
+            log(bot, `Cannot craft ${itemName}. Required: ${stillMissing.length > 0 ? stillMissing.join(', ') : Object.entries(requiredItems).map(([k, v]) => `${k}: ${v}`).join(', ')}`);
+            if (placedTable) {
+                await collectBlock(bot, 'crafting_table', 1);
+            }
+            return false;
+        }
+    }
+    
+    // Go to crafting table if needed
+    if (craftingTable && bot.entity.position.distanceTo(craftingTable.position) > 4) {
+        await goToNearestBlock(bot, 'crafting_table', 4, craftingTableRange);
+    }
+
+    const recipe = recipes[0];
+    console.log('[CRAFT] Using recipe:', recipe);
+    
+    // Check that the agent has sufficient items to use the recipe `num` times
+    let currentInventory = world.getInventoryCounts(bot);
+    const requiredIngredients = mc.ingredientsFromPrismarineRecipe(recipe);
+    let craftLimit = mc.calculateLimitingResource(currentInventory, requiredIngredients);
+    
+    if (craftLimit.num === 0) {
+        // Try to craft the limiting resource first
+        const limitingItem = craftLimit.limitingResource;
+        const limitingRecipes = mc.getItemCraftingRecipes(limitingItem);
+        
+        if (limitingRecipes && limitingRecipes.length > 0 && _recursionDepth < MAX_RECURSION) {
+            log(bot, `Missing ${limitingItem} for ${itemName}. Attempting to craft it...`);
+            
+            // Calculate how many we need
+            const needed = requiredIngredients[limitingItem] || 1;
+            const success = await craftRecipe(bot, limitingItem, needed * num, _recursionDepth + 1);
+            
+            if (success) {
+                // Recalculate craft limit after crafting prerequisite
+                currentInventory = world.getInventoryCounts(bot);
+                craftLimit = mc.calculateLimitingResource(currentInventory, requiredIngredients);
+            }
+        }
+        
+        // Still can't craft
+        if (craftLimit.num === 0) {
+            log(bot, `Cannot craft ${itemName}: not enough ${craftLimit.limitingResource} (cannot be crafted or missing materials).`);
+            if (placedTable) {
+                await collectBlock(bot, 'crafting_table', 1);
+            }
+            return false;
+        }
+    }
+    
+    try {
+        // Get inventory before crafting to calculate what was made
+        const inventoryBefore = world.getInventoryCounts(bot);
+        const countBefore = inventoryBefore[itemName] || 0;
+        
+        // Calculate expected output based on recipe
+        const expectedOutput = recipe.result ? recipe.result.count : 1;
+        const craftAmount = Math.min(craftLimit.num, num);
+        const expectedTotal = countBefore + (expectedOutput * craftAmount);
+        
+        console.log(`[CRAFT] Before craft - ${itemName}: ${countBefore}, expecting to craft ${craftAmount} (output: ${expectedOutput} each)`);
+        
+        await bot.craft(recipe, craftAmount, craftingTable);
+        
+        // Wait for crafting animation/transaction to complete
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await bot.waitForTicks(10);
+        
+        // Force collect any items left in crafting slots by closing any open window
+        if (bot.currentWindow) {
+            try {
+                await bot.closeWindow(bot.currentWindow);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (e) {
+                // Ignore close window errors
+            }
+        }
+        
+        // Check crafting output slot (slot 0) and try to collect if items are stuck there
+        const craftingOutputSlot = bot.inventory.slots[0];
+        if (craftingOutputSlot && craftingOutputSlot.name === itemName) {
+            console.log(`[CRAFT] Items stuck in crafting output slot! Attempting to collect...`);
+            try {
+                // Click on the crafting output to collect items
+                await bot.clickWindow(0, 0, 0); // Left click on slot 0
+                await new Promise(resolve => setTimeout(resolve, 200));
+                await bot.waitForTicks(5);
+            } catch (e) {
+                console.log(`[CRAFT] Could not collect from crafting slot: ${e.message}`);
+            }
+        }
+        
+        // Final wait and inventory check
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await bot.waitForTicks(5);
+        
+        // Try to get the count, with fallback to expected value
+        let newCount = world.getInventoryCounts(bot)[itemName] || 0;
+        
+        console.log(`[CRAFT] After craft - ${itemName}: ${newCount}`);
+        
+        // If inventory still shows 0 but we know we crafted, check more carefully
+        if (newCount === 0 && expectedOutput > 0) {
+            // Double-check by looking at raw inventory slots
+            for (const item of bot.inventory.items()) {
+                if (item && item.name === itemName) {
+                    newCount += item.count;
+                }
+            }
+            
+            // Also check all slots directly
+            if (newCount === 0) {
+                for (let slot = 9; slot < 45; slot++) {
+                    const item = bot.inventory.slots[slot];
+                    if (item && item.name === itemName) {
+                        newCount += item.count;
+                    }
+                }
+            }
+            
+            // If STILL 0, use expected value for display purposes
+            if (newCount === 0) {
+                console.log(`[CRAFT] WARNING: Inventory sync issue! Items may have been lost or are in an unknown location.`);
+                console.log(`[CRAFT] Expected: ${expectedTotal}, Actual inventory count: 0`);
+                // Don't fake the count - report the problem honestly
+            }
+        }
+        
+        if (craftLimit.num < num) {
+            log(bot, `Not enough ${craftLimit.limitingResource} to craft ${num}, crafted ${craftLimit.num}. You now have ${newCount} ${itemName}.`);
+        } else {
+            log(bot, `Successfully crafted ${itemName}, you now have ${newCount} ${itemName}.`);
+        }
+        
+        // Return true even if count shows 0 - the craft itself succeeded
+        // The item might appear in inventory on next tick
+    } catch (err) {
+        log(bot, `Error crafting ${itemName}: ${err.message}`);
         if (placedTable) {
             await collectBlock(bot, 'crafting_table', 1);
         }
         return false;
     }
     
-    if (craftingTable && bot.entity.position.distanceTo(craftingTable.position) > 4) {
-        await goToNearestBlock(bot, 'crafting_table', 4, craftingTableRange);
-    }
-
-    const recipe = recipes[0];
-    console.log('crafting...');
-    //Check that the agent has sufficient items to use the recipe `num` times.
-    const inventory = world.getInventoryCounts(bot); //Items in the agents inventory
-    const requiredIngredients = mc.ingredientsFromPrismarineRecipe(recipe); //Items required to use the recipe once.
-    const craftLimit = mc.calculateLimitingResource(inventory, requiredIngredients);
-    
-    await bot.craft(recipe, Math.min(craftLimit.num, num), craftingTable);
-    if(craftLimit.num<num) log(bot, `Not enough ${craftLimit.limitingResource} to craft ${num}, crafted ${craftLimit.num}. You now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
-    else log(bot, `Successfully crafted ${itemName}, you now have ${world.getInventoryCounts(bot)[itemName]} ${itemName}.`);
     if (placedTable) {
         await collectBlock(bot, 'crafting_table', 1);
     }
 
-    //Equip any armor the bot may have crafted.
-    //There is probablly a more efficient method than checking the entire inventory but this is all mineflayer-armor-manager provides. :P
+    // Equip any armor the bot may have crafted
     bot.armorManager.equipAll(); 
 
     return true;
@@ -384,13 +735,13 @@ export async function defendSelf(bot, range=9) {
         await equipHighestAttack(bot);
         if (bot.entity.position.distanceTo(enemy.position) >= 4 && enemy.name !== 'creeper' && enemy.name !== 'phantom') {
             try {
-                bot.pathfinder.setMovements(new pf.Movements(bot));
+                bot.pathfinder.setMovements(createSafeMovements(bot));
                 await bot.pathfinder.goto(new pf.goals.GoalFollow(enemy, 3.5), true);
             } catch (err) {/* might error if entity dies, ignore */}
         }
         if (bot.entity.position.distanceTo(enemy.position) <= 2) {
             try {
-                bot.pathfinder.setMovements(new pf.Movements(bot));
+                bot.pathfinder.setMovements(createSafeMovements(bot));
                 let inverted_goal = new pf.goals.GoalInvert(new pf.goals.GoalFollow(enemy, 2));
                 await bot.pathfinder.goto(inverted_goal, true);
             } catch (err) {/* might error if entity dies, ignore */}
@@ -442,7 +793,7 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
 
     let collected = 0;
 
-    const movements = new pf.Movements(bot);
+    const movements = createSafeMovements(bot);
     movements.dontMineUnderFallingBlock = false;
     movements.dontCreateFlow = true;
 
@@ -541,7 +892,7 @@ export async function pickupNearbyItems(bot) {
     let nearestItem = getNearestItem(bot);
     let pickedUp = 0;
     while (nearestItem) {
-        let movements = new pf.Movements(bot);
+        let movements = createSafeMovements(bot);
         movements.canDig = false;
         bot.pathfinder.setMovements(movements);
         await goToGoal(bot, new pf.goals.GoalFollow(nearestItem, 1));
@@ -583,7 +934,7 @@ export async function breakBlockAt(bot, x, y, z) {
 
         if (bot.entity.position.distanceTo(block.position) > 4.5) {
             let pos = block.position;
-            let movements = new pf.Movements(bot);
+            let movements = createSafeMovements(bot);
             movements.canPlaceOn = false;
             movements.allow1by1towers = false;
             bot.pathfinder.setMovements(movements);
@@ -758,13 +1109,13 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         // too close
         let goal = new pf.goals.GoalNear(targetBlock.position.x, targetBlock.position.y, targetBlock.position.z, 2);
         let inverted_goal = new pf.goals.GoalInvert(goal);
-        bot.pathfinder.setMovements(new pf.Movements(bot));
+        bot.pathfinder.setMovements(createSafeMovements(bot));
         await bot.pathfinder.goto(inverted_goal);
     }
     if (bot.entity.position.distanceTo(targetBlock.position) > 4.5) {
         // too far
         let pos = targetBlock.position;
-        let movements = new pf.Movements(bot);
+        let movements = createSafeMovements(bot);
         bot.pathfinder.setMovements(movements);
         await goToGoal(bot, new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
     }
@@ -1070,37 +1421,63 @@ export async function giveToPlayer(bot, itemType, username, num=1) {
 export async function goToGoal(bot, goal) {
     /**
      * Navigate to the given goal. Use doors and attempt minimally destructive movements.
+     * Paper-server safe: uses slower, more human-like movements.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {pf.goals.Goal} goal, the goal to navigate to.
      **/
 
-    const nonDestructiveMovements = new pf.Movements(bot);
+    const nonDestructiveMovements = createSafeMovements(bot);
     const dontBreakBlocks = ['glass', 'glass_pane'];
     for (let block of dontBreakBlocks) {
         nonDestructiveMovements.blocksCantBreak.add(mc.getBlockId(block));
     }
     nonDestructiveMovements.placeCost = 2;
     nonDestructiveMovements.digCost = 10;
+    // Paper anti-cheat safe settings
+    nonDestructiveMovements.allowSprinting = false;
+    nonDestructiveMovements.allowParkour = false;
+    nonDestructiveMovements.canDig = false;
+    nonDestructiveMovements.allow1by1towers = false;  // Towers can trigger fly-kick
+    nonDestructiveMovements.allowFreeMotion = false;  // Free motion can look like flying
+    nonDestructiveMovements.scafoldingBlocks = [];    // Don't scaffold - looks suspicious
 
-    const destructiveMovements = new pf.Movements(bot);
+    const destructiveMovements = createSafeMovements(bot);
+    // Paper anti-cheat safe settings
+    destructiveMovements.allowSprinting = false;
+    destructiveMovements.allowParkour = false;
+    destructiveMovements.allow1by1towers = false;
+    destructiveMovements.allowFreeMotion = false;
+    destructiveMovements.maxDropDown = 3;  // Don't drop too far - triggers damage checks
 
     let final_movements = destructiveMovements;
 
-    const pathfind_timeout = 1000;
-    if (await bot.pathfinder.getPathTo(nonDestructiveMovements, goal, pathfind_timeout).status === 'success') {
-        final_movements = nonDestructiveMovements;
-        log(bot, `Found non-destructive path.`);
-    }
-    else if (await bot.pathfinder.getPathTo(destructiveMovements, goal, pathfind_timeout).status === 'success') {
-        log(bot, `Found destructive path.`);
-    }
-    else {
-        log(bot, `Path not found, but attempting to navigate anyway using destructive movements.`);
+    // Increased timeout for complex paths (prevents "Took too long" errors)
+    const pathfind_timeout = 3000;
+    
+    try {
+        const nonDestructivePath = await bot.pathfinder.getPathTo(nonDestructiveMovements, goal, pathfind_timeout);
+        if (nonDestructivePath && nonDestructivePath.status === 'success') {
+            final_movements = nonDestructiveMovements;
+            log(bot, `Found non-destructive path.`);
+        } else {
+            const destructivePath = await bot.pathfinder.getPathTo(destructiveMovements, goal, pathfind_timeout);
+            if (destructivePath && destructivePath.status === 'success') {
+                log(bot, `Found destructive path.`);
+            } else {
+                log(bot, `Path not found, but attempting to navigate anyway using destructive movements.`);
+            }
+        }
+    } catch (pathErr) {
+        log(bot, `Path calculation error: ${pathErr.message}. Attempting simple navigation.`);
     }
 
     const doorCheckInterval = startDoorInterval(bot);
 
     bot.pathfinder.setMovements(final_movements);
+    
+    // Add small delay before starting movement (helps with Paper anti-cheat)
+    await new Promise(r => setTimeout(r, 100));
+    
     try {
         await bot.pathfinder.goto(goal);
         clearInterval(doorCheckInterval);
@@ -1173,7 +1550,7 @@ function startDoorInterval(bot) {
         }
         prev_pos = bot.entity.position.clone();
         prev_check = now;
-    }, 200);
+    }, 500);
     _doorInterval = doorCheckInterval;
     return doorCheckInterval;
 }
@@ -1181,6 +1558,7 @@ function startDoorInterval(bot) {
 export async function goToPosition(bot, x, y, z, min_distance=2) {
     /**
      * Navigate to the given position.
+     * Paper-safe: handles long distances by breaking into segments.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} x, the x coordinate to navigate to. If null, the bot's current x coordinate will be used.
      * @param {number} y, the y coordinate to navigate to. If null, the bot's current y coordinate will be used.
@@ -1199,6 +1577,50 @@ export async function goToPosition(bot, x, y, z, min_distance=2) {
         bot.chat('/tp @s ' + x + ' ' + y + ' ' + z);
         log(bot, `Teleported to ${x}, ${y}, ${z}.`);
         return true;
+    }
+    
+    const targetPos = new Vec3(x, y, z);
+    const currentPos = bot.entity.position;
+    const totalDistance = currentPos.distanceTo(targetPos);
+    
+    // For long distances (>64 blocks), navigate in segments to avoid timeout
+    const MAX_SEGMENT = 64;
+    if (totalDistance > MAX_SEGMENT) {
+        log(bot, `Long distance detected (${Math.round(totalDistance)} blocks). Navigating in segments...`);
+        
+        // Calculate direction vector
+        const direction = targetPos.minus(currentPos).normalize();
+        let currentTarget = currentPos.clone();
+        let attempts = 0;
+        const maxAttempts = Math.ceil(totalDistance / MAX_SEGMENT) + 2;
+        
+        while (bot.entity.position.distanceTo(targetPos) > min_distance + 5 && attempts < maxAttempts) {
+            attempts++;
+            
+            // Move toward target in segments
+            const remaining = bot.entity.position.distanceTo(targetPos);
+            const segmentDist = Math.min(MAX_SEGMENT, remaining);
+            
+            currentTarget = bot.entity.position.plus(direction.scaled(segmentDist));
+            
+            log(bot, `Segment ${attempts}: Moving ${Math.round(segmentDist)} blocks...`);
+            
+            try {
+                await goToGoal(bot, new pf.goals.GoalNear(currentTarget.x, currentTarget.y, currentTarget.z, 3));
+                // Small pause between segments (helps with Paper anti-cheat)
+                await new Promise(r => setTimeout(r, 200));
+            } catch (err) {
+                log(bot, `Segment failed: ${err.message}. Trying to continue...`);
+                // Try to move a bit anyway
+                await new Promise(r => setTimeout(r, 500));
+            }
+            
+            // Check if we're making progress
+            if (bot.entity.position.distanceTo(targetPos) >= remaining - 2) {
+                log(bot, `Not making progress, stopping segmented navigation.`);
+                break;
+            }
+        }
     }
     
     const checkDigProgress = () => {
@@ -1341,7 +1763,7 @@ export async function followPlayer(bot, username, distance=4) {
     if (!player)
         return false;
 
-    const move = new pf.Movements(bot);
+    const move = createSafeMovements(bot);
     move.digCost = 10;
     bot.pathfinder.setMovements(move);
     let doorCheckInterval = startDoorInterval(bot);
@@ -1397,20 +1819,34 @@ export async function followPlayer(bot, username, distance=4) {
 export async function moveAway(bot, distance) {
     /**
      * Move away from current position in any direction.
+     * Paper-safe: limits distance and uses safe movements.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {number} distance, the distance to move away.
      * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
      * @example
      * await skills.moveAway(bot, 8);
      **/
+    // Limit distance to prevent long pathfinding calculations that can cause disconnects
+    const maxSafeDistance = 32;
+    if (distance > maxSafeDistance) {
+        log(bot, `Limiting moveAway distance from ${distance} to ${maxSafeDistance} for safety.`);
+        distance = maxSafeDistance;
+    }
+    
     const pos = bot.entity.position;
     let goal = new pf.goals.GoalNear(pos.x, pos.y, pos.z, distance);
     let inverted_goal = new pf.goals.GoalInvert(goal);
-    bot.pathfinder.setMovements(new pf.Movements(bot));
+    
+    const safeMovements = createSafeMovements(bot);
+    safeMovements.allowSprinting = false;
+    safeMovements.allowParkour = false;
+    safeMovements.allow1by1towers = false;
+    safeMovements.maxDropDown = 3;
+    bot.pathfinder.setMovements(safeMovements);
 
     if (bot.modes.isOn('cheat')) {
-        const move = new pf.Movements(bot);
-        const path = await bot.pathfinder.getPathTo(move, inverted_goal, 10000);
+        const move = createSafeMovements(bot);
+        const path = await bot.pathfinder.getPathTo(move, inverted_goal, 5000);
         let last_move = path.path[path.path.length-1];
         if (last_move) {
             let x = Math.floor(last_move.x);
@@ -1421,7 +1857,15 @@ export async function moveAway(bot, distance) {
         }
     }
 
-    await goToGoal(bot, inverted_goal);
+    // Add small delay before moving (helps with Paper anti-cheat)
+    await new Promise(r => setTimeout(r, 50));
+    
+    try {
+        await goToGoal(bot, inverted_goal);
+    } catch (err) {
+        log(bot, `MoveAway error: ${err.message}`);
+    }
+    
     let new_pos = bot.entity.position;
     log(bot, `Moved away from ${pos.floored()} to ${new_pos.floored()}.`);
     return true;
@@ -1430,15 +1874,31 @@ export async function moveAway(bot, distance) {
 export async function moveAwayFromEntity(bot, entity, distance=16) {
     /**
      * Move away from the given entity.
+     * Paper-safe: uses safe movements.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
      * @param {Entity} entity, the entity to move away from.
      * @param {number} distance, the distance to move away.
      * @returns {Promise<boolean>} true if the bot moved away, false otherwise.
      **/
+    // Limit distance for safety
+    if (distance > 32) distance = 32;
+    
     let goal = new pf.goals.GoalFollow(entity, distance);
     let inverted_goal = new pf.goals.GoalInvert(goal);
-    bot.pathfinder.setMovements(new pf.Movements(bot));
-    await bot.pathfinder.goto(inverted_goal);
+    
+    const safeMovements = createSafeMovements(bot);
+    safeMovements.allowSprinting = false;
+    safeMovements.allowParkour = false;
+    bot.pathfinder.setMovements(safeMovements);
+    
+    // Add small delay before moving
+    await new Promise(r => setTimeout(r, 50));
+    
+    try {
+        await bot.pathfinder.goto(inverted_goal);
+    } catch (err) {
+        log(bot, `MoveAwayFromEntity error: ${err.message}`);
+    }
     return true;
 }
 
@@ -1456,7 +1916,7 @@ export async function avoidEnemies(bot, distance=16) {
     while (enemy) {
         const follow = new pf.goals.GoalFollow(enemy, distance+1); // move a little further away
         const inverted_goal = new pf.goals.GoalInvert(follow);
-        bot.pathfinder.setMovements(new pf.Movements(bot));
+        bot.pathfinder.setMovements(createSafeMovements(bot));
         bot.pathfinder.setGoal(inverted_goal, true);
         await new Promise(resolve => setTimeout(resolve, 500));
         enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), distance);
@@ -1620,7 +2080,7 @@ export async function tillAndSow(bot, x, y, z, seedType=null) {
     // if distance is too far, move to the block
     if (bot.entity.position.distanceTo(block.position) > 4.5) {
         let pos = block.position;
-        bot.pathfinder.setMovements(new pf.Movements(bot));
+        bot.pathfinder.setMovements(createSafeMovements(bot));
         await goToGoal(bot, new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
     }
     if (block.name !== 'farmland') {
@@ -1665,7 +2125,7 @@ export async function activateNearestBlock(bot, type) {
     }
     if (bot.entity.position.distanceTo(block.position) > 4.5) {
         let pos = block.position;
-        bot.pathfinder.setMovements(new pf.Movements(bot));
+        bot.pathfinder.setMovements(createSafeMovements(bot));
         await goToGoal(bot, new pf.goals.GoalNear(pos.x, pos.y, pos.z, 4));
     }
     await bot.activateBlock(block);
