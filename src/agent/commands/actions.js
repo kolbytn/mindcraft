@@ -265,13 +265,316 @@ export const actionsList = [
     },
     {
         name: '!craftRecipe',
-        description: 'Craft the given recipe a given number of times.',
+        description: 'Craft the given recipe a given number of times. Will automatically create crafting table if needed.',
         params: {
             'recipe_name': { type: 'ItemName', description: 'The name of the output item to craft.' },
             'num': { type: 'int', description: 'The number of times to craft the recipe. This is NOT the number of output items, as it may craft many more items depending on the recipe.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, recipe_name, num) => {
             await skills.craftRecipe(agent.bot, recipe_name, num);
+        })
+    },
+    {
+        name: '!autoCraft',
+        description: 'Automatically craft an item, handling the full crafting chain (logs -> planks -> sticks -> tools). Much smarter than !craftRecipe for complex items.',
+        params: {
+            'item_name': { type: 'ItemName', description: 'The name of the item to craft (e.g., wooden_pickaxe, stone_sword).' },
+            'num': { type: 'int', description: 'The number of items to craft.', domain: [1, Number.MAX_SAFE_INTEGER] }
+        },
+        perform: runAsAction(async (agent, item_name, num) => {
+            const bot = agent.bot;
+            const inventory = () => {
+                const inv = {};
+                for (const item of bot.inventory.items()) {
+                    if (item) {
+                        inv[item.name] = (inv[item.name] || 0) + item.count;
+                    }
+                }
+                return inv;
+            };
+            
+            // Define crafting chains for common items
+            // Format: item_name -> [prerequisite steps..., final_item]
+            // Steps: 'planks' = ensure planks, 'stick' = ensure sticks, 'crafting_table' = ensure table
+            const craftingChains = {
+                // ============ WOODEN TOOLS ============
+                'wooden_pickaxe': ['planks', 'stick', 'crafting_table', 'wooden_pickaxe'],
+                'wooden_axe': ['planks', 'stick', 'crafting_table', 'wooden_axe'],
+                'wooden_sword': ['planks', 'stick', 'crafting_table', 'wooden_sword'],
+                'wooden_shovel': ['planks', 'stick', 'crafting_table', 'wooden_shovel'],
+                'wooden_hoe': ['planks', 'stick', 'crafting_table', 'wooden_hoe'],
+                
+                // ============ STONE TOOLS ============
+                'stone_pickaxe': ['planks', 'stick', 'crafting_table', 'stone_pickaxe'],
+                'stone_axe': ['planks', 'stick', 'crafting_table', 'stone_axe'],
+                'stone_sword': ['planks', 'stick', 'crafting_table', 'stone_sword'],
+                'stone_shovel': ['planks', 'stick', 'crafting_table', 'stone_shovel'],
+                'stone_hoe': ['planks', 'stick', 'crafting_table', 'stone_hoe'],
+                
+                // ============ IRON TOOLS ============
+                'iron_pickaxe': ['planks', 'stick', 'crafting_table', 'iron_pickaxe'],
+                'iron_axe': ['planks', 'stick', 'crafting_table', 'iron_axe'],
+                'iron_sword': ['planks', 'stick', 'crafting_table', 'iron_sword'],
+                'iron_shovel': ['planks', 'stick', 'crafting_table', 'iron_shovel'],
+                'iron_hoe': ['planks', 'stick', 'crafting_table', 'iron_hoe'],
+                
+                // ============ GOLD TOOLS ============
+                'golden_pickaxe': ['planks', 'stick', 'crafting_table', 'golden_pickaxe'],
+                'golden_axe': ['planks', 'stick', 'crafting_table', 'golden_axe'],
+                'golden_sword': ['planks', 'stick', 'crafting_table', 'golden_sword'],
+                'golden_shovel': ['planks', 'stick', 'crafting_table', 'golden_shovel'],
+                'golden_hoe': ['planks', 'stick', 'crafting_table', 'golden_hoe'],
+                
+                // ============ DIAMOND TOOLS ============
+                'diamond_pickaxe': ['planks', 'stick', 'crafting_table', 'diamond_pickaxe'],
+                'diamond_axe': ['planks', 'stick', 'crafting_table', 'diamond_axe'],
+                'diamond_sword': ['planks', 'stick', 'crafting_table', 'diamond_sword'],
+                'diamond_shovel': ['planks', 'stick', 'crafting_table', 'diamond_shovel'],
+                'diamond_hoe': ['planks', 'stick', 'crafting_table', 'diamond_hoe'],
+                
+                // ============ LEATHER ARMOR ============
+                'leather_helmet': ['crafting_table', 'leather_helmet'],
+                'leather_chestplate': ['crafting_table', 'leather_chestplate'],
+                'leather_leggings': ['crafting_table', 'leather_leggings'],
+                'leather_boots': ['crafting_table', 'leather_boots'],
+                
+                // ============ IRON ARMOR ============
+                'iron_helmet': ['crafting_table', 'iron_helmet'],
+                'iron_chestplate': ['crafting_table', 'iron_chestplate'],
+                'iron_leggings': ['crafting_table', 'iron_leggings'],
+                'iron_boots': ['crafting_table', 'iron_boots'],
+                
+                // ============ GOLD ARMOR ============
+                'golden_helmet': ['crafting_table', 'golden_helmet'],
+                'golden_chestplate': ['crafting_table', 'golden_chestplate'],
+                'golden_leggings': ['crafting_table', 'golden_leggings'],
+                'golden_boots': ['crafting_table', 'golden_boots'],
+                
+                // ============ DIAMOND ARMOR ============
+                'diamond_helmet': ['crafting_table', 'diamond_helmet'],
+                'diamond_chestplate': ['crafting_table', 'diamond_chestplate'],
+                'diamond_leggings': ['crafting_table', 'diamond_leggings'],
+                'diamond_boots': ['crafting_table', 'diamond_boots'],
+                
+                // ============ WEAPONS & COMBAT ============
+                'bow': ['planks', 'stick', 'crafting_table', 'bow'],
+                'arrow': ['planks', 'stick', 'crafting_table', 'arrow'],
+                'crossbow': ['planks', 'stick', 'crafting_table', 'crossbow'],
+                'shield': ['planks', 'crafting_table', 'shield'],
+                
+                // ============ BASIC ITEMS ============
+                'crafting_table': ['planks', 'crafting_table'],
+                'stick': ['planks', 'stick'],
+                'torch': ['planks', 'stick', 'torch'],
+                'chest': ['planks', 'crafting_table', 'chest'],
+                'furnace': ['crafting_table', 'furnace'],
+                'smoker': ['crafting_table', 'furnace', 'smoker'],
+                'blast_furnace': ['crafting_table', 'furnace', 'blast_furnace'],
+                
+                // ============ BEDS (all colors) ============
+                'white_bed': ['planks', 'crafting_table', 'white_bed'],
+                'orange_bed': ['planks', 'crafting_table', 'orange_bed'],
+                'magenta_bed': ['planks', 'crafting_table', 'magenta_bed'],
+                'light_blue_bed': ['planks', 'crafting_table', 'light_blue_bed'],
+                'yellow_bed': ['planks', 'crafting_table', 'yellow_bed'],
+                'lime_bed': ['planks', 'crafting_table', 'lime_bed'],
+                'pink_bed': ['planks', 'crafting_table', 'pink_bed'],
+                'gray_bed': ['planks', 'crafting_table', 'gray_bed'],
+                'light_gray_bed': ['planks', 'crafting_table', 'light_gray_bed'],
+                'cyan_bed': ['planks', 'crafting_table', 'cyan_bed'],
+                'purple_bed': ['planks', 'crafting_table', 'purple_bed'],
+                'blue_bed': ['planks', 'crafting_table', 'blue_bed'],
+                'brown_bed': ['planks', 'crafting_table', 'brown_bed'],
+                'green_bed': ['planks', 'crafting_table', 'green_bed'],
+                'red_bed': ['planks', 'crafting_table', 'red_bed'],
+                'black_bed': ['planks', 'crafting_table', 'black_bed'],
+                
+                // ============ DOORS ============
+                'oak_door': ['planks', 'crafting_table', 'oak_door'],
+                'spruce_door': ['planks', 'crafting_table', 'spruce_door'],
+                'birch_door': ['planks', 'crafting_table', 'birch_door'],
+                'jungle_door': ['planks', 'crafting_table', 'jungle_door'],
+                'acacia_door': ['planks', 'crafting_table', 'acacia_door'],
+                'dark_oak_door': ['planks', 'crafting_table', 'dark_oak_door'],
+                'iron_door': ['crafting_table', 'iron_door'],
+                
+                // ============ BOATS ============
+                'oak_boat': ['planks', 'crafting_table', 'oak_boat'],
+                'spruce_boat': ['planks', 'crafting_table', 'spruce_boat'],
+                'birch_boat': ['planks', 'crafting_table', 'birch_boat'],
+                'jungle_boat': ['planks', 'crafting_table', 'jungle_boat'],
+                'acacia_boat': ['planks', 'crafting_table', 'acacia_boat'],
+                'dark_oak_boat': ['planks', 'crafting_table', 'dark_oak_boat'],
+                
+                // ============ STORAGE & UTILITY ============
+                'barrel': ['planks', 'crafting_table', 'barrel'],
+                'composter': ['planks', 'crafting_table', 'composter'],
+                'cartography_table': ['planks', 'crafting_table', 'cartography_table'],
+                'fletching_table': ['planks', 'crafting_table', 'fletching_table'],
+                'smithing_table': ['planks', 'crafting_table', 'smithing_table'],
+                'loom': ['planks', 'crafting_table', 'loom'],
+                'bookshelf': ['planks', 'crafting_table', 'bookshelf'],
+                'ladder': ['planks', 'stick', 'crafting_table', 'ladder'],
+                'fence': ['planks', 'stick', 'crafting_table', 'fence'],
+                'fence_gate': ['planks', 'stick', 'crafting_table', 'fence_gate'],
+                
+                // ============ FOOD & FARMING ============
+                'bread': ['crafting_table', 'bread'],
+                'cake': ['crafting_table', 'cake'],
+                'cookie': ['crafting_table', 'cookie'],
+                'pumpkin_pie': ['crafting_table', 'pumpkin_pie'],
+                
+                // ============ RAILS & MINECARTS ============
+                'rail': ['planks', 'stick', 'crafting_table', 'rail'],
+                'powered_rail': ['planks', 'stick', 'crafting_table', 'powered_rail'],
+                'detector_rail': ['crafting_table', 'detector_rail'],
+                'activator_rail': ['planks', 'stick', 'crafting_table', 'activator_rail'],
+                'minecart': ['crafting_table', 'minecart'],
+                
+                // ============ REDSTONE ============
+                'piston': ['planks', 'crafting_table', 'piston'],
+                'sticky_piston': ['crafting_table', 'sticky_piston'],
+                'lever': ['planks', 'stick', 'lever'],
+                'tripwire_hook': ['planks', 'stick', 'crafting_table', 'tripwire_hook'],
+                'daylight_detector': ['crafting_table', 'daylight_detector'],
+                'observer': ['crafting_table', 'observer'],
+                'hopper': ['planks', 'crafting_table', 'hopper'],
+                'dropper': ['crafting_table', 'dropper'],
+                'dispenser': ['crafting_table', 'dispenser'],
+                
+                // ============ BLOCKS ============
+                'cobblestone_slab': ['crafting_table', 'cobblestone_slab'],
+                'stone_slab': ['crafting_table', 'stone_slab'],
+                'brick': ['crafting_table', 'brick'],
+                'bricks': ['crafting_table', 'bricks'],
+                'stone_bricks': ['crafting_table', 'stone_bricks'],
+                'glass_pane': ['crafting_table', 'glass_pane'],
+                
+                // ============ BUCKETS & TOOLS ============
+                'bucket': ['crafting_table', 'bucket'],
+                'compass': ['crafting_table', 'compass'],
+                'clock': ['crafting_table', 'clock'],
+                'map': ['crafting_table', 'map'],
+                'shears': ['crafting_table', 'shears'],
+                'fishing_rod': ['planks', 'stick', 'crafting_table', 'fishing_rod'],
+                'flint_and_steel': ['crafting_table', 'flint_and_steel'],
+                'lead': ['crafting_table', 'lead'],
+                'name_tag': ['crafting_table', 'name_tag'],
+                
+                // ============ ENCHANTING & BREWING ============
+                'enchanting_table': ['crafting_table', 'enchanting_table'],
+                'anvil': ['crafting_table', 'anvil'],
+                'brewing_stand': ['crafting_table', 'brewing_stand'],
+                'cauldron': ['crafting_table', 'cauldron'],
+            };
+            
+            // Helper to craft planks from any log type
+            const craftPlanks = async () => {
+                const inv = inventory();
+                const logTypes = ['oak_log', 'spruce_log', 'birch_log', 'jungle_log', 
+                                 'acacia_log', 'dark_oak_log', 'mangrove_log', 'cherry_log',
+                                 'crimson_stem', 'warped_stem', 'stripped_oak_log', 'stripped_spruce_log',
+                                 'stripped_birch_log', 'stripped_jungle_log', 'stripped_acacia_log',
+                                 'stripped_dark_oak_log', 'stripped_mangrove_log', 'stripped_cherry_log'];
+                
+                for (const logType of logTypes) {
+                    if ((inv[logType] || 0) > 0) {
+                        const plankType = logType.replace('stripped_', '').replace('_log', '_planks').replace('_stem', '_planks');
+                        console.log(`[AUTOCRAFT] Crafting ${plankType} from ${logType}`);
+                        await skills.craftRecipe(bot, plankType, Math.min(inv[logType], 4));
+                        return true;
+                    }
+                }
+                return false;
+            };
+            
+            // Check if we have enough planks, if not craft more
+            const ensurePlanks = async (needed) => {
+                let inv = inventory();
+                const plankTypes = ['oak_planks', 'spruce_planks', 'birch_planks', 'jungle_planks', 
+                                   'acacia_planks', 'dark_oak_planks', 'mangrove_planks', 'cherry_planks',
+                                   'crimson_planks', 'warped_planks', 'bamboo_planks'];
+                let totalPlanks = 0;
+                for (const p of plankTypes) {
+                    totalPlanks += inv[p] || 0;
+                }
+                
+                while (totalPlanks < needed) {
+                    const crafted = await craftPlanks();
+                    if (!crafted) {
+                        console.log(`[AUTOCRAFT] Cannot craft more planks, have ${totalPlanks}, need ${needed}`);
+                        return false;
+                    }
+                    inv = inventory();
+                    totalPlanks = 0;
+                    for (const p of plankTypes) {
+                        totalPlanks += inv[p] || 0;
+                    }
+                }
+                return true;
+            };
+            
+            // Check if we have sticks, if not craft them
+            const ensureSticks = async (needed) => {
+                let inv = inventory();
+                if ((inv['stick'] || 0) >= needed) return true;
+                
+                // Need 2 planks per 4 sticks
+                const sticksNeeded = needed - (inv['stick'] || 0);
+                const planksNeeded = Math.ceil(sticksNeeded / 4) * 2;
+                
+                if (!await ensurePlanks(planksNeeded)) return false;
+                
+                await skills.craftRecipe(bot, 'stick', Math.ceil(sticksNeeded / 4));
+                return true;
+            };
+            
+            // Check if we have crafting table
+            const ensureCraftingTable = async () => {
+                const inv = inventory();
+                if ((inv['crafting_table'] || 0) > 0) return true;
+                
+                // Need 4 planks for crafting table
+                if (!await ensurePlanks(4)) return false;
+                
+                await skills.craftRecipe(bot, 'crafting_table', 1);
+                return true;
+            };
+            
+            console.log(`[AUTOCRAFT] Starting autoCraft for ${item_name} x${num}`);
+            
+            // Get the crafting chain if it exists
+            const chain = craftingChains[item_name];
+            
+            if (chain) {
+                // Execute each step in the chain
+                for (const step of chain) {
+                    console.log(`[AUTOCRAFT] Chain step: ${step}`);
+                    if (step === 'planks') {
+                        // For tools, we need: pickaxe/axe=5 planks(3+2sticks), sword=3 planks(1+2sticks), shovel=3 planks(1+2sticks)
+                        if (!await ensurePlanks(8 * num)) {
+                            console.log('[AUTOCRAFT] Failed to ensure planks');
+                        }
+                    } else if (step === 'stick') {
+                        if (!await ensureSticks(4 * num)) {
+                            console.log('[AUTOCRAFT] Failed to ensure sticks');
+                        }
+                    } else if (step === 'crafting_table') {
+                        if (!await ensureCraftingTable()) {
+                            console.log('[AUTOCRAFT] Failed to ensure crafting table');
+                        }
+                    } else if (step === item_name) {
+                        // Final item
+                        await skills.craftRecipe(bot, item_name, num);
+                    } else {
+                        // Generic craft step
+                        await skills.craftRecipe(bot, step, num);
+                    }
+                }
+            } else {
+                // No predefined chain, try direct crafting
+                await skills.craftRecipe(bot, item_name, num);
+            }
         })
     },
     {
