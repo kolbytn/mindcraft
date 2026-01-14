@@ -193,11 +193,11 @@ export const actionsList = [
         })
     },
     {
-        name: '!consume',
+        name: '!eat',
         description: 'Eat/drink the given item.',
-        params: {'item_name': { type: 'ItemName', description: 'The name of the item to consume.' }},
+        params: {'item_name': { type: 'ItemName', description: 'The name of the item to eat.' }},
         perform: runAsAction(async (agent, item_name) => {
-            await skills.consume(agent.bot, item_name);
+            await skills.eat(agent.bot, item_name);
         })
     },
     {

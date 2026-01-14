@@ -1321,7 +1321,7 @@ export async function viewChest(bot) {
     return true;
 }
 
-export async function consume(bot, itemName="") {
+export async function eat(bot, itemName="") {
     /**
      * Eat/drink the given item.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -1341,7 +1341,7 @@ export async function consume(bot, itemName="") {
     }
     await bot.equip(item, 'hand');
     await bot.consume();
-    log(bot, `Consumed ${item.name}.`);
+    log(bot, `Ate ${item.name}.`);
     return true;
 }
 
