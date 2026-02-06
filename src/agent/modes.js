@@ -107,20 +107,34 @@ const modes_list = [
 
                 const fallDistance = this.fallStartY - pos.y;
 
-                // If falling more than 10 blocks and accelerating, try MLG water
-                if (fallDistance > 10 && vel.y < -0.8) {
+                // If falling more than 10 blocks and still accelerating, try MLG water
+                if (fallDistance > 10 && vel.y < -0.5) {
                     const waterBucket = bot.inventory.items().find(item => item.name === 'water_bucket');
                     if (waterBucket && !this.active) {
                         // Check if ground is near (within 4 blocks below)
                         const groundBlock = bot.blockAt(pos.offset(0, -4, 0));
                         if (groundBlock && groundBlock.name !== 'air' && groundBlock.name !== 'water') {
                             execute(this, agent, async () => {
+                                const currentPos = bot.entity.position.clone();
                                 say(agent, 'MLG water!');
                                 try {
                                     await bot.equip(waterBucket, 'hand');
-                                    await bot.lookAt(pos.offset(0, -3, 0));
+                                    await bot.lookAt(currentPos.offset(0, -3, 0));
                                     bot.activateItem();
-                                    await new Promise(r => setTimeout(r, 500));
+                                    // Wait until the bot has actually landed
+                                    await new Promise(resolve => {
+                                        const start = Date.now();
+                                        const checkLanding = () => {
+                                            if (bot.entity.onGround || bot.entity.velocity.y >= 0) {
+                                                return resolve();
+                                            }
+                                            if (Date.now() - start > 2000) {
+                                                return resolve();
+                                            }
+                                            setTimeout(checkLanding, 50);
+                                        };
+                                        checkLanding();
+                                    });
                                     // Pick up water after landing
                                     const waterBlock = world.getNearestBlock(bot, 'water', 3);
                                     if (waterBlock) {
@@ -235,9 +249,9 @@ const modes_list = [
             if (Date.now() - this.lastSleepCheck < 30000) return;
             this.lastSleepCheck = Date.now();
 
-            // Check if it's nighttime (13000-23000 ticks) and we're not already sleeping
+            // Check if it's nighttime (time >= 13000 ticks) and we're not already sleeping
             const time = bot.time.timeOfDay;
-            const isNight = time >= 13000 && time <= 23000;
+            const isNight = time >= 13000;
             if (!isNight || bot.isSleeping) return;
 
             // Look for a bed within 32 blocks using block name matching (beds are named like 'white_bed', 'red_bed', etc.)
@@ -252,8 +266,12 @@ const modes_list = [
                     try {
                         await skills.goToBed(bot);
                     } catch (e) {
-                        if (e.message && e.message.includes('occupied')) {
+                        if (e && e.message && e.message.includes('occupied')) {
                             say(agent, 'The bed is occupied.');
+                        } else {
+                            const errorMessage = e && e.message ? e.message : 'unknown reason';
+                            console.log('[AUTO_SLEEP] Error:', errorMessage);
+                            say(agent, `I couldn't sleep (${errorMessage}).`);
                         }
                     }
                 });
