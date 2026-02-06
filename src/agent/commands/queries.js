@@ -135,12 +135,42 @@ export const queryList = [
         perform: function (agent) {
             let craftable = world.getCraftableItems(agent.bot);
             let res = 'CRAFTABLE_ITEMS';
-            for (const item of craftable) {
-                res += `\n- ${item}`;
-            }
-            if (res == 'CRAFTABLE_ITEMS') {
+            if (craftable.length === 0) {
                 res += ': none';
+                return pad(res);
             }
+
+            // Categorize items dynamically using Minecraft naming conventions
+            const categories = {
+                'Tools': item => /_(?:pickaxe|axe|shovel|hoe)$/.test(item) || item === 'shears' || item === 'fishing_rod' || item === 'flint_and_steel',
+                'Weapons': item => /_sword$/.test(item) || ['bow', 'crossbow', 'arrow', 'spectral_arrow', 'tipped_arrow'].includes(item),
+                'Armor': item => /_(?:helmet|chestplate|leggings|boots)$/.test(item) || item === 'shield',
+                'Blocks': item => /_(?:planks|slab|stairs|block|bricks|wall|fence|pane|door|trapdoor|pressure_plate|button)$/.test(item),
+            };
+
+            const categorized = {};
+            const other = [];
+
+            for (const item of craftable) {
+                let matched = false;
+                for (const [category, test] of Object.entries(categories)) {
+                    if (test(item)) {
+                        if (!categorized[category]) categorized[category] = [];
+                        categorized[category].push(item);
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) other.push(item);
+            }
+
+            for (const [category, items] of Object.entries(categorized)) {
+                res += `\n${category}: ${items.join(', ')}`;
+            }
+            if (other.length > 0) {
+                res += `\nOther: ${other.join(', ')}`;
+            }
+
             return pad(res);
         }
     },
