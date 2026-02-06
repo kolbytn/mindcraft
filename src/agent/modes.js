@@ -88,6 +88,58 @@ const modes_list = [
         }
     },
     {
+        name: 'fall_protection',
+        description: 'Use water bucket to break a long fall (MLG water). Requires a water bucket in inventory.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        fallStartY: null,
+        update: async function (agent) {
+            const bot = agent.bot;
+            const pos = bot.entity.position;
+            const vel = bot.entity.velocity;
+
+            // Detect if falling (negative Y velocity)
+            if (vel.y < -0.5) {
+                if (this.fallStartY === null) {
+                    this.fallStartY = pos.y;
+                }
+
+                const fallDistance = this.fallStartY - pos.y;
+
+                // If falling more than 10 blocks and accelerating, try MLG water
+                if (fallDistance > 10 && vel.y < -0.8) {
+                    const waterBucket = bot.inventory.items().find(item => item.name === 'water_bucket');
+                    if (waterBucket && !this.active) {
+                        // Check if ground is near (within 4 blocks below)
+                        const groundBlock = bot.blockAt(pos.offset(0, -4, 0));
+                        if (groundBlock && groundBlock.name !== 'air' && groundBlock.name !== 'water') {
+                            execute(this, agent, async () => {
+                                say(agent, 'MLG water!');
+                                try {
+                                    await bot.equip(waterBucket, 'hand');
+                                    await bot.lookAt(pos.offset(0, -3, 0));
+                                    bot.activateItem();
+                                    await new Promise(r => setTimeout(r, 500));
+                                    // Pick up water after landing
+                                    const waterBlock = world.getNearestBlock(bot, 'water', 3);
+                                    if (waterBlock) {
+                                        await bot.lookAt(waterBlock.position);
+                                        bot.activateItem();
+                                    }
+                                } catch (e) {
+                                    console.log('[FALL_PROTECTION] Error:', e.message);
+                                }
+                            });
+                        }
+                    }
+                }
+            } else {
+                this.fallStartY = null;
+            }
+        }
+    },
+    {
         name: 'unstuck',
         description: 'Attempt to get unstuck when in the same place for a while. Interrupts some actions.',
         interrupts: ['all'],
@@ -165,6 +217,45 @@ const modes_list = [
                 say(agent, `Fighting ${enemy.name}!`);
                 execute(this, agent, async () => {
                     await skills.defendSelf(agent.bot, 8);
+                });
+            }
+        }
+    },
+    {
+        name: 'auto_sleep',
+        description: 'Automatically sleep in a nearby bed when night falls to skip the night and avoid monsters.',
+        interrupts: ['action:followPlayer'],
+        on: true,
+        active: false,
+        lastSleepCheck: 0,
+        update: async function (agent) {
+            const bot = agent.bot;
+
+            // Only check every 30 seconds to avoid spamming
+            if (Date.now() - this.lastSleepCheck < 30000) return;
+            this.lastSleepCheck = Date.now();
+
+            // Check if it's nighttime (13000-23000 ticks) and we're not already sleeping
+            const time = bot.time.timeOfDay;
+            const isNight = time >= 13000 && time <= 23000;
+            if (!isNight || bot.isSleeping) return;
+
+            // Look for a bed within 32 blocks using block name matching (beds are named like 'white_bed', 'red_bed', etc.)
+            const beds = bot.findBlocks({
+                matching: (block) => block.name.includes('bed'),
+                maxDistance: 32,
+                count: 1
+            });
+            if (beds.length > 0) {
+                execute(this, agent, async () => {
+                    say(agent, 'It\'s getting dark, I should sleep.');
+                    try {
+                        await skills.goToBed(bot);
+                    } catch (e) {
+                        if (e.message && e.message.includes('occupied')) {
+                            say(agent, 'The bed is occupied.');
+                        }
+                    }
                 });
             }
         }
