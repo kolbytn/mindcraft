@@ -7,8 +7,8 @@ export class Nvidia {
     static prefix = 'nvidia'; 
 
     constructor(model_name, url, params) {
-        // Default to a common NVIDIA model name if no model_name is provided in the config
-        this.model_name = model_name || "minimaxai/minimax-m2.1"; 
+        // Default to a standard NVIDIA NIM model name if no model_name is provided in the config
+        this.model_name = model_name || "meta/llama3-8b-instruct"; 
         this.params = params;
 
         let config = {};
