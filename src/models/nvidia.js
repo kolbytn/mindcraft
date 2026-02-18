@@ -45,7 +45,7 @@ export class Nvidia {
                 return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
             } else {
                 console.error(err);
-                return 'My brain disconnected (NVIDIA Error), try again.';
+                return 'My brain disconnected, try again.';
             }
         }
     }
