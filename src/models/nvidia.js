@@ -51,6 +51,6 @@ export class Nvidia {
     }
 
     async embed(text) {
-        throw new Error('Embeddings are not supported by this NVIDIA model class yet.');
+        throw new Error('Embeddings are not supported by NVIDIA.');
     }
 }
