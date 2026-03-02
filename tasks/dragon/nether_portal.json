@@ -1,0 +1,13 @@
+{
+    "_comment": "Chunk 2: Build and light a nether portal.",
+    "nether_portal": {
+        "goal": "Build and activate a nether portal. Use !buildNetherPortal for automated construction. Requires diamond pickaxe for mining obsidian. Will use water+lava casting method or direct obsidian mining.",
+        "initial_inventory": { "0": { "diamond_pickaxe": 1, "iron_ingot": 5 } },
+        "agent_count": 1,
+        "type": "techtree",
+        "timeout": 1800,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": true
+    }
+}

@@ -1,0 +1,12 @@
+diff --git a/node_modules/@miner-org/mineflayer-baritone/src/movement/index.js b/node_modules/@miner-org/mineflayer-baritone/src/movement/index.js
+index ae7decf..9c615ad 100644
+--- a/node_modules/@miner-org/mineflayer-baritone/src/movement/index.js
++++ b/node_modules/@miner-org/mineflayer-baritone/src/movement/index.js
+@@ -323,6 +323,7 @@ class Move {
+     const block = this.getBlock(node);
+     if (!block) return false;
+     const above = this.getBlock(node.offset(0, 1, 0));
++    if (!above) return false;
+     return (
+       !this.isScaffolding(node) &&
+       block.boundingBox === "empty" &&

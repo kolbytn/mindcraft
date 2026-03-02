@@ -1,0 +1,15 @@
+{
+    "_comment": "Chunk 3: Collect blaze rods from a Nether Fortress.",
+    "blaze_rods": {
+        "goal": "Collect 12 blaze rods in the Nether. Use !collectBlazeRods(12). Requires: nether portal, sword, food, and ideally a bow with arrows.",
+        "initial_inventory": { "0": { "diamond_pickaxe": 1, "iron_sword": 1, "cooked_beef": 32 } },
+        "agent_count": 1,
+        "target": "blaze_rod",
+        "number_of_target": 12,
+        "type": "techtree",
+        "timeout": 1800,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": false
+    }
+}

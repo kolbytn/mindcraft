@@ -1,0 +1,13 @@
+{
+    "_comment": "Chunk 5: Locate the stronghold and activate the end portal.",
+    "stronghold": {
+        "goal": "Find the stronghold using eyes of ender and activate the end portal. Use !locateStronghold. Requires: 12+ eyes of ender (crafted from blaze powder + ender pearls).",
+        "initial_inventory": { "0": { "ender_eye": 12, "diamond_pickaxe": 1, "cooked_beef": 32 } },
+        "agent_count": 1,
+        "type": "techtree",
+        "timeout": 1800,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": false
+    }
+}

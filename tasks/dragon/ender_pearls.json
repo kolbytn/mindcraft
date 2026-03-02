@@ -1,0 +1,15 @@
+{
+    "_comment": "Chunk 4: Collect ender pearls from Endermen.",
+    "ender_pearls": {
+        "goal": "Collect 12 ender pearls by hunting Endermen. Use !collectEnderPearls(12). Works best at night or in the Nether warped forest.",
+        "initial_inventory": { "0": { "diamond_sword": 1, "iron_armor_set": 1, "cooked_beef": 32 } },
+        "agent_count": 1,
+        "target": "ender_pearl",
+        "number_of_target": 12,
+        "type": "techtree",
+        "timeout": 1800,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": false
+    }
+}

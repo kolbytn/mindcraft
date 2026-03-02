@@ -1,0 +1,22 @@
+{
+    "_comment": "Chunk 6: Enter The End and defeat the Ender Dragon.",
+    "ender_dragon": {
+        "goal": "Jump into the end portal and defeat the Ender Dragon. Use !defeatEnderDragon. Strategy: destroy end crystals with bow, then melee dragon during perching phase. Bring: sword, bow+arrows, blocks, food.",
+        "initial_inventory": {
+            "0": {
+                "diamond_sword": 1,
+                "bow": 1,
+                "arrow": 64,
+                "cobblestone": 64,
+                "cooked_beef": 64,
+                "diamond_pickaxe": 1
+            }
+        },
+        "agent_count": 1,
+        "type": "techtree",
+        "timeout": 3600,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": false
+    }
+}

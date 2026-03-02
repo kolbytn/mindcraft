@@ -1,0 +1,17 @@
+{
+    "_comment": "Chunk 1: Get a diamond pickaxe from scratch.",
+    "diamond_pickaxe": {
+        "goal": "Obtain a diamond pickaxe. Use !getDiamondPickaxe for automated progression, or manually: collect logs → craft wooden pickaxe → mine stone → craft stone pickaxe → mine iron → smelt → craft iron pickaxe → dig to Y=-11 → mine diamonds → craft diamond pickaxe.",
+        "initial_inventory": {},
+        "agent_count": 1,
+        "target": "diamond_pickaxe",
+        "number_of_target": 1,
+        "type": "techtree",
+        "max_depth": 4,
+        "depth": 0,
+        "timeout": 1800,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": true
+    }
+}

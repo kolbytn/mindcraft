@@ -1,0 +1,13 @@
+{
+    "_comment": "Full dragon progression: fresh world to Ender Dragon defeat. Single agent.",
+    "dragon_full_run": {
+        "goal": "Defeat the Ender Dragon. Use !dragonProgression to run the full automated sequence, or manually chain: !getDiamondPickaxe → !buildNetherPortal → !collectBlazeRods(12) → !collectEnderPearls(12) → !locateStronghold → !defeatEnderDragon.",
+        "initial_inventory": {},
+        "agent_count": 1,
+        "type": "techtree",
+        "timeout": 7200,
+        "blocked_actions": { "0": ["!startConversation"] },
+        "missing_items": [],
+        "requires_ctable": false
+    }
+}

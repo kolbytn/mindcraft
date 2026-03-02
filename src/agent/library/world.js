@@ -1,4 +1,5 @@
-import pf from 'mineflayer-pathfinder';
+import baritoneModule from '@miner-org/mineflayer-baritone';
+const baritoneGoals = baritoneModule.goals;
 import * as mc from '../../utils/mcdata.js';
 
 
@@ -97,7 +98,7 @@ export function getFirstBlockAboveHead(bot, ignore_types=null, distance=32) {
     }
     // The block above, stops when it finds a solid block .
     let block_above = {name: 'air'};
-    let height = 0
+    let height = 0;
     for (let i = 0; i < distance; i++) {
         let block = bot.blockAt(bot.entity.position.offset(0, i+2, 0));
         if (!block) block = {name: 'air'};
@@ -401,17 +402,29 @@ export function getNearbyBlockTypes(bot, distance=16) {
 export async function isClearPath(bot, target) {
     /**
      * Check if there is a path to the target that requires no digging or placing blocks.
+     * RC25: Uses Baritone generatePath with restrictive config.
+     * RC30: Guard against missing ashfinder (e.g. during respawn).
      * @param {Bot} bot - The bot to get the path for.
      * @param {Entity} target - The target to path to.
      * @returns {boolean} - True if there is a clear path, false otherwise.
      */
-    let movements = new pf.Movements(bot)
-    movements.canDig = false;
-    movements.canPlaceOn = false;
-    movements.canOpenDoors = false;
-    let goal = new pf.goals.GoalNear(target.position.x, target.position.y, target.position.z, 1);
-    let path = await bot.pathfinder.getPathTo(movements, goal, 100);
-    return path.status === 'success';
+    // RC30: Guard — ashfinder may not be initialized yet (respawn, early tick)
+    if (!bot.ashfinder?.config) {
+        return false;
+    }
+    // Temporarily disable break/place to test clear-path feasibility
+    const prevBreak = bot.ashfinder.config.breakBlocks;
+    const prevPlace = bot.ashfinder.config.placeBlocks;
+    bot.ashfinder.config.breakBlocks = false;
+    bot.ashfinder.config.placeBlocks = false;
+    try {
+        let goal = new baritoneGoals.GoalNear(target.position, 1);
+        let pathResult = await bot.ashfinder.generatePath(goal);
+        return pathResult && pathResult.status === 'success';
+    } finally {
+        bot.ashfinder.config.breakBlocks = prevBreak;
+        bot.ashfinder.config.placeBlocks = prevPlace;
+    }
 }
 
 export function shouldPlaceTorch(bot) {

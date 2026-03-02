@@ -1,4 +1,5 @@
 import * as skills from '../library/skills.js';
+import * as dragonRunner from '../library/dragon_runner.js';
 import settings from '../settings.js';
 import convoManager from '../conversation.js';
 
@@ -20,7 +21,7 @@ function runAsAction (actionFn, resume = false, timeout = -1) {
         if (code_return.interrupted && !code_return.timedout)
             return;
         return code_return.message;
-    }
+    };
 
     return wrappedAction;
 }
@@ -32,7 +33,7 @@ export const actionsList = [
         params: {
             'prompt': { type: 'string', description: 'A natural language prompt to guide code generation. Make a detailed step-by-step plan.' }
         },
-        perform: async function(agent, prompt) {
+        perform: async function(agent, _prompt) {
             // just ignore prompt - it is now in context in chat history
             if (!settings.allow_insecure_coding) { 
                 agent.openChat('newAction is disabled. Enable with allow_insecure_coding=true in settings.js');
@@ -69,7 +70,7 @@ export const actionsList = [
         description: 'Stop all chatting and self prompting, but continue current action.',
         perform: async function (agent) {
             agent.openChat('Shutting up.');
-            agent.shutUp();
+            await agent.shutUp();
             return;
         }
     },
@@ -132,7 +133,7 @@ export const actionsList = [
         },
         perform: runAsAction(async (agent, block_type, range) => {
             if (range < 32) {
-                log(agent.bot, `Minimum search range is 32.`);
+                skills.log(agent.bot, `Minimum search range is 32.`);
                 range = 32;
             }
             await skills.goToNearestBlock(agent.bot, block_type, 4, range);
@@ -155,6 +156,14 @@ export const actionsList = [
         params: {'distance': { type: 'float', description: 'The distance to move away.', domain: [0, Infinity] }},
         perform: runAsAction(async (agent, distance) => {
             await skills.moveAway(agent.bot, distance);
+        })
+    },
+    {
+        name: '!explore',
+        description: 'Move to a random location in a new direction to find fresh resources. Use when current area is depleted or you keep collecting 0.',
+        params: {'distance': { type: 'float', description: 'The distance to explore. Default 40. Use 60-100 if nearby areas are empty.', domain: [10, 200, '[]'] }},
+        perform: runAsAction(async (agent, distance) => {
+            await skills.explore(agent.bot, distance);
         })
     },
     {
@@ -260,7 +269,14 @@ export const actionsList = [
             'num': { type: 'int', description: 'The number of blocks to collect.', domain: [1, Number.MAX_SAFE_INTEGER] }
         },
         perform: runAsAction(async (agent, type, num) => {
-            await skills.collectBlock(agent.bot, type, num);
+            try {
+                const result = await skills.collectBlock(agent.bot, type, num);
+                console.log(`[DEBUG] collectBlock returned: ${result}`);
+                return result;
+            } catch (err) {
+                console.error(`[DEBUG] collectBlock error: ${err.message}`);
+                throw err;
+            }
         }, false, 10) // 10 minute timeout
     },
     {
@@ -320,6 +336,10 @@ export const actionsList = [
         description: 'Attack a specific player until they die or run away. Remember this is just a game and does not cause real life harm.',
         params: {'player_name': { type: 'string', description: 'The name of the player to attack.'}},
         perform: runAsAction(async (agent, player_name) => {
+            if (convoManager.isOtherAgent(player_name)) {
+                skills.log(agent.bot, `Cannot attack teammate bot ${player_name}! Team-killing is blocked.`);
+                return false;
+            }
             let player = agent.bot.players[player_name]?.entity;
             if (!player) {
                 skills.log(agent.bot, `Could not find player ${player_name}.`);
@@ -477,7 +497,7 @@ export const actionsList = [
         description: 'Digs down a specified distance. Will stop if it reaches lava, water, or a fall of >=4 blocks below the bot.',
         params: {'distance': { type: 'int', description: 'Distance to dig down', domain: [1, Number.MAX_SAFE_INTEGER] }},
         perform: runAsAction(async (agent, distance) => {
-            await skills.digDown(agent.bot, distance)
+            await skills.digDown(agent.bot, distance);
         })
     },
     {
@@ -498,5 +518,128 @@ export const actionsList = [
         perform: runAsAction(async (agent, tool_name, target) => {
             await skills.useToolOn(agent.bot, tool_name, target);
         })
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // GENERAL IMPROVEMENT COMMANDS
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+        name: '!safeMoveTo',
+        description: 'Navigate to coordinates safely, avoiding lava and placing torches underground. Includes fall protection.',
+        params: {
+            'x': { type: 'float', description: 'The x coordinate.', domain: [-Infinity, Infinity] },
+            'y': { type: 'float', description: 'The y coordinate.', domain: [-64, 320] },
+            'z': { type: 'float', description: 'The z coordinate.', domain: [-Infinity, Infinity] }
+        },
+        perform: runAsAction(async (agent, x, y, z) => {
+            await skills.safeMoveTo(agent.bot, x, y, z, { avoidLava: true, lightPath: true });
+        })
+    },
+    {
+        name: '!rangedAttack',
+        description: 'Attack the nearest entity of a type with bow (if available), falling back to melee.',
+        params: {
+            'type': { type: 'string', description: 'The entity type to attack (e.g. blaze, skeleton).' }
+        },
+        perform: runAsAction(async (agent, type) => {
+            await skills.rangedAttack(agent.bot, type);
+        })
+    },
+    {
+        name: '!buildPanicRoom',
+        description: 'Build an emergency 3x3x3 cobblestone shelter, eat food, and wait to heal.',
+        perform: runAsAction(async (agent) => {
+            await skills.buildPanicRoom(agent.bot);
+        })
+    },
+    {
+        name: '!autoManageInventory',
+        description: 'Clean up inventory: drop junk, store excess in chests, keep 8 empty slots.',
+        perform: runAsAction(async (agent) => {
+            await skills.autoManageInventory(agent.bot);
+        })
+    },
+    {
+        name: '!stockpileFood',
+        description: 'Hunt animals and cook meat to build a food supply.',
+        params: {
+            'quantity': { type: 'int', description: 'Target number of food items.', domain: [1, 128] }
+        },
+        perform: runAsAction(async (agent, quantity) => {
+            await skills.stockpileFood(agent.bot, quantity);
+        }, false, 10)
+    },
+    {
+        name: '!ensureFed',
+        description: 'Eat the best available food if hungry.',
+        perform: runAsAction(async (agent) => {
+            await skills.ensureFed(agent.bot);
+        })
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // DRAGON PROGRESSION COMMANDS (Gameplay Chunks)
+    // ═══════════════════════════════════════════════════════════════════════
+    {
+        name: '!getDiamondPickaxe',
+        description: 'Automatically progress through tool tiers: wooden → stone → iron → diamond pickaxe.',
+        perform: runAsAction(async (agent) => {
+            await skills.getDiamondPickaxe(agent.bot);
+        }, false, 30) // 30 minute timeout
+    },
+    {
+        name: '!buildNetherPortal',
+        description: 'Build and light a nether portal. Casts obsidian from water+lava or mines it directly.',
+        perform: runAsAction(async (agent) => {
+            await dragonRunner.buildNetherPortal(agent.bot);
+        }, false, 30)
+    },
+    {
+        name: '!collectBlazeRods',
+        description: 'Enter the Nether, find a fortress, and collect blaze rods from blazes.',
+        params: {
+            'count': { type: 'int', description: 'Number of blaze rods to collect.', domain: [1, 64] }
+        },
+        perform: runAsAction(async (agent, count) => {
+            await dragonRunner.collectBlazeRods(agent.bot, count);
+        }, false, 30)
+    },
+    {
+        name: '!collectEnderPearls',
+        description: 'Hunt Endermen for ender pearls in the overworld or nether.',
+        params: {
+            'count': { type: 'int', description: 'Number of ender pearls to collect.', domain: [1, 64] }
+        },
+        perform: runAsAction(async (agent, count) => {
+            await dragonRunner.collectEnderPearls(agent.bot, count);
+        }, false, 30)
+    },
+    {
+        name: '!locateStronghold',
+        description: 'Use eyes of ender to find the stronghold, dig down, and activate the end portal.',
+        perform: runAsAction(async (agent) => {
+            await dragonRunner.locateStronghold(agent.bot);
+        }, false, 30)
+    },
+    {
+        name: '!defeatEnderDragon',
+        description: 'Enter The End and defeat the Ender Dragon. Destroys crystals then attacks dragon.',
+        perform: runAsAction(async (agent) => {
+            await dragonRunner.defeatEnderDragon(agent.bot);
+        }, false, 30)
+    },
+    {
+        name: '!dragonProgression',
+        description: 'Full autonomous run: fresh world → diamond pickaxe → nether → blaze rods → ender pearls → stronghold → defeat Ender Dragon. Skips completed steps. Persistent — survives restarts.',
+        perform: runAsAction(async (agent) => {
+            await dragonRunner.runDragonProgression(agent.bot);
+        }, false, 180) // 3 hour timeout
+    },
+    {
+        name: '!beatMinecraft',
+        description: 'Alias for !dragonProgression. Full autonomous Ender Dragon run with persistent progress. Survives deaths and restarts — picks up where it left off.',
+        perform: runAsAction(async (agent) => {
+            await dragonRunner.runDragonProgression(agent.bot);
+        }, false, 180) // 3 hour timeout
     },
 ];
