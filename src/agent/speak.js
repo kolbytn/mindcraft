@@ -1,4 +1,4 @@
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -8,7 +8,7 @@ import { TTSConfig as geminiTTSConfig } from '../models/gemini.js';
 let speakingQueue = []; // each item: {text, model, audioData, ready}
 let isSpeaking = false;
 
-export function speak(text, speak_model) {
+export async function speak(text, speak_model) {
     const model = speak_model || 'system';
 
     const item = { text, model, audioData: null, ready: null };
@@ -23,7 +23,7 @@ export function speak(text, speak_model) {
     }
 
     speakingQueue.push(item);
-    if (!isSpeaking) processQueue();
+    if (!isSpeaking) await processQueue();
 }
 
 async function fetchRemoteAudio(txt, model) {
@@ -61,10 +61,10 @@ async function processQueue() {
         return;
     }
     const item = speakingQueue.shift();
-    const { text: txt, model, audioData } = item;
+    const { text: txt, model, audioData: _audioData } = item;
     if (txt.trim() === '') {
         isSpeaking = false;
-        processQueue();
+        await processQueue();
         return;
     }
 
@@ -78,25 +78,35 @@ async function processQueue() {
     } catch (err) {
         console.error('[TTS] preprocess error', err);
         isSpeaking = false;
-        processQueue();
+        await processQueue();
         return;
     }
 
     if (model === 'system') {
-        // system TTS
-        const cmd = isWin
-            ? `powershell -NoProfile -Command "Add-Type -AssemblyName System.Speech; \
-            $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Rate=2; \
-            $s.Speak('${txt.replace(/'/g,"''")}'); $s.Dispose()"`
-            : isMac
-            ? `say "${txt.replace(/"/g,'\\"')}"`
-            : `espeak "${txt.replace(/"/g,'\\"')}"`;
-
-        exec(cmd, err => {
-            if (err) console.error('TTS error', err);
-            isSpeaking = false;
-            processQueue();
-        });
+        // system TTS — use spawn with argument arrays to prevent command injection
+        let proc;
+        if (isWin) {
+            // Pass text via stdin so it never touches the shell command line
+            const psScript = `Add-Type -AssemblyName System.Speech
+$s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+$s.Rate = 2
+$txt = [System.Console]::In.ReadToEnd()
+$s.Speak($txt)
+$s.Dispose()`;
+            proc = spawn('powershell', ['-NoProfile', '-Command', psScript],
+                { stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true });
+            proc.stdin.write(txt, 'utf8');
+            proc.stdin.end();
+        } else if (isMac) {
+            // Guard against text starting with '-' which 'say' would treat as a flag.
+            const safeTxt = txt.startsWith('-') ? ` ${txt}` : txt;
+            proc = spawn('say', [safeTxt], { stdio: 'ignore' });
+        } else {
+            // '--' signals end of options so leading '-' in LLM text is not a flag.
+            proc = spawn('espeak', ['--', txt], { stdio: 'ignore' });
+        }
+        proc.on('error', err => console.error('TTS error', err));
+        proc.on('exit', async () => { isSpeaking = false; await processQueue(); });
 
     } 
     else {
@@ -106,7 +116,7 @@ async function processQueue() {
         if (!audioData) {
             console.error('[TTS] No audio data ready');
             isSpeaking = false;
-            processQueue();
+            await processQueue();
             return;
         }
 
@@ -122,12 +132,12 @@ async function processQueue() {
                     console.error('[TTS] ffplay error', err);
                     try { await fs.unlink(tmpPath); } catch {}
                     isSpeaking = false;
-                    processQueue();
+                    await processQueue();
                 });
                 player.on('exit', async () => {
                     try { await fs.unlink(tmpPath); } catch {}
                     isSpeaking = false;
-                    processQueue();
+                    await processQueue();
                 });
 
             } else {
@@ -136,15 +146,15 @@ async function processQueue() {
                 });
                 player.stdin.write(Buffer.from(audioData, 'base64'));
                 player.stdin.end();
-                player.on('exit', () => {
+                player.on('exit', async () => {
                     isSpeaking = false;
-                    processQueue();
+                    await processQueue();
                 });
             }
         } catch (e) {
             console.error('[TTS] Audio error', e);
             isSpeaking = false;
-            processQueue();
+            await processQueue();
         }
     }
 }
