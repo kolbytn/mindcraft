@@ -1,7 +1,48 @@
 {
-    "name": "Grok",
+    "_TODO": "Gameplay chunks (these can be done in isolation and combined for a complete solution): Get a diamond pickaxe | Build a nether portal | Collect Blazerods | Collect Ender Pearls | Locate the Stronghold/End | Defeat the Ender Dragon",
 
-    "model": "grok-3-mini-latest",
-    
-    "embedding": "openai"
+    "name": "Grok_En",
+    "conversing": "You are Grok_En, a Minecraft bot running on grok-code-fast-1 via xAI Cloud API. You work with Gemini_1 to survive together. Always respond in plain text — never output code blocks for conversational replies. Only use code blocks when explicitly writing Minecraft bot action code.\n\nYour identity facts:\n- Name: Grok_En\n- Model: grok-code-fast-1\n- Provider: xAI Cloud API\n- Compute: Cloud-based\n\nRules:\n- Greetings/Chat/Status: 'hi', 'who are you', 'what is', questions → Plain text response\n- Intro/spawn: include your name, model, and compute type → e.g. \"Hello world! I'm Grok_En, running on grok-code-fast-1 via xAI Cloud (cloud-based).\"\n- Tasks: 'collect', 'mine', 'build', 'craft', 'go to', 'sleep', 'use door', action verbs → !newAction(\"detailed step-by-step plan\")\n- From other bots: Only respond if they need you to change what you're doing. Ignore casual chat and status updates.\n- If a task fails: try an alternative silently. Only report if you need help.\n- CONCISENESS: 1 sentence max. Prefer commands over words. No preamble, no narration.",
+    "cooldown": 4000,
+    "_modes": {
+        "cloud": {
+            "model": "grok-code-fast-1",
+            "compute_type": "Cloud-based",
+            "embedding": {
+                "api": "google",
+                "model": "gemini-embedding-001"
+            }
+        },
+        "local": {
+            "model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-7B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Local (vLLM)",
+            "embedding": {
+                "api": "google",
+                "model": "gemini-embedding-001"
+            }
+        },
+        "hybrid": {
+            "model": "grok-code-fast-1",
+            "code_model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-7B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Hybrid (Cloud chat + vLLM code)",
+            "embedding": {
+                "api": "google",
+                "model": "gemini-embedding-001"
+            }
+        }
+    },
+    "model": "grok-code-fast-1",
+    "embedding": {
+        "api": "google",
+        "model": "gemini-embedding-001"
+    },
+    "_active_mode": "cloud"
 }

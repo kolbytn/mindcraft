@@ -43,7 +43,7 @@ const ERROR_DEFINITIONS = {
 export const log = (agentName, msg) => {
     // Use console.error for visibility in terminal
     console.error(msg);
-    try { sendOutputToServer(agentName || 'system', msg); } catch (_) {}
+    try { sendOutputToServer(agentName || 'system', msg); } catch {}
 };
 
 // Analyzes the kick reason and returns a full, human-readable sentence.
@@ -64,7 +64,7 @@ export function parseKickReason(reason) {
     try {
         const obj = typeof reason === 'string' ? JSON.parse(reason) : reason;
         fallback = obj.translate || obj.text || (obj.value?.translate) || raw;
-    } catch (_) {}
+    } catch {}
     
     return { type: 'other', msg: `Disconnected: ${fallback}`, isFatal: true };
 }

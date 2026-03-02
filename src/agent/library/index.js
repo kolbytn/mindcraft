@@ -1,5 +1,6 @@
 import * as skills from './skills.js';
 import * as world from './world.js';
+import * as dragonRunner from './dragon_runner.js';
 
 
 export function docHelper(functions, module_name) {
@@ -19,5 +20,6 @@ export function getSkillDocs() {
     let docArray = [];
     docArray = docArray.concat(docHelper(Object.values(skills), 'skills'));
     docArray = docArray.concat(docHelper(Object.values(world), 'world'));
+    docArray = docArray.concat(docHelper(Object.values(dragonRunner), 'dragonRunner'));
     return docArray;
 }

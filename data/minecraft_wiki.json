@@ -1,0 +1,35 @@
+{
+  "versions": {
+    "latest": "1.21.11 (Mounts of Mayhem, December 2025)",
+    "recent": ["1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "1.21.5"],
+    "key_updates": "Pre-Classic to modern Java Edition; focus on 1.21+ for current recipes/mobs."
+  },
+  "recipes": {
+    "crafting": {
+      "system": "2x2 (shaped/shapeless) or 3x3 grid in crafting table/recipe book; manual or automated (e.g., auto-crafters).",
+      "examples": ["Tools/armor from ingots", "Planks from logs", "Sticks from planks"]
+    },
+    "smelting": {
+      "system": "Furnace/blast furnace/smoker; fuels: coal/lava (100 items), etc.",
+      "food": ["Potato → Baked Potato", "Beef → Steak"],
+      "ores": ["Iron Ore → Iron Ingot", "Gold Ore → Gold Ingot", "Copper Ore → Copper Ingot"],
+      "gear": ["Iron Ingot → Iron Nugget"],
+      "fuels": {"Coal": 8, "Charcoal": 8, "Lava Bucket": 100}
+    }
+  },
+  "items": {
+    "top": ["All block-items (e.g., Acacia Log)", "Apple", "Arrow", "Beacon", "Bedrock", "Blaze Rod", "Bone", "Book", "Bow", "Bread", "Bucket", "Chest", "Clock", "Coal", "Cobblestone", "Compass", "Diamond", "Dirt", "Enchanting Table", "Ender Pearl", "Flint", "Glass", "Gold Ingot", "Iron Ingot", "Leather", "Map", "Melon Slice", "Milk Bucket", "Nether Star", "Oak Planks", "Obsidian", "Paper", "Porkchop", "Redstone Dust", "Stick", "Stone", "Sugar", "Sword", "Totem of Undying", "Wheat", "Wooden Axe", "Wooden Pickaxe", "Wooden Sword"],
+    "categories": ["Block-items", "World-interaction", "Tools", "Food", "Materials"]
+  },
+  "blocks": {
+    "top": ["Acacia Log", "Tuff", "Deepslate", "Andesite", "Diorite", "Granite", "Cobblestone", "Stone", "Dirt", "Grass Block", "Sand", "Gravel", "Oak Planks", "Oak Log", "Bedrock", "Obsidian"],
+    "categories": ["Natural", "Technical", "Education", "Removed"]
+  },
+  "mobs": {
+    "passive": ["Allay", "Armadillo", "Axolotl", "Bat", "Camel", "Cat", "Chicken", "Cod", "Cow", "Donkey", "Fox", "Frog", "Glow Squid", "Horse", "Mooshroom", "Mule", "Ocelot", "Parrot", "Pig", "Pufferfish", "Rabbit", "Salmon", "Sheep", "Skeleton Horse", "Sniffer", "Squid", "Strider", "Tadpole", "Tropical Fish", "Turtle", "Villager", "Wandering Trader"],
+    "neutral": ["Bee", "Dolphin", "Enderman", "Fox", "Goat", "Iron Golem", "Llama", "Panda", "Piglin", "Polar Bear", "Spider", "Cave Spider", "Zombified Piglin", "Wolf"],
+    "hostile": ["Blaze", "Breeze", "Bogged", "Creeper", "Creaking", "Drowned", "Elder Guardian", "Endermite", "Evoker", "Ghast", "Guardian", "Hoglin", "Husk", "Magma Cube", "Phantom", "Piglin Brute", "Pillager", "Ravager", "Shulker", "Silverfish", "Skeleton", "Slime", "Stray", "Vex", "Vindicator", "Witch", "Wither Skeleton", "Zombie", "Zombie Villager"],
+    "bosses": ["Ender Dragon", "Wither"],
+    "unused": ["Giant", "Illusioner", "Killer Bunny", "Old Villager", "Zombie Horse"]
+  }
+}

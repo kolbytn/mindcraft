@@ -56,6 +56,11 @@ export class Gemini {
             }
         });
         const response = await result.text;
+        this._lastUsage = result.usageMetadata ? {
+            prompt_tokens: result.usageMetadata.promptTokenCount || 0,
+            completion_tokens: result.usageMetadata.candidatesTokenCount || 0,
+            total_tokens: result.usageMetadata.totalTokenCount || 0,
+        } : null;
 
         console.log('Received.');
 
@@ -90,12 +95,17 @@ export class Gemini {
                 model: this.model_name,
                 contents: contents,
                 safetySettings: this.safetySettings,
-                generationConfig: {
+                config: {
+                    systemInstruction: systemMessage,
                     ...(this.params || {})
-                },
-                systemInstruction: systemMessage
+                }
             });
             res = await result.text;
+            this._lastUsage = result.usageMetadata ? {
+                prompt_tokens: result.usageMetadata.promptTokenCount || 0,
+                completion_tokens: result.usageMetadata.candidatesTokenCount || 0,
+                total_tokens: result.usageMetadata.totalTokenCount || 0,
+            } : null;
             console.log('Received.');
         } catch (err) {
             console.log(err);
@@ -112,13 +122,14 @@ export class Gemini {
         const result = await this.genAI.models.embedContent({
             model: this.model_name || "gemini-embedding-001",
             contents: text,
-        })
+        });
 
-        return result.embeddings;
+        // @google/genai v1.x returns result.embedding.values (not result.embeddings)
+        return result?.embedding?.values ?? result?.embeddings;
     }
 }
 
-const sendAudioRequest = async (text, model, voice, url) => {
+const sendAudioRequest = async (text, model, voice, _url) => {
     const ai = new GoogleGenAI({apiKey: getKey('GEMINI_API_KEY')});
 
     const response = await ai.models.generateContent({

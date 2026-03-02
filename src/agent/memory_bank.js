@@ -12,7 +12,7 @@ export class MemoryBank {
 	}
 
 	getJson() {
-		return this.memory
+		return this.memory;
 	}
 
 	loadJson(json) {
@@ -20,6 +20,6 @@ export class MemoryBank {
 	}
 
 	getKeys() {
-		return Object.keys(this.memory).join(', ')
+		return Object.keys(this.memory).join(', ');
 	}
 }

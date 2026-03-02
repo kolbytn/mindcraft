@@ -65,7 +65,7 @@ export class Novita {
       return res;
   }
 
-	async embed(text) {
+	async embed(_text) {
 		throw new Error('Embeddings are not supported by Novita AI.');
 	}
 }

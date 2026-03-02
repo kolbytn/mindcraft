@@ -15,7 +15,7 @@ pip install -r requirements.txt
 Setting up the world! Make sure your world has cheats enabled! You can do this on creation of your Minecraft world in the Minecraft console, or you can type ```/op @a``` in the chat or in the console of the world launched from the jar file. 
 
 ## Construction 
-Press F3 to view the coordinates of the game. And pull up the file tasks/construction_tasks/church_blueprint.pdf
+Press F3 to view the coordinates of the game. Download and open the [church blueprint PDF](https://github.com/Z0mb13V1/mindcraft/releases/download/v0.1.3-assets/church_blueprint.pdf).
 Run 
 ```
 python tasks/evaluation_script.py --no_launch_world --template_profile profiles/tasks/construction_profile.json --task_path tasks/construction_tasks/human_ai/1_agent_1_human.json --usernames YOUR_USERNAME --num_agents 1 --insecure_coding

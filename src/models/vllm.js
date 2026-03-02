@@ -1,8 +1,4 @@
-// This code uses Dashscope and HTTP to ensure the latest support for the Qwen model.
-// Qwen is also compatible with the OpenAI API format;
-
 import OpenAIApi from 'openai';
-import { getKey, hasKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class VLLM {
@@ -10,25 +6,21 @@ export class VLLM {
     constructor(model_name, url) {
         this.model_name = model_name;
 
-        // Currently use self-hosted SGLang API for text generation; use OpenAI text-embedding-3-small model for simple embedding.
-        let vllm_config = {};
-        if (url)
-            vllm_config.baseURL = url;
-        else
-            vllm_config.baseURL = 'http://0.0.0.0:8000/v1';
+        let config = {};
+        config.baseURL = url || 'http://0.0.0.0:8000/v1';
+        config.apiKey = '';
 
-        vllm_config.apiKey = ""
-
-        this.vllm = new OpenAIApi(vllm_config);
+        this.vllm = new OpenAIApi(config);
+        this._lastUsage = null;
     }
 
     async sendRequest(turns, systemMessage, stop_seq = '***') {
         let messages = [{ 'role': 'system', 'content': systemMessage }].concat(turns);
-        let model = this.model_name || "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B";  
-        
+        let model = this.model_name || 'google/gemma-3-12b-it';
+
         if (model.includes('deepseek') || model.includes('qwen')) {
             messages = strictFormat(messages);
-        } 
+        }
 
         const pack = {
             model: model,
@@ -36,43 +28,82 @@ export class VLLM {
             stop: stop_seq,
         };
 
-        let res = null;
-        try {
-            console.log('Awaiting openai api response...')
-            // console.log('Messages:', messages);
-            // todo set max_tokens, temperature, top_p, etc. in pack
-            let completion = await this.vllm.chat.completions.create(pack);
-            if (completion.choices[0].finish_reason == 'length')
-                throw new Error('Context length exceeded');
-            console.log('Received.')
-            res = completion.choices[0].message.content;
-        }
-        catch (err) {
-            if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
-                console.log('Context length exceeded, trying again with shorter context.');
-                return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
-            } else {
-                console.log(err);
-                res = 'My brain disconnected, try again.';
+        const maxAttempts = 5;
+        let attempt = 0;
+        let finalRes = null;
+
+        while (attempt < maxAttempts) {
+            attempt++;
+            let res = null;
+            try {
+                console.log(`Awaiting vLLM response... (model: ${model}, attempt: ${attempt})`);
+                let completion = await this.vllm.chat.completions.create(pack);
+                if (completion.choices[0].finish_reason == 'length')
+                    throw new Error('Context length exceeded');
+                console.log('Received.');
+                res = completion.choices[0].message.content;
+
+                this._lastUsage = completion.usage ? {
+                    prompt_tokens: completion.usage.prompt_tokens || 0,
+                    completion_tokens: completion.usage.completion_tokens || 0,
+                    total_tokens: completion.usage.total_tokens || 0,
+                } : null;
             }
+            catch (err) {
+                this._lastUsage = null;
+                if ((err.message == 'Context length exceeded' || err.code == 'context_length_exceeded') && turns.length > 1) {
+                    console.log('Context length exceeded, trying again with shorter context.');
+                    return await this.sendRequest(turns.slice(1), systemMessage, stop_seq);
+                } else {
+                    console.log(err);
+                    res = 'My brain disconnected, try again.';
+                }
+            }
+
+            // Handle <think> tags (Gemma-3 / reasoning models may produce these)
+            const hasOpenTag = res.includes('<think>');
+            const hasCloseTag = res.includes('</think>');
+
+            if (hasOpenTag && !hasCloseTag) {
+                console.warn('Partial <think> block detected. Re-generating...');
+                if (attempt < maxAttempts) continue;
+            }
+            if (hasCloseTag && !hasOpenTag) {
+                res = '<think>' + res;
+            }
+            if (hasOpenTag && hasCloseTag) {
+                res = res.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            }
+
+            finalRes = res;
+            break;
         }
-        return res;
+
+        if (finalRes == null) {
+            console.warn('Could not get a valid response after max attempts.');
+            finalRes = 'I thought too hard, sorry, try again.';
+        }
+        return finalRes;
     }
 
-    async saveToFile(logFile, logEntry) {
-        let task_id = this.agent.task.task_id;
-        console.log(task_id)
-        let logDir;
-        if (this.task_id === null) {
-            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);
-        } else {
-            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);
-        }
-
-        await fs.mkdir(logDir, { recursive: true });
-
-        logFile = path.join(logDir, logFile);
-        await fs.appendFile(logFile, String(logEntry), 'utf-8');
+    async embed(_text) {
+        throw new Error('vLLM embeddings not configured. Use Google gemini-embedding-001 instead.');
     }
 
+    async sendVisionRequest(messages, systemMessage, imageBuffer) {
+        const imageMessages = [...messages];
+        imageMessages.push({
+            role: 'user',
+            content: [
+                { type: 'text', text: systemMessage },
+                {
+                    type: 'image_url',
+                    image_url: {
+                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
+                    }
+                }
+            ]
+        });
+        return this.sendRequest(imageMessages, systemMessage);
+    }
 }

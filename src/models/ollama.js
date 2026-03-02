@@ -1,4 +1,6 @@
 import { strictFormat } from '../utils/text.js';
+import http from 'node:http';
+import https from 'node:https';
 
 export class Ollama {
     static prefix = 'ollama';
@@ -31,8 +33,14 @@ export class Ollama {
                 });
                 if (apiResponse) {
                     res = apiResponse['message']['content'];
+                    this._lastUsage = {
+                        prompt_tokens: apiResponse.prompt_eval_count || 0,
+                        completion_tokens: apiResponse.eval_count || 0,
+                        total_tokens: (apiResponse.prompt_eval_count || 0) + (apiResponse.eval_count || 0),
+                    };
                 } else {
                     res = 'No response data.';
+                    this._lastUsage = null;
                 }
             } catch (err) {
                 if (err.message.toLowerCase().includes('context length') && turns.length > 1) {
@@ -77,17 +85,38 @@ export class Ollama {
 
     async send(endpoint, body) {
         const url = new URL(endpoint, this.url);
-        let method = 'POST';
-        let headers = new Headers();
-        const request = new Request(url, { method, headers, body: JSON.stringify(body) });
+        const bodyStr = JSON.stringify(body);
+        const client = url.protocol === 'https:' ? https : http;
         let data = null;
         try {
-            const res = await fetch(request);
-            if (res.ok) {
-                data = await res.json();
-            } else {
-                throw new Error(`Ollama Status: ${res.status}`);
-            }
+            data = await new Promise((resolve, reject) => {
+                const req = client.request({
+                    hostname: url.hostname,
+                    port: url.port || (url.protocol === 'https:' ? 443 : 11434),
+                    path: url.pathname,
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': Buffer.byteLength(bodyStr),
+                    },
+                    timeout: 90000, // 90s timeout for local model responses
+                }, (res) => {
+                    if (res.statusCode < 200 || res.statusCode >= 300) {
+                        res.resume();
+                        return reject(new Error(`Ollama Status: ${res.statusCode}`));
+                    }
+                    let raw = '';
+                    res.on('data', chunk => raw += chunk);
+                    res.on('end', () => {
+                        try { resolve(JSON.parse(raw)); }
+                        catch { reject(new Error(`Ollama parse error: ${raw.slice(0, 200)}`)); }
+                    });
+                });
+                req.on('error', reject);
+                req.on('timeout', () => { req.destroy(new Error('Ollama request timed out')); });
+                req.write(bodyStr);
+                req.end();
+            });
         } catch (err) {
             console.error('Failed to send Ollama request.');
             console.error(err);
@@ -96,20 +125,35 @@ export class Ollama {
     }
 
     async sendVisionRequest(messages, systemMessage, imageBuffer) {
-        const imageMessages = [...messages];
-        imageMessages.push({
-            role: "user",
-            content: [
-                { type: "text", text: systemMessage },
-                {
-                    type: "image_url",
-                    image_url: {
-                        url: `data:image/jpeg;base64,${imageBuffer.toString('base64')}`
-                    }
-                }
-            ]
+        // Ollama uses its own image format: { role, content, images: [base64] }
+        let model = this.model_name || 'llava';
+        let formatted = strictFormat(messages);
+        formatted.unshift({ role: 'system', content: systemMessage });
+        // Append the vision request with image in Ollama's native format
+        formatted.push({
+            role: 'user',
+            content: systemMessage,
+            images: [imageBuffer.toString('base64')]
         });
-        
-        return this.sendRequest(imageMessages, systemMessage);
+
+        console.log(`Awaiting vision response... (model: ${model})`);
+        let res = null;
+        try {
+            let apiResponse = await this.send(this.chat_endpoint, {
+                model: model,
+                messages: formatted,
+                stream: false,
+                ...(this.params || {})
+            });
+            if (apiResponse) {
+                res = apiResponse['message']['content'];
+            } else {
+                res = 'Vision model returned no response.';
+            }
+        } catch (err) {
+            console.log('Vision request error:', err);
+            res = 'Vision failed, try again.';
+        }
+        return res;
     }
 }

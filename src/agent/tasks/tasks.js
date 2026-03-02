@@ -298,11 +298,11 @@ export class Task {
         }
 
         this.name = this.agent.name;
-        this.available_agents = []
+        this.available_agents = [];
     }
 
     updateAvailableAgents(agents) {
-        this.available_agents = agents
+        this.available_agents = agents;
     }
 
     // Add this method if you want to manually reset the hells_kitchen progress
@@ -344,7 +344,7 @@ export class Task {
 
         if (this.task_type === 'techtree') {
             if (this.data.agent_count > 2) {
-                add_string = '\nMake sure to share resources among all agents and to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.'
+                add_string = '\nMake sure to share resources among all agents and to talk to all the agents using startConversation command to coordinate the task instead of talking to just one agent. You can even end current conversation with any agent using endConversation command and then talk to a new agent using startConversation command.';
             }
         }
 
@@ -374,7 +374,7 @@ export class Task {
             // this.agent.bot.chat(`/clear @a`);
             return {"message": 'Task successful', "score": res.score};
         }
-        let other_names = this.available_agents.filter(n => n !== this.name);
+        let _other_names = this.available_agents.filter(n => n !== this.name);
         const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
 
         if (elapsedTime >= 30 && this.available_agents.length !== this.data.agent_count) {
@@ -439,14 +439,13 @@ export class Task {
             
             initialInventory = this.data.initial_inventory[this.agent.count_id.toString()] || {};
             console.log("Initial inventory for agent", this.agent.count_id, ":", initialInventory);
-            console.log("")
+            console.log("");
 
             if (this.data.human_count > 0 && this.agent.count_id === 0) {
                 // this.num_humans = num_keys - this.data.num_agents;
                 if (this.data.human_count !== this.data.usernames.length) {
                     console.log(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
                     throw new Error(`Number of human players ${this.human_count} does not match the number of usernames provided. ${this.data.usernames.length}`);
-                    return;
                 }
                 
                 const starting_idx = this.data.agent_count;
@@ -522,18 +521,18 @@ export class Task {
             const player = bot.players[playerName];
             if (!this.available_agents.some((n) => n === playerName)) {
                 console.log('Found human player:', player.username);
-                human_player_name = player.username
+                human_player_name = player.username;
                 break;
             }
         }
 
         // go the human if there is one and not required for the task
         if (human_player_name && this.data.human_count === 0) {
-            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
-            bot.chat(`/tp ${this.name} ${human_player_name}`)
+            console.log(`Teleporting ${this.name} to human ${human_player_name}`);
+            bot.chat(`/tp ${this.name} ${human_player_name}`);
         }
         else {
-            console.log(`Teleporting ${this.name} to ${this.available_agents[0]}`)
+            console.log(`Teleporting ${this.name} to ${this.available_agents[0]}`);
             bot.chat(`/tp ${this.name} ${this.available_agents[0]}`);
         }
 
@@ -587,7 +586,7 @@ export class Task {
                 }
             }
             else{
-                console.log('no construction blueprint?')
+                console.log('no construction blueprint?');
             }
         }
     }

@@ -2,8 +2,10 @@ import { createMindServer, registerAgent, numStateListeners } from './mindserver
 import { AgentProcess } from '../process/agent_process.js';
 import { getServer } from './mcserver.js';
 import open from 'open';
+import path from 'path';
+import { writeFileSync } from 'fs';
 
-let mindserver;
+let _mindserver;
 let connected = false;
 let agent_processes = {};
 let agent_count = 0;
@@ -14,7 +16,7 @@ export async function init(host_public=false, port=8080, auto_open_ui=true) {
         console.error('Already initiliazed!');
         return;
     }
-    mindserver = createMindServer(host_public, port);
+    _mindserver = createMindServer(host_public, port);
     mindserver_port = port;
     connected = true;
     if (auto_open_ui) {
@@ -72,6 +74,45 @@ export async function createAgent(settings) {
         success: true,
         error: null
     };
+}
+
+export async function createRemoteAgent(settings, remoteUrl) {
+    settings = JSON.parse(JSON.stringify(settings));
+    let agent_name = settings.profile.name;
+    if (!agent_name) {
+        console.error('Agent name is required in profile');
+        return { success: false, error: 'Agent name is required in profile' };
+    }
+    const agentIndex = agent_count++;
+
+    try {
+        try {
+            const server = await getServer(settings.host, settings.port, settings.minecraft_version);
+            settings.host = server.host;
+            settings.port = server.port;
+            settings.minecraft_version = server.version;
+        } catch (error) {
+            console.warn(`Error getting server:`, error);
+            if (settings.minecraft_version === "auto") settings.minecraft_version = null;
+            console.warn(`Attempting to connect anyway...`);
+        }
+
+        // RC30: Sanitize agent_name to prevent path traversal
+        const safeName = path.basename(agent_name).replace(/[^a-zA-Z0-9_-]/g, '_');
+        if (!safeName) {
+            return { success: false, error: 'Invalid agent name after sanitization' };
+        }
+        const settingsPath = `/tmp/mindcraft_${safeName}_settings.json`;
+        writeFileSync(settingsPath, JSON.stringify(settings));
+
+        const agentProcess = new AgentProcess(agent_name, null, remoteUrl, settingsPath);
+        agentProcess.start(settings.load_memory || false, settings.init_message || null, agentIndex);
+        agent_processes[agent_name] = agentProcess;
+    } catch (error) {
+        console.error(`Error creating remote agent ${agent_name}:`, error);
+        return { success: false, error: error.message };
+    }
+    return { success: true, error: null };
 }
 
 export function getAgentProcess(agentName) {

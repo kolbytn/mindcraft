@@ -80,7 +80,7 @@ export class HuggingFace {
     return finalRes;
   }
 
-  async embed(text) {
+  async embed(_text) {
     throw new Error('Embeddings are not supported by HuggingFace.');
   }
 }

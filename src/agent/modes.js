@@ -1,7 +1,7 @@
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import * as mc from '../utils/mcdata.js';
-import settings from './settings.js'
+import settings from './settings.js';
 import convoManager from './conversation.js';
 
 async function say(agent, message) {
@@ -35,41 +35,54 @@ const modes_list = [
             let blockAbove = bot.blockAt(bot.entity.position.offset(0, 1, 0));
             if (!block) block = {name: 'air'}; // hacky fix when blocks are not loaded
             if (!blockAbove) blockAbove = {name: 'air'};
-            if (blockAbove.name === 'water') {
-                // does not call execute so does not interrupt other actions
-                if (!bot.pathfinder.goal) {
-                    bot.setControlState('jump', true);
+            // Drowning prevention: swim up when underwater or low on air
+            const isSubmerged = blockAbove.name === 'water';
+            const oxygenLevel = bot.oxygenLevel != null ? bot.oxygenLevel : 20;
+            if (isSubmerged && oxygenLevel < 12) {
+                // Low on air — interrupt everything and swim to surface
+                bot.setControlState('jump', true);
+                bot.setControlState('sprint', false);
+                if (oxygenLevel < 6) {
+                    // Critical — also try to navigate up
+                    await execute(this, agent, async () => {
+                        const pos = bot.entity.position;
+                        await skills.goToPosition(bot, pos.x, pos.y + 10, pos.z, 1);
+                    });
                 }
             }
+            else if (isSubmerged) {
+                // Underwater but air is okay — keep jumping to stay afloat
+                bot.setControlState('jump', true);
+            }
             else if (this.fall_blocks.some(name => blockAbove.name.includes(name))) {
-                execute(this, agent, async () => {
+                await execute(this, agent, async () => {
                     await skills.moveAway(bot, 2);
                 });
             }
             else if (block.name === 'lava' || block.name === 'fire' ||
                 blockAbove.name === 'lava' || blockAbove.name === 'fire') {
-                say(agent, 'I\'m on fire!');
+                await say(agent, 'I\'m on fire!');
                 // if you have a water bucket, use it
                 let waterBucket = bot.inventory.items().find(item => item.name === 'water_bucket');
                 if (waterBucket) {
-                    execute(this, agent, async () => {
+                    await execute(this, agent, async () => {
                         let success = await skills.placeBlock(bot, 'water_bucket', block.position.x, block.position.y, block.position.z);
-                        if (success) say(agent, 'Placed some water, ahhhh that\'s better!');
+                        if (success) void say(agent, 'Placed some water, ahhhh that\'s better!');
                     });
                 }
                 else {
-                    execute(this, agent, async () => {
+                    await execute(this, agent, async () => {
                         let waterBucket = bot.inventory.items().find(item => item.name === 'water_bucket');
                         if (waterBucket) {
                             let success = await skills.placeBlock(bot, 'water_bucket', block.position.x, block.position.y, block.position.z);
-                            if (success) say(agent, 'Placed some water, ahhhh that\'s better!');
+                            if (success) void say(agent, 'Placed some water, ahhhh that\'s better!');
                             return;
                         }
                         let nearestWater = world.getNearestBlock(bot, 'water', 20);
                         if (nearestWater) {
                             const pos = nearestWater.position;
                             let success = await skills.goToPosition(bot, pos.x, pos.y, pos.z, 0.2);
-                            if (success) say(agent, 'Found some water, ahhhh that\'s better!');
+                            if (success) void say(agent, 'Found some water, ahhhh that\'s better!');
                             return;
                         }
                         await skills.moveAway(bot, 5);
@@ -77,8 +90,8 @@ const modes_list = [
                 }
             }
             else if (Date.now() - bot.lastDamageTime < 3000 && (bot.health < 5 || bot.lastDamageTaken >= bot.health)) {
-                say(agent, 'I\'m dying!');
-                execute(this, agent, async () => {
+                await say(agent, 'I\'m dying!');
+                await execute(this, agent, async () => {
                     await skills.moveAway(bot, 20);
                 });
             }
@@ -120,13 +133,28 @@ const modes_list = [
             }
             const max_stuck_time = cur_dig_block?.name === 'obsidian' ? this.max_stuck_time * 2 : this.max_stuck_time;
             if (this.stuck_time > max_stuck_time) {
-                say(agent, 'I\'m stuck!');
+                await say(agent, 'I\'m stuck!');
                 this.stuck_time = 0;
-                execute(this, agent, async () => {
-                    const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 10000);
-                    await skills.moveAway(bot, 5);
-                    clearTimeout(crashTimeout);
-                    say(agent, 'I\'m free.');
+                await execute(this, agent, async () => {
+                    const crashTimeout = setTimeout(() => { agent.cleanKill("Got stuck and couldn't get unstuck") }, 30000);
+                    try {
+                        await skills.moveAway(bot, 5);
+                        clearTimeout(crashTimeout);
+                        void say(agent, 'I\'m free.');
+                    } catch (moveErr) {
+                        console.warn(`[Unstuck] moveAway failed: ${moveErr.message}. Brute-force walking...`);
+                        // Brute-force fallback: random yaw + forward + jump for 3s
+                        const randomYaw = Math.random() * Math.PI * 2;
+                        const randomPitch = 0;
+                        bot.look(randomYaw, randomPitch, true);
+                        bot.setControlState('forward', true);
+                        bot.setControlState('jump', true);
+                        bot.setControlState('sprint', true);
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        bot.clearControlStates();
+                        clearTimeout(crashTimeout);
+                        void say(agent, 'Broke free by brute force.');
+                    }
                 });
             }
             this.last_time = Date.now();
@@ -146,8 +174,8 @@ const modes_list = [
         update: async function (agent) {
             const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 16);
             if (enemy && await world.isClearPath(agent.bot, enemy)) {
-                say(agent, `Aaa! A ${enemy.name.replace("_", " ")}!`);
-                execute(this, agent, async () => {
+                await say(agent, `Aaa! A ${enemy.name.replace("_", " ")}!`);
+                await execute(this, agent, async () => {
                     await skills.avoidEnemies(agent.bot, 24);
                 });
             }
@@ -160,10 +188,12 @@ const modes_list = [
         on: true,
         active: false,
         update: async function (agent) {
-            const enemy = world.getNearestEntityWhere(agent.bot, entity => mc.isHostile(entity), 8);
-            if (enemy && await world.isClearPath(agent.bot, enemy)) {
-                say(agent, `Fighting ${enemy.name}!`);
-                execute(this, agent, async () => {
+            const bot = agent.bot;
+            if (Date.now() - (bot.respawnTime || 0) < 5000) return;
+            const enemy = world.getNearestEntityWhere(bot, entity => mc.isHostile(entity), 8);
+            if (enemy && await world.isClearPath(bot, enemy)) {
+                await say(agent, `Fighting ${enemy.name}!`);
+                await execute(this, agent, async () => {
                     await skills.defendSelf(agent.bot, 8);
                 });
             }
@@ -178,8 +208,8 @@ const modes_list = [
         update: async function (agent) {
             const huntable = world.getNearestEntityWhere(agent.bot, entity => mc.isHuntable(entity), 8);
             if (huntable && await world.isClearPath(agent.bot, huntable)) {
-                execute(this, agent, async () => {
-                    say(agent, `Hunting ${huntable.name}!`);
+                await execute(this, agent, async () => {
+                    void say(agent, `Hunting ${huntable.name}!`);
                     await skills.attackEntity(agent.bot, huntable);
                 });
             }
@@ -203,9 +233,9 @@ const modes_list = [
                     this.noticed_at = Date.now();
                 }
                 if (Date.now() - this.noticed_at > this.wait * 1000) {
-                    say(agent, `Picking up item!`);
+                    await say(agent, `Picking up item!`);
                     this.prev_item = item;
-                    execute(this, agent, async () => {
+                    await execute(this, agent, async () => {
                         await skills.pickupNearbyItems(agent.bot);
                     });
                     this.noticed_at = -1;
@@ -224,15 +254,100 @@ const modes_list = [
         active: false,
         cooldown: 5,
         last_place: Date.now(),
-        update: function (agent) {
+        update: async function (agent) {
             if (world.shouldPlaceTorch(agent.bot)) {
                 if (Date.now() - this.last_place < this.cooldown * 1000) return;
-                execute(this, agent, async () => {
+                await execute(this, agent, async () => {
                     const pos = agent.bot.entity.position;
                     await skills.placeBlock(agent.bot, 'torch', pos.x, pos.y, pos.z, 'bottom', true);
                 });
                 this.last_place = Date.now();
             }
+        }
+    },
+    {
+        // RC26: Auto-navigate to bed and sleep at night
+        name: 'night_bed',
+        description: 'Automatically find and sleep in a bed at night. Crafts and places a bed if none nearby.',
+        interrupts: ['action:followPlayer'],
+        on: true,
+        active: false,
+        cooldown: 30,       // seconds between attempts
+        lastAttempt: 0,
+        update: async function (agent) {
+            const bot = agent.bot;
+            const time = bot.time?.timeOfDay ?? 0;
+
+            // Only trigger at night (12500 = dusk, can sleep at 12542+)
+            if (time < 12500 || time > 23000) return;
+            // Already sleeping
+            if (bot.isSleeping) return;
+            // Cooldown to avoid spamming
+            if (Date.now() - this.lastAttempt < this.cooldown * 1000) return;
+            // Don't interrupt Nether/End (no night cycle)
+            const dim = bot.game?.dimension;
+            if (dim === 'the_nether' || dim === 'the_end') return;
+
+            this.lastAttempt = Date.now();
+
+            await execute(this, agent, async () => {
+                // Phase 1: Look for existing bed within 64 blocks
+                const beds = bot.findBlocks({
+                    matching: (block) => block.name.includes('bed'),
+                    maxDistance: 64,
+                    count: 1
+                });
+
+                if (beds.length > 0) {
+                    void say(agent, 'Night time — heading to bed.');
+                    const success = await skills.goToBed(bot);
+                    if (success) return;
+                    // goToBed failed — fall through to craft attempt
+                }
+
+                // Phase 2: No bed found (or sleep failed) — try to craft and place one
+                const inv = world.getInventoryCounts(bot);
+                const woolTypes = [
+                    'white_wool', 'orange_wool', 'magenta_wool', 'light_blue_wool',
+                    'yellow_wool', 'lime_wool', 'pink_wool', 'gray_wool',
+                    'light_gray_wool', 'cyan_wool', 'purple_wool', 'blue_wool',
+                    'brown_wool', 'green_wool', 'red_wool', 'black_wool'
+                ];
+                const plankTypes = [
+                    'oak_planks', 'spruce_planks', 'birch_planks', 'jungle_planks',
+                    'acacia_planks', 'dark_oak_planks', 'mangrove_planks',
+                    'cherry_planks', 'bamboo_planks', 'crimson_planks', 'warped_planks'
+                ];
+
+                const woolCount = woolTypes.reduce((sum, w) => sum + (inv[w] || 0), 0);
+                const plankCount = plankTypes.reduce((sum, p) => sum + (inv[p] || 0), 0);
+
+                if (woolCount >= 3 && plankCount >= 3) {
+                    void say(agent, 'No bed nearby — crafting one.');
+                    try {
+                        // Find which wool and plank type we actually have
+                        const woolType = woolTypes.find(w => (inv[w] || 0) >= 3)
+                            || woolTypes.find(w => (inv[w] || 0) > 0);
+                        // craftRecipe will try the default bed recipe
+                        const bedName = woolType ? woolType.replace('_wool', '_bed') : 'white_bed';
+                        await skills.craftRecipe(bot, bedName);
+
+                        // Place the bed
+                        const bedItem = bot.inventory.items().find(i => i.name.includes('bed'));
+                        if (bedItem) {
+                            const pos = bot.entity.position;
+                            await skills.placeBlock(bot, bedItem.name, pos.x + 1, pos.y, pos.z, 'bottom');
+                            // Now sleep in it
+                            await skills.goToBed(bot);
+                        }
+                    } catch (err) {
+                        console.log(`[night_bed] Craft/place failed: ${err.message}`);
+                    }
+                } else {
+                    // Not enough materials — just log once quietly
+                    console.log('[night_bed] No bed nearby and insufficient materials to craft one.');
+                }
+            });
         }
     },
     {
@@ -245,7 +360,7 @@ const modes_list = [
         update: async function (agent) {
             const player = world.getNearestEntityWhere(agent.bot, entity => entity.type === 'player', this.distance);
             if (player) {
-                execute(this, agent, async () => {
+                await execute(this, agent, async () => {
                     // wait a random amount of time to avoid identical movements with other bots
                     const wait_time = Math.random() * 1000;
                     await new Promise(resolve => setTimeout(resolve, wait_time));
@@ -294,12 +409,83 @@ const modes_list = [
         }
     },
     {
+        name: 'auto_eat',
+        description: 'Automatically eat food when hunger drops below 14 or health drops below 50%. Prioritizes golden apples at critical health. Interrupts non-critical actions.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        lastEat: 0,
+        update: async function (agent) {
+            const bot = agent.bot;
+            // RC30: Hunger safety net — force eat when health < 50% regardless of hunger
+            const healthCritical = bot.health < 10;
+            if (bot.food >= 14 && !healthCritical) return;
+            if (Date.now() - this.lastEat < (healthCritical ? 3000 : 10000)) return; // faster cooldown when health critical
+
+            // RC30: Prioritize golden apples when health is critical
+            const criticalFoodPriority = [
+                'enchanted_golden_apple', 'golden_apple',
+                'cooked_beef', 'cooked_porkchop', 'cooked_mutton', 'cooked_chicken',
+                'cooked_salmon', 'cooked_cod', 'cooked_rabbit', 'bread', 'baked_potato',
+                'apple', 'carrot', 'melon_slice', 'sweet_berries',
+                'beef', 'porkchop', 'mutton', 'chicken', 'dried_kelp', 'rotten_flesh'
+            ];
+            const normalFoodPriority = [
+                'cooked_beef', 'cooked_porkchop', 'cooked_mutton', 'cooked_chicken',
+                'cooked_salmon', 'cooked_cod', 'cooked_rabbit', 'bread', 'baked_potato',
+                'golden_apple', 'apple', 'carrot', 'melon_slice', 'sweet_berries',
+                'beef', 'porkchop', 'mutton', 'chicken', 'dried_kelp', 'rotten_flesh'
+            ];
+            const foodPriority = healthCritical ? criticalFoodPriority : normalFoodPriority;
+
+            const inv = world.getInventoryCounts(bot);
+            let foodItem = null;
+            for (const f of foodPriority) {
+                if ((inv[f] || 0) > 0) { foodItem = f; break; }
+            }
+
+            if (foodItem) {
+                this.lastEat = Date.now();
+                await say(agent, healthCritical
+                    ? `Emergency eating ${foodItem}! (health: ${bot.health.toFixed(1)}, hunger: ${bot.food})`
+                    : `Eating ${foodItem} (hunger: ${bot.food}).`);
+                await execute(this, agent, async () => {
+                    await skills.consume(agent.bot, foodItem);
+                });
+            }
+        }
+    },
+    {
+        name: 'panic_defense',
+        description: 'Build emergency cobblestone shelter when health is critically low (< 6) and under attack.',
+        interrupts: ['all'],
+        on: true,
+        active: false,
+        lastPanic: 0,
+        update: async function (agent) {
+            const bot = agent.bot;
+            if (bot.health >= 6) return;
+            if (Date.now() - this.lastPanic < 60000) return; // 60s cooldown
+            if (Date.now() - bot.lastDamageTime > 5000) return; // only if recently damaged
+
+            const inv = world.getInventoryCounts(bot);
+            const cobble = (inv['cobblestone'] || 0);
+            if (cobble < 12) return; // not enough to bother
+
+            this.lastPanic = Date.now();
+            await say(agent, 'Critical health! Building emergency shelter!');
+            await execute(this, agent, async () => {
+                await skills.buildPanicRoom(agent.bot);
+            });
+        }
+    },
+    {
         name: 'cheat',
         description: 'Use cheats to instantly place blocks and teleport.',
         interrupts: [],
         on: false,
         active: false,
-        update: function (agent) { /* do nothing */ }
+        update: function (_agent) { /* do nothing */ }
     }
 ];
 
@@ -403,7 +589,12 @@ class ModeController {
         for (let mode of modes_list) {
             let interruptible = mode.interrupts.some(i => i === 'all') || mode.interrupts.some(i => i === _agent.actions.currentActionLabel);
             if (mode.on && !mode.paused && !mode.active && (_agent.isIdle() || interruptible)) {
-                await mode.update(_agent);
+                try {
+                    await mode.update(_agent);
+                } catch (err) {
+                    console.error(`Mode ${mode.name} error:`, err.message);
+                    mode.active = false;
+                }
             }
             if (mode.active) break;
         }

@@ -4,7 +4,7 @@ import { VisionInterpreter } from './vision/vision_interpreter.js';
 import { Prompter } from '../models/prompter.js';
 import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
-import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
+import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands, isCommandBlocked } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
@@ -17,6 +17,16 @@ import settings from './settings.js';
 import { Task } from './tasks/tasks.js';
 import { speak } from './speak.js';
 import { log, validateNameFormat, handleDisconnection } from './connection_handler.js';
+import { Learnings } from './learnings.js';
+import { validateMinecraftMessage, validateUsername } from '../utils/message_validator.js';
+
+// ── In-game aliases (shorthand → canonical agent name) ──────
+const INGAME_ALIASES = {
+    'gemini': 'Gemini_1',
+    'gi':     'Gemini_1',
+    'grok':   'Grok_En',
+    'gk':     'Grok_En',
+};
 
 export class Agent {
     async start(load_mem=false, init_message=null, count_id=0) {
@@ -44,6 +54,8 @@ export class Agent {
         this.npc = new NPCContoller(this);
         this.memory_bank = new MemoryBank();
         this.self_prompter = new SelfPrompter(this);
+        this.learnings = new Learnings(this.name);
+        this.learnings.load();
         convoManager.initAgent(this);
         await this.prompter.initExamples();
 
@@ -59,7 +71,7 @@ export class Agent {
             taskStart = Date.now();
         }
         this.task = new Task(this, settings.task, taskStart);
-        this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []);
+        this.blocked_actions = settings.blocked_actions.concat(this.task.blocked_actions || []).concat(this.prompter.profile.blocked_actions || []);
         blacklistCommands(this.blocked_actions);
 
         console.log(this.name, 'logging into minecraft...');
@@ -73,18 +85,27 @@ export class Agent {
             // Log and Analyze
             // handleDisconnection handles logging to console and server
             const { type } = handleDisconnection(this.name, reason);
-     
-            process.exit(1);
+
+            // Clean disconnect so MC server releases the session immediately
+            try { this.bot.quit(); } catch {}
+
+            // Name conflicts need extra delay — use exit code 88
+            process.exit(type === 'name_conflict' ? 88 : 1);
         };
         
         // Bind events
         this.bot.once('kicked', (reason) => onDisconnect('Kicked', reason));
         this.bot.once('end', (reason) => onDisconnect('Disconnected', reason));
         this.bot.on('error', (err) => {
-            if (String(err).includes('Duplicate') || String(err).includes('ECONNREFUSED')) {
+            const errStr = String(err);
+            if (errStr.includes('Duplicate') || errStr.includes('ECONNREFUSED')) {
                  onDisconnect('Error', err);
+            } else if (errStr.includes('EPIPE') || errStr.includes('ECONNRESET')) {
+                 // Connection broken — log it but let mineflayer's 'end' event
+                 // handle the actual disconnect/restart to avoid false restarts
+                 console.warn(`[${this.name}] Connection error: ${errStr}. Waiting for disconnect event...`);
             } else {
-                 log(this.name, `[LoginGuard] Connection Error: ${String(err)}`);
+                 log(this.name, `[LoginGuard] Connection Error: ${errStr}`);
             }
         });
 
@@ -139,7 +160,7 @@ export class Agent {
 
             } catch (error) {
                 console.error('Error in spawn event:', error);
-                process.exit(0);
+                process.exit(1);
             }
         });
     }
@@ -157,34 +178,55 @@ export class Agent {
         const respondFunc = async (username, message) => {
             if (message === "") return;
             if (username === this.name) return;
+
+            // Validate username and message
+            const userValidation = validateUsername(username);
+            if (!userValidation.valid) {
+                console.warn(`[MessageValidator] Rejected message from invalid username: "${username}" (${userValidation.error})`);
+                return;
+            }
+
+            const msgValidation = validateMinecraftMessage(message);
+            if (!msgValidation.valid) {
+                console.warn(`[MessageValidator] Rejected message: ${msgValidation.error}`);
+                return;
+            }
+            const cleanMessage = msgValidation.sanitized;
+
             if (settings.only_chat_with.length > 0 && !settings.only_chat_with.includes(username)) return;
             try {
-                if (ignore_messages.some((m) => message.startsWith(m))) return;
+                if (ignore_messages.some((m) => cleanMessage.startsWith(m))) return;
+
+                // Ignore bot action status broadcasts from unrecognized bots
+                // (e.g. "*used goToCoordinates*", "*BotName stopped.*")
+                if (/^\*.*\*$/.test(cleanMessage.trim())) return;
 
                 this.shut_up = false;
 
-                console.log(this.name, 'received message from', username, ':', message);
+                console.log(this.name, 'received message from', username, ':', cleanMessage);
 
                 if (convoManager.isOtherAgent(username)) {
-                    console.warn('received whisper from other bot??')
+                    console.warn('received whisper from other bot??');
                 }
                 else {
-                    let translation = await handleEnglishTranslation(message);
+                    let translation = await handleEnglishTranslation(cleanMessage);
                     this.handleMessage(username, translation);
                 }
             } catch (error) {
                 console.error('Error handling message:', error);
             }
-        }
+        };
 
 		this.respondFunc = respondFunc;
 
         this.bot.on('whisper', respondFunc);
-        
+
         this.bot.on('chat', (username, message) => {
-            if (serverProxy.getNumOtherAgents() > 0) return;
-            // only respond to open chat messages when there are no other agents
-            respondFunc(username, message);
+            // Parse prefix/alias to determine if this message targets a specific bot
+            const parsed = this.parseInGamePrefix(message);
+            if (parsed.targeted && !parsed.isForMe) return; // targeted at another bot, skip
+            const msgToProcess = parsed.targeted ? parsed.message : message;
+            respondFunc(username, msgToProcess);
         });
 
         // Set up auto-eat
@@ -194,11 +236,34 @@ export class Agent {
             bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
         };
 
+        // Log inventory on every load so the bot (and LLM) knows what it has
+        const inv = this.bot.inventory.items();
+        if (inv.length > 0) {
+            const invStr = inv.map(i => `${i.name}: ${i.count}`).join(', ');
+            console.log(`[Startup] ${this.name} inventory: ${invStr}`);
+            this.history.add('system', `Inventory on load: ${invStr}`);
+        } else {
+            console.log(`[Startup] ${this.name} inventory is empty.`);
+            this.history.add('system', 'Inventory on load: empty.');
+        }
+
         if (save_data?.self_prompt) {
             if (init_message) {
                 this.history.add('system', init_message);
             }
             await this.self_prompter.handleLoad(save_data.self_prompt, save_data.self_prompting_state);
+        } else if (this.prompter.profile.self_prompt) {
+            // Fresh spawn with no saved state — auto-start from profile default goal
+            if (init_message) {
+                this.history.add('system', init_message);
+            }
+            const defaultGoal = this.prompter.profile.self_prompt;
+            setTimeout(() => {
+                if (this.self_prompter.isStopped()) {
+                    console.log(`[AutoGoal] Starting default self-prompt for ${this.name}: "${defaultGoal}"`);
+                    this.self_prompter.start(defaultGoal);
+                }
+            }, 3000);
         }
         if (save_data?.last_sender) {
             this.last_sender = save_data.last_sender;
@@ -210,12 +275,41 @@ export class Agent {
                 convoManager.receiveFromBot(this.last_sender, msg_package);
             }
         }
-        else if (init_message) {
+        else if (init_message && !this.self_prompter.isActive()) {
             await this.handleMessage('system', init_message, 2);
         }
         else {
             this.openChat("Hello world! I am "+this.name);
         }
+    }
+
+    parseInGamePrefix(message) {
+        const colonIdx = message.indexOf(':');
+        if (colonIdx <= 0 || colonIdx >= 30) return { targeted: false, isForMe: true, message };
+
+        const prefix = message.substring(0, colonIdx).trim().toLowerCase();
+        const body = message.substring(colonIdx + 1).trim();
+
+        // Check if prefix matches this agent's name
+        if (prefix === this.name.toLowerCase()) {
+            return { targeted: true, isForMe: true, targetName: this.name, message: body };
+        }
+
+        // Check aliases
+        const aliasTarget = INGAME_ALIASES[prefix];
+        if (aliasTarget) {
+            const isForMe = aliasTarget === this.name;
+            return { targeted: true, isForMe, targetName: aliasTarget, message: body };
+        }
+
+        // Check if prefix matches any other known agent name (case-insensitive)
+        if (convoManager.isOtherAgent(prefix) ||
+            convoManager.isOtherAgent(prefix.charAt(0).toUpperCase() + prefix.slice(1))) {
+            return { targeted: true, isForMe: false, targetName: prefix, message: body };
+        }
+
+        // Not a recognized prefix — treat as normal message
+        return { targeted: false, isForMe: true, message };
     }
 
     checkAllPlayersPresent() {
@@ -234,7 +328,7 @@ export class Agent {
         this.bot.interrupt_code = true;
         this.bot.stopDigging();
         this.bot.collectBlock.cancelTask();
-        this.bot.pathfinder.stop();
+        this.bot.ashfinder.stop(); // RC25: baritone replaces pathfinder
         this.bot.pvp.stop();
     }
 
@@ -243,12 +337,12 @@ export class Agent {
         this.bot.interrupt_code = false;
     }
 
-    shutUp() {
+    async shutUp() {
         this.shut_up = true;
         if (this.self_prompter.isActive()) {
             this.self_prompter.stop(false);
         }
-        convoManager.endAllConversations();
+        await convoManager.endAllConversations(); // RC30: properly await async
     }
 
     async handleMessage(source, message, max_responses=null) {
@@ -268,6 +362,25 @@ export class Agent {
 
         const self_prompt = source === 'system' || source === this.name;
         const from_other_bot = convoManager.isOtherAgent(source);
+
+        // ── Hardcoded stop/freeze: bypasses LLM, always works ──
+        if (!self_prompt) {
+            const lower = message.toLowerCase().trim();
+            if (lower === 'stop' || lower === 'freeze' || lower === 'stop!' || lower === 'freeze!') {
+                console.log(`[STOP] ${source} triggered "${lower}" on ${this.name}`);
+                await this.actions.stop();
+                this.actions.cancelResume(); // prevent idle event from restarting previous action
+                if (this.self_prompter.isActive()) this.self_prompter.stop(false);
+                this.routeResponse(source, `*${this.name} stopped.*`); // send confirmation before shut_up
+                this.shut_up = true;
+                return true;
+            }
+        }
+
+        // Human player messages take absolute priority — interrupt any ongoing action immediately
+        if (!self_prompt && !from_other_bot && !this.isIdle()) {
+            this.requestInterrupt();
+        }
 
         if (!self_prompt && !from_other_bot) { // from user, check for forced commands
             const user_command_name = containsCommand(message);
@@ -322,7 +435,7 @@ export class Agent {
             console.log(`${this.name} full response to ${source}: ""${res}""`);
 
             if (res.trim().length === 0) {
-                console.warn('no response')
+                console.warn('no response');
                 break; // empty response ends loop
             }
 
@@ -333,8 +446,14 @@ export class Agent {
                 this.history.add(this.name, res);
                 
                 if (!commandExists(command_name)) {
-                    this.history.add('system', `Command ${command_name} does not exist.`);
-                    console.warn('Agent hallucinated command:', command_name)
+                    // RC27: Distinguish blocked commands from truly unknown ones
+                    if (isCommandBlocked(command_name)) {
+                        this.history.add('system', `Command ${command_name} is disabled in your profile's blocked_actions.`);
+                        console.log(`[RC27] Agent used blocked command: ${command_name}`);
+                    } else {
+                        this.history.add('system', `Command ${command_name} does not exist.`);
+                        console.warn('Agent hallucinated command:', command_name);
+                    }
                     continue;
                 }
 
@@ -364,10 +483,28 @@ export class Agent {
                 console.log('Agent executed:', command_name, 'and got:', execute_res);
                 used_command = true;
 
+                if (this.learnings && command_name) {
+                    const outcome = (execute_res && !execute_res.includes('Error') && !execute_res.includes('failed'))
+                        ? 'success' : 'fail';
+                    this.learnings.record(command_name, res.substring(0, 100), outcome);
+                }
+
                 if (execute_res)
                     this.history.add('system', execute_res);
                 else
                     break;
+
+                // Auto-explore: if action_manager detected repeated collect failures,
+                // bypass the LLM and directly execute !explore(200) to relocate
+                if (this._forceExplore) {
+                    const { distance, blockType } = this._forceExplore;
+                    this._forceExplore = null;
+                    console.log(`[AutoExplore] Forcing explore(${distance}) after repeated ${blockType} collect failures`);
+                    const exploreRes = await executeCommand(this, `!explore(${distance})`);
+                    if (exploreRes) {
+                        this.history.add('system', exploreRes);
+                    }
+                }
             }
             else { // conversation response
                 this.history.add(this.name, res);
@@ -452,9 +589,7 @@ export class Agent {
             prev_health = this.bot.health;
         });
         // Logging callbacks
-        this.bot.on('error' , (err) => {
-            console.error('Error event!', err);
-        });
+        // Note: 'error' is already handled by initBot() login guard — no duplicate needed
         // Use connection handler for runtime disconnects
         this.bot.on('end', (reason) => {
             if (!this._disconnectHandled) {
@@ -465,6 +600,7 @@ export class Agent {
         this.bot.on('death', () => {
             this.actions.cancelResume();
             this.actions.stop();
+            this.bot.respawnTime = Date.now();
         });
         this.bot.on('kicked', (reason) => {
             if (!this._disconnectHandled) {
@@ -479,7 +615,7 @@ export class Agent {
                 this.memory_bank.rememberPlace('last_death_position', death_pos.x, death_pos.y, death_pos.z);
                 let death_pos_text = null;
                 if (death_pos) {
-                    death_pos_text = `x: ${death_pos.x.toFixed(2)}, y: ${death_pos.y.toFixed(2)}, z: ${death_pos.x.toFixed(2)}`;
+                    death_pos_text = `x: ${death_pos.x.toFixed(2)}, y: ${death_pos.y.toFixed(2)}, z: ${death_pos.z.toFixed(2)}`;
                 }
                 let dimention = this.bot.game.dimension;
                 this.handleMessage('system', `You died at position ${death_pos_text || "unknown"} in the ${dimention} dimension with the final message: '${message}'. Your place of death is saved as 'last_death_position' if you want to return. Previous actions were stopped and you have respawned.`);
@@ -487,7 +623,7 @@ export class Agent {
         });
         this.bot.on('idle', () => {
             this.bot.clearControlStates();
-            this.bot.pathfinder.stop(); // clear any lingering pathfinder
+            this.bot.ashfinder.stop(); // RC25: clear any lingering baritone navigation
             this.bot.modes.unPauseAll();
             setTimeout(() => {
                 if (this.isIdle()) {
@@ -530,8 +666,16 @@ export class Agent {
 
     cleanKill(msg='Killing agent process...', code=1) {
         this.history.add('system', msg);
-        this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
+        try { this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.'); } catch {}
         this.history.save();
+        if (this.learnings) {
+            this.learnings.save();
+        }
+        if (this.prompter?.usageTracker) {
+            this.prompter.usageTracker.saveSync();
+            this.prompter.usageTracker.destroy();
+        }
+        try { this.bot.quit(); } catch {}
         process.exit(code);
     }
     async checkTaskDone() {

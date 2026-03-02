@@ -8,7 +8,7 @@ export class SkillLibrary {
         this.embedding_model = embedding_model;
         this.skill_docs_embeddings = {};
         this.skill_docs = null;
-        this.always_show_skills = ['skills.placeBlock', 'skills.wait', 'skills.breakBlockAt']
+        this.always_show_skills = ['skills.placeBlock', 'skills.wait', 'skills.breakBlockAt'];
     }
     async initSkillLibrary() {
         const skillDocs = getSkillDocs();
@@ -23,7 +23,7 @@ export class SkillLibrary {
                 });
                 await Promise.all(embeddingPromises);
             } catch (error) {
-                console.warn('Error with embedding model, using word-overlap instead.');
+                console.warn('Error with embedding model, using word-overlap instead.', error?.message || error);
                 this.embedding_model = null;
             }
         }

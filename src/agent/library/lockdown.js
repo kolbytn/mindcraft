@@ -15,8 +15,11 @@ export function lockdown() {
     consoleTaming: 'unsafe',
     errorTaming: 'unsafe',
     stackFiltering: 'verbose',
-    // allow eval outside of created compartments
-    // (mineflayer dep "protodef" uses eval)
+    // NOTE: 'unsafeEval' is required for compatibility with mineflayer's
+    // 'protodef' dependency which uses eval internally. Switching to
+    // 'safeEval' or 'noEval' breaks mineflayer. AI-generated code still runs
+    // inside a sandboxed Compartment (see makeCompartment below), so the
+    // outer eval exposure is limited to trusted application dependencies only.
     evalTaming: 'unsafeEval',
   });
 }
@@ -29,4 +32,4 @@ export const makeCompartment = (endowments = {}) => {
     // standard endowments
     ...endowments
   });
-}
+};

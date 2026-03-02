@@ -1,21 +1,25 @@
 {
     "name": "mindcraft",
+    "version": "0.1.3",
     "type": "module",
     "dependencies": {
-        "@anthropic-ai/sdk": "^0.17.1",
+        "@anthropic-ai/sdk": "^0.17.2",
         "@cerebras/cerebras_cloud_sdk": "^1.46.0",
         "@google/genai": "^1.15.0",
         "@huggingface/inference": "^2.8.1",
+        "@miner-org/mineflayer-baritone": "^4.5.0",
         "@mistralai/mistralai": "^1.1.0",
         "canvas": "^3.1.0",
         "cheerio": "^1.0.0",
+        "chromadb": "^1.10.0",
+        "discord.js": "^14.25.1",
         "express": "^4.18.2",
         "google-translate-api-x": "^10.7.1",
         "groq-sdk": "^0.15.0",
         "minecraft-data": "^3.97.0",
         "mineflayer": "^4.33.0",
         "mineflayer-armor-manager": "^2.0.1",
-        "mineflayer-auto-eat": "^3.3.6",
+        "mineflayer-auto-eat": "^5.0.3",
         "mineflayer-collectblock": "^1.4.1",
         "mineflayer-pathfinder": "^2.4.5",
         "mineflayer-pvp": "^1.3.2",
@@ -30,21 +34,35 @@
         "socket.io-client": "^4.7.2",
         "three": "^0.128.0",
         "vec3": "^0.1.10",
-        "yargs": "^17.7.2"
+        "yargs": "^17.7.2",
+        "zod-to-json-schema": "^3.24.1"
     },
     "overrides": {
-      "canvas": "^3.1.0",
-      "gl": "^8.1.6"
+        "axios": "^1.7.7",
+        "canvas": "^3.1.0",
+        "gl": "^8.1.6",
+        "tar": "^7.5.8",
+        "undici": ">=6.23.0"
     },
     "scripts": {
         "postinstall": "patch-package",
-        "start": "node main.js"
+        "prepare": "husky install",
+        "start": "node main.js",
+        "test": "echo \"No tests configured\" && exit 0",
+        "lint": "eslint . --max-warnings 0"
+    },
+    "lint-staged": {
+        "*.js": [
+            "eslint --fix"
+        ]
     },
     "devDependencies": {
         "@eslint/js": "^9.13.0",
         "eslint": "^9.13.0",
         "eslint-plugin-no-floating-promise": "^2.0.0",
-        "globals": "^15.11.0",
+        "globals": "^15.9.0",
+        "husky": "^9.0.11",
+        "lint-staged": "^15.2.2",
         "patch-package": "^8.0.0"
     }
 }

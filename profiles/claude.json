@@ -1,7 +1,39 @@
 {
-    "name": "claude",
+    "_TODO": "Gameplay chunks (these can be done in isolation and combined for a complete solution): Get a diamond pickaxe | Build a nether portal | Collect Blazerods | Collect Ender Pearls | Locate the Stronghold/End | Defeat the Ender Dragon",
 
+    "name": "claude",
     "model": "claude-sonnet-4-20250514",
-    
-    "embedding": "openai"
+    "conversing": "!jump or jump→!jump\nname or who→I'm claude\nelse→!newAction(\"description\")\nOutput ONLY the command above. No text before or after.",
+    "coding": "You are a Minecraft bot. Write js codeblocks using ``` // syntax ```. You have `Vec3`, `skills`, `world`, and `bot` available. Use AWAIT for async calls. Only use functions in $CODE_DOCS.\n$STATS\n$INVENTORY\n$CODE_DOCS\n$EXAMPLES\nConversation:",
+    "embedding": "openai",
+    "_active_mode": "cloud",
+    "_modes": {
+        "cloud": {
+            "model": "claude-sonnet-4-20250514",
+            "compute_type": "Cloud-based",
+            "embedding": "openai"
+        },
+        "local": {
+            "model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-7B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Local (vLLM)",
+            "embedding": {
+                "api": "google",
+                "model": "gemini-embedding-001"
+            }
+        },
+        "hybrid": {
+            "model": "claude-sonnet-4-20250514",
+            "code_model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-7B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Hybrid (Cloud chat + vLLM code)",
+            "embedding": "openai"
+        }
+    }
 }

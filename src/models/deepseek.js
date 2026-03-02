@@ -1,5 +1,5 @@
 import OpenAIApi from 'openai';
-import { getKey, hasKey } from '../utils/keys.js';
+import { getKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class DeepSeek {
@@ -50,7 +50,7 @@ export class DeepSeek {
         return res;
     }
 
-    async embed(text) {
+    async embed(_text) {
         throw new Error('Embeddings are not supported by Deepseek.');
     }
 }

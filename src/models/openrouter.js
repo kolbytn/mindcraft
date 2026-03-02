@@ -1,5 +1,5 @@
 import OpenAIApi from 'openai';
-import { getKey, hasKey } from '../utils/keys.js';
+import { getKey } from '../utils/keys.js';
 import { strictFormat } from '../utils/text.js';
 
 export class OpenRouter {
@@ -71,7 +71,7 @@ export class OpenRouter {
         return this.sendRequest(imageMessages, systemMessage);
     }
 
-    async embed(text) {
+    async embed(_text) {
         throw new Error('Embeddings are not supported by Openrouter.');
     }
 }

@@ -81,7 +81,7 @@ export class Claude {
         return this.sendRequest(imageMessages, systemMessage);
     }
 
-    async embed(text) {
+    async embed(_text) {
         throw new Error('Embeddings are not supported by Claude.');
     }
 }

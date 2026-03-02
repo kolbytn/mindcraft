@@ -37,7 +37,7 @@ export class Examples {
             
             // Wait for all embeddings to complete
             await Promise.all(embeddingPromises);
-        } catch (err) {
+        } catch (_err) {
             console.warn('Error with embedding model, using word-overlap instead.');
             this.model = null;
         }
@@ -70,7 +70,7 @@ export class Examples {
 
         console.log('selected examples:');
         for (let example of selected_examples) {
-            console.log('Example:', example[0].content)
+            console.log('Example:', example[0].content);
         }
 
         let msg = 'Examples of how to respond:\n';

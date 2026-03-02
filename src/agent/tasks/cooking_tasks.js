@@ -154,7 +154,7 @@ export class CookingTaskInitiator {
         //     // Place the chest
         //     await bot.chat(`/setblock ${x} ${y} ${z} chest`);
 
-            const cookingItems = [
+            const _cookingItems = [
                 ['minecraft:milk_bucket', 1],     // Non-stackable
                 ['minecraft:egg', 16],            // Stacks to 16
                 ['minecraft:dandelion', 64],    // Stacks to 64
@@ -348,10 +348,10 @@ export class CookingTaskInitiator {
         await this.bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 3} crafting_table`);
         await this.bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 5} furnace`);
         // Add fuel to the furnace
-        await this.bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 5} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
+        await this.bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 5} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`);
         await this.bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 7} smoker`);
         // Add fuel to the smoker
-        await this.bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 7} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
+        await this.bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 7} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`);
         await this.bot.chat(`/setblock ${startX + depth - 3} ${startY + 1} ${startZ + 2} bed`);
         await new Promise(resolve => setTimeout(resolve, 300));
     }

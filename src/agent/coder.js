@@ -1,26 +1,19 @@
-import { writeFile, readFile, mkdirSync } from 'fs';
+import { writeFile, readFileSync, mkdirSync } from 'fs';
 import { makeCompartment, lockdown } from './library/lockdown.js';
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import { Vec3 } from 'vec3';
 import {ESLint} from "eslint";
+import settings from './settings.js';
 
 export class Coder {
     constructor(agent) {
         this.agent = agent;
         this.file_counter = 0;
         this.fp = '/bots/'+agent.name+'/action-code/';
-        this.code_template = '';
-        this.code_lint_template = '';
 
-        readFile('./bots/execTemplate.js', 'utf8', (err, data) => {
-            if (err) throw err;
-            this.code_template = data;
-        });
-        readFile('./bots/lintTemplate.js', 'utf8', (err, data) => {
-            if (err) throw err;
-            this.code_lint_template = data;
-        });
+        this.code_template = readFileSync('./bots/execTemplate.js', 'utf8');
+        this.code_lint_template = readFileSync('./bots/lintTemplate.js', 'utf8');
         mkdirSync('.' + this.fp, { recursive: true });
     }
 
@@ -82,7 +75,18 @@ export class Coder {
 
             try {
                 console.log('Executing code...');
-                await executionModule.main(this.agent.bot);
+                const timeout_ms = settings.code_timeout_mins > 0 ? settings.code_timeout_mins * 60 * 1000 : null;
+                if (timeout_ms) {
+                    await Promise.race([
+                        executionModule.main(this.agent.bot),
+                        new Promise((_, reject) => setTimeout(
+                            () => reject(new Error(`Code execution timed out after ${settings.code_timeout_mins} minutes.`)),
+                            timeout_ms
+                        ))
+                    ]);
+                } else {
+                    await executionModule.main(this.agent.bot);
+                }
 
                 const code_output = this.agent.actions.getBotOutputSummary();
                 const summary = "Agent wrote this code: \n```" + this._sanitizeCode(code) + "```\nCode Output:\n" + code_output;
@@ -120,12 +124,12 @@ export class Coder {
         }
         const allDocs = await this.agent.prompter.skill_libary.getAllSkillDocs();
         // check function exists
-        const missingSkills = skills.filter(skill => !!allDocs[skill]);
+        const missingSkills = skills.filter(skill => !allDocs[skill]);
         if (missingSkills.length > 0) {
             result += 'These functions do not exist.\n';
             result += '### FUNCTIONS NOT FOUND ###\n';
             result += missingSkills.join('\n');
-            console.log(result)
+            console.log(result);
             return result;
         }
 
@@ -183,16 +187,20 @@ export class Coder {
         // This is where we determine the environment the agent's code should be exposed to.
         // It will only have access to these things, (in addition to basic javascript objects like Array, Object, etc.)
         // Note that the code may be able to modify the exposed objects.
+        // Freeze exposed module objects so Compartment code cannot replace
+        // methods on them (e.g. skills.collectBlocks = maliciousFn).
+        // Spread into plain objects first before freezing so ESLint's
+        // no-import-assign rule doesn't flag the namespace import references.
         const compartment = makeCompartment({
-            skills,
+            skills: Object.freeze({ ...skills }),
             log: skills.log,
-            world,
+            world: Object.freeze({ ...world }),
             Vec3,
         });
         const mainFn = compartment.evaluate(src);
         
         if (write_result) {
-            console.error('Error writing code execution file: ' + result);
+            console.error('Error writing code execution file: ' + write_result);
             return null;
         }
         return { func:{main: mainFn}, src_lint_copy: src_lint_copy };
@@ -200,7 +208,7 @@ export class Coder {
 
     _sanitizeCode(code) {
         code = code.trim();
-        const remove_strs = ['Javascript', 'javascript', 'js']
+        const remove_strs = ['Javascript', 'javascript', 'js'];
         for (let r of remove_strs) {
             if (code.startsWith(r)) {
                 code = code.slice(r.length);

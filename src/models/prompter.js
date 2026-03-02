@@ -1,14 +1,33 @@
-import { readFileSync, mkdirSync, writeFileSync} from 'fs';
+import { readFileSync, mkdirSync} from 'fs';
 import { Examples } from '../utils/examples.js';
 import { getCommandDocs } from '../agent/commands/index.js';
 import { SkillLibrary } from "../agent/library/skill_library.js";
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from '../agent/commands/index.js';
 import settings from '../agent/settings.js';
+import { deepSanitize } from '../../settings.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { selectAPI, createModel } from './_model_map.js';
+import { EnsembleModel } from '../ensemble/controller.js';
+import { UsageTracker } from '../utils/usage_tracker.js';
+
+// Helper function to safely write files with retry logic for Windows EBADF issues
+async function safeWriteFile(filepath, content, retries = 3, delay = 100) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            await fs.writeFile(filepath, content, 'utf8');
+            return;
+        } catch (error) {
+            if (error.code === 'EBADF' && i < retries - 1) {
+                await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+                continue;
+            }
+            throw error;
+        }
+    }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,8 +46,10 @@ export class Prompter {
             base_fp = './profiles/defaults/creative.json';
         } else if (settings.base_profile.includes('god_mode')) {
             base_fp = './profiles/defaults/god_mode.json';
+        } else {
+            base_fp = './profiles/defaults/survival.json'; // safe fallback
         }
-        let base_profile = JSON.parse(readFileSync(base_fp, 'utf8'));
+        let base_profile = deepSanitize(JSON.parse(readFileSync(base_fp, 'utf8')));
 
         // first use defaults to fill in missing values in the base profile
         for (let key in default_profile) {
@@ -51,12 +72,16 @@ export class Prompter {
         this.awaiting_coding = false;
 
         // for backwards compatibility, move max_tokens to params
-        let max_tokens = null;
+        let _max_tokens = null;
         if (this.profile.max_tokens)
-            max_tokens = this.profile.max_tokens;
+            _max_tokens = this.profile.max_tokens;
 
-        let chat_model_profile = selectAPI(this.profile.model);
-        this.chat_model = createModel(chat_model_profile);
+        if (this.profile.ensemble) {
+            this.chat_model = new EnsembleModel(this.profile.ensemble, this.profile);
+        } else {
+            let chat_model_profile = selectAPI(this.profile.model);
+            this.chat_model = createModel(chat_model_profile);
+        }
 
         if (this.profile.code_model) {
             let code_model_profile = selectAPI(this.profile.code_model);
@@ -79,25 +104,43 @@ export class Prompter {
         if (this.profile.embedding) {
             try {
                 embedding_model_profile = selectAPI(this.profile.embedding);
-            } catch (e) {
+            } catch {
                 embedding_model_profile = null;
             }
         }
         if (embedding_model_profile) {
             this.embedding_model = createModel(embedding_model_profile);
         }
-        else {
+        else if (typeof chat_model_profile !== 'undefined') {
             this.embedding_model = createModel({api: chat_model_profile.api});
+        }
+        else {
+            this.embedding_model = createModel({api: 'google'});
+        }
+
+        // Phase 3: give EnsembleModel access to the embedding model for ChromaDB
+        if (this.chat_model?.setEmbeddingModel) {
+            this.chat_model.setEmbeddingModel(this.embedding_model);
         }
 
         this.skill_libary = new SkillLibrary(agent, this.embedding_model);
+
+        // Minecraft wiki knowledge
+        this.wikiData = {};
+        try {
+          const wikiPath = path.join(__dirname, '../../data/minecraft_wiki.json');
+          this.wikiData = JSON.parse(readFileSync(wikiPath, 'utf8'));
+          console.log('Minecraft wiki data loaded.');
+        } catch (_e) {
+          console.warn(`Minecraft wiki data not found: ${_e.message}`);
+        }
+
         mkdirSync(`./bots/${name}`, { recursive: true });
-        writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {
-            if (err) {
-                throw new Error('Failed to save profile:', err);
-            }
-            console.log("Copy profile saved.");
-        });
+        // Save profile asynchronously with retry logic
+        safeWriteFile(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4))
+            .catch(err => console.error('Failed to save profile:', err.message));
+
+        this.usageTracker = new UsageTracker(name);
     }
 
     getName() {
@@ -109,6 +152,8 @@ export class Prompter {
     }
 
     async initExamples() {
+        this.usageTracker.load();
+
         try {
             this.convo_examples = new Examples(this.embedding_model, settings.num_examples);
             this.coding_examples = new Examples(this.embedding_model, settings.num_examples);
@@ -151,6 +196,14 @@ export class Prompter {
         }
         if (prompt.includes('$COMMAND_DOCS'))
             prompt = prompt.replaceAll('$COMMAND_DOCS', getCommandDocs(this.agent));
+
+        if (prompt.includes('$WIKI')) {
+            const wikiStr = this.wikiData && Object.keys(this.wikiData).length > 0
+                ? JSON.stringify(this.wikiData, null, 2)
+                : '{ "error": "Wiki data not loaded" }';
+            prompt = prompt.replaceAll('$WIKI', `Minecraft Wiki Knowledge (Java Edition 1.21+):\n${wikiStr}`);
+        }
+
         if (prompt.includes('$CODE_DOCS')) {
             const code_task_content = messages.slice().reverse().find(msg =>
                 msg.role !== 'system' && msg.content.includes('!newAction(')
@@ -165,6 +218,10 @@ export class Prompter {
             prompt = prompt.replaceAll('$EXAMPLES', await examples.createExampleMessage(messages));
         if (prompt.includes('$MEMORY'))
             prompt = prompt.replaceAll('$MEMORY', this.agent.history.memory);
+        if (prompt.includes('$LEARNINGS')) {
+            const summary = this.agent.learnings?.getRecentSummary(10) || '';
+            prompt = prompt.replaceAll('$LEARNINGS', summary ? 'Recent action outcomes:\n' + summary : '');
+        }
         if (prompt.includes('$TO_SUMMARIZE'))
             prompt = prompt.replaceAll('$TO_SUMMARIZE', stringifyTurns(to_summarize));
         if (prompt.includes('$CONVO'))
@@ -178,9 +235,9 @@ export class Prompter {
             let goal_text = '';
             for (let goal in last_goals) {
                 if (last_goals[goal])
-                    goal_text += `You recently successfully completed the goal ${goal}.\n`
+                    goal_text += `You recently successfully completed the goal ${goal}.\n`;
                 else
-                    goal_text += `You recently failed to complete the goal ${goal}.\n`
+                    goal_text += `You recently failed to complete the goal ${goal}.\n`;
             }
             prompt = prompt.replaceAll('$LAST_GOALS', goal_text.trim());
         }
@@ -226,6 +283,7 @@ export class Prompter {
 
             try {
                 generation = await this.chat_model.sendRequest(messages, prompt);
+                this._recordUsage(this.chat_model, 'chat');
                 if (typeof generation !== 'string') {
                     console.error('Error: Generated response is not a string', generation);
                     throw new Error('Generated response is not a string');
@@ -249,9 +307,9 @@ export class Prompter {
                 return '';
             }
 
-            if (generation?.includes('</think>')) {
-                const [_, afterThink] = generation.split('</think>')
-                generation = afterThink
+            if (generation?.includes('<tool_call>')) {
+                const [_, afterThink] = generation.split('<tool_call>');
+                generation = afterThink;
             }
 
             return generation;
@@ -266,14 +324,18 @@ export class Prompter {
             return '```//no response```';
         }
         this.awaiting_coding = true;
-        await this.checkCooldown();
-        let prompt = this.profile.coding;
-        prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
+        try {
+            await this.checkCooldown();
+            let prompt = this.profile.coding;
+            prompt = await this.replaceStrings(prompt, messages, this.coding_examples);
 
-        let resp = await this.code_model.sendRequest(messages, prompt);
-        this.awaiting_coding = false;
-        await this._saveLog(prompt, messages, resp, 'coding');
-        return resp;
+            let resp = await this.code_model.sendRequest(messages, prompt);
+            this._recordUsage(this.code_model, 'code');
+            await this._saveLog(prompt, messages, resp, 'coding');
+            return resp;
+        } finally {
+            this.awaiting_coding = false;
+        }
     }
 
     async promptMemSaving(to_summarize) {
@@ -281,9 +343,10 @@ export class Prompter {
         let prompt = this.profile.saving_memory;
         prompt = await this.replaceStrings(prompt, null, null, to_summarize);
         let resp = await this.chat_model.sendRequest([], prompt);
+        this._recordUsage(this.chat_model, 'memory');
         await this._saveLog(prompt, to_summarize, resp, 'memSaving');
-        if (resp?.includes('</think>')) {
-            const [_, afterThink] = resp.split('</think>')
+        if (resp?.includes('<tool_call>')) {
+            const [_, afterThink] = resp.split('<tool_call>');
             resp = afterThink;
         }
         return resp;
@@ -296,6 +359,7 @@ export class Prompter {
         messages.push({role: 'user', content: new_message});
         prompt = await this.replaceStrings(prompt, null, null, messages);
         let res = await this.chat_model.sendRequest([], prompt);
+        this._recordUsage(this.chat_model, 'chat');
         return res.trim().toLowerCase() === 'respond';
     }
 
@@ -303,7 +367,9 @@ export class Prompter {
         await this.checkCooldown();
         let prompt = this.profile.image_analysis;
         prompt = await this.replaceStrings(prompt, messages, null, null, null);
-        return await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
+        let res = await this.vision_model.sendVisionRequest(messages, prompt, imageBuffer);
+        this._recordUsage(this.vision_model, 'vision');
+        return res;
     }
 
     async promptGoalSetting(messages, last_goals) {
@@ -312,11 +378,12 @@ export class Prompter {
         system_message = await this.replaceStrings(system_message, messages);
 
         let user_message = 'Use the below info to determine what goal to target next\n\n';
-        user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO'
+        user_message += '$LAST_GOALS\n$STATS\n$INVENTORY\n$CONVO';
         user_message = await this.replaceStrings(user_message, messages, null, null, last_goals);
         let user_messages = [{role: 'user', content: user_message}];
 
         let res = await this.chat_model.sendRequest(user_messages, system_message);
+        this._recordUsage(this.chat_model, 'chat');
 
         let goal = null;
         try {
@@ -331,6 +398,23 @@ export class Prompter {
         }
         goal.quantity = parseInt(goal.quantity);
         return goal;
+    }
+
+    _recordUsage(model, callType) {
+        const breakdown = model._lastUsageByModel || null;
+        if (Array.isArray(breakdown) && breakdown.length > 0) {
+            for (const entry of breakdown) {
+                const modelName = entry.modelName || 'unknown';
+                const provider = entry.provider || 'unknown';
+                const usage = entry.usage || null;
+                this.usageTracker.record(modelName, provider, callType, usage);
+            }
+            return;
+        }
+        const usage = model._lastUsage || null;
+        const modelName = model.model_name || 'unknown';
+        const provider = model.constructor?.prefix || 'unknown';
+        this.usageTracker.record(modelName, provider, callType, usage);
     }
 
     async _saveLog(prompt, messages, generation, tag) {

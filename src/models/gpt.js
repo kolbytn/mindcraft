@@ -22,8 +22,8 @@ export class GPT {
     }
 
     async sendRequest(turns, systemMessage, stop_seq='***') {
-        let messages = strictFormat(turns);
-        messages = messages.map(message => {
+        let _messages = strictFormat(turns);
+        _messages = _messages.map(message => {
             message.content += stop_seq;
             return message;
         });

@@ -1,7 +1,35 @@
 {
+    "_TODO": "Gameplay chunks (these can be done in isolation and combined for a complete solution): Get a diamond pickaxe | Build a nether portal | Collect Blazerods | Collect Ender Pearls | Locate the Stronghold/End | Defeat the Ender Dragon",
+
     "name": "Freeguy",
-
     "model": "groq/llama-3.3-70b-versatile",
-
-    "max_tokens": 8000
+    "max_tokens": 8000,
+    "_active_mode": "cloud",
+    "_modes": {
+        "cloud": {
+            "model": "groq/llama-3.3-70b-versatile",
+            "compute_type": "Cloud-based"
+        },
+        "local": {
+            "model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-7B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Local (vLLM)",
+            "embedding": {
+                "api": "google",
+                "model": "gemini-embedding-001"
+            }
+        },
+        "hybrid": {
+            "model": "groq/llama-3.3-70b-versatile",
+            "code_model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-7B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Hybrid (Cloud chat + vLLM code)"
+        }
+    }
 }

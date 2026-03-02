@@ -55,7 +55,12 @@ export function getFullState(agent) {
         },
         action: {
             current: agent.isIdle() ? 'Idle' : agent.actions.currentActionLabel,
-            isIdle: agent.isIdle()
+            isIdle: agent.isIdle(),
+            resumeName: agent.actions.resume_name || null
+        },
+        selfPrompter: {
+            prompt: agent.self_prompter.prompt || '',
+            state: agent.self_prompter.state
         },
         surroundings: {
             below,

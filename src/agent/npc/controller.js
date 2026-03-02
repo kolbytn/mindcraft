@@ -1,11 +1,10 @@
 import { readdirSync, readFileSync } from 'fs';
+import path from 'path';
 import { NPCData } from './data.js';
 import { ItemGoal } from './item_goal.js';
 import { BuildGoal } from './build_goal.js';
 import { itemSatisfied, rotateXZ } from './utils.js';
 import * as skills from '../library/skills.js';
-import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
 
 
 export class NPCContoller {
@@ -40,12 +39,15 @@ export class NPCContoller {
 
     init() {
         try {
-            for (let file of readdirSync('src/agent/npc/construction')) {
+            const constructionDir = path.resolve('src/agent/npc/construction');
+            for (let file of readdirSync(constructionDir)) {
                 if (file.endsWith('.json')) {
-                    this.constructions[file.slice(0, -5)] = JSON.parse(readFileSync('src/agent/npc/construction/' + file, 'utf8'));
+                    const filePath = path.resolve(constructionDir, file);
+                    if (!filePath.startsWith(constructionDir + path.sep)) continue;
+                    this.constructions[file.slice(0, -5)] = JSON.parse(readFileSync(filePath, 'utf8'));
                 }
             }
-        } catch (e) {
+        } catch (_e) {
             console.log('Error reading construction file');
         }
 
@@ -151,7 +153,7 @@ export class NPCContoller {
         // If we need more blocks to complete a building, get those first
         let goals = this.temp_goals.concat(this.data.goals);
         if (this.data.curr_goal)
-            goals = goals.concat([this.data.curr_goal])
+            goals = goals.concat([this.data.curr_goal]);
         this.temp_goals = [];
 
         let acted = false;
@@ -170,7 +172,7 @@ export class NPCContoller {
             // Build construction goal
             else {
                 let res = null;
-                if (this.data.built.hasOwnProperty(goal.name)) {
+                if (Object.prototype.hasOwnProperty.call(this.data.built, goal.name)) {
                     res = await this.build_goal.executeNext(
                         this.constructions[goal.name],
                         this.data.built[goal.name].position,
@@ -191,7 +193,7 @@ export class NPCContoller {
                     this.temp_goals.push({
                         name: block_name,
                         quantity: res.missing[block_name]
-                    })
+                    });
                 }
                 if (res.acted) {
                     acted = true;

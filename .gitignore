@@ -28,3 +28,27 @@ tasks/construction_tasks/train/**
 server_data*
 **/.DS_Store
 src/mindcraft-py/__pycache__/
+.dockerignore
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+
+# Claude Code
+.claude/
+
+# Minecraft server data
+minecraft-data/
+
+# Binary assets (hosted on GitHub Releases)
+tasks/construction_tasks/*.pdf
+
+# AWS runtime config
+aws/config.env
+docker-compose.override.yml

@@ -1,10 +1,38 @@
 {
-    "name": "vllm",
+    "_TODO": "Gameplay chunks (these can be done in isolation and combined for a complete solution): Get a diamond pickaxe | Build a nether portal | Collect Blazerods | Collect Ender Pearls | Locate the Stronghold/End | Defeat the Ender Dragon",
 
+    "name": "vllm",
     "model": {
         "api": "vllm",
         "model": "Qwen/Qwen2.5-1.5B-Instruct",
-        "url": "http://127.0.0.1:8000/v1"
+        "url": "http://host.docker.internal:8000/v1"
     },
-    "embedding": "openai"
+    "embedding": "openai",
+    "_active_mode": "local",
+    "_modes": {
+        "cloud": {
+            "model": "gemini-2.5-flash",
+            "compute_type": "Cloud-based",
+            "embedding": "openai"
+        },
+        "local": {
+            "model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-1.5B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Local (vLLM)",
+            "embedding": "openai"
+        },
+        "hybrid": {
+            "model": "gemini-2.5-flash",
+            "code_model": {
+                "api": "vllm",
+                "model": "Qwen/Qwen2.5-1.5B-Instruct",
+                "url": "http://host.docker.internal:8000/v1"
+            },
+            "compute_type": "Hybrid (Cloud chat + vLLM code)",
+            "embedding": "openai"
+        }
+    }
 }

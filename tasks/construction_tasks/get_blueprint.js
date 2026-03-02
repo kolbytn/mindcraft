@@ -1,7 +1,7 @@
 import mineflayer from 'mineflayer';
 import { worldToBlueprint, blueprintToTask } from '../../src/agent/tasks/construction_tasks.js';
 import fs from 'fs';
-import { start } from 'repl';
+import { start as _start } from 'repl';
 
 const bot = mineflayer.createBot({
     host: 'localhost', // Replace with your server IP or hostname
@@ -17,7 +17,7 @@ bot.on('spawn', async () => {
         x: -124, 
         y: 1, 
         z: 133,
-    }
+    };
     bot.chat(`/tp andy ${startCoord.x} ${startCoord.y} ${startCoord.z}`);
     const yOffset = 2;
     const xOffset = 30;
@@ -41,7 +41,7 @@ bot.on('spawn', async () => {
         console.log("Blueprint generated:", task_blueprint.levels[0].coordinates);
 
         const task = blueprintToTask(task_blueprint, 3);
-        const task_collection = {}
+        const task_collection = {};
         task_collection[task_name] = task;
 
         fs.writeFileSync(taskFilePath, JSON.stringify(task_collection, null, 2), (err) => {

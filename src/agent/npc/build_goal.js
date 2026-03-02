@@ -1,7 +1,6 @@
 import { Vec3 } from 'vec3';
 import * as skills from '../library/skills.js';
 import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
 import { blockSatisfied, getTypeOfGeneric, rotateXZ } from './utils.js';
 
 

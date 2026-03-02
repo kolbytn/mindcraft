@@ -1,4 +1,6 @@
 {
+    "_TODO": "Gameplay chunks (these can be done in isolation and combined for a complete solution): Get a diamond pickaxe | Build a nether portal | Collect Blazerods | Collect Ender Pearls | Locate the Stronghold/End | Defeat the Ender Dragon",
+
     "modes": {
         "self_preservation": true,
         "unstuck": true,

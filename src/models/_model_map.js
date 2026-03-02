@@ -31,6 +31,10 @@ const apiMap = await (async () => {
 })();
 
 export function selectAPI(profile) {
+    // RC27: Guard against undefined/null profile (e.g., missing model key in profile JSON)
+    if (!profile) {
+        throw new Error('No model specified in profile configuration.');
+    }
     if (typeof profile === 'string' || profile instanceof String) {
         profile = {model: profile};
     }

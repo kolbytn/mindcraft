@@ -13,7 +13,7 @@ export class Cerebras {
         this.client = new CerebrasSDK({ apiKey: getKey('CEREBRAS_API_KEY') });
     }
 
-    async sendRequest(turns, systemMessage, stop_seq = '***') {
+    async sendRequest(turns, systemMessage, _stop_seq = '***') {
         // Format messages array
         const messages = strictFormat(turns);
         messages.unshift({ role: 'system', content: systemMessage });
@@ -55,7 +55,7 @@ export class Cerebras {
         return this.sendRequest(imageMessages, systemMessage);
     }
     
-    async embed(text) {
+    async embed(_text) {
         throw new Error('Embeddings are not supported by Cerebras.');
     }
 }

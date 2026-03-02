@@ -191,7 +191,7 @@ class ConversationManager {
             await agent.self_prompter.pause();
         }
     
-        _scheduleProcessInMessage(sender, received, convo);
+        await _scheduleProcessInMessage(sender, received, convo);
     }
 
     responseScheduledFor(sender) {
@@ -224,25 +224,25 @@ class ConversationManager {
         return Object.values(this.convos).some(c => c.active);
     }
     
-    endConversation(sender) {
+    async endConversation(sender) {
         if (this.convos[sender]) {
             this.convos[sender].end();
             if (this.activeConversation.name === sender) {
                 this._stopMonitor();
                 this.activeConversation = null;
                 if (agent.self_prompter.isPaused() && !this.inConversation()) {
-                    _resumeSelfPrompter();
+                    await _resumeSelfPrompter();
                 }
             }
         }
     }
     
-    endAllConversations() {
+    async endAllConversations() {
         for (const sender in this.convos) {
-            this.endConversation(sender);
+            await this.endConversation(sender); // RC30: await async endConversation
         }
         if (agent.self_prompter.isPaused()) {
-            _resumeSelfPrompter();
+            await _resumeSelfPrompter();
         }
     }
 
@@ -281,7 +281,7 @@ async function _scheduleProcessInMessage(sender, received, convo) {
         // both are busy
         let canTalkOver = talkOverActions.some(a => agent.actions.currentActionLabel.includes(a));
         if (canTalkOver)
-            scheduleResponse(fastDelay)
+            scheduleResponse(fastDelay);
         // otherwise don't respond
     }
     else if (otherAgentBusy)
