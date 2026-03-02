@@ -1,13 +1,28 @@
 diff --git a/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js b/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js
-index 8945452..dab25be 100644
+index 8945452..fa32384 100644
 --- a/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js
 +++ b/node_modules/prismarine-viewer/viewer/lib/entity/Entity.js
-@@ -203,7 +203,7 @@ function getMesh (texture, jsonModel) {
+@@ -168,8 +168,9 @@ function getMesh (texture, jsonModel) {
+ 
+   const rootBones = []
+   for (const jsonBone of jsonModel.bones) {
+-    if (jsonBone.parent) bones[jsonBone.parent].add(bones[jsonBone.name])
+-    else rootBones.push(bones[jsonBone.name])
++    if (jsonBone.parent) {
++      if (bones[jsonBone.parent]) bones[jsonBone.parent].add(bones[jsonBone.name])
++    } else rootBones.push(bones[jsonBone.name])
+   }
+ 
+   const skeleton = new THREE.Skeleton(Object.values(bones))
+@@ -203,7 +204,10 @@ function getMesh (texture, jsonModel) {
  class Entity {
    constructor (version, type, scene) {
      const e = entities[type]
 -    if (!e) throw new Error(`Unknown entity ${type}`)
-+    if (!e) return; //throw new Error(`Unknown entity ${type}`)
++    if (!e) {
++      this.mesh = new THREE.Object3D()
++      return
++    }
  
      this.mesh = new THREE.Object3D()
      for (const [name, jsonModel] of Object.entries(e.geometry)) {

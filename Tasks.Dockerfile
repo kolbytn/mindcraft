@@ -1,51 +1,49 @@
-# Specify a base image
-# FROM ubuntu:22.04
-FROM node:18
+# Tasks.Dockerfile — Evaluation / benchmark runner
+# Builds a container with Mindcraft + Java 21 + AWS CLI for automated tasks.
 
-#Install some dependencies
+FROM node:22-slim AS base
 
-RUN apt-get -y update
-RUN apt-get -y install git
-RUN apt-get -y install unzip
-RUN apt-get -y install python3
-RUN apt-get -y install python3-pip
-RUN apt-get -y install python3-boto3
-RUN apt-get -y install python3-tqdm
-RUN apt-get -y install tmux
+# ── System dependencies (single layer) ──────────────────────────────────────
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      git unzip curl wget ca-certificates gnupg lsb-release \
+      python3 python3-pip python3-boto3 python3-tqdm tmux \
+      apt-transport-https \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/mindcraft-bots/mindcraft.git /mindcraft
+# ── Adoptium Java 21 (proper GPG keyring, not deprecated apt-key) ───────────
+RUN mkdir -p /etc/apt/keyrings \
+    && wget -qO- https://packages.adoptium.net/artifactory/api/gpg/key/public \
+       | gpg --dearmor -o /etc/apt/keyrings/adoptium.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/adoptium.gpg] \
+       https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" \
+       > /etc/apt/sources.list.d/adoptium.list \
+    && apt-get update && apt-get install -y --no-install-recommends temurin-21-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── AWS CLI v2 ──────────────────────────────────────────────────────────────
+RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip \
+    && unzip -q /tmp/awscliv2.zip -d /tmp \
+    && /tmp/aws/install \
+    && rm -rf /tmp/awscliv2.zip /tmp/aws
+
+# ── Application code ───────────────────────────────────────────────────────
 WORKDIR /mindcraft
-COPY ./server_data.zip /mindcraft
-RUN unzip server_data.zip
+# Copy source from the build context (this repo) rather than cloning from
+# GitHub at build time. A live git clone:
+#   1. Breaks reproducibility (upstream HEAD can change between builds)
+#   2. Fails in offline/air-gapped CI environments
+#   3. Introduces supply-chain risk (external fetch during image build)
+COPY . .
 
-RUN npm install
+COPY ./server_data.zip /mindcraft/
+RUN unzip -q server_data.zip && rm server_data.zip
 
+RUN npm ci --omit=dev
 
-# Copy the rest of the application code to the working directory
-# RUN apt update
-# RUN apt install bash ca-certificates wget git -y # install first to avoid openjdk install bug
-# RUN apt install openjdk-17-jre-headless -y
-RUN apt install -y wget apt-transport-https gnupg lsb-release
-
-# Add Adoptium repository key
-RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add -
-
-# Add Adoptium repository
-RUN echo "deb https://packages.adoptium.net/artifactory/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/adoptium.list
-
-# Update package lists
-RUN apt update
-
-# Install Temurin (Adoptium) Java 21
-RUN apt install temurin-21-jdk -y
-
-# Install unzip
-
-
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN unzip awscliv2.zip
-RUN ./aws/install
+# ── Non-root user ──────────────────────────────────────────────────────────
+RUN groupadd -r mindcraft && useradd -r -g mindcraft -d /mindcraft mindcraft \
+    && chown -R mindcraft:mindcraft /mindcraft
+USER mindcraft
 
 VOLUME /data
-
 EXPOSE 8000

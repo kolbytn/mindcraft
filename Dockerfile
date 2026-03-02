@@ -27,9 +27,19 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY package*.json .
+# Copy package files and patches for better caching
+COPY package*.json ./
+COPY patches/ ./patches/
 RUN npm install
 
+# Copy source code
 COPY . .
+
+# Run tests during build
+RUN npm test
+
+# Drop root privileges — node:slim includes a non-root 'node' user
+RUN chown -R node:node /app
+USER node
 
 CMD ["npm", "start"]

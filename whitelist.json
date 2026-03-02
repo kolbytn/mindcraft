@@ -1,0 +1,21 @@
+[
+  { "uuid": "dcdb547c-1adf-31b3-a081-1d4f3f3ba007", "name": "LocalAndy" },
+  { "uuid": "6110ac08-2bc8-3d04-a114-130376c985b5", "name": "CloudGrok" },
+  { "uuid": "4a2d5a7c-8cbe-30e6-9b8c-23a9b6c100e2", "name": "DragonSlayer" },
+  { "uuid": "37dbcbf4-632e-36cc-962b-dd0adb6c55ff", "name": "Ensemble_1" },
+  { "uuid": "91c76ec0-2db6-3402-ac3d-874854749903", "name": "Gemini_1" },
+  { "uuid": "f93b8dea-a9ee-35c1-b940-0e4b727f08e4", "name": "Grok_En" },
+  { "uuid": "2ec2960b-8a4d-308c-83e8-44b228a16b16", "name": "claude" },
+  { "uuid": "24b21ad7-f58b-3344-840f-6768388ff79e", "name": "claude_thinker" },
+  { "uuid": "eba477de-beb2-3661-ac55-99822ff19c48", "name": "gpt" },
+  { "uuid": "d06bd813-b99a-3f32-b35f-d31969bbf786", "name": "Freeguy" },
+  { "uuid": "cb0ac5ea-5927-3c65-9a87-08b5dfa3e5f4", "name": "Mercury" },
+  { "uuid": "5f12c2f2-2af8-39c0-b48f-d526a2fe8243", "name": "Mistral" },
+  { "uuid": "84d7b3c7-8eac-3626-a11d-ac5d43472221", "name": "LLama" },
+  { "uuid": "2890254a-5a40-31e4-aeae-bad2d96e7713", "name": "qwen" },
+  { "uuid": "d44c22a0-5412-38a0-9d92-59e6f0fc81b9", "name": "deepseek" },
+  { "uuid": "4102ff3f-3bad-3f3b-95fe-e949a7255468", "name": "vllm" },
+  { "uuid": "e7d6a327-069b-3a6d-9079-6a34b25e4bb3", "name": "azure" },
+  { "uuid": "b1ff8336-696d-3ca7-96fc-997325312040", "name": "andy-4" },
+  { "uuid": "adb5bb64-bc18-3d3c-baf2-c328fca49ed6", "name": "andy-4-thinking" }
+]

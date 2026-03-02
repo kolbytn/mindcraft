@@ -1,0 +1,280 @@
+services:
+  # ── Minecraft Server (Paper + Cross-Play) ──────────────────────────────────
+  # Paper server with ViaVersion suite (Java backward compat) and
+  # Geyser (Bedrock cross-play on UDP 19132).
+  # Migrated from vanilla 2025-02-27.  Backup: minecraft-data-backup-pre-paper-*
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft-server
+    # ⚠️  SECURITY: ONLINE_MODE=FALSE (required for mineflayer) disables Mojang auth.
+    #    Anyone who knows the EC2 IP can join. Restrict port 19565 at the AWS
+    #    Security Group level to trusted IPs only (your own IPs / player IPs).
+    ports:
+      - "19565:25565"         # Java Edition (non-default external port for security)
+      - "19132:19132/udp"     # Bedrock Edition (Geyser)
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "LATEST"       # Latest MC version — ensure mineflayer supports it
+      MEMORY: "2G"            # 2G JVM heap — Aikar GC keeps it efficient
+      USE_AIKAR_FLAGS: "true" # Optimized GC flags for Paper (reduces GC pauses)
+      DIFFICULTY: "normal"
+      MODE: "survival"
+      ENABLE_COMMAND_BLOCK: "true"
+      VIEW_DISTANCE: "6"
+      SIMULATION_DISTANCE: "4"
+      ONLINE_MODE: "FALSE"    # Required for mineflayer bots (offline auth)
+      ENFORCE_SECURE_PROFILE: "FALSE"  # Allow unsigned chat from mineflayer bots (1.19.1+ signed-chat requirement)
+      ENABLE_RCON: "true"
+      RCON_PASSWORD: "${RCON_PASSWORD:?Set RCON_PASSWORD in .env}"
+      # ── Whitelist Security ──
+      ENFORCE_WHITELIST: "TRUE"   # Enable whitelist (only whitelisted players can join)
+      # WHITELIST env var intentionally omitted: it queries Playerdb (Mojang API) to resolve
+      # usernames, which fails for offline-mode bot accounts. Instead, whitelist.json is
+      # pre-generated with correct offline UUIDs (OfflinePlayer:<name> MD5) and mounted below.
+      # ── Plugin auto-download from Modrinth ──
+      # ViaVersion suite: lets older Java clients connect
+      # Geyser: lets Bedrock clients connect (Floodgate not needed w/ ONLINE_MODE=FALSE)
+      MODRINTH_PROJECTS: "viaversion,viabackwards,viarewind,geyser:beta"
+      # Geyser uses :beta because no stable release exists on Modrinth yet
+    volumes:
+      - ./minecraft-data:/data
+      - ./whitelist.json:/data/whitelist.json:ro  # Pre-built offline UUIDs; see whitelist.json at repo root
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "mc-health", "--host", "localhost", "--port", "25565"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s      # Paper + plugins need more startup time
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 3500M       # 2G heap + 1.5G for Geyser native/metaspace/GC
+
+  # ── Mindcraft Agents ──────────────────────────────────────────────────────
+  mindcraft:
+    build: .
+    container_name: mindcraft-agents
+    network_mode: host
+    command: sh -c "Xvfb :99 -screen 0 1024x768x24 &>/dev/null & export DISPLAY=:99 && sleep 2 && exec node main.js"
+    environment:
+      PROFILES: '["./profiles/cloud-persistent.json", "./profiles/claude-explorer.json"]'
+      SETTINGS_JSON: '{"auto_open_ui": false, "host": "localhost", "mindserver_host_public": true, "mindserver_url": "", "allow_vision": true, "render_bot_view": true}'
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      CHROMADB_URL: "http://localhost:8000"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+      XAI_API_KEY: "${XAI_API_KEY}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+    volumes:
+      - ./settings.js:/app/settings.js
+      - ./profiles:/app/profiles
+      - ./bots:/app/bots
+    depends_on:
+      - minecraft
+      - chromadb
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2560M
+
+  # ── Discord Bot ───────────────────────────────────────────────────────────
+  discord-bot:
+    image: app-mindcraft
+    container_name: discord-bot
+    working_dir: /app
+    command: node discord-bot.js
+    volumes:
+      - ./discord-bot.js:/app/discord-bot.js
+      - ./package.json:/app/package.json
+      - ./src:/app/src
+      - ./profiles:/app/profiles
+    environment:
+      DISCORD_BOT_TOKEN: "${DISCORD_BOT_TOKEN}"
+      BOT_DM_CHANNEL: "${BOT_DM_CHANNEL}"
+      BACKUP_CHAT_CHANNEL: "${BACKUP_CHAT_CHANNEL}"
+      DISCORD_ADMIN_IDS: "${DISCORD_ADMIN_IDS}"
+      GOOGLE_API_KEY: "${GEMINI_API_KEY}"
+      MINDSERVER_HOST: "host.docker.internal"
+      PUBLIC_HOST: "${EC2_PUBLIC_IP}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── ChromaDB (vector memory for ensemble) ────────────────────────────────
+  chromadb:
+    image: chromadb/chroma:0.5.20
+    container_name: chromadb
+    # Internal only — no host port binding. Reachable within Docker network as chromadb:8000.
+    expose:
+      - "8000"
+    volumes:
+      - ./chromadb-data:/chroma/chroma
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── Prometheus ────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus-aws.yml:/etc/prometheus/prometheus.yml
+    # Internal only — Grafana scrapes via Docker network. Not exposed to host.
+    expose:
+      - "9090"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── Grafana ───────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3004:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-provisioning/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana-provisioning/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana-provisioning/dashboard-json:/etc/grafana/provisioning/dashboards/json
+      - ./grafana-provisioning/alerting:/etc/grafana/provisioning/alerting
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${GF_ADMIN_PASSWORD:?Set GF_ADMIN_PASSWORD in .env}"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── Node Exporter ─────────────────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    # Internal only — Prometheus scrapes via Docker network. Not exposed to host.
+    expose:
+      - "9100"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+
+  # ── cAdvisor ──────────────────────────────────────────────────────────────
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    # Internal only — Prometheus scrapes via Docker network. Not exposed to host.
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── World Backup → S3 ────────────────────────────────────────────────────
+  backup:
+    image: offen/docker-volume-backup:v2
+    container_name: minecraft-backup
+    environment:
+      AWS_S3_BUCKET_NAME: "${AWS_S3_BUCKET:-mindcraft-world-backups}"
+      AWS_DEFAULT_REGION: "us-east-1"
+      # AWS credentials intentionally omitted — use EC2 instance IAM role instead.
+      # Attach an IAM role with s3:PutObject/s3:DeleteObject on the bucket.
+      # Static keys would be readable by any container with docker.sock access.
+      BACKUP_CRON_EXPRESSION: "0 3 * * *"   # Daily at 3 AM UTC
+      BACKUP_RETENTION_DAYS: "7"
+      BACKUP_FILENAME: "minecraft-world-%Y-%m-%dT%H-%M-%S.tar.gz"
+    volumes:
+      - ./minecraft-data:/backup/minecraft-data:ro
+      # docker.sock (ro) is required so the backup tool can pause containers for
+      # a consistent snapshot. Mitigated by: no static AWS keys in this container,
+      # IAM role scoped to the backup bucket only, and image pinned to v2.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+
+  # ── LiteLLM — Unified LLM proxy ──────────────────────────────────────────
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm-proxy
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./services/litellm/litellm_config.yaml:/app/config.yaml
+    environment:
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+      XAI_API_KEY: "${XAI_API_KEY}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      VLLM_BASE_URL: "${VLLM_BASE_URL:-http://host.docker.internal:8000/v1}"
+      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY}"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  # ── Tailscale VPN — connects EC2 to local GPU ──────────────────────────────
+  # network_mode: host puts tailscale0 in the HOST network namespace so that
+  # Docker bridge containers (mindcraft) can route to Tailscale IPs via the
+  # host gateway. Without this, the tunnel only exists in the container's
+  # namespace and mindcraft cannot reach 100.x.x.x addresses.
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    network_mode: host
+    environment:
+      TS_AUTHKEY: "${TAILSCALE_AUTHKEY}"
+      TS_EXTRA_ARGS: ""
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_HOSTNAME: "mindcraft-ec2"
+      TS_USERSPACE: "false"
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+
+  # viaproxy disabled — needs >256MB JVM heap, not enough RAM on t3.large
+  # To re-enable: uncomment and set memory limit to 512M
+
+volumes:
+  grafana-data:
+  tailscale-state:

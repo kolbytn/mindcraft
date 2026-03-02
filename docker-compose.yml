@@ -1,27 +1,220 @@
 services:
+
+  # ── GPU Monitoring (only starts with --profile local or --profile monitoring) ──
+  nvidia-gpu-exporter:
+    image: nvidia-gpu-exporter
+    container_name: nvidia-gpu-exporter
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "9835:9835"
+    restart: unless-stopped
+    profiles:
+      - local
+      - monitoring
+
+  # ── Minecraft Server (Paper + Cross-Play) ────────────────────────────────────
+  # Paper server with ViaVersion suite (Java backward compat) and
+  # Geyser (Bedrock cross-play on UDP 19132).
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft-server
+    ports:
+      - "19565:25565"         # Java Edition (non-default external port for security)
+      - "19132:19132/udp"     # Bedrock Edition (Geyser)
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "LATEST"       # Latest MC version — ensure mineflayer supports it
+      MEMORY: "4G"
+      USE_AIKAR_FLAGS: "true" # Optimized GC flags for Paper (reduces GC pauses)
+      DIFFICULTY: "normal"
+      MODE: "survival"
+      ENABLE_COMMAND_BLOCK: "true"
+      VIEW_DISTANCE: "10"
+      ONLINE_MODE: "FALSE"        # Required for mineflayer bots (offline auth)
+      ENFORCE_SECURE_PROFILE: "FALSE"  # Allow unsigned chat from mineflayer bots (1.19.1+ signed-chat requirement)
+      ENABLE_RCON: "true"         # Enables save-off/save-on for experiment backups
+      RCON_PASSWORD: "${RCON_PASSWORD:?Set RCON_PASSWORD in .env}"  # Override via .env for production
+      # ── Whitelist Security ──
+      ENFORCE_WHITELIST: "TRUE"   # Enable whitelist (only whitelisted players can join)
+      # WHITELIST env var intentionally omitted: it queries Playerdb (Mojang API) to resolve
+      # usernames, which fails for offline-mode bot accounts. Instead, whitelist.json is
+      # pre-generated with correct offline UUIDs (OfflinePlayer:<name> MD5) and mounted below.
+      # ── Plugin auto-download from Modrinth ──
+      # ViaVersion suite: lets older Java clients connect
+      # Geyser: lets Bedrock clients connect (Floodgate not needed w/ ONLINE_MODE=FALSE)
+      MODRINTH_PROJECTS: "viaversion,viabackwards,viarewind,geyser:beta"
+      # Geyser uses :beta because no stable release exists on Modrinth yet
+    volumes:
+      - ./minecraft-data:/data
+      - ./whitelist.json:/data/whitelist.json:ro  # Pre-built offline UUIDs; see whitelist.json at repo root
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "mc-health", "--host", "localhost", "--port", "25565"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ── Mindcraft Agent(s) (always starts — PROFILES env controls which bots load) ─
+  # Set PROFILES before calling docker compose, or use start.ps1.
+  # Examples:
+  #   PROFILES='["./profiles/local-research.json"]'  → LocalResearch_1 only
+  #   PROFILES='["./profiles/cloud-persistent.json"]' → CloudPersistent_1 only
+  #   PROFILES='["./profiles/local-research.json","./profiles/cloud-persistent.json"]' → both
   mindcraft:
     build: .
+    container_name: mindcraft-agents
     environment:
-      SETTINGS_JSON: |
-        {"auto_open_ui": false}
+      SETTINGS_JSON: '{"auto_open_ui": false, "mindserver_host_public": true, "host": "minecraft-server"}'
+      PROFILES: "${PROFILES:-}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      XAI_API_KEY: "${XAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      VLLM_BASE_URL: "${VLLM_BASE_URL:-http://host.docker.internal:8000/v1}"
     volumes:
       - ./settings.js:/app/settings.js
       - ./keys.json:/app/keys.json
       - ./profiles:/app/profiles
       - ./bots:/app/bots
     ports:
-      - "3000-3003:3000-3003" # see the view from the camera mounted on your bot head: http://localhost:3000/
-      - 8080 # Mindserver port
+      - "3000-3003:3000-3003" # Bot camera views: http://localhost:3000/
+      - "8080:8080"           # MindServer UI: http://localhost:8080/
     extra_hosts:
-    - "host.docker.internal:host-gateway"
+      - "host.docker.internal:host-gateway"  # Reach Ollama/vLLM running on Windows host
+    depends_on:
+      minecraft:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:8080/').then(r=>{process.exit(r.ok?0:1)}).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 120s
 
-  viaproxy: #use this service to connect to an unsupported minecraft server versions. more info: ./services/viaproxy/README.md
+  # ── Discord Bot (only starts with --profile cloud or --profile discord) ────────
+  discord-bot:
+    image: node:22-slim
+    container_name: discord-bot
+    working_dir: /app
+    command: sh -c "npm install --production 2>/dev/null; node discord-bot.js"
+    volumes:
+      - ./discord-bot.js:/app/discord-bot.js
+      - ./package.json:/app/package.json
+      - ./src:/app/src
+      - ./profiles:/app/profiles
+    environment:
+      DISCORD_BOT_TOKEN: "${DISCORD_BOT_TOKEN}"
+      BOT_DM_CHANNEL: "${BOT_DM_CHANNEL}"
+      BACKUP_CHAT_CHANNEL: "${BACKUP_CHAT_CHANNEL}"
+      DISCORD_ADMIN_IDS: "${DISCORD_ADMIN_IDS}"
+      MINDSERVER_HOST: "${MINDSERVER_HOST:-mindcraft-agents}"
+    depends_on:
+      mindcraft:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').createConnection({port:8080,host:'mindcraft-agents',timeout:3000}).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\""]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    profiles:
+      - cloud
+      - discord
+
+  # ── LiteLLM Proxy (only starts with --profile litellm) ───────────────────────
+  # Unified OpenAI-compatible proxy for Ollama and cloud models.
+  # Start: docker compose --profile litellm up -d litellm
+  # Health: http://localhost:4000/health
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm-proxy
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./services/litellm/litellm_config.yaml:/app/config.yaml
+    environment:
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      XAI_API_KEY: "${XAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      VLLM_BASE_URL: "${VLLM_BASE_URL:-http://host.docker.internal:8000/v1}"
+      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY:?Set LITELLM_MASTER_KEY in .env}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: --config /app/config.yaml
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "30m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    profiles:
+      - litellm
+
+  # ── ViaProxy (only starts with --profile viaproxy) ───────────────────────────
+  viaproxy:
     image: ghcr.io/viaversion/viaproxy:latest
     volumes:
       - ./services/viaproxy:/app/run
     ports:
       - "25568:25568"
-    profiles:
-      - viaproxy
     stdin_open: true
     tty: true
+    profiles:
+      - viaproxy
+
+  # ── vLLM (deferred — using WSL2 or Ollama instead) ───────────────────────────
+  # Start vLLM:  wsl -d Ubuntu-22.04 -- bash services/vllm/start.sh --background
+  # Endpoint:    http://host.docker.internal:8000/v1
+  # vllm:
+  #   image: vllm/vllm-openai:latest
+  #   container_name: vllm-server
+  #   ports:
+  #     - "8000:8000"
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+  #   command: >
+  #     --model google/gemma-3-12b-it
+  #     --max-model-len 4096
+  #     --gpu-memory-utilization 0.90
+  #     --enforce-eager
+  #     --dtype half
+  #   restart: unless-stopped
+  #   profiles:
+  #     - vllm
+
+volumes:
+  vllm-models:

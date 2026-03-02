@@ -1,5 +1,33 @@
-.vscode
-node_modules
-bots/*/
-!bots/*
+# Runtime bot data — large and should never be in the image
+bots/*/logs/
+bots/*/histories/
+bots/*/action-code/
+bots/*/ensemble_log.json
+
+# Git history
+.git/
+
+# Local secrets / keys
 keys.json
+.env
+.env.*
+
+# Node dev artifacts
+node_modules/
+
+# Editor / OS
+.vscode/
+*.DS_Store
+Thumbs.db
+
+# Tasks output
+tasks/**/__pycache__/
+tasks/**/*.pyc
+
+# AWS deploy scripts (not needed in container)
+aws/
+
+# Docs not needed at runtime
+docs/
+*.md
+!README.md

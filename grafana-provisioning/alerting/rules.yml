@@ -1,0 +1,7 @@
+apiVersion: 1
+
+# Set deleteRules to remove stale alert rules that no longer apply.
+# The gpu-exporter-down rule fires because there is no GPU exporter running.
+deleteRules:
+  - orgId: 1
+    uid: gpu-exporter-down
