@@ -4,7 +4,7 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as mindcraft from './mindcraft.js';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Mindserver is:
@@ -19,6 +19,21 @@ const agent_listeners = [];
 
 const settings_spec = JSON.parse(readFileSync(path.join(__dirname, 'public/settings_spec.json'), 'utf8'));
 
+function readUsageFromDisk(agentName) {
+    try {
+        const filePath = path.join(__dirname, `../../bots/${agentName}/usage.json`);
+        if (!existsSync(filePath)) return null;
+        const raw = readFileSync(filePath, 'utf8');
+        const data = JSON.parse(raw);
+        // Disk data won't have live RPM/TPM
+        data.rpm = 0;
+        data.tpm = 0;
+        return data;
+    } catch {
+        return null;
+    }
+}
+
 class AgentConnection {
     constructor(settings, viewer_port) {
         this.socket = null;
@@ -26,6 +41,7 @@ class AgentConnection {
         this.in_game = false;
         this.full_state = null;
         this.viewer_port = viewer_port;
+        this.loginTime = null;
     }
     setSettings(settings) {
         this.settings = settings;
@@ -40,6 +56,7 @@ export function registerAgent(settings, viewer_port) {
 export function logoutAgent(agentName) {
     if (agent_connections[agentName]) {
         agent_connections[agentName].in_game = false;
+        agent_connections[agentName].loginTime = null;
         agentsStatusUpdate();
     }
 }
@@ -114,10 +131,35 @@ export function createMindServer(host_public = false, port = 8080) {
             }
         });
 
+        // Remote agent registration: allows an agent process running on another
+        // machine to register itself and appear in the MindServer UI.
+        socket.on('register-remote-agent', (agentSettings, callback) => {
+            const name = agentSettings?.profile?.name;
+            if (!name) {
+                callback({ error: 'Agent name is required in profile' });
+                return;
+            }
+            if (agent_connections[name]) {
+                // Already registered — update settings from remote agent
+                // (remote agent may have different host/port than the server's own)
+                agent_connections[name].setSettings(agentSettings);
+                console.log(`Remote agent '${name}' re-registered (settings updated)`);
+                callback({ settings: agent_connections[name].settings });
+                agentsStatusUpdate();
+                return;
+            }
+            const viewerPort = 3000 + Object.keys(agent_connections).length;
+            registerAgent(agentSettings, viewerPort);
+            console.log(`Remote agent '${name}' registered on MindServer`);
+            callback({ settings: agent_connections[name].settings });
+            agentsStatusUpdate();
+        });
+
         socket.on('login-agent', (agentName) => {
             if (agent_connections[agentName]) {
                 agent_connections[agentName].socket = socket;
                 agent_connections[agentName].in_game = true;
+                agent_connections[agentName].loginTime = Date.now();
                 curAgentName = agentName;
                 agentsStatusUpdate();
             }
@@ -130,6 +172,7 @@ export function createMindServer(host_public = false, port = 8080) {
             if (agent_connections[curAgentName]) {
                 console.log(`Agent ${curAgentName} disconnected`);
                 agent_connections[curAgentName].in_game = false;
+                agent_connections[curAgentName].loginTime = null;
                 agent_connections[curAgentName].socket = null;
                 agentsStatusUpdate();
             }
@@ -143,6 +186,10 @@ export function createMindServer(host_public = false, port = 8080) {
                 console.warn(`Agent ${agentName} tried to send a message but is not logged in`);
                 return;
             }
+            if (!agent_connections[agentName].socket) {
+                console.warn(`Agent ${agentName} has no socket connection`);
+                return;
+            }
             console.log(`${curAgentName} sending message to ${agentName}: ${json.message}`);
             agent_connections[agentName].socket.emit('chat-message', curAgentName, json);
         });
@@ -151,12 +198,20 @@ export function createMindServer(host_public = false, port = 8080) {
             const agent = agent_connections[agentName];
             if (agent) {
                 agent.setSettings(settings);
+                if (!agent.socket) {
+                    console.warn(`Cannot restart agent ${agentName} after settings update: no socket connection`);
+                    return;
+                }
                 agent.socket.emit('restart-agent');
             }
         });
 
         socket.on('restart-agent', (agentName) => {
             console.log(`Restarting agent: ${agentName}`);
+            if (!agent_connections[agentName]?.socket) {
+                console.warn(`Cannot restart agent ${agentName}: no socket connection`);
+                return;
+            }
             agent_connections[agentName].socket.emit('restart-agent');
         });
 
@@ -199,10 +254,10 @@ export function createMindServer(host_public = false, port = 8080) {
 		socket.on('send-message', (agentName, data) => {
 			if (!agent_connections[agentName]) {
 				console.warn(`Agent ${agentName} not in game, cannot send message via MindServer.`);
-				return
+				return;
 			}
 			try {
-				agent_connections[agentName].socket.emit('send-message', data)
+				agent_connections[agentName].socket.emit('send-message', data);
 			} catch (error) {
 				console.error('Error: ', error);
 			}
@@ -214,6 +269,68 @@ export function createMindServer(host_public = false, port = 8080) {
 
         socket.on('listen-to-agents', () => {
             addListener(socket);
+        });
+
+        socket.on('get-agent-usage', (agentName, callback) => {
+            const conn = agent_connections[agentName];
+            // If agent is in-game, query live data with disk fallback on timeout
+            if (conn && conn.socket && conn.in_game) {
+                const timeout = setTimeout(() => {
+                    const diskData = readUsageFromDisk(agentName);
+                    callback(diskData ? { usage: diskData } : { error: 'Timeout' });
+                }, 5000);
+                conn.socket.emit('get-usage', (data) => {
+                    clearTimeout(timeout);
+                    callback({ usage: data });
+                });
+                return;
+            }
+            // Agent offline or not registered — try reading from disk
+            const diskData = readUsageFromDisk(agentName);
+            if (diskData) {
+                callback({ usage: diskData });
+            } else {
+                callback({ error: `No usage data for '${agentName}'.` });
+            }
+        });
+
+        socket.on('get-all-usage', (callback) => {
+            const results = {};
+            const promises = [];
+            for (const agentName in agent_connections) {
+                const conn = agent_connections[agentName];
+                if (conn.socket && conn.in_game) {
+                    // Live agent — query via socket
+                    promises.push(new Promise((resolve) => {
+                        const timeout = setTimeout(() => {
+                            // Fallback to disk on timeout
+                            const diskData = readUsageFromDisk(agentName);
+                            if (diskData) results[agentName] = diskData;
+                            resolve();
+                        }, 3000);
+                        conn.socket.emit('get-usage', (data) => {
+                            clearTimeout(timeout);
+                            results[agentName] = data;
+                            resolve();
+                        });
+                    }));
+                } else {
+                    // Offline agent — read from disk
+                    const diskData = readUsageFromDisk(agentName);
+                    if (diskData) results[agentName] = diskData;
+                }
+            }
+            Promise.all(promises).then(() => callback(results));
+        });
+    });
+
+    // Health check endpoint
+    app.get('/health', (req, res) => {
+        res.status(200).json({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            agents: Object.keys(agent_connections).length
         });
     });
 
@@ -233,10 +350,11 @@ function agentsStatusUpdate(socket) {
     for (let agentName in agent_connections) {
         const conn = agent_connections[agentName];
         agents.push({
-            name: agentName, 
+            name: agentName,
             in_game: conn.in_game,
             viewerPort: conn.viewer_port,
-            socket_connected: !!conn.socket
+            socket_connected: !!conn.socket,
+            loginTime: conn.loginTime || null
         });
     };
     socket.emit('agents-status', agents);

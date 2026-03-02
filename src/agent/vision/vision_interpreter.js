@@ -1,5 +1,4 @@
 import { Vec3 } from 'vec3';
-import { Camera } from "./camera.js";
 import fs from 'fs';
 
 export class VisionInterpreter {
@@ -8,13 +7,34 @@ export class VisionInterpreter {
         this.allow_vision = allow_vision;
         this.fp = './bots/'+agent.name+'/screenshots/';
         if (allow_vision) {
-            this.camera = new Camera(agent.bot, this.fp);
+            import("./camera.js").then(({ Camera }) => {
+                try {
+                    this.camera = new Camera(agent.bot, this.fp);
+                    this.camera.on('error', (err) => {
+                        console.warn(`[Vision] Camera async init failed: ${err.message}`);
+                        console.warn('[Vision] Vision disabled — bots will continue without screenshot capability.');
+                        this.allow_vision = false;
+                        if (this.camera) this.camera.destroy();
+                        this.camera = null;
+                    });
+                } catch (err) {
+                    console.warn(`[Vision] Camera init failed (WebGL not available): ${err.message}`);
+                    console.warn('[Vision] Vision disabled — bots will continue without screenshot capability.');
+                    this.allow_vision = false;
+                    this.camera = null;
+                }
+            }).catch((err) => {
+                console.warn(`[Vision] Failed to load camera module: ${err.message}`);
+                console.warn('[Vision] Vision disabled — prismarine-viewer/canvas not available.');
+                this.allow_vision = false;
+                this.camera = null;
+            });
         }
     }
 
     async lookAtPlayer(player_name, direction) {
-        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
-            return "Vision is disabled. Use other methods to describe the environment.";
+        if (!this.allow_vision || !this.camera || !this.agent.prompter.vision_model?.sendVisionRequest) {
+            return "Vision is disabled or camera not ready. Use other methods to describe the environment.";
         }
         let result = "";
         const bot = this.agent.bot;
@@ -39,8 +59,8 @@ export class VisionInterpreter {
     }
 
     async lookAtPosition(x, y, z) {
-        if (!this.allow_vision || !this.agent.prompter.vision_model.sendVisionRequest) {
-            return "Vision is disabled. Use other methods to describe the environment.";
+        if (!this.allow_vision || !this.camera || !this.agent.prompter.vision_model?.sendVisionRequest) {
+            return "Vision is disabled or camera not ready. Use other methods to describe the environment.";
         }
         let result = "";
         const bot = this.agent.bot;
