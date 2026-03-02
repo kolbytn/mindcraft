@@ -1,6 +1,6 @@
 # Dragon Slayer RC29 — Autonomous Ender Dragon System
 
-> **Status: Live** — DragonSlayer is running on local Windows PC (RTX 3090, `sweaterdog/andy-4:q8_0` via Ollama) connected to Paper 1.21.11 on AWS EC2 (`54.152.239.117:19565`). RC29 persistent state saving active. MindServer HUD: `http://localhost:8080`.
+> **Status: Live** — DragonSlayer is running on local Windows PC (RTX 3090, `sweaterdog/andy-4:q8_0` via Ollama) connected to Paper 1.21.11 on AWS EC2. RC29 persistent state saving active. MindServer HUD: `http://localhost:8080`.
 
 ## Executive Summary
 
@@ -122,7 +122,7 @@ node main.js --profiles ./profiles/dragon-slayer.json
 
 ### Prerequisites
 - Node.js v18+ (v20 LTS recommended)
-- Minecraft server running — EC2 at `54.152.239.117:19565` (Paper 1.21.11), or any Paper 1.21.x server with `settings.js` updated to match
+- Minecraft server running — Paper 1.21.x server with `host` and `port` configured in `settings.js`
 - Ollama running locally with `sweaterdog/andy-4:q8_0`, `nomic-embed-text`, and `llava` pulled: `ollama pull sweaterdog/andy-4:q8_0 && ollama pull nomic-embed-text && ollama pull llava`
 - `npm install` completed
 

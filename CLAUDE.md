@@ -8,7 +8,7 @@ Mindcraft is an AI-powered Minecraft bot framework (research fork v0.1.3) where 
 - **CloudGrok** — cloud ensemble bot: 4 panel models (Gemini + Grok) voted by a heuristic arbiter + optional LLM judge; always-on on EC2
 - **DragonSlayer** — local GPU bot (currently active): `sweaterdog/andy-4:q8_0` via Ollama on RTX 3090; autonomous Ender Dragon speedrun with RC29 persistent state
 - **LocalAndy** — local GPU bot (dormant): `sweaterdog/andy-4` via Ollama; research/exploration profile
-- All bots connect to one persistent Minecraft server on AWS EC2 (Paper 1.21.11, port 19565) with ChromaDB-backed memory
+- All bots connect to one persistent Minecraft server on AWS EC2 (Paper 1.21.11) with ChromaDB-backed memory
 
 This is an **ES module** project (`"type": "module"` in package.json). Use `import`/`export`, not `require`.
 
@@ -20,7 +20,7 @@ npm start                # Start bots: node main.js
 npm run lint             # ESLint with 0-warning tolerance (enforced pre-commit via husky)
 npm test                 # No-op (no tests configured)
 
-# Run DragonSlayer (current active local bot — connects to EC2 at port 19565)
+# Run DragonSlayer (current active local bot — connects to EC2 server)
 node main.js --profiles ./profiles/dragon-slayer.json
 
 # Run a specific bot profile
@@ -92,7 +92,7 @@ Model routing: a string like `"gemini-2.5-pro"` is auto-matched to its provider;
 
 - **Node.js**: v18+ required; v20 LTS recommended; v24+ may cause issues
 - **Minecraft version**: Set `minecraft_version` in `settings.js` (default `"auto"` for up to v1.21.6)
-- **EC2 server**: `host: "54.152.239.117"`, `port: 19565` (non-default external port, internal 25565)
+- **EC2 server**: set `host` in `settings.js` to your EC2 public IP; `port: 19565` (non-default external port, internal 25565)
 - **Docker host**: `"host": "minecraft-server"` is the Docker service name; change to `"localhost"` for non-Docker runs
 - **Vision**: Requires `LIBGL_ALWAYS_SOFTWARE=1` and Xvfb (only works in Docker); prismarine-viewer canvas bindings broken on Windows
 - **Active local profile**: `profiles/dragon-slayer.json` — DragonSlayer bot with `sweaterdog/andy-4:q8_0` via Ollama
@@ -105,7 +105,7 @@ Model routing: a string like `"gemini-2.5-pro"` is auto-matched to its provider;
 |------|-------------|-------|
 | Local dev | `docker-compose.yml` | Ollama on host via `host.docker.internal:11434` |
 | EC2 production | `docker-compose.aws.yml` | Includes LiteLLM proxy (:4000), ChromaDB, Tailscale sidecar |
-| Local bot → EC2 server | `settings.js` | `host: 54.152.239.117`, `port: 19565`; bot on Windows, server on EC2 |
+| Local bot → EC2 server | `settings.js` | set `host` to EC2 public IP, `port: 19565`; bot on Windows, server on EC2 |
 | EC2 production | `docker-compose.aws.yml` | Includes LiteLLM proxy (:4000), ChromaDB, Tailscale sidecar |
 
 AWS secrets managed via SSM Parameter Store; `aws/ec2-go.sh --secrets` pulls and writes them.

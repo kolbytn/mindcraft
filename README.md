@@ -79,7 +79,7 @@ cd /app && bash aws/ec2-go.sh --secrets # Refresh API keys from SSM only
 
 ```powershell
 # Kill any stale node process on port 8080, then launch
-node main.js   # settings.js points to EC2 at 54.152.239.117:19565
+node main.js   # settings.js host/port must point to your EC2 server
 ```
 
 **From Mac (remote deploy):**
