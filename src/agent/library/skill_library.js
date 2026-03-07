@@ -8,11 +8,32 @@ export class SkillLibrary {
         this.embedding_model = embedding_model;
         this.skill_docs_embeddings = {};
         this.skill_docs = null;
-        this.always_show_skills = ['skills.placeBlock', 'skills.wait', 'skills.breakBlockAt']
+        this.available_functions_by_namespace = {
+            skills: new Set(),
+            world: new Set(),
+        };
+        this.always_show_functions = [
+            { namespace: 'skills', name: 'placeBlock' },
+            { namespace: 'skills', name: 'wait' },
+            { namespace: 'skills', name: 'breakBlockAt' },
+        ];
     }
     async initSkillLibrary() {
         const skillDocs = getSkillDocs();
         this.skill_docs = skillDocs;
+        this.available_functions_by_namespace = {
+            skills: new Set(),
+            world: new Set(),
+        };
+        for (const doc of skillDocs) {
+            const qualifiedName = doc.split('\n')[0]?.trim();
+            const match = qualifiedName?.match(/^(skills|world)\.([A-Za-z_$][\w$]*)$/);
+            if (match) {
+                const namespace = match[1];
+                const methodName = match[2];
+                this.available_functions_by_namespace[namespace].add(methodName);
+            }
+        }
         if (this.embedding_model) {
             try {
                 const embeddingPromises = skillDocs.map((doc) => {
@@ -28,19 +49,20 @@ export class SkillLibrary {
             }
         }
         this.always_show_skills_docs = {};
-        for (const skillName of this.always_show_skills) {
-            this.always_show_skills_docs[skillName] = this.skill_docs.find(doc => doc.includes(skillName));
+        for (const func of this.always_show_functions) {
+            const qualifiedName = `${func.namespace}.${func.name}`;
+            this.always_show_skills_docs[qualifiedName] = this.skill_docs.find(doc => doc.startsWith(`${qualifiedName}\n`) || doc === qualifiedName);
         }
     }
 
-    async getAllSkillDocs() {
-        return this.skill_docs;
+    getAvailableFunctionsByNamespace() {
+        return this.available_functions_by_namespace;
     }
 
     async getRelevantSkillDocs(message, select_num) {
         if(!message) // use filler message if none is provided
             message = '(no message)';
-        let skill_doc_similarities = [];
+        let skill_doc_similarities;
 
         if (select_num === -1) {
             skill_doc_similarities = Object.keys(this.skill_docs_embeddings)

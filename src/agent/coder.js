@@ -111,21 +111,28 @@ export class Coder {
     
     async  _lintCode(code) {
         let result = '#### CODE ERROR INFO ###\n';
-        // Extract everything in the code between the beginning of 'skills./world.' and the '('
-        const skillRegex = /(?:skills|world)\.(.*?)\(/g;
-        const skills = [];
+        // Extract namespace-qualified function calls like skills.placeBlock(...)
+        // and world.getNearestFreeSpace(...). Keeping namespace prevents
+        // collisions between similarly named functions.
+        const skillRegex = /\b(skills|world)\.([A-Za-z_$][\w$]*)\s*\(/g;
+        const referencedFunctions = [];
         let match;
         while ((match = skillRegex.exec(code)) !== null) {
-            skills.push(match[1]);
+            referencedFunctions.push({
+                namespace: match[1],
+                name: match[2],
+            });
         }
-        const allDocs = await this.agent.prompter.skill_libary.getAllSkillDocs();
+        const availableFunctions = await this.agent.prompter.skill_libary.getAvailableFunctionsByNamespace();
         // check function exists
-        const missingSkills = skills.filter(skill => !!allDocs[skill]);
+        const missingSkills = referencedFunctions
+            .filter(fn => !(availableFunctions[fn.namespace]?.has(fn.name)))
+            .map(fn => `${fn.namespace}.${fn.name}`);
         if (missingSkills.length > 0) {
             result += 'These functions do not exist.\n';
             result += '### FUNCTIONS NOT FOUND ###\n';
             result += missingSkills.join('\n');
-            console.log(result)
+            console.log(result);
             return result;
         }
 
@@ -192,7 +199,7 @@ export class Coder {
         const mainFn = compartment.evaluate(src);
         
         if (write_result) {
-            console.error('Error writing code execution file: ' + result);
+            console.error('Error writing code execution file: ' + write_result);
             return null;
         }
         return { func:{main: mainFn}, src_lint_copy: src_lint_copy };
@@ -200,11 +207,11 @@ export class Coder {
 
     _sanitizeCode(code) {
         code = code.trim();
-        const remove_strs = ['Javascript', 'javascript', 'js']
+        const remove_strs = ['Javascript', 'javascript', 'js'];
         for (let r of remove_strs) {
             if (code.startsWith(r)) {
                 code = code.slice(r.length);
-                return code;
+                break;
             }
         }
         return code;
