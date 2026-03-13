@@ -499,4 +499,12 @@ export const actionsList = [
             await skills.useToolOn(agent.bot, tool_name, target);
         })
     },
+    {
+        name: '!buildLavaPortal',
+        description: 'Use a nearby lava pool and a water bucket to build a nether portal.',
+        params: { },
+        perform: runAsAction(async (agent) => {
+            await skills.buildLavaPortal(agent.bot);
+        })
+    }
 ];

@@ -12,6 +12,10 @@ let mc_version = settings.minecraft_version;
 let mcdata = null;
 let Item = null;
 
+export function getMcData() {
+    return mcdata;
+}
+
 /**
  * @typedef {string} ItemName
  * @typedef {string} BlockName

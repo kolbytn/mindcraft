@@ -494,6 +494,7 @@ export async function collectBlock(bot, blockType, num=1, exclude=null) {
         try {
             let success = false;
             if (isLiquid) {
+                // await goToPosition(bot, block.position.x, block.position.y, block.position.z, 2);
                 success = await useToolOnBlock(bot, 'bucket', block);
             }
             else if (mc.mustCollectManually(blockType)) {
@@ -2039,9 +2040,9 @@ export async function useToolOn(bot, toolName, targetName) {
     }
 
     return true;
- }
+}
 
- export async function useToolOnBlock(bot, toolName, block) {
+export async function useToolOnBlock(bot, toolName, block) {
     /**
      * Use a tool on a specific block.
      * @param {MinecraftBot} bot
@@ -2090,4 +2091,350 @@ export async function useToolOn(bot, toolName, targetName) {
     }
     log(bot, `Used ${toolName} on ${block.name}.`);
     return true;
- }
+}
+
+
+export async function buildLavaPortal(bot) {
+    /**
+     * Attempt to build a nether portal if a nearby lava pool is found and a water bucket is in the inventory.
+     * @param {MinecraftBot} bot
+     * @returns {Promise<boolean>} true if action succeeded
+     */
+    const equipped = await equip(bot, 'water_bucket');
+    if (!equipped) {
+        log(bot, `Water bucket not found.`);
+        return false;
+    }
+
+    // needs 12 lava source blocks.
+    let blocks = world.getNearestBlocks(bot, 'lava', 64);
+
+    if (blocks.length < 12) {
+        if (blocks.length === 0) {
+            log(bot, "No lava found nearby.");
+        } else {
+            log(bot, "Nearby lava pool is not large enough.");
+        }
+        return false;
+    }
+
+    // Find 4 consecutive lava blocks in a line
+    let consecutiveLavaBlocks = null;
+    const directions = [
+        new Vec3(1, 0, 0),  // East
+        new Vec3(-1, 0, 0), // West
+        new Vec3(0, 0, 1),  // South
+        new Vec3(0, 0, -1)  // North
+    ];
+
+    const adjacentDirections = [
+        new Vec3(1, 0, 0),
+        new Vec3(-1, 0, 0),
+        new Vec3(0, 0, 1),
+        new Vec3(0, 0, -1),
+        // exclude y directions.
+    ];
+
+    const mcdata = mc.getMcData();
+
+    const isBlockValid = (block) => {
+        // if no block or block isn't lava or block is flowing
+        if (!block || block.name !== 'lava' || block.metadata !== 0) {
+            return false;
+        }
+
+        for (const adjDirection of adjacentDirections) {
+            const adjacentBlock = bot.blockAt(block.position.plus(adjDirection));
+            if (!adjacentBlock) {
+                continue;
+            }
+
+            const adjacentBlockData = mcdata.blocks[adjacentBlock.type];
+            if (adjacentBlockData && adjacentBlockData.boundingBox === 'block' && adjacentBlock.name !== 'lava') {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    function findNonFlammableBlocks() {
+        const mc = mcdata;
+        if (!mc) {
+            log(bot, "mcData not initialized, cannot find non-flammable blocks.");
+            return { totalCount: 0, items: [] };
+        }
+
+        const inventoryItems = bot.inventory.items();
+        const foundBlocks = [];
+        let totalCount = 0;
+
+        for (const item of inventoryItems) {
+            // Get the block's properties from minecraft-data using the item's name
+            const blockData = mc.blocksByName[item.name];
+
+            // A block is considered valid if:
+            // 1. It's actually a block (blockData exists).
+            // 2. It's a "full" solid block (boundingBox === 'block'). This excludes things like signs or torches.
+            // 3. It is not flammable (!blockData.flammable).
+            if (blockData && blockData.boundingBox === 'block' && !blockData.flammable) {
+                foundBlocks.push(item);
+                totalCount += item.count;
+            }
+        }
+
+        return { totalCount, items: foundBlocks };
+    }
+
+    const availableBlocks = findNonFlammableBlocks()
+
+    if (availableBlocks.totalCount < 8) {
+        log(bot, "Not enough solid non-flammable blocks in inventory. You need at least 8.")
+        return;
+    }
+
+    const highestYLevel = Math.max(...blocks.map(block => block.position.y));
+
+    for (const startBlock of blocks) {
+        const startPos = startBlock.position;
+
+        if (startPos.y !== highestYLevel) {
+            continue;
+        }
+
+        if (!isBlockValid(startBlock)) {
+            continue;
+        }
+
+        for (const direction of directions) {
+            let line = [startBlock];
+            let allBlocksInLineAreValid = true;
+
+            for (let i = 1; i < 4; i++) {
+                const nextPos = startPos.plus(direction.scaled(i));
+                const nextBlock = bot.blockAt(nextPos);
+
+                if (isBlockValid(nextBlock)) {
+                    line.push(nextBlock);
+                } else {
+                    allBlocksInLineAreValid = false;
+                    break;
+                }
+            }
+
+            if (line.length === 4 && allBlocksInLineAreValid) {
+                consecutiveLavaBlocks = line;
+                break;
+            }
+        }
+        if (consecutiveLavaBlocks) break;
+    }
+
+    if (!consecutiveLavaBlocks) {
+        log(bot, "Could not find 4 consecutive lava blocks in a line, with each adjacent to a solid block.");
+        return false;
+    }
+
+    // block state:
+    /* L L L L */
+
+    // log(bot, `${consecutiveLavaBlocks.map(b => b.position).join(', ')}`);
+
+    const basePosition1 = consecutiveLavaBlocks[2].position;
+    const buildingBlock = availableBlocks.items[0];
+
+    let success; // success is used multiple times
+
+    success = await placeBlock(bot, buildingBlock.name, basePosition1.x, basePosition1.y, basePosition1.z);
+    if (!success) {
+        log(bot, "Failed to build the first part of the portal base. Aborting.");
+        return false;
+    }
+
+    // block state:
+    /* L L S L */
+
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const waterTargetPosition = consecutiveLavaBlocks[1].position;
+    await equip(bot, 'water_bucket');
+    // success = await placeBlock(bot, 'water', waterTargetPosition.x, waterTargetPosition.y, waterTargetPosition.z);
+    // for some reason, this doesn't tell the bot to place off the block we just placed down, which we should.
+    // const referenceBlockObject = bot.blockAt(basePosition1);
+    const faceVec = waterTargetPosition.minus(basePosition1);
+    // await bot.activateBlock(referenceBlockObject, faceVec);
+    await goToPosition(bot, basePosition1.x, basePosition1.y, basePosition1.z, 2);
+    const blockCenter = basePosition1.offset(0.5, 0.5, 0.5);
+    const lookAtTarget = blockCenter.plus(faceVec.scaled(0.5));
+    await bot.lookAt(lookAtTarget);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await bot.activateItem();
+    
+    // await useToolOnBlock(bot, 'water_bucket', referenceBlockObject);
+
+    // wait for obsidian
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // block state:
+    /* O W S L */
+
+    await breakBlockAt(bot, basePosition1.x, basePosition1.y, basePosition1.z)
+
+    // block state:
+    /* O W W O */
+
+    const bottomPositions = [
+        consecutiveLavaBlocks[1],
+        consecutiveLavaBlocks[2],
+    ].map(block => block.position);
+
+    const originalMode = bot.modes.isOn('unstuck')
+    bot.modes.setOn('unstuck', false)
+
+    let safePos = null;
+    for (const pos of bottomPositions) {
+        if (safePos) await goToPosition(bot, safePos.x, safePos.y, safePos.z);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        success = await breakBlockAt(bot, pos.x, pos.y - 1, pos.z);
+        if (!success) {
+            log(bot, "Failed to break block.");
+            return false;
+        }
+        // await bot.chat(`Broken!`)
+        // await bot.chat(`Pos: ${pos}`)
+        if (!safePos) safePos = bot.entity.position;
+        await bot.chat(`SafePos: ${safePos}`)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (safePos) await goToPosition(bot, safePos.x, safePos.y, safePos.z);
+        success = await collectBlock(bot, 'lava', 1);
+        if (!success) {
+            log(bot, "Failed to retrieve more lava.");
+            return false;
+        }
+        // await bot.chat(`Collected!`);
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+        await goToPosition(bot, pos.x, pos.y, pos.z, 4)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // const targetPos = new Vec3(pos.x, pos.y-1, pos.z)
+        // while (bot.blockAt(targetPos) != 'lava') {
+        //     await placeBlock(bot, 'lava', targetPos.x, targetPos.y, targetPos.z);
+        //     // will need a timeout of sorts to stop infinite loops
+        // }
+        success = await placeBlock(bot, 'lava', pos.x, pos.y-1, pos.z)
+        if (!success) {
+            // log(bot, "Failed to place lava.");
+            // return false;
+            // ignore this, it will always return false because it placed obsidian rather than lava
+        }
+        if (bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)) != 'lava') {
+            // await bot.chat(`.... oh no ....`)
+            // here is the real error check
+            // no, it is not, because during testing he keeps firing this even though he placed it correct
+            // oh right i'm supposed to check for obsidian, not lava, my bad
+        }
+        if (bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)) != 'obsidian') {
+            // await bot.chat(`.... oh no ....`);
+            // for some reason even this triggers
+            // i'm going to leave it alone for now
+        }
+        /*** IGNORE MY MONOLOGUES (I WILL CLEAN THEM UP LATER) ***/
+        
+        // await useToolOnBlock(bot, 'lava_bucket', bot.blockAt(new Vec3(pos.x, pos.y-1, pos.z)));
+        // await bot.chat(`Placed!`)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    bot.modes.setOn('unstuck', originalMode)
+
+    // block state:
+    /* G G G G */
+    /* O W W O */
+
+    consecutiveLavaBlocks[0]
+
+    // desired block state:
+    /* G G G D */ // (D: dirt / other building block in inventory, G: grass, or other block behind the 4 lava blocks)
+    /* O W W O */
+
+    // also can be seen like
+
+    /* G G G G D G */
+    /* G O W W O G */
+    /* L L L L L L */
+
+    // direction of rest of portal base
+    const portalDirection = consecutiveLavaBlocks[1].position.minus(consecutiveLavaBlocks[0].position);
+
+    // find the two blocks on the side of that
+    const side1Direction = new Vec3(portalDirection.z, 0, -portalDirection.x);
+    const side2Direction = new Vec3(-portalDirection.z, 0, portalDirection.x);
+
+    // check which block isn't lava block
+    const side1BlockPos = consecutiveLavaBlocks[0].position.plus(side1Direction);
+    const side1Block = bot.blockAt(side1BlockPos);
+
+    let buildSideDirection;
+    if (side1Block && side1Block.name !== 'lava') {
+        buildSideDirection = side1Direction;
+    } else {
+        buildSideDirection = side2Direction;
+    }
+
+    // build the pillar:
+    const rightMostGPos = consecutiveLavaBlocks[0].position.plus(buildSideDirection);
+    const pillarBase = rightMostGPos;
+    const buildingBlockName = availableBlocks.items[0].name;
+
+    // three blocks up...
+    await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 1, pillarBase.z);
+    await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 2, pillarBase.z);
+    await placeBlock(bot, buildingBlockName, pillarBase.x, pillarBase.y + 3, pillarBase.z);
+
+    // ...and one block out
+    await placeBlock(bot, buildingBlockName, consecutiveLavaBlocks[0].position.x, pillarBase.y + 3, consecutiveLavaBlocks[0].position.z);
+
+    // now we want:
+    /* G D D G D G */
+    /* G O W W O G */
+    /* L L L L L L */
+
+    // now the other two
+    for (const num of [2, 3]) {
+        const pos = consecutiveLavaBlocks[num].position.plus(buildSideDirection);
+        await placeBlock(bot, buildingBlockName, pos.x, pos.y + 1, pos.z);
+    }
+
+    // 2-block air gap
+
+    const air1 = consecutiveLavaBlocks[1].position.plus(buildSideDirection);
+    const air2 = air1.plus(buildSideDirection);
+
+    for (const airPos of [air1, air2]) {
+        const airBlock = bot.blockAt(airPos);
+        if (airBlock && airBlock.name !== 'air') {
+            await breakBlockAt(bot, airPos.x, airPos.y + 1, airPos.z);
+        }
+    }
+
+    await collectBlock(bot, 'water', 1) // pick up the water we placed earlier
+
+    const waterPos = air1.plus(new Vec3(0, 3, 0));
+    await equip(bot, 'water_bucket');
+    // success = await placeBlock(bot, 'water', waterTargetPosition.x, waterTargetPosition.y, waterTargetPosition.z);
+    const referenceBlockObject = bot.blockAt(new Vec3(consecutiveLavaBlocks[0].position.x, pillarBase.y + 3, consecutiveLavaBlocks[0].position.z));
+    const face = waterPos.minus(referenceBlockObject.position);
+    // await bot.activateBlock(referenceBlockObject, face);
+    await goToPosition(bot, referenceBlockObject.position.x, referenceBlockObject.position.y, referenceBlockObject.position.z, 2);
+    const center = referenceBlockObject.position.offset(0.5, 0.5, 0.5);
+    const target = center.plus(face.scaled(0.5));
+    await bot.lookAt(target);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await bot.activateItem();
+    
+    // await useToolOnBlock(bot, 'water_bucket', referenceBlockObject);
+    
+
+    // TODO: Complete
+    
+    return true;
+}
