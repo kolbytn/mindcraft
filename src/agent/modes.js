@@ -258,24 +258,17 @@ const modes_list = [
             const beds = bot.findBlocks({
                 matching: (block) => block.name.includes('bed'),
                 maxDistance: 32,
-                count: 1
-            });
-            if (beds.length > 0) {
-                execute(this, agent, async () => {
+            // Let skills.goToBed handle finding a suitable bed
+            execute(this, agent, async () => {
+                try {
+                    await skills.goToBed(bot);
                     say(agent, 'It\'s getting dark, I should sleep.');
-                    try {
-                        await skills.goToBed(bot);
-                    } catch (e) {
-                        if (e && e.message && e.message.includes('occupied')) {
-                            say(agent, 'The bed is occupied.');
-                        } else {
-                            const errorMessage = e && e.message ? e.message : 'unknown reason';
-                            console.log('[AUTO_SLEEP] Error:', errorMessage);
-                            say(agent, `I couldn't sleep (${errorMessage}).`);
-                        }
+                } catch (e) {
+                    if (e && e.message && e.message.includes('occupied')) {
+                        say(agent, 'The bed is occupied.');
                     }
-                });
-            }
+                }
+            });
         }
     },
     {
