@@ -111,9 +111,16 @@ const modes_list = [
                 if (fallDistance > 10 && vel.y < -0.5) {
                     const waterBucket = bot.inventory.items().find(item => item.name === 'water_bucket');
                     if (waterBucket && !this.active) {
-                        // Check if ground is near (within 4 blocks below)
-                        const groundBlock = bot.blockAt(pos.offset(0, -4, 0));
-                        if (groundBlock && groundBlock.name !== 'air' && groundBlock.name !== 'water') {
+                        // Check if ground is near (scan up to 6 blocks below)
+                        let groundNear = false;
+                        for (let dy = 1; dy <= 6; dy++) {
+                            const block = bot.blockAt(pos.offset(0, -dy, 0));
+                            if (block && block.name !== 'air' && block.name !== 'water') {
+                                groundNear = true;
+                                break;
+                            }
+                        }
+                        if (groundNear) {
                             execute(this, agent, async () => {
                                 const currentPos = bot.entity.position.clone();
                                 say(agent, 'MLG water!');
@@ -138,8 +145,12 @@ const modes_list = [
                                     // Pick up water after landing
                                     const waterBlock = world.getNearestBlock(bot, 'water', 3);
                                     if (waterBlock) {
-                                        await bot.lookAt(waterBlock.position);
-                                        bot.activateItem();
+                                        const emptyBucket = bot.inventory.items().find(item => item.name === 'bucket');
+                                        if (emptyBucket) {
+                                            await bot.equip(emptyBucket, 'hand');
+                                            await bot.lookAt(waterBlock.position);
+                                            bot.activateItem();
+                                        }
                                     }
                                 } catch (e) {
                                     console.log('[FALL_PROTECTION] Error:', e.message);
@@ -254,19 +265,11 @@ const modes_list = [
             const isNight = time >= 13000;
             if (!isNight || bot.isSleeping) return;
 
-            // Look for a bed within 32 blocks using block name matching (beds are named like 'white_bed', 'red_bed', etc.)
-            const beds = bot.findBlocks({
-                matching: (block) => block.name.includes('bed'),
-                maxDistance: 32,
-            // Let skills.goToBed handle finding a suitable bed
+            // Let skills.goToBed handle finding and sleeping in a bed
             execute(this, agent, async () => {
-                try {
-                    await skills.goToBed(bot);
+                const result = await skills.goToBed(bot);
+                if (result) {
                     say(agent, 'It\'s getting dark, I should sleep.');
-                } catch (e) {
-                    if (e && e.message && e.message.includes('occupied')) {
-                        say(agent, 'The bed is occupied.');
-                    }
                 }
             });
         }
