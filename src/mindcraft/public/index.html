@@ -1,238 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mindcraft - Ultra-Enhanced Multi-Language Dashboard</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <title>Mindcraft</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #2196F3;
-            --success: #4CAF50;
-            --danger: #f44336;
-            --warning: #ff9800;
-            --info: #00bcd4;
-            --dark-bg: #1a1a1a;
-            --dark-surface: #2d2d2d;
-            --dark-input: #262626;
-            --dark-text: #e0e0e0;
-            --light-bg: #f5f5f5;
-            --light-surface: #ffffff;
-            --light-input: #fafafa;
-            --light-text: #333333;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .status-dot {
+            display: inline;
+            background-color: green;
         }
-        html[data-theme="dark"] {
-            --bg-primary: var(--dark-bg);
-            --bg-surface: var(--dark-surface);
-            --bg-input: var(--dark-input);
-            --text-primary: var(--dark-text);
-            --text-secondary: #aaa;
-            --border-color: #3a3a3a;
-        }
-        html[data-theme="light"] {
-            --bg-primary: var(--light-bg);
-            --bg-surface: var(--light-surface);
-            --bg-input: var(--light-input);
-            --text-primary: var(--light-text);
-            --text-secondary: #666;
-            --border-color: #ddd;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: var(--transition);
-            padding-bottom: 100px;
-        }
-        .header {
-            background: var(--bg-surface);
-            border-bottom: 1px solid var(--border-color);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header-title { display: flex; align-items: center; gap: 15px; }
-        h1 { margin: 0; font-size: 1.8em; font-weight: 600; }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 500;
-            border: 2px solid;
-        }
-        .status-badge.online { color: var(--success); border-color: var(--success); }
-        .status-badge.offline { color: var(--danger); border-color: var(--danger); }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .header-controls { display: flex; gap: 15px; align-items: center; }
-        select, button { padding: 8px 14px; border: none; border-radius: 6px; font-size: 0.9em; cursor: pointer; transition: var(--transition); font-weight: 500; }
-        select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); }
-        button { background: var(--primary); color: white; }
-        button:hover { background: #1976D2; transform: translateY(-2px); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
-        .agent-card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: var(--transition); }
-        .agent-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.2); transform: translateY(-2px); }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-surface); border-top: 1px solid var(--border-color); padding: 16px 20px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; z-index: 99; }
-        .toast-container { position: fixed; bottom: 100px; right: 20px; z-index: 2000; }
-        .toast { background: var(--bg-surface); border-left: 4px solid var(--primary); border-radius: 6px; padding: 16px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-backdrop.active { display: flex; }
-        .modal { background: var(--bg-surface); border-radius: 12px; width: 90vw; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); padding: 20px; }
-        [data-lang] { display: none; }
-        [data-lang="en"] { display: auto; }
-        @media (max-width: 768px) { .agents-grid { grid-template-columns: 1fr; } .header { flex-direction: column; align-items: flex-start; } .header-controls { width: 100%; } }
     </style>
 </head>
-<body data-theme="dark">
-    <header class="header">
-        <div class="header-title">
-            <h1>🤖 Mindcraft</h1>
-            <div id="msStatus" class="status-badge offline">
-                <div class="status-dot"></div>
-                <span data-lang="en">Offline</span>
-                <span data-lang="ja" style="display:none;">オフライン</span>
-                <span data-lang="zh" style="display:none;">离线</span>
-                <span data-lang="ko" style="display:none;">오프라인</span>
-                <span data-lang="es" style="display:none;">Desconectado</span>
-                <span data-lang="fr" style="display:none;">Hors ligne</span>
-                <span data-lang="de" style="display:none;">Offline</span>
-                <span data-lang="ru" style="display:none;">Автономный</span>
-                <span data-lang="ar" style="display:none;">غير متصل</span>
-                <span data-lang="pt" style="display:none;">Desconectado</span>
-                <span data-lang="it" style="display:none;">Offline</span>
-                <span data-lang="pl" style="display:none;">Offline</span>
-                <span data-lang="tr" style="display:none;">Çevrimdışı</span>
-                <span data-lang="hi" style="display:none;">ऑफ़लाइन</span>
-                <span data-lang="nl" style="display:none;">Offline</span>
-                <span data-lang="sv" style="display:none;">Offline</span>
-                <span data-lang="th" style="display:none;">ออฟไลน์</span>
-                <span data-lang="vi" style="display:none;">Ngoại tuyến</span>
-                <span data-lang="id" style="display:none;">Offline</span>
-                <span data-lang="uk" style="display:none;">Автономний</span>
-                <span data-lang="cs" style="display:none;">Offline</span>
-                <span data-lang="el" style="display:none;">Σύνδεση</span>
-                <span data-lang="he" style="display:none;">לא מחובר</span>
-                <span data-lang="hu" style="display:none;">Offline</span>
-            </div>
-        </div>
-
-        <div class="header-controls">
-            <select id="langSelect">
-                <option value="en">English</option>
-                <option value="ja">日本語</option>
-                <option value="zh">中文</option>
-                <option value="ko">한국어</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="ru">Русский</option>
-                <option value="ar">العربية</option>
-                <option value="pt">Português</option>
-                <option value="it">Italiano</option>
-                <option value="pl">Polski</option>
-                <option value="tr">Türkçe</option>
-                <option value="hi">हिन्दी</option>
-                <option value="nl">Nederlands</option>
-                <option value="sv">Svenska</option>
-                <option value="th">ไทย</option>
-                <option value="vi">Tiếng Việt</option>
-                <option value="id">Bahasa Indonesia</option>
-                <option value="uk">Українська</option>
-                <option value="cs">Čeština</option>
-                <option value="el">Ελληνικά</option>
-                <option value="he">עברית</option>
-                <option value="hu">Magyar</option>
-            </select>
-            <button id="themeToggle">🌙</button>
-        </div>
-    </header>
-
-    <div class="container">
-        <div id="agents" class="agents-grid"></div>
-        <div id="noAgents" style="text-align:center; padding:40px; color: var(--text-secondary);">
-            <p style="font-size:3em;">🤷</p>
-            <p data-lang="en">No agents connected</p>
-            <p data-lang="ja" style="display:none;">エージェントが接続されていません</p>
-            <p data-lang="zh" style="display:none;">没有连接代理</p>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div><button id="openCreateAgentBtn"><span data-lang="en">➕ New Agent</span></button></div>
-        <div style="display:flex; gap:12px;">
-            <button onclick="disconnectAllAgents()" style="background: var(--warning);"><span data-lang="en">⏹️ Disconnect All</span></button>
-            <button onclick="confirmShutdown()" style="background: var(--danger);"><span data-lang="en">🛑 Full Shutdown</span></button>
-        </div>
-    </footer>
-
-    <div class="toast-container" id="toastContainer"></div>
-
+<body>
+    <h1>Welcome to Mindcraft!</h1>
+    <button id="connectButton">Σύνδεση</button>
     <script>
-        let currentLang = 'en';
-        const socket = io({ path: window.location.pathname + 'socket.io' });
-
         function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('mindcraft-lang', lang);
-            document.querySelectorAll('[data-lang]').forEach(el => {
-                el.style.display = el.getAttribute('data-lang') === lang ? 'auto' : 'none';
-            });
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('mindcraft-theme', theme);
-        }
-
-        class Toast {
-            static show(message) {
-                const container = document.getElementById('toastContainer');
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                toast.textContent = message;
-                container.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+            // Change language to an empty string
+            if (lang === 'auto') {
+                lang = '';
             }
         }
 
-        function updateStatus(connected) {
-            const statusEl = document.getElementById('msStatus');
-            statusEl.classList.remove('offline', 'online');
-            statusEl.classList.add(connected ? 'online' : 'offline');
+        function updateStatus(status) {
+            // Update text for all languages when connection state changes
+            const statusText = {
+                'connected': {'en': 'Connected', 'gr': 'Σύνδεση', 'fr': 'Connecté'},
+                'disconnected': {'en': 'Disconnected', 'gr': 'Εκτός σύνδεσης', 'fr': 'Déconnecté'}
+            };
+            document.getElementById('status').innerText = statusText[status]['en'];
         }
-
-        document.getElementById('langSelect').addEventListener('change', e => setLanguage(e.target.value));
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            const theme = document.documentElement.getAttribute('data-theme');
-            setTheme(theme === 'dark' ? 'light' : 'dark');
-        });
-
-        socket.on('connect', () => updateStatus(true));
-        socket.on('disconnect', () => updateStatus(false));
-
-        setLanguage(localStorage.getItem('mindcraft-lang') || 'en');
-        setTheme(localStorage.getItem('mindcraft-theme') || 'dark');
-        document.getElementById('langSelect').value = currentLang;
-
-        function disconnectAllAgents() { socket.emit('stop-all-agents'); }
-        function confirmShutdown() { if (confirm('Are you sure?')) socket.emit('shutdown'); }
-        window.disconnectAllAgents = disconnectAllAgents;
-        window.confirmShutdown = confirmShutdown;
     </script>
 </body>
 </html>
