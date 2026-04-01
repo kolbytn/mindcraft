@@ -2,7 +2,7 @@
     "name": "mindcraft",
     "type": "module",
     "dependencies": {
-        "@anthropic-ai/sdk": "^0.80.0",
+        "@anthropic-ai/sdk": "^0.81.0",
         "@cerebras/cerebras_cloud_sdk": "^1.46.0",
         "@google/genai": "^1.15.0",
         "@huggingface/inference": "^4.13.15",
