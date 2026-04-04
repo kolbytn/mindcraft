@@ -50,24 +50,35 @@ export const log = (agentName, msg) => {
 export function parseKickReason(reason) {
     if (!reason) return { type: 'unknown', msg: 'Unknown reason (Empty)', isFatal: true };
     
-    const raw = (typeof reason === 'string' ? reason : JSON.stringify(reason)).toLowerCase();
+    let reasonText;
+    if (typeof reason === 'object' && reason !== null) {
+        // In modern Minecraft versions, the kick reason can be a ChatMessage object.
+        // Its .toString() method provides the plain text, while a plain object's returns '[object Object]'.
+        const str = reason.toString();
+        if (str !== '[object Object]') {
+            reasonText = str;
+        } else {
+            // For plain objects, stringify to see the contents, as it's likely a raw chat component.
+            reasonText = JSON.stringify(reason);
+        }
+    } else {
+        // For strings and other primitives.
+        reasonText = String(reason);
+    }
+    
+    const raw = reasonText.toLowerCase();
 
     // Search for keywords in definitions
     for (const [type, def] of Object.entries(ERROR_DEFINITIONS)) {
         if (def.keywords.some(k => raw.includes(k))) {
-            console.error(`Disconnected: ${raw}`);
+            console.error(`Disconnected: ${reasonText}`);
             return { type, msg: def.msg, isFatal: def.isFatal };
         }
     }
     
-    // Fallback: Extract text from JSON
-    let fallback = raw;
-    try {
-        const obj = typeof reason === 'string' ? JSON.parse(reason) : reason;
-        fallback = obj.translate || obj.text || (obj.value?.translate) || raw;
-    } catch (_) {}
-    
-    return { type: 'other', msg: `Disconnected: ${fallback}`, isFatal: true };
+    // The old fallback logic was not recursive and could fail on complex chat objects.
+    // reasonText now holds the best possible string representation.
+    return { type: 'other', msg: `Disconnected: ${reasonText}`, isFatal: true };
 }
 
 // Centralized handler for disconnections.
