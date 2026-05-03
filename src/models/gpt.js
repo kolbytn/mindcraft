@@ -27,7 +27,7 @@ export class GPT {
             message.content += stop_seq;
             return message;
         });
-        let model = this.model_name || "gpt-4o-mini";
+        let model = this.model_name || "gpt-5.4-mini";
 
         let res = null;
 

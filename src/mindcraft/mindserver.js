@@ -54,6 +54,65 @@ export function createMindServer(host_public = false, port = 8080) {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     app.use(express.static(path.join(__dirname, 'public')));
 
+    // Texture proxy: resolve item/block textures using minecraft-assets with version fallback
+    app.get('/assets/item/:agent/:name.png', async (req, res) => {
+        try {
+            const agentName = req.params.agent;
+            const rawName = req.params.name;
+            const itemName = String(rawName).toLowerCase();
+            const conn = agent_connections[agentName];
+            const preferred = conn?.settings?.minecraft_version;
+            const candidates = [];
+            if (preferred && preferred !== 'auto') candidates.push(preferred);
+            candidates.push('1.21.8');
+
+            // Lazy import to avoid ESM/CJS conflicts
+            const mod = await import('minecraft-assets');
+            const mcAssetsFactory = mod.default || mod;
+
+            for (const ver of candidates) {
+                try {
+                    const assets = mcAssetsFactory(ver);
+                    // Prefer items path first, then blocks
+                    const item = assets.items[itemName];
+                    const block = assets.blocks[itemName];
+                    const tex = assets.textureContent?.[itemName]?.texture
+                        || (item ? assets.textureContent?.[itemName]?.texture : null)
+                        || (block ? assets.textureContent?.[itemName]?.texture : null);
+                    if (tex) {
+                        // textureContent already provides a data URL in many versions
+                        if (tex.startsWith('data:image')) {
+                            const base64 = tex.split(',')[1];
+                            const img = globalThis.Buffer.from(base64, 'base64');
+                            res.setHeader('Content-Type', 'image/png');
+                            return res.end(img);
+                        }
+                    }
+                    // If textureContent missing, try static path resolution inside package
+                    // Helps with some strange blocks like Leaf Litter
+                    const guessPaths = [];
+                    const base = assets.directory;
+                    guessPaths.push(path.join(base, 'items', `${itemName}.png`));
+                    guessPaths.push(path.join(base, 'blocks', `${itemName}.png`));
+                    for (const p of guessPaths) {
+                        try {
+                            const fsMod = await import('fs');
+                            const buf = fsMod.readFileSync(p);
+                            res.setHeader('Content-Type', 'image/png');
+                            return res.end(buf);
+                        } catch { /* ignore */ }
+                    }
+                } catch { /* ignore */ }
+            }
+            // Not found, fallback svg
+            res.setHeader('Content-Type', 'image/svg+xml');
+            res.status(404).send('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="100%" height="100%" fill="#444"/><text x="50%" y="55%" font-size="12" fill="#bbb" text-anchor="middle">?</text></svg>');
+        } catch (e) {
+            res.setHeader('Content-Type', 'image/svg+xml');
+            res.status(500).send('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="100%" height="100%" fill="#444"/><text x="50%" y="55%" font-size="12" fill="#bbb" text-anchor="middle">!</text></svg>');
+        }
+    });
+
     // Socket.io connection handling
     io.on('connection', (socket) => {
         let curAgentName = null;
@@ -191,7 +250,7 @@ export function createMindServer(host_public = false, port = 8080) {
             // wait 2 seconds
             setTimeout(() => {
                 console.log('Exiting MindServer');
-                process.exit(0);
+                globalThis.process.exit(0);
             }, 2000);
             
         });
@@ -199,10 +258,10 @@ export function createMindServer(host_public = false, port = 8080) {
 		socket.on('send-message', (agentName, data) => {
 			if (!agent_connections[agentName]) {
 				console.warn(`Agent ${agentName} not in game, cannot send message via MindServer.`);
-				return
+                return;
 			}
 			try {
-				agent_connections[agentName].socket.emit('send-message', data)
+                agent_connections[agentName].socket.emit('send-message', data);
 			} catch (error) {
 				console.error('Error: ', error);
 			}

@@ -17,16 +17,17 @@ export class Prompter {
     constructor(agent, profile) {
         this.agent = agent;
         this.profile = profile;
-        let default_profile = JSON.parse(readFileSync('./profiles/defaults/_default.json', 'utf8'));
+        const defaults_dir = path.join(__dirname, '../../profiles/defaults');
+        let default_profile = JSON.parse(readFileSync(path.join(defaults_dir, '_default.json'), 'utf8'));
         let base_fp = '';
         if (settings.base_profile.includes('survival')) {
-            base_fp = './profiles/defaults/survival.json';
+            base_fp = path.join(defaults_dir, 'survival.json');
         } else if (settings.base_profile.includes('assistant')) {
-            base_fp = './profiles/defaults/assistant.json';
+            base_fp = path.join(defaults_dir, 'assistant.json');
         } else if (settings.base_profile.includes('creative')) {
-            base_fp = './profiles/defaults/creative.json';
+            base_fp = path.join(defaults_dir, 'creative.json');
         } else if (settings.base_profile.includes('god_mode')) {
-            base_fp = './profiles/defaults/god_mode.json';
+            base_fp = path.join(defaults_dir, 'god_mode.json');
         }
         let base_profile = JSON.parse(readFileSync(base_fp, 'utf8'));
 

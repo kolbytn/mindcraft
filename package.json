@@ -4,15 +4,20 @@
     "dependencies": {
         "@anthropic-ai/sdk": "^0.17.1",
         "@cerebras/cerebras_cloud_sdk": "^1.46.0",
+        "@eslint/js": "^9.13.0",
         "@google/genai": "^1.15.0",
         "@huggingface/inference": "^2.8.1",
         "@mistralai/mistralai": "^1.1.0",
         "canvas": "^3.1.0",
         "cheerio": "^1.0.0",
+        "eslint": "^9.13.0",
+        "eslint-plugin-no-floating-promise": "^2.0.0",
         "express": "^4.18.2",
+        "globals": "^15.11.0",
         "google-translate-api-x": "^10.7.1",
         "groq-sdk": "^0.15.0",
         "minecraft-data": "^3.97.0",
+        "minecraft-assets": "^1.16.0",
         "mineflayer": "^4.33.0",
         "mineflayer-armor-manager": "^2.0.1",
         "mineflayer-auto-eat": "^3.3.6",
@@ -43,10 +48,6 @@
         "clean:modules": "node -e \"const fs=require('fs');const p=require('path');['node_modules','package-lock.json'].forEach(f=>{if(fs.existsSync(f)){if(fs.lstatSync(f).isDirectory()){fs.rmSync(f,{recursive:true,force:true});}else{fs.unlinkSync(f);}}});\""
     },
     "devDependencies": {
-        "@eslint/js": "^9.13.0",
-        "eslint": "^9.13.0",
-        "eslint-plugin-no-floating-promise": "^2.0.0",
-        "globals": "^15.11.0",
         "patch-package": "^8.0.0"
     }
 }
