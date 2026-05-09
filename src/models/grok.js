@@ -24,7 +24,7 @@ export class Grok {
         let messages = [{'role': 'system', 'content': systemMessage}].concat(turns);
 
         const pack = {
-            model: this.model_name || "grok-3-mini-latest",
+            model: this.model_name || "grok-4.1-fast-non-reasoning",
             messages,
             ...(this.params || {})
         };

@@ -103,7 +103,7 @@ To use different accounts, Mindcraft will connect with the account that the Mine
 
 ## Tasks
 
-Tasks automatically start the bot with a prompt and a goal item to aquire or blueprint to construct. To run a simple task that involves collecting 4 oak_logs run 
+Tasks automatically start the bot with a prompt and a goal item to acquire or blueprint to construct. To run a simple task that involves collecting 4 oak_logs run 
 
 `node main.js --task_path tasks/basic/single_agent.json --task_id gather_oak_logs`
 
@@ -169,14 +169,14 @@ Bot profiles are json files (such as `andy.json`) that define:
 
 ## Model Specifications
 
-LLM models can be specified simply as `"model": "gpt-4o"`, or more specifically with `"{api}/{model}"`, like `"openrouter/google/gemini-2.5-pro"`. See all supported APIs [here](#model-customization).
+LLM models can be specified simply as `"model": "gpt-5.4"`, or more specifically with `"{api}/{model}"`, like `"openrouter/google/gemini-2.5-pro"`. See all supported APIs [here](#model-customization).
 
 The `model` field can be a string or an object. A model object must specify an `api`, and optionally a `model`, `url`, and additional `params`. You can also use different models/providers for chatting, coding, vision, embedding, and voice synthesis. See the example below.
 
 ```json
 "model": {
   "api": "openai",
-  "model": "gpt-4o",
+  "model": "gpt-5.4",
   "url": "https://api.openai.com/v1/",
   "params": {
     "max_tokens": 1000,
@@ -185,18 +185,18 @@ The `model` field can be a string or an object. A model object must specify an `
 },
 "code_model": {
   "api": "openai",
-  "model": "gpt-4",
+  "model": "gpt-5.4-mini",
   "url": "https://api.openai.com/v1/"
 },
 "vision_model": {
   "api": "openai",
-  "model": "gpt-4o",
+  "model": "gpt-5.4",
   "url": "https://api.openai.com/v1/"
 },
 "embedding": {
   "api": "openai",
   "url": "https://api.openai.com/v1/",
-  "model": "text-embedding-ada-002"
+  "model": "text-embedding-3-small"
 },
 "speak_model": "openai/tts-1/echo"
 ```
@@ -247,3 +247,9 @@ This work is published in the paper [Collaborating Action by Action: A Multi-age
   url = {https://arxiv.org/abs/2504.17950},
 }
 ```
+
+## Contributors
+
+Thanks to everyone who has submitted issues on and off Github, made suggestions, and generally helped make this a better project.
+
+![Contributors](https://contrib.rocks/image?repo=mindcraft-bots/mindcraft)

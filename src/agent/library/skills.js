@@ -27,7 +27,7 @@ async function equipHighestAttack(bot) {
         weapons = bot.inventory.items().filter(item => item.name.includes('pickaxe') || item.name.includes('shovel'));
     if (weapons.length === 0)
         return;
-    weapons.sort((a, b) => a.attackDamage < b.attackDamage);
+    weapons.sort((a, b) => b.attackDamage - a.attackDamage);
     let weapon = weapons[0];
     if (weapon)
         await bot.equip(weapon, 'hand');

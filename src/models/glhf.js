@@ -19,7 +19,7 @@ export class GLHF {
         // Construct the message array for the API request.
         let messages = [{ role: 'system', content: systemMessage }].concat(turns);
         const pack = {
-            model: this.model_name || "hf:meta-llama/Llama-3.1-405B-Instruct",
+            model: this.model_name || "hf:meta-llama/Llama-3.3-70B-Instruct",
             messages,
             stop: [stop_seq]
         };

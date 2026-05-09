@@ -31,7 +31,7 @@ export class Claude {
                 }
             }
             const resp = await this.anthropic.messages.create({
-                model: this.model_name || "claude-sonnet-4-20250514",
+                model: this.model_name || "claude-sonnet-4-6",
                 system: systemMessage,
                 messages: messages,
                 ...(this.params || {})

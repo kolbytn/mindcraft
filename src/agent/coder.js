@@ -1,9 +1,13 @@
 import { writeFile, readFile, mkdirSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { makeCompartment, lockdown } from './library/lockdown.js';
 import * as skills from './library/skills.js';
 import * as world from './library/world.js';
 import { Vec3 } from 'vec3';
 import {ESLint} from "eslint";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class Coder {
     constructor(agent) {
@@ -13,11 +17,11 @@ export class Coder {
         this.code_template = '';
         this.code_lint_template = '';
 
-        readFile('./bots/execTemplate.js', 'utf8', (err, data) => {
+        readFile(path.join(__dirname, '../../bots/execTemplate.js'), 'utf8', (err, data) => {
             if (err) throw err;
             this.code_template = data;
         });
-        readFile('./bots/lintTemplate.js', 'utf8', (err, data) => {
+        readFile(path.join(__dirname, '../../bots/lintTemplate.js'), 'utf8', (err, data) => {
             if (err) throw err;
             this.code_lint_template = data;
         });

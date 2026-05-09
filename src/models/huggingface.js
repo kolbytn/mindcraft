@@ -22,7 +22,7 @@ export class HuggingFace {
     // Build a single prompt from the conversation turns
     const prompt = toSinglePrompt(turns, null, stop_seq);
     // Fallback model if none was provided
-    const model_name = this.model_name || 'meta-llama/Meta-Llama-3-8B';
+    const model_name = this.model_name || 'meta-llama/Llama-3.3-70B-Instruct';
     // Combine system message with the prompt
     const input = systemMessage + "\n" + prompt;
 
