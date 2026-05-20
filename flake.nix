@@ -17,10 +17,18 @@
         nodejs_20
         libX11
 				libXext
+				libuuid
       ];
-      shellHook = ''
-        export LD_LIBRARY_PATH="${pkgs.libX11}/lib:${pkgs.libXext}/lib:$LD_LIBRARY_PATH"
-      '';
+			# shellHook = ''
+			# 	export LD_LIBRARY_PATH="${pkgs.libX11}/lib:${pkgs.libXext}/lib:$LD_LIBRARY_PATH"
+			# '';
+			env = {
+				LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+					pkgs.libX11
+					pkgs.libXext
+					pkgs.libuuid
+				];
+			};
     };
   };
 }
