@@ -141,10 +141,5 @@
         "type": "boolean",
         "description": "Whether to write structured ACTION logs for successful bot block and item actions.",
         "default": false
-    },
-    "action_log_file_prefix": {
-        "type": "string",
-        "description": "Filename prefix for structured action logs written to ./bots/<bot>/logs/.",
-        "default": "andy_log"
     }
 }

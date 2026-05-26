@@ -572,8 +572,8 @@ export async function breakBlockAt(bot, x, y, z) {
      * await skills.breakBlockAt(bot, position.x, position.y - 1, position.x);
      **/
     if (x == null || y == null || z == null) throw new Error('Invalid position to break block at.');
-    const targetCoord = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
-    let block = bot.blockAt(targetCoord);
+    let block = bot.blockAt(Vec3(x, y, z));
+    const logCoord = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
     const previousBlock = block?.name || 'unknown';
     if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
         if (bot.modes.isOn('cheat')) {
@@ -585,8 +585,8 @@ export async function breakBlockAt(bot, x, y, z) {
                 item: bot.heldItem?.name || 'none',
                 previousBlock,
                 resultBlock: 'air',
-                resultCoord: targetCoord,
-                clickedBlock: targetCoord,
+                resultCoord: logCoord,
+                clickedBlock: logCoord,
                 clickedFace: 'unknown',
             });
             log(bot, `Used /setblock to break block at ${x}, ${y}, ${z}.`);
@@ -614,9 +614,9 @@ export async function breakBlockAt(bot, x, y, z) {
             type: 'break_block',
             item: bot.heldItem?.name || 'none',
             previousBlock,
-            resultBlock: bot.blockAt(targetCoord)?.name || 'unknown',
-            resultCoord: targetCoord,
-            clickedBlock: targetCoord,
+            resultBlock: bot.blockAt(logCoord)?.name || 'unknown',
+            resultCoord: logCoord,
+            clickedBlock: logCoord,
             clickedFace: 'unknown',
         });
         log(bot, `Broke ${block.name} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);

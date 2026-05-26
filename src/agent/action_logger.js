@@ -25,8 +25,7 @@ function getActionLogPath(bot) {
     if (!bot[ACTION_LOG_STATE]) {
         const logDir = getBotLogDirectory(bot);
         mkdirSync(logDir, { recursive: true });
-        const prefix = safeName(settings.action_log_file_prefix || 'andy_log', 'andy_log');
-        const logPath = path.resolve(logDir, `${prefix}_${timestampForFilename()}.txt`);
+        const logPath = path.resolve(logDir, `log_${timestampForFilename()}.txt`);
         writeFileSync(logPath, '', 'utf8');
         bot[ACTION_LOG_STATE] = { logPath };
     }
