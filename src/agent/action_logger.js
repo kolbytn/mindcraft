@@ -3,6 +3,7 @@ import path from 'path';
 import settings from '../../settings.js';
 
 const ACTION_LOG_STATE = Symbol.for('mindcraft.actionLogState');
+const ACTION_LOG_DEPTH = Symbol.for('mindcraft.actionLogDepth');
 
 export function isActionLoggingEnabled() {
     return Boolean(settings.action_logging ?? settings.action_logging_enabled ?? false);
@@ -108,7 +109,7 @@ function actualPitchDegrees(bot) {
 
 function actionValue(value) {
     if (value === null || value === undefined || value === '') return 'unknown';
-    return String(value);
+    return String(value).replace(/\s+/g, '_');
 }
 
 function intCoordText(coord) {
@@ -129,22 +130,58 @@ function actionNumber(value, precision = 3) {
     return Number.isFinite(value) ? Number(value).toFixed(precision) : 'unknown';
 }
 
-export function faceNameFromVector(vec) {
-    if (!vec) return 'unknown';
-    if (vec.x === 1 && vec.y === 0 && vec.z === 0) return 'east';
-    if (vec.x === -1 && vec.y === 0 && vec.z === 0) return 'west';
-    if (vec.x === 0 && vec.y === 1 && vec.z === 0) return 'up';
-    if (vec.x === 0 && vec.y === -1 && vec.z === 0) return 'down';
-    if (vec.x === 0 && vec.y === 0 && vec.z === 1) return 'south';
-    if (vec.x === 0 && vec.y === 0 && vec.z === -1) return 'north';
-    return 'unknown';
+function coordArray(coord) {
+    if (!coord || !Number.isFinite(coord.x) || !Number.isFinite(coord.y) || !Number.isFinite(coord.z)) {
+        return null;
+    }
+    return [coord.x, coord.y, coord.z];
+}
+
+function serializeArg(value, seen = new Set(), depth = 0) {
+    if (value === undefined) return 'undefined';
+    if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        return value;
+    }
+    if (depth > 2) return '[Object]';
+    if (Array.isArray(value)) {
+        return value.map(item => serializeArg(item, seen, depth + 1));
+    }
+    if (typeof value === 'object') {
+        if (seen.has(value)) return '[Circular]';
+        if (value.name && value.position) {
+            return {
+                name: value.name,
+                position: coordArray(value.position),
+            };
+        }
+        if (Number.isFinite(value.x) && Number.isFinite(value.y) && Number.isFinite(value.z)) {
+            return coordArray(value);
+        }
+
+        seen.add(value);
+        const result = {};
+        for (const key of Object.keys(value).sort()) {
+            const item = value[key];
+            if (typeof item === 'function') continue;
+            result[key] = serializeArg(item, seen, depth + 1);
+        }
+        seen.delete(value);
+        return result;
+    }
+    return String(value);
+}
+
+function serializeArgs(args) {
+    return JSON.stringify(args.slice(1).map(value => serializeArg(value)));
 }
 
 export function formatActionLogLine(record) {
     return [
-        `ACTION ${record.type}`,
+        'ACTION',
+        `function=${actionValue(record.functionName)}`,
+        `args=${actionValue(record.args)}`,
+        `status=${actionValue(record.status)}`,
         `item=${actionValue(record.item)}`,
-        `previous_block=${actionValue(record.previousBlock)}`,
         `result_block=${actionValue(record.resultBlock)}`,
         `result_coord=${intCoordText(record.resultCoord)}`,
         `clicked_block=${intCoordText(record.clickedBlock)}`,
@@ -161,29 +198,27 @@ export function formatActionLogLine(record) {
     ].join(' ');
 }
 
-export function appendActionLog(bot, action) {
-    if (!bot || !isActionLoggingEnabled()) {
-        return false;
-    }
-
+function appendActionInvocationLog(bot, functionName, args, result, metadataAdapter) {
     try {
+        const metadata = metadataAdapter?.(args, result) || {};
         const standing = standingState(bot);
-        const resultCoord = blockCoord(action.resultCoord);
+        const resultCoord = blockCoord(metadata.resultCoord);
         const record = {
-            type: action.type,
-            item: action.item || heldItemName(bot),
-            previousBlock: action.previousBlock,
-            resultBlock: action.resultBlock ?? blockNameAt(bot, resultCoord),
+            functionName,
+            args: serializeArgs(args),
+            status: 'success',
+            item: metadata.item || heldItemName(bot),
+            resultBlock: metadata.resultBlock ?? blockNameAt(bot, resultCoord),
             resultCoord,
-            clickedBlock: blockCoord(action.clickedBlock),
-            clickedFace: action.clickedFace,
+            clickedBlock: blockCoord(metadata.clickedBlock),
+            clickedFace: metadata.clickedFace,
             playerPos: entityPosition(bot),
             yaw: actualYawDegrees(bot),
             pitch: actualPitchDegrees(bot),
             sneaking: getSneakState(bot),
             standingOn: standing.position,
             standingOnBlock: standing.blockName,
-            hand: action.hand || 'main_hand',
+            hand: metadata.hand || 'main_hand',
             tick: getBotTick(bot),
             timestamp: new Date().toISOString(),
         };
@@ -193,4 +228,33 @@ export function appendActionLog(bot, action) {
         console.warn(`Failed to append action log: ${error.message}`);
         return false;
     }
+}
+
+export function withActionLogging(functionName, actionFunction, metadataAdapter = null) {
+    const wrappedActionFunction = async function(...args) {
+        const bot = args[0];
+        if (!bot || !isActionLoggingEnabled()) {
+            return await actionFunction(...args);
+        }
+
+        const depth = bot[ACTION_LOG_DEPTH] || 0;
+        bot[ACTION_LOG_DEPTH] = depth + 1;
+
+        let result;
+        try {
+            result = await actionFunction(...args);
+        } finally {
+            bot[ACTION_LOG_DEPTH] = depth;
+        }
+
+        if (depth === 0 && result !== false) {
+            appendActionInvocationLog(bot, functionName, args, result, metadataAdapter);
+        }
+
+        return result;
+    };
+
+    Object.defineProperty(wrappedActionFunction, 'name', { value: functionName, configurable: true });
+    wrappedActionFunction.toString = () => actionFunction.toString();
+    return wrappedActionFunction;
 }

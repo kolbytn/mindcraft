@@ -3,13 +3,17 @@ import * as world from "./world.js";
 import pf from 'mineflayer-pathfinder';
 import Vec3 from 'vec3';
 import settings from "../../../settings.js";
-import { appendActionLog, faceNameFromVector, isActionLoggingEnabled } from '../action_logger.js';
+import { withActionLogging } from '../action_logger.js';
 
 const blockPlaceDelay = settings.block_place_delay == null ? 0 : settings.block_place_delay;
 const useDelay = blockPlaceDelay > 0;
 
 export function log(bot, message) {
     bot.output += message + '\n';
+}
+
+function logCoordFromXYZ(x, y, z) {
+    return { x, y, z };
 }
 
 async function autoLight(bot) {
@@ -559,7 +563,7 @@ export async function pickupNearbyItems(bot) {
 }
 
 
-export async function breakBlockAt(bot, x, y, z) {
+async function breakBlockAtImpl(bot, x, y, z) {
     /**
      * Break the block at the given position. Will use the bot's equipped item.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -573,22 +577,11 @@ export async function breakBlockAt(bot, x, y, z) {
      **/
     if (x == null || y == null || z == null) throw new Error('Invalid position to break block at.');
     let block = bot.blockAt(Vec3(x, y, z));
-    const logCoord = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
-    const previousBlock = block?.name || 'unknown';
     if (block.name !== 'air' && block.name !== 'water' && block.name !== 'lava') {
         if (bot.modes.isOn('cheat')) {
             if (useDelay) { await new Promise(resolve => setTimeout(resolve, blockPlaceDelay)); }
             let msg = '/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z) + ' air';
             bot.chat(msg);
-            appendActionLog(bot, {
-                type: 'break_block',
-                item: bot.heldItem?.name || 'none',
-                previousBlock,
-                resultBlock: 'air',
-                resultCoord: logCoord,
-                clickedBlock: logCoord,
-                clickedFace: 'unknown',
-            });
             log(bot, `Used /setblock to break block at ${x}, ${y}, ${z}.`);
             return true;
         }
@@ -610,15 +603,6 @@ export async function breakBlockAt(bot, x, y, z) {
             }
         }
         await bot.dig(block, true);
-        appendActionLog(bot, {
-            type: 'break_block',
-            item: bot.heldItem?.name || 'none',
-            previousBlock,
-            resultBlock: bot.blockAt(logCoord)?.name || 'unknown',
-            resultCoord: logCoord,
-            clickedBlock: logCoord,
-            clickedFace: 'unknown',
-        });
         log(bot, `Broke ${block.name} at x:${x.toFixed(1)}, y:${y.toFixed(1)}, z:${z.toFixed(1)}.`);
     }
     else {
@@ -628,8 +612,17 @@ export async function breakBlockAt(bot, x, y, z) {
     return true;
 }
 
+export const breakBlockAt = withActionLogging('breakBlockAt', breakBlockAtImpl, ([, x, y, z]) => {
+    const coord = logCoordFromXYZ(x, y, z);
+    return {
+        resultCoord: coord,
+        clickedBlock: coord,
+        clickedFace: 'unknown',
+    };
+});
 
-export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dontCheat=false) {
+
+async function placeBlockImpl(bot, blockType, x, y, z, placeOn='bottom', dontCheat=false) {
     /**
      * Place the given block type at the given position. It will build off from any adjacent blocks. Will fail if there is a block in the way or nothing to build off of.
      * @param {MinecraftBot} bot, reference to the minecraft bot.
@@ -645,7 +638,6 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
      * await skills.placeBlock(bot, "oak_log", p.x + 2, p.y, p.x);
      * await skills.placeBlock(bot, "torch", p.x + 1, p.y, p.x, 'side');
      **/
-    const requestedBlockType = blockType;
     const target_dest = new Vec3(Math.floor(x), Math.floor(y), Math.floor(z));
 
     if (blockType === 'air') {
@@ -654,7 +646,6 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     }
 
     if (bot.modes.isOn('cheat') && !dontCheat) {
-        const previousBlock = bot.blockAt(target_dest)?.name || 'unknown';
         if (bot.restrict_to_inventory) {
             let block = bot.inventory.findInventoryItem(blockType);
             if (!block) {
@@ -698,15 +689,6 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         if (blockType.includes('bed'))
             if (useDelay) { await new Promise(resolve => setTimeout(resolve, blockPlaceDelay)); }
             bot.chat('/setblock ' + Math.floor(x) + ' ' + Math.floor(y) + ' ' + Math.floor(z-1) + ' ' + blockType + '[part=head]');
-        appendActionLog(bot, {
-            type: requestedBlockType === 'water' || requestedBlockType === 'lava' ? 'place_fluid' : 'place_block',
-            item: requestedBlockType === 'water' || requestedBlockType === 'lava' ? `${requestedBlockType}_bucket` : requestedBlockType,
-            previousBlock,
-            resultBlock: requestedBlockType,
-            resultCoord: target_dest,
-            clickedBlock: target_dest,
-            clickedFace: 'unknown',
-        });
         log(bot, `Used /setblock to place ${blockType} at ${target_dest}.`);
         return true;
     }
@@ -731,7 +713,6 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     }
 
     const targetBlock = bot.blockAt(target_dest);
-    let previousBlock = targetBlock?.name || 'unknown';
     if (targetBlock.name === blockType || (targetBlock.name === 'grass_block' && blockType === 'dirt')) {
         log(bot, `${blockType} already at ${targetBlock.position}.`);
         return false;
@@ -745,7 +726,6 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
             return false;
         }
         await new Promise(resolve => setTimeout(resolve, 200)); // wait for block to break
-        previousBlock = bot.blockAt(target_dest)?.name || 'unknown';
     }
     // get the buildoffblock and facevec based on whichever adjacent block is not empty
     let buildOffBlock = null;
@@ -806,27 +786,12 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
     // will throw error if an entity is in the way, and sometimes even if the block was placed
     try {
         if (item_name.includes('bucket')) {
-            await useToolOnBlock(bot, item_name, buildOffBlock, {
-                actionType: 'place_fluid',
-                resultCoord: target_dest,
-                clickedBlock: buildOffBlock.position,
-                clickedFace: faceNameFromVector(faceVec),
-                previousBlock,
-            });
+            await useToolOnBlock(bot, item_name, buildOffBlock);
         }
         else {
             await bot.equip(block_item, 'hand');
             await bot.lookAt(buildOffBlock.position.offset(0.5, 0.5, 0.5));
             await bot.placeBlock(buildOffBlock, faceVec);
-            appendActionLog(bot, {
-                type: 'place_block',
-                item: item_name,
-                previousBlock,
-                resultBlock: bot.blockAt(target_dest)?.name || blockType,
-                resultCoord: target_dest,
-                clickedBlock: buildOffBlock.position,
-                clickedFace: faceNameFromVector(faceVec),
-            });
             log(bot, `Placed ${blockType} at ${target_dest}.`);
             await new Promise(resolve => setTimeout(resolve, 200));
             return true;
@@ -836,6 +801,11 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         return false;
     }
 }
+
+export const placeBlock = withActionLogging('placeBlock', placeBlockImpl, ([, , x, y, z]) => ({
+    resultCoord: logCoordFromXYZ(x, y, z),
+    clickedFace: 'unknown',
+}));
 
 export async function equip(bot, itemName) {
     /**
@@ -2048,15 +2018,6 @@ export async function useToolOn(bot, toolName, targetName) {
             return false;
         }
         await bot.activateItem();
-        appendActionLog(bot, {
-            type: 'use_item_on_block',
-            item: toolName,
-            previousBlock: 'unknown',
-            resultBlock: 'unknown',
-            resultCoord: null,
-            clickedBlock: null,
-            clickedFace: 'unknown',
-        });
         log(bot, `Used ${toolName}.`);
     } else if (world.isEntityType(targetName)) {
         const entity = world.getNearestEntityWhere(bot, e => e.name === targetName, 64);
@@ -2099,13 +2060,12 @@ export async function useToolOn(bot, toolName, targetName) {
     return true;
  }
 
- export async function useToolOnBlock(bot, toolName, block, actionContext={}) {
+ async function useToolOnBlockImpl(bot, toolName, block) {
     /**
      * Use a tool on a specific block.
      * @param {MinecraftBot} bot
      * @param {string} toolName - item name of the tool to equip, or "hand" for no tool.
      * @param {Block} block - the block reference to use the tool on.
-     * @param {object} actionContext - optional logging context supplied by higher-level skills.
      * @returns {Promise<boolean>} true if action succeeded
      */
 
@@ -2141,28 +2101,18 @@ export async function useToolOn(bot, toolName, targetName) {
         log(bot, `Could not equip ${toolName}.`);
         return false;
     }
-    const resultCoord = actionContext.resultCoord || block.position;
-    const previousBlock = actionContext.previousBlock || bot.blockAt(resultCoord)?.name || block.name || 'unknown';
     if (toolName.includes('bucket')) {
         await bot.activateItem();
     }
     else {
         await bot.activateBlock(block);
     }
-    if (isActionLoggingEnabled()) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    const actionType = actionContext.actionType
-        || (toolName === 'bucket' ? 'use_bucket' : toolName === 'water_bucket' || toolName === 'lava_bucket' ? 'place_fluid' : 'use_item_on_block');
-    appendActionLog(bot, {
-        type: actionType,
-        item: toolName,
-        previousBlock,
-        resultBlock: bot.blockAt(resultCoord)?.name || 'unknown',
-        resultCoord,
-        clickedBlock: actionContext.clickedBlock || block.position,
-        clickedFace: actionContext.clickedFace || 'unknown',
-    });
     log(bot, `Used ${toolName} on ${block.name}.`);
     return true;
  }
+
+export const useToolOnBlock = withActionLogging('useToolOnBlock', useToolOnBlockImpl, ([, , block]) => ({
+    resultCoord: block?.position,
+    clickedBlock: block?.position,
+    clickedFace: 'unknown',
+}));
