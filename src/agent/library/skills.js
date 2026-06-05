@@ -866,6 +866,49 @@ export async function discard(bot, itemName, num=-1) {
     return true;
 }
 
+// bot.openContainer() awaits the server's `windowOpen` for a non-cancellable 20s
+// (mineflayer default), so one missed open freezes the whole action for the full 20s.
+// openContainerSafe() bounds that with a short timeout + retries and fails cleanly.
+const CONTAINER_MOVE_MODES = ['unstuck', 'item_collecting', 'elbow_room'];
+
+function pauseContainerModes(bot) {
+    if (!bot.modes) return;
+    for (const mode of CONTAINER_MOVE_MODES) { try { bot.modes.pause(mode); } catch (e) {} }
+}
+function resumeContainerModes(bot) {
+    if (!bot.modes) return;
+    for (const mode of CONTAINER_MOVE_MODES) { try { bot.modes.unpause(mode); } catch (e) {} }
+}
+
+async function openContainerSafe(bot, block, attempts=3, timeoutMs=5000) {
+    const center = block.position.offset(0.5, 0.5, 0.5);
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+        if (bot.currentWindow) { try { await bot.closeWindow(bot.currentWindow); } catch (e) {} } // a prior attempt may have opened late
+        // stop and face the block so the open isn't rejected for being out of reach
+        try { bot.pathfinder?.stop?.(); } catch (e) {}
+        try { bot.clearControlStates?.(); } catch (e) {}
+        try { await bot.lookAt(center, true); } catch (e) {}
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        const openPromise = bot.openContainer(block);
+        openPromise.catch(() => {}); // ignore a late rejection if the timeout wins the race
+        let timer;
+        const timeout = new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error(`container did not open within ${timeoutMs}ms`)), timeoutMs);
+        });
+        try {
+            const container = await Promise.race([openPromise, timeout]);
+            clearTimeout(timer);
+            return container;
+        } catch (err) {
+            clearTimeout(timer);
+            if (bot.interrupt_code) throw err; // a real interrupt -- bail fast, don't retry
+        }
+    }
+    throw new Error(`Could not open container after ${attempts} attempts (no windowOpen from server).`);
+}
+// -------------------------------------------------------------------------------
+
 export async function putInChest(bot, itemName, num=-1) {
     /**
      * Put the given item in the nearest chest.
@@ -887,12 +930,20 @@ export async function putInChest(bot, itemName, num=-1) {
         return false;
     }
     let to_put = num === -1 ? item.count : Math.min(num, item.count);
-    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
-    const chestContainer = await bot.openContainer(chest);
-    await chestContainer.deposit(item.type, null, to_put);
-    await chestContainer.close();
-    log(bot, `Successfully put ${to_put} ${itemName} in the chest.`);
-    return true;
+    pauseContainerModes(bot);
+    try {
+        await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 1);
+        const chestContainer = await openContainerSafe(bot, chest);
+        await chestContainer.deposit(item.type, null, to_put);
+        await chestContainer.close();
+        log(bot, `Successfully put ${to_put} ${itemName} in the chest.`);
+        return true;
+    } catch (err) {
+        log(bot, `Failed to put ${itemName} in the chest: ${err.message}`);
+        return false;
+    } finally {
+        resumeContainerModes(bot);
+    }
 }
 
 export async function takeFromChest(bot, itemName, num=-1) {
@@ -910,35 +961,43 @@ export async function takeFromChest(bot, itemName, num=-1) {
         log(bot, `Could not find a chest nearby.`);
         return false;
     }
-    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
-    const chestContainer = await bot.openContainer(chest);
-    
-    // Find all matching items in the chest
-    let matchingItems = chestContainer.containerItems().filter(item => item.name === itemName);
-    if (matchingItems.length === 0) {
-        log(bot, `Could not find any ${itemName} in the chest.`);
+    pauseContainerModes(bot);
+    try {
+        await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 1);
+        const chestContainer = await openContainerSafe(bot, chest);
+
+        // Find all matching items in the chest
+        let matchingItems = chestContainer.containerItems().filter(item => item.name === itemName);
+        if (matchingItems.length === 0) {
+            log(bot, `Could not find any ${itemName} in the chest.`);
+            await chestContainer.close();
+            return false;
+        }
+
+        let totalAvailable = matchingItems.reduce((sum, item) => sum + item.count, 0);
+        let remaining = num === -1 ? totalAvailable : Math.min(num, totalAvailable);
+        let totalTaken = 0;
+
+        // Take items from each slot until we've taken enough or run out
+        for (const item of matchingItems) {
+            if (remaining <= 0) break;
+
+            let toTakeFromSlot = Math.min(remaining, item.count);
+            await chestContainer.withdraw(item.type, null, toTakeFromSlot);
+
+            totalTaken += toTakeFromSlot;
+            remaining -= toTakeFromSlot;
+        }
+
         await chestContainer.close();
+        log(bot, `Successfully took ${totalTaken} ${itemName} from the chest.`);
+        return totalTaken > 0;
+    } catch (err) {
+        log(bot, `Failed to take ${itemName} from the chest: ${err.message}`);
         return false;
+    } finally {
+        resumeContainerModes(bot);
     }
-    
-    let totalAvailable = matchingItems.reduce((sum, item) => sum + item.count, 0);
-    let remaining = num === -1 ? totalAvailable : Math.min(num, totalAvailable);
-    let totalTaken = 0;
-    
-    // Take items from each slot until we've taken enough or run out
-    for (const item of matchingItems) {
-        if (remaining <= 0) break;
-        
-        let toTakeFromSlot = Math.min(remaining, item.count);
-        await chestContainer.withdraw(item.type, null, toTakeFromSlot);
-        
-        totalTaken += toTakeFromSlot;
-        remaining -= toTakeFromSlot;
-    }
-    
-    await chestContainer.close();
-    log(bot, `Successfully took ${totalTaken} ${itemName} from the chest.`);
-    return totalTaken > 0;
 }
 
 export async function viewChest(bot) {
@@ -954,20 +1013,28 @@ export async function viewChest(bot) {
         log(bot, `Could not find a chest nearby.`);
         return false;
     }
-    await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 2);
-    const chestContainer = await bot.openContainer(chest);
-    let items = chestContainer.containerItems();
-    if (items.length === 0) {
-        log(bot, `The chest is empty.`);
-    }
-    else {
-        log(bot, `The chest contains:`);
-        for (let item of items) {
-            log(bot, `${item.count} ${item.name}`);
+    pauseContainerModes(bot);
+    try {
+        await goToPosition(bot, chest.position.x, chest.position.y, chest.position.z, 1);
+        const chestContainer = await openContainerSafe(bot, chest);
+        let items = chestContainer.containerItems();
+        if (items.length === 0) {
+            log(bot, `The chest is empty.`);
         }
+        else {
+            log(bot, `The chest contains:`);
+            for (let item of items) {
+                log(bot, `${item.count} ${item.name}`);
+            }
+        }
+        await chestContainer.close();
+        return true;
+    } catch (err) {
+        log(bot, `Failed to view the chest: ${err.message}`);
+        return false;
+    } finally {
+        resumeContainerModes(bot);
     }
-    await chestContainer.close();
-    return true;
 }
 
 export async function consume(bot, itemName="") {
