@@ -6,6 +6,7 @@ import settings from "../../../settings.js";
 
 const blockPlaceDelay = settings.block_place_delay == null ? 0 : settings.block_place_delay;
 const useDelay = blockPlaceDelay > 0;
+const verifyPlacements = settings.verify_placements === true;
 
 export function log(bot, message) {
     bot.output += message + '\n';
@@ -774,13 +775,43 @@ export async function placeBlock(bot, blockType, x, y, z, placeOn='bottom', dont
         if (item_name.includes('bucket')) {
             await useToolOnBlock(bot, item_name, buildOffBlock);
         }
-        else {
+        else if (!verifyPlacements) {
             await bot.equip(block_item, 'hand');
             await bot.lookAt(buildOffBlock.position.offset(0.5, 0.5, 0.5));
             await bot.placeBlock(buildOffBlock, faceVec);
             log(bot, `Placed ${blockType} at ${target_dest}.`);
             await new Promise(resolve => setTimeout(resolve, 200));
             return true;
+        }
+        else {
+            // verify_placements: confirm the block actually persisted server-side before reporting
+            // success. placeBlock resolves on the client's view, but some servers (anti-cheat,
+            // protection/claim plugins, spawn protection) reject/revert a valid placement a few
+            // hundred ms later - otherwise logged as a phantom "Placed". Re-read past that window
+            // and retry a couple of times before reporting a real failure.
+            await bot.equip(block_item, 'hand');
+            await bot.lookAt(buildOffBlock.position.offset(0.5, 0.5, 0.5));
+            const placeStuck = () => {
+                const b = bot.blockAt(target_dest);
+                return b && !empty_blocks.includes(b.name);
+            };
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                try {
+                    await bot.placeBlock(buildOffBlock, faceVec);
+                } catch (err) {
+                    // placeBlock often throws even when the block landed; the verify below decides.
+                }
+                await new Promise(resolve => setTimeout(resolve, 400)); // wait past the revert window
+                if (placeStuck()) {
+                    log(bot, `Placed ${blockType} at ${target_dest}.`);
+                    return true;
+                }
+                // re-resolve the support block in case its state changed, then retry
+                const rb = bot.blockAt(buildOffBlock.position);
+                if (rb && !empty_blocks.includes(rb.name)) buildOffBlock = rb;
+            }
+            log(bot, `Failed to place ${blockType} at ${target_dest}: server did not keep the block.`);
+            return false;
         }
     } catch (err) {
         log(bot, `Failed to place ${blockType} at ${target_dest}.`);
