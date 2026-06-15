@@ -71,7 +71,6 @@ You can configure the agent's name, model, and prompts in their profile like `an
 | `huggingface` | `HUGGINGFACE_API_KEY` | [docs](https://huggingface.co/models) |
 | `novita` | `NOVITA_API_KEY` | [docs](https://novita.ai/model-api/product/llm-api?utm_source=github_mindcraft&utm_medium=github_readme&utm_campaign=link) |
 | `openrouter` | `OPENROUTER_API_KEY` | [docs](https://openrouter.ai/models) |
-| `glhf` | `GHLF_API_KEY` | [docs](https://glhf.chat/user-settings/api) |
 | `hyperbolic` | `HYPERBOLIC_API_KEY` | [docs](https://docs.hyperbolic.xyz/docs/getting-started) |
 | `vllm` | n/a | n/a |
 | `cerebras` | `CEREBRAS_API_KEY` | [docs](https://inference-docs.cerebras.ai/introduction) |
