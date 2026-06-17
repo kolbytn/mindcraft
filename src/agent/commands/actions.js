@@ -284,8 +284,11 @@ export const actionsList = [
         perform: runAsAction(async (agent, item_name, num) => {
             let success = await skills.smeltItem(agent.bot, item_name, num);
             if (success) {
+                // Smelting can leave mineflayer's inventory cache out of sync with the furnace output.
+                // Refresh it with a soft resync (reconnect in place) instead of a full process restart,
+                // so the agent keeps its history, goal and self-prompt loop.
                 setTimeout(() => {
-                    agent.cleanKill('Safely restarting to update inventory.');
+                    agent.softResync('refresh inventory after smelting');
                 }, 500);
             }
         })

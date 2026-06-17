@@ -65,41 +65,8 @@ export class Agent {
         console.log(this.name, 'logging into minecraft...');
         this.bot = initBot(this.name);
         
-        // Connection Handler
-        const onDisconnect = (event, reason) => {
-            if (this._disconnectHandled) return;
-            this._disconnectHandled = true;
-
-            // Log and Analyze
-            // handleDisconnection handles logging to console and server
-            const { type } = handleDisconnection(this.name, reason);
-     
-            process.exit(1);
-        };
-        
-        // Bind events
-        this.bot.once('kicked', (reason) => onDisconnect('Kicked', reason));
-        this.bot.once('end', (reason) => onDisconnect('Disconnected', reason));
-        this.bot.on('error', (err) => {
-            if (String(err).includes('Duplicate') || String(err).includes('ECONNREFUSED')) {
-                 onDisconnect('Error', err);
-            } else {
-                 log(this.name, `[LoginGuard] Connection Error: ${String(err)}`);
-            }
-        });
-
+        this._bindConnectionHandlers();
         initModes(this);
-
-        this.bot.on('login', () => {
-            console.log(this.name, 'logged in!');
-            serverProxy.login();
-            
-            // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
-            if (this.prompter.profile.skin)
-                this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
-            else
-                this.bot.chat(`/skin clear`);
-        });
 		const spawnTimeoutDuration = settings.spawn_timeout;
         const spawnTimeout = setTimeout(() => {
             const msg = `Bot has not spawned after ${spawnTimeoutDuration} seconds. Exiting.`;
@@ -144,7 +111,77 @@ export class Agent {
         });
     }
 
-    async _setupEventHandlers(save_data, init_message) {
+    // Bind connection-level handlers to the current bot. Called on the initial connect and again on a
+    // soft resync, so the disconnect/login logic lives in one place rather than being duplicated.
+    _bindConnectionHandlers() {
+        this._disconnectHandled = false;
+        this.bot.once('kicked', (reason) => this._onDisconnect('Kicked', reason));
+        this.bot.once('end', (reason) => this._onDisconnect('Disconnected', reason));
+        this.bot.on('error', (err) => {
+            if (String(err).includes('Duplicate') || String(err).includes('ECONNREFUSED'))
+                this._onDisconnect('Error', err);
+            else
+                log(this.name, `[LoginGuard] Connection Error: ${String(err)}`);
+        });
+        this.bot.on('login', () => {
+            console.log(this.name, 'logged in!');
+            serverProxy.login();
+            // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
+            if (this.prompter.profile.skin)
+                this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
+            else
+                this.bot.chat(`/skin clear`);
+        });
+    }
+
+    _onDisconnect(event, reason) {
+        // A deliberate soft resync ends the old bot on purpose -- don't treat that as a crash.
+        if (this._disconnectHandled || this._reconnecting) return;
+        this._disconnectHandled = true;
+        handleDisconnection(this.name, reason);
+        process.exit(1);
+    }
+
+    // Reconnect the mineflayer bot in place to clear a desynced world cache (lag-induced ghost blocks:
+    // see PrismarineJS/mineflayer #2600). A fresh connection re-downloads chunks, fixing the corruption
+    // -- the same thing a full restart does, but WITHOUT killing the process, so the agent's history,
+    // memory and self-prompt goal survive. Falls back to cleanKill (a full restart) if it fails.
+    async softResync(reason = 'world cache desync') {
+        if (this._reconnecting) return false;
+        log(this.name, `Soft resync: reconnecting to refresh a desynced world cache (${reason}).`);
+        this.history.add('system', `(SYSTEM) Reconnected to clear a desynced world cache (${reason}); memory and goals preserved.`);
+        this._reconnecting = true;
+        try { this.actions.cancelResume(); } catch (e) {}
+        try { await this.actions.stop(); } catch (e) {} // await so the in-flight action actually stops before we swap the bot out
+        const old = this.bot;
+        try { old.removeAllListeners(); } catch (e) {}
+        try { old.quit('resync'); } catch (e) {}
+        await new Promise((r) => setTimeout(r, 2500));
+        this.bot = initBot(this.name);
+        this._bindConnectionHandlers();
+        initModes(this);
+        try {
+            await new Promise((resolve, reject) => {
+                const to = setTimeout(() => reject(new Error('spawn timeout')), (settings.spawn_timeout || 30) * 1000);
+                this.bot.once('spawn', async () => {
+                    clearTimeout(to);
+                    await new Promise((r) => setTimeout(r, 1000));
+                    await this._setupEventHandlers(null, null, true); // isReconnect: skip greeting / memory reload
+                    this.startEvents(); // re-attach the per-bot listeners; the update loop is started only once
+                    resolve();
+                });
+            });
+        } catch (e) {
+            log(this.name, `Soft resync failed (${e.message}); falling back to restart.`);
+            this._reconnecting = false;
+            return this.cleanKill('Soft resync failed; restarting.', 4);
+        }
+        this._reconnecting = false;
+        log(this.name, 'Soft resync complete; world cache refreshed, agent state preserved.');
+        return true;
+    }
+
+    async _setupEventHandlers(save_data, init_message, isReconnect = false) {
         const ignore_messages = [
             "Set own game mode to",
             "Set the time to",
@@ -193,6 +230,10 @@ export class Agent {
             startAt: 14,
             bannedFood: ["rotten_flesh", "spider_eye", "poisonous_potato", "pufferfish", "chicken"]
         };
+
+        // On a soft resync the agent is already running -- skip the greeting / memory reload / task
+        // bootstrap so the bot quietly rejoins with its existing state intact.
+        if (isReconnect) return;
 
         if (save_data?.self_prompt) {
             if (init_message) {
@@ -496,28 +537,36 @@ export class Agent {
             }, 1000);
         });
 
-        // Init NPC controller
-        this.npc.init();
+        // The NPC controller and the update loop are process-global, not per-connection -- start them
+        // only once so a soft resync (which re-runs startEvents to rebind the bot listeners) does not
+        // spin up a second update loop.
+        if (!this._eventsInitialized) {
+            this._eventsInitialized = true;
 
-        // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
-        const INTERVAL = 300;
-        let last = Date.now();
-        setTimeout(async () => {
-            while (true) {
-                let start = Date.now();
-                await this.update(start - last);
-                let remaining = INTERVAL - (Date.now() - start);
-                if (remaining > 0) {
-                    await new Promise((resolve) => setTimeout(resolve, remaining));
+            // Init NPC controller
+            this.npc.init();
+
+            // This update loop ensures that each update() is called one at a time, even if it takes longer than the interval
+            const INTERVAL = 300;
+            let last = Date.now();
+            setTimeout(async () => {
+                while (true) {
+                    let start = Date.now();
+                    await this.update(start - last);
+                    let remaining = INTERVAL - (Date.now() - start);
+                    if (remaining > 0) {
+                        await new Promise((resolve) => setTimeout(resolve, remaining));
+                    }
+                    last = start;
                 }
-                last = start;
-            }
-        }, INTERVAL);
+            }, INTERVAL);
+        }
 
         this.bot.emit('idle');
     }
 
     async update(delta) {
+        if (this._reconnecting) return; // bot is being swapped out during a soft resync
         await this.bot.modes.update();
         this.self_prompter.update(delta);
         await this.checkTaskDone();
