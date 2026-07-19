@@ -1,14 +1,3 @@
-// Dependency-free unit tests for the pure, server-independent parts of Forge
-// support (the FML wire codec, the mod-list reply, and registry/block merging).
-// No modded server and no test framework required.
-//
-//   Run:  node --test test/forge.test.mjs
-//
-// These cover the "scary" binary + injection code so a reviewer can trust it
-// without standing up a Forge modpack server. The handshake networking and the
-// actual createBot() wiring are exercised end-to-end against a real server (see
-// the PR description); they are intentionally out of scope for these unit tests.
-
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
@@ -23,8 +12,6 @@ import {
     attachForgeHandshake,
 } from '../src/utils/forge.js';
 
-// Golden (asymmetric) byte assertions. The round-trip tests below would still pass
-// if enc/dec shared an inverse bug, so pin the actual on-the-wire bytes here.
 test('VarInt golden bytes (300 <-> ac 02)', () => {
     assert.equal(readVarInt(Buffer.from([0xac, 0x02]), { i: 0 }), 300);
     assert.deepEqual([...writeVarInt(300)], [0xac, 0x02]);
@@ -33,13 +20,11 @@ test('VarInt golden bytes (300 <-> ac 02)', () => {
 });
 
 test('String golden bytes (length-prefix + UTF-8)', () => {
-    // "AB" -> VarInt len 2, then 0x41 0x42
     assert.deepEqual([...writeString('AB')], [0x02, 0x41, 0x42]);
     assert.equal(readString(Buffer.from([0x02, 0x41, 0x42]), { i: 0 }), 'AB');
 });
 
 test('loginwrapper golden bytes (channel + len + payload)', () => {
-    // channel "a" (len 1, 0x61), payloadLen 2, payload [0x63 0x02]
     assert.deepEqual([...encodeWrapper('a', Buffer.from([0x63, 0x02]))], [0x01, 0x61, 0x02, 0x63, 0x02]);
 });
 
@@ -64,7 +49,6 @@ test('loginwrapper envelope round-trips channel + payload', () => {
     assert.deepEqual([...got], [...payload]);
 });
 
-// Build a small S2CModList payload (discriminator 1) the way the server sends it.
 function buildModList(mods, channels, registries) {
     const parts = [writeVarInt(1)];
     parts.push(writeVarInt(mods.length)); mods.forEach(m => parts.push(writeString(m)));
@@ -80,7 +64,6 @@ test('C2SModListReply echoes the server mod/channel/registry lists', () => {
 
     const reply = buildModListReply(buildModList(mods, channels, registries));
 
-    // Decode the reply and assert it echoes everything back.
     const o = { i: 0 };
     assert.equal(readVarInt(reply, o), 2); // C2SModListReply discriminator
     const gotMods = [];
@@ -91,7 +74,6 @@ test('C2SModListReply echoes the server mod/channel/registry lists', () => {
     assert.deepEqual(gotChannels, channels);
     const gotRegs = [];
     for (let n = readVarInt(reply, o); n > 0; n--) gotRegs.push([readString(reply, o), readString(reply, o)]);
-    // registries are echoed as [name, "<hash marker>"] pairs
     assert.deepEqual(gotRegs.map(r => r[0]), registries);
 });
 
@@ -106,7 +88,7 @@ function fakeMcData() {
 
 test('mergeItemsAndEntities adds modded ids and leaves vanilla untouched', () => {
     const md = fakeMcData();
-    md.items[1] = { id: 1, name: 'stone' };        // pretend-vanilla, must survive
+    md.items[1] = { id: 1, name: 'stone' };
     md.items[1].displayName = 'Stone';
 
     const { items, entities } = mergeItemsAndEntities(md, {
@@ -114,10 +96,10 @@ test('mergeItemsAndEntities adds modded ids and leaves vanilla untouched', () =>
         entity: { entries: [{ id: 500, name: 'create:contraption' }] },
     });
 
-    assert.equal(items, 1);    // only the new one
+    assert.equal(items, 1);
     assert.equal(entities, 1);
-    assert.equal(md.items[1].displayName, 'Stone');            // vanilla untouched
-    assert.equal(md.itemsByName['create:cogwheel'].id, 20000); // modded resolvable by name
+    assert.equal(md.items[1].displayName, 'Stone');
+    assert.equal(md.itemsByName['create:cogwheel'].id, 20000);
     assert.equal(md.itemsByName['create:cogwheel'].displayName, 'Cogwheel');
     assert.equal(md.entitiesByName['create:contraption'].id, 500);
 });
@@ -134,7 +116,6 @@ test('mergeBlocks adds blocks, expands blocksByStateId, and merges collision', (
 
     assert.equal(added, 1);
     assert.equal(md.blocksByName['create:andesite_casing'].id, 900);
-    // every state id in [min,max] resolves back to the block
     for (const sid of [1000, 1001, 1002]) assert.equal(md.blocksByStateId[sid].name, 'create:andesite_casing');
     assert.equal(md.blocksByStateId[999], undefined);
     assert.deepEqual(md.blockCollisionShapes.shapes[900001], [[0, 0, 0, 1, 1, 1]]);
@@ -145,7 +126,7 @@ test('mergeBlocks is idempotent (guards against double injection)', () => {
     const md = fakeMcData();
     const blocks = [{ id: 900, name: 'create:andesite_casing', minStateId: 1000, maxStateId: 1000, defaultState: 1000 }];
     assert.equal(mergeBlocks(md, blocks, null).blocks, 1);
-    assert.equal(mergeBlocks(md, blocks, null).blocks, 0); // second call is a no-op
+    assert.equal(mergeBlocks(md, blocks, null).blocks, 0);
 });
 
 function tmpDataDir() {
@@ -182,18 +163,16 @@ test('injectModdedData gates items and blocks independently', () => {
 test('injectModdedData no-ops cleanly when data files are absent', () => {
     const empty = mkdtempSync(join(tmpdir(), 'forge-empty-'));
     const md = fakeMcData();
-    assert.doesNotThrow(() => injectModdedData(md, empty)); // defaults: items+blocks on
+    assert.doesNotThrow(() => injectModdedData(md, empty));
     assert.equal(Object.keys(md.itemsByName).length, 0);
     assert.equal(Object.keys(md.blocksByName).length, 0);
 });
 
-// A minimal fake nmp client: EventEmitter + a write spy. It also installs a
-// throwing login_plugin_request listener up front — if attachForgeHandshake did
-// not removeAllListeners (nmp's auto-NACK), emitting would throw and fail here.
 function fakeClient() {
     const client = new EventEmitter();
     client.writes = [];
     client.write = (name, data) => client.writes.push({ name, data });
+    // nmp installs an auto-NACK handler; if attachForgeHandshake doesn't remove it, this throws
     client.on('login_plugin_request', () => { throw new Error('nmp auto-NACK should have been removed'); });
     return client;
 }
@@ -207,7 +186,7 @@ test('attachForgeHandshake replies to S2CModList with a wrapped C2SModListReply'
     const registries = ['minecraft:block'];
     client.emit('login_plugin_request', {
         messageId: 42,
-        data: encodeWrapper('fml:handshake', buildModList(mods, channels, registries)), // disc=1
+        data: encodeWrapper('fml:handshake', buildModList(mods, channels, registries)),
     });
 
     assert.equal(client.writes.length, 1);
@@ -217,7 +196,7 @@ test('attachForgeHandshake replies to S2CModList with a wrapped C2SModListReply'
     const { channel, payload: reply } = decodeWrapper(data.data);
     assert.equal(channel, 'fml:handshake');
     const o = { i: 0 };
-    assert.equal(readVarInt(reply, o), 2); // C2SModListReply
+    assert.equal(readVarInt(reply, o), 2);
     const gotMods = [];
     for (let n = readVarInt(reply, o); n > 0; n--) gotMods.push(readString(reply, o));
     assert.deepEqual(gotMods, mods);
@@ -229,7 +208,6 @@ test('attachForgeHandshake replies to S2CModList with a wrapped C2SModListReply'
 test('attachForgeHandshake ACKs non-modlist requests with C2SAcknowledge', () => {
     const client = fakeClient();
     attachForgeHandshake(client);
-    // disc=3 (S2CRegistry) -> bare acknowledge (varint 99)
     const payload = Buffer.concat([writeVarInt(3), writeString('minecraft:block')]);
     client.emit('login_plugin_request', { messageId: 7, data: encodeWrapper('fml:handshake', payload) });
 
@@ -241,7 +219,6 @@ test('attachForgeHandshake ACKs non-modlist requests with C2SAcknowledge', () =>
 test('attachForgeHandshake falls back to a bare NACK on decode error', () => {
     const client = fakeClient();
     attachForgeHandshake(client);
-    // missing data -> decodeWrapper throws -> catch writes a data-less NACK
     client.emit('login_plugin_request', { messageId: 5 });
     assert.equal(client.writes.length, 1);
     assert.equal(client.writes[0].name, 'login_plugin_response');

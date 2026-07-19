@@ -65,10 +65,7 @@ export function initBot(username) {
     if (!mc_version || mc_version === "auto") {
         delete options.version;
     }
-
-    // Optional support for modded Forge servers. No-op unless settings.forge is
-    // true. See src/utils/forge.js. Item/entity and block injection are gated
-    // independently (both default on) and no-op cleanly when their data files are absent.
+    // Forge modded server support (see src/utils/forge.js)
     if (settings.forge) {
         if (!mc_version || mc_version === 'auto') {
             console.warn('[forge] settings.minecraft_version is "auto"/unset; forge mode needs an explicit version so registry injection targets the right minecraft-data. Set minecraft_version to your server version (defaulting to 1.19.2).');
