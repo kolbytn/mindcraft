@@ -4,6 +4,13 @@ const settings = {
     "port": 55916, // set to -1 to automatically scan for open ports
     "auth": "offline", // or "microsoft"
 
+    // Optional: connect to modded Forge servers. Off by default (see tools/modded/README.md).
+    "forge": false,
+    "forge_fml_marker": "FML3", // FML2 for ~MC 1.13-1.16, FML3 for ~1.17-1.19.x
+    "forge_data_path": "./modded_data", // dir holding the extracted modded registry/block data
+    "forge_inject_items": true, // recognize modded items/entities by name (needs modded_registries.json)
+    "forge_inject_blocks": true, // recognize modded blocks / read modded chunks (needs blocks.patch.json)
+
     // the mindserver manages all agents and hosts the UI
     "mindserver_port": 8080,
     "auto_open_ui": true, // opens UI in browser on startup

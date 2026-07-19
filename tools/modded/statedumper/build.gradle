@@ -1,0 +1,52 @@
+// Minimal ForgeGradle 5 build script for a standalone "statedumper" mod jar.
+// This does NOT need to be built inside the modpack's own workspace and does
+// NOT need any of the modpack's third-party mod jars on the classpath - it only
+// calls public Forge/vanilla APIs (ForgeRegistries, Block, StateDefinition,
+// Property, VoxelShape) that exist regardless of which mods are loaded at
+// runtime. Build this exactly once, in isolation, against the SAME Minecraft +
+// Forge version string your target server runs (see gradle.properties below).
+// Confirm the exact build number from the server's `logs/latest.log` startup
+// banner (it prints "Loading Forge mod jar ... forge-<mc>-<ver>") or from the
+// modpack's manifest before setting minecraft_version / forge_version below.
+//
+// Standard usage (from an empty directory containing this repo layout):
+//   1. Copy this build.gradle + settings.gradle + gradle.properties + the
+//      src/ tree into a fresh directory.
+//   2. `./gradlew build` (use the JDK your MC version needs, e.g. JDK 17 for 1.19.2)
+//   3. Output jar appears at build/libs/statedumper-1.0.0.jar
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = '1.0.0'
+group = 'com.mindcraft.statedumper'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+    runs {
+        // no 'server'/'client' run configs needed - we only build the jar,
+        // we never run this project locally against the live modpack.
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": "statedumper",
+            "Specification-Vendor": "mindcraft-tooling",
+            "Specification-Version": "1",
+            "Implementation-Title": project.name,
+            "Implementation-Version": project.version,
+            "Implementation-Vendor": "mindcraft-tooling"
+        ])
+    }
+}

@@ -1,0 +1,12 @@
+diff --git a/node_modules/minecraft-protocol/src/client/chat.js b/node_modules/minecraft-protocol/src/client/chat.js
+index 0021870..f8eb10a 100644
+--- a/node_modules/minecraft-protocol/src/client/chat.js
++++ b/node_modules/minecraft-protocol/src/client/chat.js
+@@ -302,6 +302,7 @@ module.exports = function (client, options) {
+ 
+   const sliceIndexForMessage = {}
+   client.on('declare_commands', (packet) => {
++    if (!packet || !packet.nodes) return
+     const nodes = packet.nodes
+     for (const commandNode of nodes[0].children) {
+       const node = nodes[commandNode]

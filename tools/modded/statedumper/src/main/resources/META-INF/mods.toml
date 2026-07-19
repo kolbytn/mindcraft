@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+issueTrackerURL="https://example.invalid/none"
+
+[[mods]]
+modId="statedumper"
+version="1.0.0"
+displayName="State Dumper (diagnostic, read-only)"
+description='''
+Read-only diagnostic mod. Registers NOTHING (no blocks/items/entities/etc).
+On ServerStartedEvent it iterates ForgeRegistries.BLOCKS and writes
+statedump/blockstates.json containing every block's registry id, its
+blockstate property definitions, and the exact global block-STATE id
+(from Block.BLOCK_STATE_REGISTRY) for every possible state permutation.
+Intended to be added to the mods folder for exactly one server start,
+then removed. Safe to add/remove because it never touches any registry.
+'''
+authors="mindcraft-tooling"
+
+[[dependencies.statedumper]]
+    modId="forge"
+    mandatory=true
+    versionRange="[43,)"
+    ordering="NONE"
+    side="SERVER"
+
+[[dependencies.statedumper]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.2,1.19.3)"
+    ordering="NONE"
+    side="SERVER"

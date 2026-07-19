@@ -7,6 +7,7 @@ import { plugin as pvp } from 'mineflayer-pvp';
 import { plugin as collectblock } from 'mineflayer-collectblock';
 import { plugin as autoEat } from 'mineflayer-auto-eat';
 import plugin from 'mineflayer-armor-manager';
+import { applyForgeSupport, attachForgeHandshake } from './forge.js';
 const armorManager = plugin;
 let mc_version = settings.minecraft_version;
 let mcdata = null;
@@ -65,7 +66,26 @@ export function initBot(username) {
         delete options.version;
     }
 
+    // Optional support for modded Forge servers. No-op unless settings.forge is
+    // true. See src/utils/forge.js. Item/entity and block injection are gated
+    // independently (both default on) and no-op cleanly when their data files are absent.
+    if (settings.forge) {
+        if (!mc_version || mc_version === 'auto') {
+            console.warn('[forge] settings.minecraft_version is "auto"/unset; forge mode needs an explicit version so registry injection targets the right minecraft-data. Set minecraft_version to your server version (defaulting to 1.19.2).');
+        }
+        applyForgeSupport(options, mc_version, {
+            dataPath: settings.forge_data_path,
+            fmlMarker: settings.forge_fml_marker,
+            injectItems: settings.forge_inject_items !== false,
+            injectBlocks: settings.forge_inject_blocks !== false,
+        });
+    }
+
     const bot = createBot(options);
+    if (settings.forge) {
+        attachForgeHandshake(bot._client);
+    }
+
 
     // Throttle position packets to avoid kicks on Paper/Spigot servers
     // Paper enforces stricter packet rate limits than vanilla, causing ECONNRESET
