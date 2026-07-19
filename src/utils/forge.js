@@ -40,6 +40,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import minecraftData from 'minecraft-data';
+import protodef from 'protodef';
 
 // Last-resort minecraft-data version if settings.minecraft_version is unset/"auto".
 // Forge servers can't be reliably version-auto-detected, so set it explicitly.
@@ -52,20 +53,24 @@ const DISC_S2C_MODLIST = 1;
 const DISC_C2S_MODLIST_REPLY = 2;
 const DISC_C2S_ACKNOWLEDGE = 99;
 
-// --- FML binary primitives -------------------------------------------------
-// Forge frames its payloads with the same VarInt + length-prefixed UTF-8 string
-// encoding Minecraft uses on the wire. `o` is a { i } cursor advanced in place.
+// --- FML binary primitives (via protodef) ------------------------------------
+// Forge frames payloads with standard Minecraft VarInt + length-prefixed UTF-8
+// strings. We delegate varint encoding to protodef (the same library
+// minecraft-protocol uses internally) and wrap with cursor-style interface.
 
-// These are exported so the wire codec can be unit-tested without a server.
+const [_readVarInt, _writeVarInt, _sizeOfVarInt] = protodef.types.varint;
+
+// Thin wrappers matching the cursor-object interface used by decodeWrapper/buildModListReply.
+// Delegates to protodef (the same varint impl minecraft-protocol uses internally).
 export function readVarInt(buf, o) {
-    let val = 0, shift = 0, b;
-    do { b = buf[o.i++]; val |= (b & 0x7f) << (7 * shift); shift++; } while (b & 0x80);
-    return val >>> 0;
+    const { value, size } = _readVarInt(buf, o.i);
+    o.i += size;
+    return value;
 }
 export function writeVarInt(v) {
-    const bytes = [];
-    do { let t = v & 0x7f; v >>>= 7; if (v !== 0) t |= 0x80; bytes.push(t); } while (v !== 0);
-    return Buffer.from(bytes);
+    const buf = Buffer.alloc(_sizeOfVarInt(v));
+    _writeVarInt(v, buf, 0);
+    return buf;
 }
 export function readString(buf, o) {
     const len = readVarInt(buf, o);
