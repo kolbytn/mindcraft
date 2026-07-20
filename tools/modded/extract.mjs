@@ -8,7 +8,8 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 function arg(name, fallback) {
     const i = process.argv.indexOf('--' + name);
-    return i !== -1 ? process.argv[i + 1] : fallback;
+    if (i === -1 || i + 1 >= process.argv.length) return fallback;
+    return process.argv[i + 1];
 }
 
 const serverDir = arg('server-dir', null);

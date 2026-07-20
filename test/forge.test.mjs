@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -207,7 +207,7 @@ test('attachForgeHandshake replies to S2CModList with a wrapped C2SModListReply'
 
 test('attachForgeHandshake ACKs non-modlist requests with C2SAcknowledge', () => {
     const client = fakeClient();
-    attachForgeHandshake(client);
+    attachForgeHandshake(client, { autoCapture: false });
     const payload = Buffer.concat([writeVarInt(3), writeString('minecraft:block')]);
     client.emit('login_plugin_request', { messageId: 7, data: encodeWrapper('fml:handshake', payload) });
 
@@ -224,4 +224,64 @@ test('attachForgeHandshake falls back to a bare NACK on decode error', () => {
     assert.equal(client.writes[0].name, 'login_plugin_response');
     assert.equal(client.writes[0].data.messageId, 5);
     assert.equal(client.writes[0].data.data, undefined);
+});
+
+function buildRegistryPayload(regName, entries) {
+    const parts = [writeVarInt(3), writeString(regName), Buffer.from([1]), writeVarInt(entries.length)];
+    entries.forEach(e => parts.push(writeString(e.name), writeVarInt(e.id)));
+    return Buffer.concat(parts);
+}
+
+test("auto-capture writes registry data on success", () => {
+    const dir = mkdtempSync(join(tmpdir(), "forge-cap-"));
+    try {
+        const client = fakeClient();
+        attachForgeHandshake(client, { autoCapture: true, dataPath: dir });
+
+        const entries = [{ id: 20000, name: "create:cogwheel" }, { id: 20001, name: "create:shaft" }];
+        const payload = buildRegistryPayload("minecraft:item", entries);
+        client.emit("login_plugin_request", {
+            messageId: 10,
+            data: encodeWrapper("fml:handshake", payload),
+        });
+
+        client.emit("success");
+
+        const outFile = join(dir, "modded_registries.json");
+        assert.ok(existsSync(outFile), "modded_registries.json should exist");
+        const written = JSON.parse(readFileSync(outFile, "utf8"));
+        assert.equal(written.item.count, 2);
+        assert.equal(written.item.entries.length, 2);
+        assert.equal(written.item.entries[0].name, "create:cogwheel");
+        assert.equal(written.item.entries[0].id, 20000);
+        assert.equal(written.item.entries[1].name, "create:shaft");
+        assert.equal(written.item.entries[1].id, 20001);
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+});
+
+test("auto-capture does NOT overwrite existing file", () => {
+    const dir = mkdtempSync(join(tmpdir(), "forge-noow-"));
+    try {
+        const outFile = join(dir, "modded_registries.json");
+        writeFileSync(outFile, JSON.stringify({ dummy: true }));
+
+        const client = fakeClient();
+        attachForgeHandshake(client, { autoCapture: true, dataPath: dir });
+
+        const entries = [{ id: 20000, name: "create:cogwheel" }];
+        const payload = buildRegistryPayload("minecraft:item", entries);
+        client.emit("login_plugin_request", {
+            messageId: 11,
+            data: encodeWrapper("fml:handshake", payload),
+        });
+
+        client.emit("success");
+
+        const content = JSON.parse(readFileSync(outFile, "utf8"));
+        assert.deepEqual(content, { dummy: true }, "file should remain unchanged");
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
 });

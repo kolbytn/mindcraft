@@ -122,6 +122,7 @@ export function attachForgeHandshake(client, opts = {}) {
         client.once('success', () => {
             if (Object.keys(captured).length === 0) return;
             const outFile = join(dataPath, 'modded_registries.json');
+            // Safe to skip: concurrent bots receive identical registries from the same server
             if (existsSync(outFile)) return;
             try {
                 mkdirSync(dataPath, { recursive: true });
@@ -142,6 +143,7 @@ function loadJson(path) {
     return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null;
 }
 
+// Vanilla parser crashes on modded argument types in declare_commands
 export function applyPacketResilience(md) {
     const types = md?.protocol?.play?.toClient?.types;
     if (types) types.packet_declare_commands = 'restBuffer';
@@ -205,6 +207,7 @@ export function injectModdedData(md, dataPath = './modded_data', { items = true,
     } catch (e) { console.warn('[forge] block injection failed:', e?.message || e); }
 }
 
+// Sync I/O acceptable here — endpoint is called rarely and files are small
 export function getModdedStatus(dataPath = './modded_data') {
     const registries = loadJson(join(dataPath, 'modded_registries.json'));
     const blocks = loadJson(join(dataPath, 'blocks.patch.json'));
