@@ -5,6 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as mindcraft from './mindcraft.js';
 import { readFileSync } from 'fs';
+import { getModdedStatus } from '../utils/forge.js';
+import globalSettings from '../../settings.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Mindserver is:
@@ -111,6 +113,16 @@ export function createMindServer(host_public = false, port = 8080) {
             res.setHeader('Content-Type', 'image/svg+xml');
             res.status(500).send('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="100%" height="100%" fill="#444"/><text x="50%" y="55%" font-size="12" fill="#bbb" text-anchor="middle">!</text></svg>');
         }
+    });
+
+    app.get("/api/modded-status", (req, res) => {
+        const dataPath = globalSettings.forge_data_path || "./modded_data";
+        res.json({
+            forge_enabled: !!globalSettings.forge,
+            auto_capture: globalSettings.forge_auto_capture !== false,
+            data_path: dataPath,
+            ...getModdedStatus(dataPath),
+        });
     });
 
     // Socket.io connection handling

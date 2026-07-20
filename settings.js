@@ -10,6 +10,7 @@ const settings = {
     "forge_data_path": "./modded_data", // dir holding the extracted modded registry/block data
     "forge_inject_items": true, // recognize modded items/entities by name (needs modded_registries.json)
     "forge_inject_blocks": true, // recognize modded blocks / read modded chunks (needs blocks.patch.json)
+    "forge_auto_capture": true, // auto-save item/entity registries from FML handshake on first connect
 
     // the mindserver manages all agents and hosts the UI
     "mindserver_port": 8080,

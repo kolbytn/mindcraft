@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import minecraftData from 'minecraft-data';
 import protodef from 'protodef';
@@ -7,8 +7,11 @@ const DEFAULT_FORGE_VERSION = '1.19.2';
 const DEFAULT_FML_MARKER = 'FML3';
 const HANDSHAKE_CHANNEL = 'fml:handshake';
 const DISC_S2C_MODLIST = 1;
+const DISC_S2C_REGISTRY = 3;
 const DISC_C2S_MODLIST_REPLY = 2;
 const DISC_C2S_ACKNOWLEDGE = 99;
+
+const WANTED_REGISTRIES = { 'minecraft:item': 'item', 'minecraft:entity_type': 'entity', 'minecraft:block': 'block' };
 
 const [_readVarInt, _writeVarInt, _sizeOfVarInt] = protodef.types.varint;
 
@@ -63,13 +66,45 @@ function readList(buf, o, readItem) {
     return out;
 }
 
-export function attachForgeHandshake(client) {
-    // Must remove-all: nmp installs an auto-NACK handler that would conflict
+function decodeRegistry(payload) {
+    const o = { i: 0 };
+    readVarInt(payload, o);
+    const regName = readString(payload, o);
+    const hasSnapshot = payload[o.i++];
+    if (!hasSnapshot) return { regName, entries: [] };
+    const count = readVarInt(payload, o);
+    const entries = [];
+    for (let k = 0; k < count; k++) {
+        const name = readString(payload, o);
+        const id = readVarInt(payload, o);
+        entries.push({ id, name });
+    }
+    return { regName, entries };
+}
+
+export function attachForgeHandshake(client, opts = {}) {
+    const { autoCapture = true, dataPath = './modded_data' } = opts;
+    const captured = {};
+
     client.removeAllListeners('login_plugin_request');
     client.on('login_plugin_request', (packet) => {
         try {
             const { channel, payload } = decodeWrapper(packet.data);
             const disc = payload.length ? payload[0] : -1;
+
+            if (channel === HANDSHAKE_CHANNEL && disc === DISC_S2C_REGISTRY && autoCapture) {
+                try {
+                    const { regName, entries } = decodeRegistry(payload);
+                    const key = WANTED_REGISTRIES[regName];
+                    if (key && !captured[key]) {
+                        captured[key] = { count: entries.length, entries };
+                        console.log(`[forge] auto-captured ${regName}: ${entries.length} entries`);
+                    }
+                } catch (e) {
+                    console.warn('[forge] registry decode failed:', e?.message || e);
+                }
+            }
+
             const reply = (channel === HANDSHAKE_CHANNEL && disc === DISC_S2C_MODLIST)
                 ? buildModListReply(payload)
                 : writeVarInt(DISC_C2S_ACKNOWLEDGE);
@@ -82,6 +117,21 @@ export function attachForgeHandshake(client) {
             try { client.write('login_plugin_response', { messageId: packet.messageId }); } catch (_) {}
         }
     });
+
+    if (autoCapture) {
+        client.once('success', () => {
+            if (Object.keys(captured).length === 0) return;
+            const outFile = join(dataPath, 'modded_registries.json');
+            if (existsSync(outFile)) return;
+            try {
+                mkdirSync(dataPath, { recursive: true });
+                writeFileSync(outFile, JSON.stringify(captured, null, 2));
+                console.log(`[forge] wrote auto-captured registries to ${outFile}`);
+            } catch (e) {
+                console.warn('[forge] failed to write auto-captured registries:', e?.message || e);
+            }
+        });
+    }
 }
 
 function prettyName(resourceLocation) {
@@ -92,8 +142,6 @@ function loadJson(path) {
     return existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null;
 }
 
-// Pass modded declare_commands through as raw buffer — the vanilla parser
-// can't handle modded argument types and would crash.
 export function applyPacketResilience(md) {
     const types = md?.protocol?.play?.toClient?.types;
     if (types) types.packet_declare_commands = 'restBuffer';
@@ -155,6 +203,20 @@ export function injectModdedData(md, dataPath = './modded_data', { items = true,
             console.log(`[forge] injected modded blocks: +${added}`);
         }
     } catch (e) { console.warn('[forge] block injection failed:', e?.message || e); }
+}
+
+export function getModdedStatus(dataPath = './modded_data') {
+    const registries = loadJson(join(dataPath, 'modded_registries.json'));
+    const blocks = loadJson(join(dataPath, 'blocks.patch.json'));
+    const collision = loadJson(join(dataPath, 'blockCollisionShapes.patch.json'));
+    return {
+        registries_exist: !!registries,
+        blocks_exist: !!blocks,
+        collision_exist: !!collision,
+        items: registries?.item?.entries?.length || 0,
+        entities: registries?.entity?.entries?.length || 0,
+        blocks_count: Array.isArray(blocks) ? blocks.length : 0,
+    };
 }
 
 export function applyForgeSupport(options, version, opts = {}) {

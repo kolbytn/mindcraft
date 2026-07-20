@@ -80,7 +80,10 @@ export function initBot(username) {
 
     const bot = createBot(options);
     if (settings.forge) {
-        attachForgeHandshake(bot._client);
+        attachForgeHandshake(bot._client, {
+            autoCapture: settings.forge_auto_capture !== false,
+            dataPath: settings.forge_data_path || "./modded_data",
+        });
     }
 
 
