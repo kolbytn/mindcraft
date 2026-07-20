@@ -1,5 +1,62 @@
 # tools/modded -- block data extraction for Forge servers
 
+## Getting Started
+
+There are two levels of support. Pick the one you need:
+
+### Just want bots on a Forge server (items + entities)
+
+This is the zero-tool path -- everything happens automatically.
+
+1. Open your `settings.js` file and set `"forge": true` and
+   `"minecraft_version": "1.19.2"` (replace with your server's Minecraft
+   version if different).
+2. Start the bot.
+3. You are done. Items and entities from your modpack are automatically captured
+   the first time the bot connects to the server. No extra tools or commands
+   needed.
+
+### Also want modded block awareness
+
+If you want the bot to recognize modded blocks by name (not just items and
+entities), there is a one-time setup. This only needs to be done once per
+modpack.
+
+4. Build the StateDumper mod. The source code is in `tools/modded/statedumper/`.
+   You need JDK 17 installed. Run `./gradlew build` inside that folder to get
+   the jar file. (If you do not want to build it yourself, check the releases
+   page for a pre-built jar.)
+5. Copy the jar file into your Forge server's `mods/` folder. Start the server
+   once -- the mod writes its data file on startup. After the server finishes
+   loading, shut it down and remove the jar from `mods/`. The jar is only needed
+   for this single run.
+6. On your own machine (where you run mindcraft), run this command:
+   ```
+   node tools/modded/extract.mjs --server-dir /path/to/your/server
+   ```
+   Replace `/path/to/your/server` with the actual path to the Forge server
+   folder that has the `blockstates.json` the mod just wrote.
+7. Restart the bot. Modded blocks now resolve by name -- `bot.blockAt(pos)`
+   returns the correct modded block name instead of "unknown".
+
+### Checking what is loaded
+
+You can verify everything is working by hitting this endpoint in your browser or
+with curl:
+
+```
+GET /api/modded-status
+```
+
+
+
+It returns a JSON object showing whether forge mode is active, which data files
+exist, and how many items, blocks, and entities are loaded.
+
+---
+
+## How it works
+
 Items and entities are **auto-captured** from the FML handshake on first bot
 connect (set `forge: true` + `minecraft_version`, start a bot -- done). No tools
 needed.

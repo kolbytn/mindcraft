@@ -108,6 +108,13 @@ Tiered -- a reviewer never needs a modpack server:
 - **Per-modpack data isn't committed.** The `modded_data/` files are user-generated
   for a specific modpack via `tools/modded`.
 
+## Open question — UX for block extraction
+
+Items and entities are fully automatic (captured during the FML handshake).
+Blocks still require a one-time server-side dump + a CLI command. I'm not sure
+this is the simplest it can be — if you have ideas for streamlining this
+further, I'd love to hear them.
+
 ## Extending to other loaders
 
 `forge.js` is split so adding another loader is additive: (A) is
