@@ -1,6 +1,5 @@
 {
     "name": "Pari",
-
-    "model": "groq/llama-3.3-70b-versatile"
-
+    "model": "groq/llama-3.3-70b-versatile",
+    "embedding": null
 }
