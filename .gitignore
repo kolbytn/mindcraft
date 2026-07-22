@@ -6,6 +6,7 @@ code_records/
 scratch.js
 bots/**/action-code/**
 bots/**/
+keys.json
 services/viaproxy/jars/**
 services/viaproxy/logs/**
 services/viaproxy/plugins/**
