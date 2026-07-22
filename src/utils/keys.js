@@ -14,7 +14,8 @@ export function getKey(name) {
         key = process.env[name];
     }
     if (!key) {
-        throw new Error(`API key "${name}" not found in keys.json or environment variables!`);
+        console.warn(`API key "${name}" not found in keys.json or environment variables. Some models may not work.`);
+        return null;
     }
     return key;
 }
