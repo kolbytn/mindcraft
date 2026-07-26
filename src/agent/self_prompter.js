@@ -244,8 +244,8 @@ export class SelfPrompter {
         this.interrupt = true;
         const shortReason = String(reason || '').replace(/\s+/g, ' ').slice(0, 120);
         const message = status === 'completed'
-            ? `目标完成：${goal}`
-            : `目标受阻：${goal}${shortReason ? `。${shortReason}` : ''}`;
+            ? `Goal completed: ${goal}`
+            : `Goal blocked: ${goal}${shortReason ? `. ${shortReason}` : ''}`;
         this.last_result = message;
         this.agent.openChat(message);
         await this.agent.history.add('system', message);
