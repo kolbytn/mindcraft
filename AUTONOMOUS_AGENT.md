@@ -1,6 +1,6 @@
 # Autonomous Task Controller
 
-Complex tasks now run in an observe, plan, single-action, and verification loop instead of generating a command chain all at once.
+Complex tasks run in an observe, plan, single-action, and verification loop instead of generating a command chain all at once.
 
 ## Usage
 
@@ -31,7 +31,10 @@ Stop the current goal:
 
 ## Safety Limits
 
-- Each iteration executes one existing command, then reads the world state again.
-- The controller stops after four consecutive failures, repeated actions without progress, or 60 steps.
+- Each iteration executes one command, then reads the world state again before planning the next step.
+- Autonomous execution uses an explicit allowlist of bounded observation and in-game world-action commands.
+- Process control, code generation, goal lifecycle, external content lookup, persistent mode changes, cross-agent conversation, player attack, restart-causing, and indefinitely running commands are rejected.
+- Rejected commands count as failures and are never passed to the command executor.
+- The controller stops after four consecutive failures, repeated actions without progress, or 60 executed steps.
 - The plan, current step, and latest result are stored with the bot's memory and can be restored when `load_memory` is enabled.
-- `allow_insecure_coding` remains disabled, so the controller cannot generate and execute arbitrary JavaScript.
+- `!newAction` is never available to the autonomous controller, even if insecure coding is enabled for interactive use.

@@ -1,34 +1,18 @@
 import { commandExists, containsCommand, executeCommand } from './commands/index.js';
+import {
+    MAX_CONSECUTIVE_FAILURES,
+    MAX_REPEATED_ACTIONS_WITHOUT_PROGRESS,
+    getAutonomousCommandNames,
+    getAutonomousStopReason,
+    isAutonomousCommandNameAllowed
+} from './autonomous_policy.js';
+
+export { parseTaskDecision } from './autonomous_policy.js';
 
 const STOPPED = 0;
 const ACTIVE = 1;
 const PAUSED = 2;
 const FAILURE_PATTERN = /\b(fail(?:ed|ure)?|error|cannot|could not|not found|timeout|timed out|exception|invalid)\b/i;
-const FORBIDDEN_AUTONOMOUS_COMMANDS = new Set(['!goal', '!endGoal', '!stfu']);
-
-export function parseTaskDecision(raw) {
-    if (typeof raw !== 'string') throw new Error('Task decision was not text.');
-    let text = raw.includes('</think>') ? raw.split('</think>').pop() : raw;
-    text = text.replace(/```(?:json)?/gi, '').replace(/```/g, '').trim();
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start === -1 || end <= start) throw new Error('Task decision did not contain a JSON object.');
-
-    const decision = JSON.parse(text.slice(start, end + 1));
-    if (!['active', 'completed', 'blocked'].includes(decision.status)) {
-        throw new Error(`Invalid task status: ${decision.status}`);
-    }
-    decision.plan = Array.isArray(decision.plan)
-        ? decision.plan.filter(step => typeof step === 'string').slice(0, 10)
-        : [];
-    decision.current_step = typeof decision.current_step === 'string' ? decision.current_step : '';
-    decision.reason = typeof decision.reason === 'string' ? decision.reason : '';
-    decision.command = typeof decision.command === 'string' ? decision.command.trim() : '';
-    if (decision.status === 'active' && !decision.command) {
-        throw new Error('An active task decision requires a command.');
-    }
-    return decision;
-}
 
 function inventorySignature(bot) {
     const counts = {};
@@ -100,9 +84,9 @@ export class SelfPrompter {
         this.last_result = progress.last_result || '';
         this.last_command = progress.last_command || '';
         this.last_signature = progress.last_signature || '';
-        this.repeated_actions = Number(progress.repeated_actions) || 0;
-        this.consecutive_failures = Number(progress.consecutive_failures) || 0;
-        this.steps_taken = Number(progress.steps_taken) || 0;
+        this.repeated_actions = Math.max(0, Number(progress.repeated_actions) || 0);
+        this.consecutive_failures = Math.max(0, Number(progress.consecutive_failures) || 0);
+        this.steps_taken = Math.max(0, Number(progress.steps_taken) || 0);
     }
 
     statusText() {
@@ -136,6 +120,27 @@ export class SelfPrompter {
         return [stats, inventory, blocks, entities, craftable].join('\n').slice(0, 7000);
     }
 
+    async waitForNextStep() {
+        if (this.cooldown > 0) {
+            await new Promise(resolve => setTimeout(resolve, this.cooldown));
+        }
+    }
+
+    async stopIfLimitReached() {
+        const reason = getAutonomousStopReason({
+            stepsTaken: this.steps_taken,
+            consecutiveFailures: this.consecutive_failures
+        });
+        if (!reason) return false;
+
+        const includeLastResult = this.consecutive_failures >= MAX_CONSECUTIVE_FAILURES && this.last_result;
+        await this.finish(
+            'blocked',
+            includeLastResult ? `${reason} Last result: ${this.last_result}` : reason
+        );
+        return true;
+    }
+
     async startLoop() {
         if (this.loop_active || this.state !== ACTIVE) return;
         this.loop_active = true;
@@ -143,10 +148,7 @@ export class SelfPrompter {
 
         try {
             while (!this.interrupt && this.state === ACTIVE) {
-                if (this.steps_taken >= 60) {
-                    await this.finish('blocked', 'Stopped after 60 steps without completing the goal.');
-                    break;
-                }
+                if (await this.stopIfLimitReached()) break;
 
                 const observation = await this.collectObservation();
                 const signature = progressSignature(this.agent);
@@ -159,6 +161,7 @@ export class SelfPrompter {
                     consecutive_failures: this.consecutive_failures,
                     repeated_actions: this.repeated_actions,
                     steps_taken: this.steps_taken,
+                    allowed_commands: getAutonomousCommandNames(),
                     observation
                 });
 
@@ -171,13 +174,15 @@ export class SelfPrompter {
                 }
 
                 const commandName = containsCommand(decision.command);
-                if (!commandName || !commandExists(commandName) || FORBIDDEN_AUTONOMOUS_COMMANDS.has(commandName)) {
-                    this.recordFailure(`Rejected invalid autonomous command: ${decision.command}`);
+                if (
+                    !commandName ||
+                    !commandExists(commandName) ||
+                    !isAutonomousCommandNameAllowed(commandName)
+                ) {
+                    this.recordFailure(`Rejected unsafe or invalid autonomous command: ${decision.command}`);
                     await this.persistProgress();
-                    if (this.consecutive_failures >= 4) {
-                        await this.finish('blocked', this.last_result);
-                        break;
-                    }
+                    if (await this.stopIfLimitReached()) break;
+                    await this.waitForNextStep();
                     continue;
                 }
 
@@ -186,15 +191,13 @@ export class SelfPrompter {
                 } else {
                     this.repeated_actions = 0;
                 }
-                if (this.repeated_actions >= 2) {
+                if (this.repeated_actions >= MAX_REPEATED_ACTIONS_WITHOUT_PROGRESS) {
                     this.recordFailure(`No progress after repeating ${decision.command}. Choose a different strategy.`);
                     this.last_command = decision.command;
                     this.last_signature = signature;
                     await this.persistProgress();
-                    if (this.consecutive_failures >= 4) {
-                        await this.finish('blocked', this.last_result);
-                        break;
-                    }
+                    if (await this.stopIfLimitReached()) break;
+                    await this.waitForNextStep();
                     continue;
                 }
 
@@ -213,11 +216,8 @@ export class SelfPrompter {
                 );
                 await this.persistProgress();
 
-                if (this.consecutive_failures >= 4) {
-                    await this.finish('blocked', `Stopped after ${this.consecutive_failures} consecutive failed actions. Last result: ${this.last_result}`);
-                    break;
-                }
-                await new Promise(resolve => setTimeout(resolve, this.cooldown));
+                if (await this.stopIfLimitReached()) break;
+                await this.waitForNextStep();
             }
         } catch (error) {
             console.error('Autonomous task loop failed:', error);
@@ -242,7 +242,7 @@ export class SelfPrompter {
         const goal = this.prompt;
         this.state = STOPPED;
         this.interrupt = true;
-        const shortReason = String(reason || '').replace(/\s+/g, ' ').slice(0, 120);
+        const shortReason = String(reason || '').replace(/\s+/g, ' ').slice(0, 200);
         const message = status === 'completed'
             ? `Goal completed: ${goal}`
             : `Goal blocked: ${goal}${shortReason ? `. ${shortReason}` : ''}`;
