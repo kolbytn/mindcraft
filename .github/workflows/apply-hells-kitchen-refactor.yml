@@ -1,0 +1,61 @@
+name: Apply Hells Kitchen progress refactor
+
+on:
+  push:
+    branches:
+      - refactor/hells-kitchen-progress
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/hells-kitchen-progress
+
+      - name: Extract progress manager from tasks.js
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/agent/tasks/tasks.js')
+          text = path.read_text()
+
+          import_anchor = "import { CookingTaskInitiator } from './cooking_tasks.js';\n"
+          new_import = "import { hellsKitchenProgressManager } from './hells_kitchen_progress.js';\n"
+          if new_import not in text:
+              if import_anchor not in text:
+                  raise SystemExit('task import anchor not found')
+              text = text.replace(import_anchor, import_anchor + new_import, 1)
+
+          start_marker = "const PROGRESS_FILE = './hells_kitchen_progress.json';\n"
+          end_marker = "//todo: modify validator code"
+          start = text.find(start_marker)
+          end = text.find(end_marker, start)
+          if start == -1 or end == -1:
+              raise SystemExit('embedded progress manager block not found')
+          text = text[:start] + text[end:]
+
+          # fs persistence now lives in hells_kitchen_progress.js.
+          text = text.replace(
+              "import { readFileSync , writeFileSync, existsSync} from 'fs';\n",
+              "",
+              1
+          )
+
+          path.write_text(text)
+
+      - name: Commit refactor
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/apply-hells-kitchen-refactor.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/agent/tasks/tasks.js
+          git commit -m 'refactor: use extracted Hells Kitchen progress manager'
+          git push origin HEAD:refactor/hells-kitchen-progress
