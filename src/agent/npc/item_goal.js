@@ -160,7 +160,7 @@ class ItemNode {
             await skills.smeltItem(this.manager.agent.bot, to_smelt_name, to_smelt_quantity);
         } else if (this.type === 'hunt') {
             for (let i=0; i<quantity; i++) {
-                res = await skills.attackNearest(this.manager.agent.bot, this.source);
+                const res = await skills.attackNearest(this.manager.agent.bot, this.source);
                 if (!res || this.manager.agent.bot.interrupt_code)
                     break;
             }
@@ -204,22 +204,21 @@ class ItemWrapper {
     }
 
     createChildren() {
-        let recipes = mc.getItemCraftingRecipes(this.name).map(([recipe, craftedCount]) => recipe);
-        if (recipes) {
-            for (let recipe of recipes) {
-                let includes_blacklisted = false;
-                for (let ingredient in recipe) {
-                    for (let match of blacklist) {
-                        if (ingredient.includes(match)) {
-                            includes_blacklisted = true;
-                            break;
-                        }
+        const craftingRecipes = mc.getItemCraftingRecipes(this.name) || [];
+        let recipes = craftingRecipes.map(([recipe]) => recipe);
+        for (let recipe of recipes) {
+            let includes_blacklisted = false;
+            for (let ingredient in recipe) {
+                for (let match of blacklist) {
+                    if (ingredient.includes(match)) {
+                        includes_blacklisted = true;
+                        break;
                     }
-                    if (includes_blacklisted) break;
                 }
-                if (includes_blacklisted) continue;
-                this.add_method(new ItemNode(this.manager, this, this.name).setRecipe(recipe))
+                if (includes_blacklisted) break;
             }
+            if (includes_blacklisted) continue;
+            this.add_method(new ItemNode(this.manager, this, this.name).setRecipe(recipe))
         }
 
         let block_sources = mc.getItemBlockSources(this.name);
@@ -315,8 +314,10 @@ export class ItemGoal {
         let quantity = next_info.quantity;
 
         // Prevent unnecessary attempts to obtain blocks that are not nearby
-        if (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source) ||
-                next.type === 'hunt' && !world.getNearbyEntityTypes(this.agent.bot).includes(next.source)) {
+        const sourceUnavailable =
+            (next.type === 'block' && !world.getNearbyBlockTypes(this.agent.bot).includes(next.source)) ||
+            (next.type === 'hunt' && !world.getNearbyEntityTypes(this.agent.bot).includes(next.source));
+        if (sourceUnavailable) {
             next.fails += 1;
 
             // If the bot has failed to obtain the block before, explore
