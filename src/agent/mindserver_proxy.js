@@ -1,7 +1,6 @@
 import { io } from 'socket.io-client';
 import { setSettings } from './settings.js';
 import rootSettings from '../../settings.js';
-import { getFullState } from './library/full_state.js';
 
 // agent's individual connection to the mindserver
 // always connect to localhost
@@ -16,6 +15,7 @@ class MindServerProxy {
         this.connected = false;
         this.agents = [];
         this.convoManager = null;
+        this.getFullState = null;
         MindServerProxy.instance = this;
     }
 
@@ -52,10 +52,15 @@ class MindServerProxy {
         setSettings(response.settings);
         Object.assign(rootSettings, response.settings);
 
-        // conversation.js imports commands, which import skills/mcdata. Delay
-        // that chain until after both settings objects have been populated.
-        const { default: convoManager } = await import('./conversation.js');
+        // conversation.js and full_state.js pull in commands/skills/mcdata. Delay
+        // both import chains until after the settings handshake has populated
+        // the child-process settings objects.
+        const [{ default: convoManager }, { getFullState }] = await Promise.all([
+            import('./conversation.js'),
+            import('./library/full_state.js'),
+        ]);
         this.convoManager = convoManager;
+        this.getFullState = getFullState;
 
         this._registerSocketHandlers();
         this.connected = true;
@@ -101,11 +106,11 @@ class MindServerProxy {
 
         this.socket.on('get-full-state', (callback) => {
             try {
-                if (!this.agent) {
+                if (!this.agent || !this.getFullState) {
                     callback(null);
                     return;
                 }
-                const state = getFullState(this.agent);
+                const state = this.getFullState(this.agent);
                 callback(state);
             } catch (error) {
                 console.error('Error getting full state:', error);
