@@ -1,4 +1,4 @@
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
@@ -17,9 +17,9 @@ export function speak(text, speak_model) {
         // no preprocessing needed
         item.ready = Promise.resolve();
     } else {
-    item.ready = fetchRemoteAudio(text, model)
-        .then(data => { item.audioData = data; })
-        .catch(err => { item.error = err; });
+        item.ready = fetchRemoteAudio(text, model)
+            .then(data => { item.audioData = data; })
+            .catch(err => { item.error = err; });
     }
 
     speakingQueue.push(item);
@@ -54,6 +54,37 @@ async function fetchRemoteAudio(txt, model) {
     }
 }
 
+function finishQueueItem() {
+    isSpeaking = false;
+    processQueue();
+}
+
+function spawnSystemTts(txt) {
+    const isWin = process.platform === 'win32';
+    const isMac = process.platform === 'darwin';
+
+    if (isWin) {
+        const script = [
+            'param([string]$Text)',
+            'Add-Type -AssemblyName System.Speech',
+            '$s = New-Object System.Speech.Synthesis.SpeechSynthesizer',
+            '$s.Rate = 2',
+            '$s.Speak($Text)',
+            '$s.Dispose()'
+        ].join('; ');
+        return spawn('powershell', ['-NoProfile', '-Command', `& { ${script} }`, txt], {
+            stdio: 'ignore',
+            windowsHide: true
+        });
+    }
+
+    if (isMac) {
+        return spawn('say', [txt], { stdio: 'ignore' });
+    }
+
+    return spawn('espeak', [txt], { stdio: 'ignore' });
+}
+
 async function processQueue() {
     isSpeaking = true;
     if (speakingQueue.length === 0) {
@@ -61,15 +92,13 @@ async function processQueue() {
         return;
     }
     const item = speakingQueue.shift();
-    const { text: txt, model, audioData } = item;
+    const { text: txt, model } = item;
     if (txt.trim() === '') {
-        isSpeaking = false;
-        processQueue();
+        finishQueueItem();
         return;
     }
 
     const isWin = process.platform === 'win32';
-    const isMac = process.platform === 'darwin';
 
     // wait for preprocessing if needed
     try {
@@ -77,74 +106,79 @@ async function processQueue() {
         if (item.error) throw item.error;
     } catch (err) {
         console.error('[TTS] preprocess error', err);
-        isSpeaking = false;
-        processQueue();
+        finishQueueItem();
         return;
     }
 
     if (model === 'system') {
-        // system TTS
-        const cmd = isWin
-            ? `powershell -NoProfile -Command "Add-Type -AssemblyName System.Speech; \
-            $s=New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Rate=2; \
-            $s.Speak('${txt.replace(/'/g,"''")}'); $s.Dispose()"`
-            : isMac
-            ? `say "${txt.replace(/"/g,'\\"')}"`
-            : `espeak "${txt.replace(/"/g,'\\"')}"`;
-
-        exec(cmd, err => {
-            if (err) console.error('TTS error', err);
-            isSpeaking = false;
-            processQueue();
+        // Pass speech text as an argv value rather than interpolating it into a
+        // shell command. This prevents model-controlled text from being parsed
+        // as shell syntax on macOS/Linux or PowerShell syntax on Windows.
+        const player = spawnSystemTts(txt);
+        let finished = false;
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            finishQueueItem();
+        };
+        player.on('error', (err) => {
+            console.error('TTS error', err);
+            finish();
         });
+        player.on('exit', finish);
+        return;
+    }
 
-    } 
-    else {
-        // audioData was already fetched in speak()
-        const audioData = item.audioData;
+    // audioData was already fetched in speak()
+    const audioData = item.audioData;
 
-        if (!audioData) {
-            console.error('[TTS] No audio data ready');
-            isSpeaking = false;
-            processQueue();
-            return;
+    if (!audioData) {
+        console.error('[TTS] No audio data ready');
+        finishQueueItem();
+        return;
+    }
+
+    try {
+        if (isWin) {
+            const tmpPath = path.join(os.tmpdir(), `tts_${Date.now()}.mp3`);
+            await fs.writeFile(tmpPath, Buffer.from(audioData, 'base64'));
+
+            const player = spawn('ffplay', ['-nodisp', '-autoexit', '-loglevel', 'quiet', tmpPath], {
+                stdio: 'ignore', windowsHide: true
+            });
+            let finished = false;
+            const finish = async () => {
+                if (finished) return;
+                finished = true;
+                try { await fs.unlink(tmpPath); } catch {}
+                finishQueueItem();
+            };
+            player.on('error', async (err) => {
+                console.error('[TTS] ffplay error', err);
+                await finish();
+            });
+            player.on('exit', finish);
+
+        } else {
+            const player = spawn('ffplay', ['-nodisp','-autoexit','pipe:0'], {
+                stdio: ['pipe','ignore','ignore']
+            });
+            player.stdin.write(Buffer.from(audioData, 'base64'));
+            player.stdin.end();
+            let finished = false;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                finishQueueItem();
+            };
+            player.on('error', (err) => {
+                console.error('[TTS] ffplay error', err);
+                finish();
+            });
+            player.on('exit', finish);
         }
-
-        try {
-            if (isWin) {
-                const tmpPath = path.join(os.tmpdir(), `tts_${Date.now()}.mp3`);
-                await fs.writeFile(tmpPath, Buffer.from(audioData, 'base64'));
-
-                const player = spawn('ffplay', ['-nodisp', '-autoexit', '-loglevel', 'quiet', tmpPath], {
-                    stdio: 'ignore', windowsHide: true
-                });
-                player.on('error', async (err) => {
-                    console.error('[TTS] ffplay error', err);
-                    try { await fs.unlink(tmpPath); } catch {}
-                    isSpeaking = false;
-                    processQueue();
-                });
-                player.on('exit', async () => {
-                    try { await fs.unlink(tmpPath); } catch {}
-                    isSpeaking = false;
-                    processQueue();
-                });
-
-            } else {
-                const player = spawn('ffplay', ['-nodisp','-autoexit','pipe:0'], {
-                    stdio: ['pipe','ignore','ignore']
-                });
-                player.stdin.write(Buffer.from(audioData, 'base64'));
-                player.stdin.end();
-                player.on('exit', () => {
-                    isSpeaking = false;
-                    processQueue();
-                });
-            }
-        } catch (e) {
-            console.error('[TTS] Audio error', e);
-            isSpeaking = false;
-            processQueue();
-        }
+    } catch (e) {
+        console.error('[TTS] Audio error', e);
+        finishQueueItem();
     }
 }
