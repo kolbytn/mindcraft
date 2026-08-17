@@ -70,11 +70,13 @@ if (process.env.SETTINGS_JSON) {
     }
 }
 
-
-Mindcraft.init(false, settings.mindserver_port, settings.auto_open_ui);
+await Mindcraft.init(false, settings.mindserver_port, settings.auto_open_ui);
 
 for (let profile of settings.profiles) {
     const profile_json = JSON.parse(readFileSync(profile, 'utf8'));
     settings.profile = profile_json;
-    Mindcraft.createAgent(settings);
+    const result = await Mindcraft.createAgent(settings);
+    if (!result.success) {
+        console.error(`Failed to create agent ${profile_json.name}: ${result.error}`);
+    }
 }
