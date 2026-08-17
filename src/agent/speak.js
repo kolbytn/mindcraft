@@ -65,16 +65,16 @@ function spawnSystemTts(txt) {
 
     if (isWin) {
         const script = [
-            'param([string]$Text)',
             'Add-Type -AssemblyName System.Speech',
             '$s = New-Object System.Speech.Synthesis.SpeechSynthesizer',
             '$s.Rate = 2',
-            '$s.Speak($Text)',
+            '$s.Speak($env:MINDCRAFT_TTS_TEXT)',
             '$s.Dispose()'
         ].join('; ');
-        return spawn('powershell', ['-NoProfile', '-Command', `& { ${script} }`, txt], {
+        return spawn('powershell', ['-NoProfile', '-Command', script], {
             stdio: 'ignore',
-            windowsHide: true
+            windowsHide: true,
+            env: { ...process.env, MINDCRAFT_TTS_TEXT: txt }
         });
     }
 
@@ -111,9 +111,8 @@ async function processQueue() {
     }
 
     if (model === 'system') {
-        // Pass speech text as an argv value rather than interpolating it into a
-        // shell command. This prevents model-controlled text from being parsed
-        // as shell syntax on macOS/Linux or PowerShell syntax on Windows.
+        // Pass speech text outside the shell command so model-controlled text
+        // is never parsed as shell or PowerShell syntax.
         const player = spawnSystemTts(txt);
         let finished = false;
         const finish = () => {
