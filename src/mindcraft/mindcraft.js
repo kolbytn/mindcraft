@@ -9,12 +9,35 @@ let agent_processes = {};
 let agent_count = 0;
 let mindserver_port = 8080;
 
+async function waitForServerListening(server) {
+    if (server.listening) return;
+
+    await new Promise((resolve, reject) => {
+        const onListening = () => {
+            cleanup();
+            resolve();
+        };
+        const onError = (error) => {
+            cleanup();
+            reject(error);
+        };
+        const cleanup = () => {
+            server.off('listening', onListening);
+            server.off('error', onError);
+        };
+
+        server.once('listening', onListening);
+        server.once('error', onError);
+    });
+}
+
 export async function init(host_public=false, port=8080, auto_open_ui=true) {
     if (connected) {
         console.error('Already initiliazed!');
         return;
     }
     mindserver = createMindServer(host_public, port);
+    await waitForServerListening(mindserver);
     mindserver_port = port;
     connected = true;
     if (auto_open_ui) {
