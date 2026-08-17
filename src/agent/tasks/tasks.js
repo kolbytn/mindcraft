@@ -1,63 +1,8 @@
-import { readFileSync , writeFileSync, existsSync} from 'fs';
 import { executeCommand } from '../commands/index.js';
 import { getPosition } from '../library/world.js';
 import { ConstructionTaskValidator, Blueprint } from './construction_tasks.js';
 import { CookingTaskInitiator } from './cooking_tasks.js';
-
-const PROGRESS_FILE = './hells_kitchen_progress.json';
-
-const hellsKitchenProgressManager = {
-  readProgress: function() {
-    try {
-      if (existsSync(PROGRESS_FILE)) {
-        const data = readFileSync(PROGRESS_FILE, 'utf8');
-        return JSON.parse(data);
-      }
-    } catch (err) {
-      console.error('Error reading progress file:', err);
-    }
-    return { taskId: null, agent0Complete: false, agent1Complete: false };
-  },
-  
-  writeProgress: function(progress) {
-    try {
-      writeFileSync(PROGRESS_FILE, JSON.stringify(progress), 'utf8');
-    } catch (err) {
-      console.error('Error writing progress file:', err);
-    }
-  },
-  
-  resetTask: function(taskId) {
-    const progress = { taskId, agent0Complete: false, agent1Complete: false };
-    this.writeProgress(progress);
-    return progress;
-  },
-  
-  updateAgentProgress: function(taskId, agentId, isComplete) {
-    const progress = this.readProgress();
-    
-    // If it's a different task, reset first
-    if (progress.taskId !== taskId) {
-      progress.taskId = taskId;
-      progress.agent0Complete = false;
-      progress.agent1Complete = false;
-    }
-    
-    // Update the specific agent's status
-    if (agentId === 0) progress.agent0Complete = isComplete;
-    if (agentId === 1) progress.agent1Complete = isComplete;
-    
-    this.writeProgress(progress);
-    return progress;
-  },
-  
-  isTaskComplete: function(taskId) {
-    const progress = this.readProgress();
-    if (progress.taskId !== taskId) return false;
-    return progress.agent0Complete && progress.agent1Complete;
-  }
-};
-
+import { hellsKitchenProgressManager } from './hells_kitchen_progress.js';
 
 //todo: modify validator code to return an object with valid and score -> do more testing hahah
 //todo: figure out how to log these things to the same place as bots/histories
