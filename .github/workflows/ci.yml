@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Syntax-check JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check main.js
+          node --check settings.js
+
+      - name: Run tests when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          tests=(tests/*.test.js)
+          if (( ${#tests[@]} )); then
+            node --test "${tests[@]}"
+          else
+            echo 'No tests found.'
+          fi
