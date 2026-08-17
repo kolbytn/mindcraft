@@ -22,5 +22,8 @@ export class VLLM extends OpenAICompatibleChat {
             logName: 'vLLM',
             formatMessages: formatVllmMessages,
         });
+
+        // Preserve the existing public client property for callers that access it directly.
+        this.vllm = this.openai;
     }
 }
