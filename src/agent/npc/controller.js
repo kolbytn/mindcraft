@@ -4,8 +4,6 @@ import { ItemGoal } from './item_goal.js';
 import { BuildGoal } from './build_goal.js';
 import { itemSatisfied, rotateXZ } from './utils.js';
 import * as skills from '../library/skills.js';
-import * as world from '../library/world.js';
-import * as mc from '../../utils/mcdata.js';
 
 
 export class NPCContoller {
@@ -17,11 +15,13 @@ export class NPCContoller {
         this.build_goal = new BuildGoal(agent);
         this.constructions = {};
         this.last_goals = {};
+        this.goal_tick_running = false;
     }
 
     getBuiltPositions() {
         let positions = [];
         for (let name in this.data.built) {
+            if (!this.constructions[name]) continue;
             let position = this.data.built[name].position;
             let offset = this.constructions[name].offset;
             let sizex = this.constructions[name].blocks[0][0].length;
@@ -66,15 +66,22 @@ export class NPCContoller {
         }
 
         this.agent.bot.on('idle', async () => {
+            if (this.goal_tick_running) return;
             if (this.data.goals.length === 0 && !this.data.curr_goal) return;
-            // Wait a while for inputs before acting independently
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-            if (!this.agent.isIdle()) return;
 
-            // Persue goal
-            if (!this.agent.actions.resume_func) {
-                this.executeNext();
-                this.agent.history.save();
+            this.goal_tick_running = true;
+            try {
+                // Wait a while for inputs before acting independently
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+                if (!this.agent.isIdle()) return;
+
+                // Pursue goal
+                if (!this.agent.actions.resume_func) {
+                    await this.executeNext();
+                    await this.agent.history.save();
+                }
+            } finally {
+                this.goal_tick_running = false;
             }
         });
     }
@@ -90,7 +97,7 @@ export class NPCContoller {
         if (!this.data.do_set_goal) return;
 
         let past_goals = {...this.last_goals};
-        for (let goal in this.data.goals) {
+        for (let goal of this.data.goals) {
             if (past_goals[goal.name] === undefined) past_goals[goal.name] = true;
         }
         let res = await this.agent.prompter.promptGoalSetting(this.agent.history.getHistory(), past_goals);
@@ -108,7 +115,7 @@ export class NPCContoller {
             await skills.moveAway(this.agent.bot, 2);
         });
 
-        if (!this.data.do_routine || this.agent.bot.time.timeOfDay < 13000) { 
+        if (!this.data.do_routine || this.agent.bot.time.timeOfDay < 13000) {
             // Exit any buildings
             let building = this.currentBuilding();
             if (building == this.data.home) {
@@ -132,9 +139,11 @@ export class NPCContoller {
             let building = this.currentBuilding();
             if (this.data.home !== null && (building === null || building != this.data.home)) {
                 let door_pos = this.getBuildingDoor(this.data.home);
-                await this.agent.actions.runAction('npc:returnHome', async () => {
-                    await skills.useDoor(this.agent.bot, door_pos);
-                });
+                if (door_pos) {
+                    await this.agent.actions.runAction('npc:returnHome', async () => {
+                        await skills.useDoor(this.agent.bot, door_pos);
+                    });
+                }
             }
 
             // Go to bed
@@ -178,6 +187,10 @@ export class NPCContoller {
                     );
                 } else {
                     res = await this.build_goal.executeNext(this.constructions[goal.name]);
+                    if (!res?.position) {
+                        this.last_goals[goal.name] = false;
+                        continue;
+                    }
                     this.data.built[goal.name] = {
                         name: goal.name,
                         position: res.position,
@@ -208,6 +221,7 @@ export class NPCContoller {
     currentBuilding() {
         let bot_pos = this.agent.bot.entity.position;
         for (let name in this.data.built) {
+            if (!this.constructions[name]) continue;
             let pos = this.data.built[name].position;
             let offset = this.constructions[name].offset;
             let sizex = this.constructions[name].blocks[0][0].length;
@@ -224,7 +238,7 @@ export class NPCContoller {
     }
 
     getBuildingDoor(name) {
-        if (name === null || this.data.built[name] === undefined) return null;
+        if (name === null || this.data.built[name] === undefined || !this.constructions[name]) return null;
         let door_x = null;
         let door_z = null;
         let door_y = null;
