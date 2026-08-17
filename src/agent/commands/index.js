@@ -29,6 +29,15 @@ export function blacklistCommands(commands) {
 const commandRegex = /!(\w+)(?:\(((?:-?\d+(?:\.\d+)?|true|false|"[^"]*")(?:\s*,\s*(?:-?\d+(?:\.\d+)?|true|false|"[^"]*"))*)\))?/
 const argRegex = /-?\d+(?:\.\d+)?|true|false|"[^"]*"/g;
 
+// Some placeable blocks use a differently named inventory item.
+// Normalize these only for !placeHere so other block/item commands keep their
+// existing semantics.
+const placementItemAliases = {
+    tripwire: 'string',
+    potatoes: 'potato',
+    wheat: 'wheat_seeds',
+};
+
 export function containsCommand(message) {
     const commandMatch = message.match(commandRegex);
     if (commandMatch)
@@ -121,6 +130,9 @@ export function parseCommandMessage(message) {
         if ((arg.startsWith('"') && arg.endsWith('"')) || (arg.startsWith("'") && arg.endsWith("'"))) {
             arg = arg.substring(1, arg.length-1);
         }
+
+        if (commandName === '!placeHere' && param.type === 'BlockOrItemName')
+            arg = placementItemAliases[arg] ?? arg;
         
         //Convert to the correct type
         switch(param.type) {
