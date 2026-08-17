@@ -3,8 +3,15 @@ export function log(bot, message) {
 }
 
 export async function wait(bot, milliseconds) {
-    // setTimeout is disabled for generated actions to prevent unawaited code,
-    // so this is a safe interruptible alternative.
+    /**
+     * Waits for the given number of milliseconds.
+     * @param {MinecraftBot} bot, reference to the minecraft bot.
+     * @param {number} milliseconds, the number of milliseconds to wait.
+     * @returns {Promise<boolean>} true if the wait was successful, false otherwise.
+     * @example
+     * await skills.wait(bot, 1000);
+     **/
+    // setTimeout is disabled to prevent unawaited code, so this is a safe alternative that enables interrupts
     let timeLeft = milliseconds;
     const startTime = Date.now();
 
