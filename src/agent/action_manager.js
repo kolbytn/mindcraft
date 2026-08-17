@@ -1,3 +1,5 @@
+import assert from 'node:assert/strict';
+
 export class ActionManager {
     constructor(agent) {
         this.agent = agent;
@@ -12,7 +14,7 @@ export class ActionManager {
     }
 
     async resumeAction(actionFn, timeout) {
-        return this._executeResume(actionFn, timeout);
+        return this._executeResume(null, actionFn, timeout);
     }
 
     async runAction(actionLabel, actionFn, { timeout, resume = false } = {}) {
@@ -34,7 +36,7 @@ export class ActionManager {
             await new Promise(resolve => setTimeout(resolve, 300));
         }
         clearTimeout(timeout);
-    } 
+    }
 
     cancelResume() {
         this.resume_func = null;
@@ -60,6 +62,7 @@ export class ActionManager {
 
     async _executeAction(actionLabel, actionFn, timeout = 10) {
         let TIMEOUT;
+        this.timedout = false;
         try {
             if (this.last_action_time > 0) {
                 let time_diff = Date.now() - this.last_action_time;
@@ -129,23 +132,24 @@ export class ActionManager {
             this.currentActionFn = null;
             clearTimeout(TIMEOUT);
             this.cancelResume();
-            console.error("Code execution triggered catch:", err);
-            // Log the full stack trace
-            console.error(err.stack);
+            console.error('Code execution triggered catch:', err);
+            console.error(err?.stack);
             await this.stop();
-            err = err.toString();
 
+            const errString = err instanceof Error ? err.toString() : String(err);
+            const stack = err instanceof Error && err.stack ? err.stack : '';
             let message = this.getBotOutputSummary() +
                 '!!Code threw exception!!\n' +
-                'Error: ' + err + '\n' +
-                'Stack trace:\n' + err.stack+'\n';
+                'Error: ' + errString + '\n' +
+                'Stack trace:\n' + stack + '\n';
 
             let interrupted = this.agent.bot.interrupt_code;
+            let timedout = this.timedout;
             this.agent.clearBotLogs();
             if (!interrupted) {
                 this.agent.bot.emit('idle');
             }
-            return { success: false, message, interrupted, timedout: false };
+            return { success: false, message, interrupted, timedout };
         }
     }
 
