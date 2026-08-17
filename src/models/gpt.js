@@ -4,10 +4,11 @@ import { strictFormat } from '../utils/text.js';
 
 export class GPT {
     static prefix = 'openai';
-    constructor(model_name, url, params) {
+    constructor(model_name, url, params, api_key_alias=null) {
         this.model_name = model_name;
         this.params = params;
         this.url = url; // store so that we know whether a custom URL has been set
+        this.api_key_alias = api_key_alias || 'OPENAI_API_KEY';
 
         let config = {};
         if (url)
@@ -16,7 +17,7 @@ export class GPT {
         if (hasKey('OPENAI_ORG_ID'))
             config.organization = getKey('OPENAI_ORG_ID');
 
-        config.apiKey = getKey('OPENAI_API_KEY');
+        config.apiKey = getKey(this.api_key_alias);
 
         this.openai = new OpenAIApi(config);
     }
