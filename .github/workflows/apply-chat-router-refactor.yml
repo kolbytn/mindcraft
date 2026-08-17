@@ -1,0 +1,81 @@
+name: Apply chat router refactor
+
+on:
+  push:
+    branches:
+      - refactor/chat-router
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/chat-router
+
+      - name: Delegate Agent chat routing
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/agent/agent.js')
+          text = path.read_text()
+
+          action_import = "import { ActionManager } from './action_manager.js';\n"
+          chat_import = "import { ChatRouter } from './chat_router.js';\n"
+          if chat_import not in text:
+              if action_import not in text:
+                  raise SystemExit('ActionManager import anchor not found')
+              text = text.replace(action_import, action_import + chat_import, 1)
+
+          text = text.replace(
+              "import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';\n",
+              "import { handleEnglishTranslation } from '../utils/translator.js';\n",
+              1
+          )
+          text = text.replace(
+              "import { serverProxy, sendOutputToServer } from './mindserver_proxy.js';\n",
+              "import { serverProxy } from './mindserver_proxy.js';\n",
+              1
+          )
+          text = text.replace("import { speak } from './speak.js';\n", "", 1)
+
+          init_anchor = "        this.actions = new ActionManager(this);\n"
+          init_line = "        this.chat_router = new ChatRouter(this);\n"
+          if init_line not in text:
+              if init_anchor not in text:
+                  raise SystemExit('Agent component init anchor not found')
+              text = text.replace(init_anchor, init_anchor + init_line, 1)
+
+          start_marker = "    async routeResponse(to_player, message) {\n"
+          end_marker = "    startEvents() {\n"
+          start = text.find(start_marker)
+          end = text.find(end_marker, start)
+          if start == -1 or end == -1:
+              raise SystemExit('Agent chat method block not found')
+
+          replacement = (
+              "    async routeResponse(to_player, message) {\n"
+              "        return this.chat_router.routeResponse(to_player, message);\n"
+              "    }\n\n"
+              "    async openChat(message) {\n"
+              "        return this.chat_router.openChat(message);\n"
+              "    }\n\n"
+          )
+          text = text[:start] + replacement + text[end:]
+          path.write_text(text)
+
+      - name: Commit refactor
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/apply-chat-router-refactor.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/agent/agent.js
+          git commit -m 'refactor: delegate chat routing from Agent'
+          git push origin HEAD:refactor/chat-router
