@@ -6,16 +6,16 @@ import { initModes } from './modes.js';
 import { initBot } from '../utils/mcdata.js';
 import { containsCommand, commandExists, executeCommand, truncCommandMessage, isAction, blacklistCommands } from './commands/index.js';
 import { ActionManager } from './action_manager.js';
+import { ChatRouter } from './chat_router.js';
 import { NPCContoller } from './npc/controller.js';
 import { MemoryBank } from './memory_bank.js';
 import { SelfPrompter } from './self_prompter.js';
 import convoManager from './conversation.js';
-import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
+import { handleEnglishTranslation } from '../utils/translator.js';
 import { addBrowserViewer } from './vision/browser_viewer.js';
-import { serverProxy, sendOutputToServer } from './mindserver_proxy.js';
+import { serverProxy } from './mindserver_proxy.js';
 import settings from './settings.js';
 import { Task } from './tasks/tasks.js';
-import { speak } from './speak.js';
 import { log, validateNameFormat, handleDisconnection } from './connection_handler.js';
 
 export class Agent {
@@ -26,6 +26,7 @@ export class Agent {
 
         // Initialize components
         this.actions = new ActionManager(this);
+        this.chat_router = new ChatRouter(this);
         this.prompter = new Prompter(this, settings.profile);
         this.name = (this.prompter.getName() || '').trim();
         console.log(`Initializing agent ${this.name}...`);
@@ -382,50 +383,11 @@ export class Agent {
     }
 
     async routeResponse(to_player, message) {
-        if (this.shut_up) return;
-        let self_prompt = to_player === 'system' || to_player === this.name;
-        if (self_prompt && this.last_sender) {
-            // this is for when the agent is prompted by system while still in conversation
-            // so it can respond to events like death but be routed back to the last sender
-            to_player = this.last_sender;
-        }
-
-        if (convoManager.isOtherAgent(to_player) && convoManager.inConversation(to_player)) {
-            // if we're in an ongoing conversation with the other bot, send the response to it
-            convoManager.sendToBot(to_player, message);
-        }
-        else {
-            // otherwise, use open chat
-            this.openChat(message);
-            // note that to_player could be another bot, but if we get here the conversation has ended
-        }
+        return this.chat_router.routeResponse(to_player, message);
     }
 
     async openChat(message) {
-        let to_translate = message;
-        let remaining = '';
-        let command_name = containsCommand(message);
-        let translate_up_to = command_name ? message.indexOf(command_name) : -1;
-        if (translate_up_to != -1) { // don't translate the command
-            to_translate = to_translate.substring(0, translate_up_to);
-            remaining = message.substring(translate_up_to);
-        }
-        message = (await handleTranslation(to_translate)).trim() + " " + remaining;
-        // newlines are interpreted as separate chats, which triggers spam filters. replace them with spaces
-        message = message.replaceAll('\n', ' ');
-
-        if (settings.only_chat_with.length > 0) {
-            for (let username of settings.only_chat_with) {
-                this.bot.whisper(username, message);
-            }
-        }
-        else {
-            if (settings.speak) {
-                speak(to_translate, this.prompter.profile.speak_model);
-            }
-            if (settings.chat_ingame) {this.bot.chat(message);}
-            sendOutputToServer(this.name, message);
-        }
+        return this.chat_router.openChat(message);
     }
 
     startEvents() {
