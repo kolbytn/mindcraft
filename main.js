@@ -3,6 +3,7 @@ import settings from './settings.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { readFileSync } from 'fs';
+import { parseBooleanEnv, parseIntegerEnv, parseJsonEnv } from './src/utils/env.js';
 
 function parseArguments() {
     return yargs(hideBin(process.argv))
@@ -38,35 +39,45 @@ if (args.task_path) {
 }
 
 // these environment variables override certain settings
-if (process.env.MINECRAFT_PORT) {
-    settings.port = process.env.MINECRAFT_PORT;
+if (process.env.MINECRAFT_PORT !== undefined) {
+    settings.port = parseIntegerEnv(process.env.MINECRAFT_PORT, 'MINECRAFT_PORT');
 }
-if (process.env.MINDSERVER_PORT) {
-    settings.mindserver_port = process.env.MINDSERVER_PORT;
+if (process.env.MINDSERVER_PORT !== undefined) {
+    settings.mindserver_port = parseIntegerEnv(process.env.MINDSERVER_PORT, 'MINDSERVER_PORT');
 }
-if (process.env.PROFILES && JSON.parse(process.env.PROFILES).length > 0) {
-    settings.profiles = JSON.parse(process.env.PROFILES);
+if (process.env.PROFILES !== undefined) {
+    const profiles = parseJsonEnv(process.env.PROFILES, 'PROFILES');
+    if (!Array.isArray(profiles)) {
+        throw new Error('PROFILES must be a JSON array.');
+    }
+    if (profiles.length > 0) {
+        settings.profiles = profiles;
+    }
 }
-if (process.env.INSECURE_CODING) {
-    settings.allow_insecure_coding = true;
+if (process.env.INSECURE_CODING !== undefined) {
+    settings.allow_insecure_coding = parseBooleanEnv(process.env.INSECURE_CODING, 'INSECURE_CODING');
 }
-if (process.env.BLOCKED_ACTIONS) {
-    settings.blocked_actions = JSON.parse(process.env.BLOCKED_ACTIONS);
+if (process.env.BLOCKED_ACTIONS !== undefined) {
+    const blockedActions = parseJsonEnv(process.env.BLOCKED_ACTIONS, 'BLOCKED_ACTIONS');
+    if (!Array.isArray(blockedActions)) {
+        throw new Error('BLOCKED_ACTIONS must be a JSON array.');
+    }
+    settings.blocked_actions = blockedActions;
 }
-if (process.env.MAX_MESSAGES) {
-    settings.max_messages = process.env.MAX_MESSAGES;
+if (process.env.MAX_MESSAGES !== undefined) {
+    settings.max_messages = parseIntegerEnv(process.env.MAX_MESSAGES, 'MAX_MESSAGES');
 }
-if (process.env.NUM_EXAMPLES) {
-    settings.num_examples = process.env.NUM_EXAMPLES;
+if (process.env.NUM_EXAMPLES !== undefined) {
+    settings.num_examples = parseIntegerEnv(process.env.NUM_EXAMPLES, 'NUM_EXAMPLES');
 }
-if (process.env.LOG_ALL) {
-    settings.log_all_prompts = process.env.LOG_ALL;
+if (process.env.LOG_ALL !== undefined) {
+    settings.log_all_prompts = parseBooleanEnv(process.env.LOG_ALL, 'LOG_ALL');
 }
 if (process.env.SETTINGS_JSON) {
     try {
-        Object.assign(settings, JSON.parse(process.env.SETTINGS_JSON));
+        Object.assign(settings, parseJsonEnv(process.env.SETTINGS_JSON, 'SETTINGS_JSON'));
     } catch (err) {
-        console.error("Failed to parse environment variable for SETTINGS_JSON:", err);
+        console.error('Failed to parse environment variable for SETTINGS_JSON:', err);
     }
 }
 
