@@ -25,7 +25,8 @@ export class ChatRouter {
             convoManager.sendToBot(to_player, message);
         }
         else {
-            await this.openChat(message);
+            // Preserve Agent's existing fire-and-forget open-chat behavior.
+            void this.openChat(message);
         }
     }
 
