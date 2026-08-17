@@ -16,17 +16,24 @@ class Conversation {
         this.inMessageTimer = null;
     }
 
+    clearTimer() {
+        if (this.inMessageTimer) {
+            clearTimeout(this.inMessageTimer);
+            this.inMessageTimer = null;
+        }
+    }
+
     reset() {
+        this.clearTimer();
         this.active = false;
         this.ignore_until_start = false;
         this.in_queue = [];
-        this.inMessageTimer = null;
     }
 
     end() {
+        this.clearTimer();
         this.active = false;
         this.ignore_until_start = true;
-        this.inMessageTimer = null;
         const full_message = _compileInMessages(this);
         if (full_message.message.trim().length > 0)
             agent.history.add(this.name, full_message.message);
@@ -121,7 +128,7 @@ class ConversationManager {
     async startConversation(send_to, message) {
         const convo = this._getConvo(send_to);
         convo.reset();
-        
+
         if (agent.self_prompter.isActive()) {
             await agent.self_prompter.pause();
         }
@@ -146,14 +153,14 @@ class ConversationManager {
             return;
         }
         const convo = this._getConvo(send_to);
-        
+
         if (settings.chat_bot_messages && open_chat)
             agent.openChat(`(To ${send_to}) ${message}`);
-        
+
         if (convo.ignore_until_start)
             return;
         convo.active = true;
-        
+
         const end = message.includes('!endConversation');
         const json = {
             'message': message,
@@ -185,12 +192,12 @@ class ConversationManager {
 
         this._clearMonitorTimeouts();
         convo.queue(received);
-        
+
         // responding to conversation takes priority over self prompting
         if (agent.self_prompter.isActive()){
             await agent.self_prompter.pause();
         }
-    
+
         _scheduleProcessInMessage(sender, received, convo);
     }
 
@@ -208,7 +215,7 @@ class ConversationManager {
     otherAgentInGame(name) {
         return agents_in_game.some((n) => n === name);
     }
-    
+
     updateAgents(agents) {
         agent_names = agents.map(a => a.name);
         agents_in_game = agents.filter(a => a.in_game).map(a => a.name);
@@ -217,26 +224,28 @@ class ConversationManager {
     getInGameAgents() {
         return agents_in_game;
     }
-    
+
     inConversation(other_agent=null) {
         if (other_agent)
             return this.convos[other_agent]?.active;
         return Object.values(this.convos).some(c => c.active);
     }
-    
+
     endConversation(sender) {
-        if (this.convos[sender]) {
-            this.convos[sender].end();
-            if (this.activeConversation.name === sender) {
-                this._stopMonitor();
-                this.activeConversation = null;
-                if (agent.self_prompter.isPaused() && !this.inConversation()) {
-                    _resumeSelfPrompter();
-                }
+        const convo = this.convos[sender];
+        if (!convo)
+            return;
+
+        convo.end();
+        if (this.activeConversation?.name === sender) {
+            this._stopMonitor();
+            this.activeConversation = null;
+            if (agent.self_prompter.isPaused() && !this.inConversation()) {
+                _resumeSelfPrompter();
             }
         }
     }
-    
+
     endAllConversations() {
         for (const sender in this.convos) {
             this.endConversation(sender);
@@ -271,17 +280,18 @@ const talkOverActions = ['stay', 'followPlayer', 'mode:']; // all mode actions
 const fastDelay = 200;
 const longDelay = 5000;
 async function _scheduleProcessInMessage(sender, received, convo) {
-    if (convo.inMessageTimer)
-        clearTimeout(convo.inMessageTimer);
+    convo.clearTimer();
     let otherAgentBusy = containsCommand(received.message);
 
-    const scheduleResponse = (delay) => convo.inMessageTimer = setTimeout(() => _processInMessageQueue(sender), delay);
+    const scheduleResponse = (delay) => {
+        convo.inMessageTimer = setTimeout(() => _processInMessageQueue(sender), delay);
+    };
 
     if (!agent.isIdle() && otherAgentBusy) {
         // both are busy
         let canTalkOver = talkOverActions.some(a => agent.actions.currentActionLabel.includes(a));
         if (canTalkOver)
-            scheduleResponse(fastDelay)
+            scheduleResponse(fastDelay);
         // otherwise don't respond
     }
     else if (otherAgentBusy)
@@ -308,23 +318,24 @@ async function _scheduleProcessInMessage(sender, received, convo) {
 
 function _processInMessageQueue(name) {
     const convo = convoManager._getConvo(name);
+    convo.inMessageTimer = null;
     _handleFullInMessage(name, _compileInMessages(convo));
 }
 
 function _compileInMessages(convo) {
     let pack = {};
-    let full_message = '';
+    const messages = [];
     while (convo.in_queue.length > 0) {
         pack = convo.in_queue.shift();
-        full_message += pack.message;
+        messages.push(pack.message);
     }
-    pack.message = full_message;
+    pack.message = messages.join('\n');
     return pack;
 }
 
 function _handleFullInMessage(sender, received) {
     console.log(`${agent.name} responding to "${received.message}" from ${sender}`);
-    
+
     const convo = convoManager._getConvo(sender);
     convo.active = true;
 
@@ -340,9 +351,8 @@ function _handleFullInMessage(sender, received) {
     agent.handleMessage(sender, message);
 }
 
-
 function _tagMessage(message) {
-    return "(FROM OTHER BOT)" + message;
+    return "(FROM OTHER BOT)"+message;
 }
 
 async function _resumeSelfPrompter() {
