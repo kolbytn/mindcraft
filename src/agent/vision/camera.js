@@ -23,11 +23,11 @@ export class Camera extends EventEmitter {
         this.canvas = createCanvas(this.width, this.height);
         this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
         this.viewer = new Viewer(this.renderer);
-        this._init().then(() => {
+        this.ready = this._init().then(() => {
             this.emit('ready');
-        })
+        });
     }
-  
+
     async _init () {
         const botPos = this.bot.entity.position;
         const center = new Vec3(botPos.x, botPos.y+this.bot.entity.height, botPos.z);
@@ -39,8 +39,13 @@ export class Camera extends EventEmitter {
         await worldView.init(center);
         this.worldView = worldView;
     }
-  
+
     async capture() {
+        // Camera construction starts world loading asynchronously. A capture can
+        // be requested immediately after construction, so wait for initialization
+        // before dereferencing worldView.
+        await this.ready;
+
         const center = new Vec3(this.bot.entity.position.x, this.bot.entity.position.y+this.bot.entity.height, this.bot.entity.position.z);
         this.viewer.camera.position.set(center.x, center.y, center.z);
         await this.worldView.updatePosition(center);
@@ -53,7 +58,7 @@ export class Camera extends EventEmitter {
             quality: 100,
             progressive: false
         });
-        
+
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const filename = `screenshot_${timestamp}`;
 
@@ -65,14 +70,6 @@ export class Camera extends EventEmitter {
     }
 
     async _ensureScreenshotDirectory() {
-        let stats;
-        try {
-            stats = await fs.stat(this.fp);
-        } catch (e) {
-            if (!stats?.isDirectory()) {
-                await fs.mkdir(this.fp);
-            }
-        }
+        await fs.mkdir(this.fp, { recursive: true });
     }
 }
-  
