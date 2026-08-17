@@ -8,8 +8,10 @@ import 'ses';
 let lockeddown = false;
 export function lockdown() {
   if (lockeddown) return;
-  lockeddown = true;
-  lockdown({
+
+  // `ses` installs lockdown on globalThis. Call it explicitly here so this
+  // wrapper does not recursively call itself.
+  globalThis.lockdown({
     // basic devex and quality of life improvements
     localeTaming: 'unsafe',
     consoleTaming: 'unsafe',
@@ -19,6 +21,8 @@ export function lockdown() {
     // (mineflayer dep "protodef" uses eval)
     evalTaming: 'unsafeEval',
   });
+
+  lockeddown = true;
 }
 
 export const makeCompartment = (endowments = {}) => {
@@ -29,4 +33,4 @@ export const makeCompartment = (endowments = {}) => {
     // standard endowments
     ...endowments
   });
-}
+};
