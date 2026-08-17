@@ -21,6 +21,11 @@ export class SelfPrompter {
         }
         this.state = ACTIVE;
         this.prompt = prompt;
+        // A previous stop/pause may have set the interrupt flag while waiting
+        // for the loop to unwind. A fresh start should not inherit it once no
+        // loop is running.
+        if (!this.loop_active)
+            this.interrupt = false;
         this.startLoop();
     }
 
@@ -44,7 +49,7 @@ export class SelfPrompter {
         if (state !== STOPPED && !prompt)
             throw new Error('No prompt loaded when self-prompting is active');
         if (state === ACTIVE) {
-            await this.start(prompt);
+            this.start(prompt);
         }
     }
 
@@ -83,7 +88,6 @@ export class SelfPrompter {
         }
         console.log('self prompt loop stopped')
         this.loop_active = false;
-        this.interrupt = false;
     }
 
     update(delta) {
@@ -106,30 +110,33 @@ export class SelfPrompter {
     }
 
     async stopLoop() {
-        // you can call this without await if you don't need to wait for it to finish
-        if (this.interrupt)
-            return;
-        console.log('stopping self-prompt loop')
+        // Multiple callers may request the same stop. Always wait for the
+        // active loop to finish instead of returning early just because the
+        // interrupt flag has already been set.
+        if (this.loop_active)
+            console.log('stopping self-prompt loop')
         this.interrupt = true;
         while (this.loop_active) {
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, 100));
         }
         this.interrupt = false;
     }
 
     async stop(stop_action=true) {
+        // Set the externally visible state before awaiting anything so callers
+        // that intentionally do not await stop() still see a stopped prompter.
+        this.state = STOPPED;
         this.interrupt = true;
         if (stop_action)
             await this.agent.actions.stop();
-        this.stopLoop();
-        this.state = STOPPED;
+        await this.stopLoop();
     }
 
     async pause() {
+        this.state = PAUSED;
         this.interrupt = true;
         await this.agent.actions.stop();
-        this.stopLoop();
-        this.state = PAUSED;
+        await this.stopLoop();
     }
 
     shouldInterrupt(is_self_prompt) { // to be called from handleMessage
@@ -139,7 +146,7 @@ export class SelfPrompter {
     handleUserPromptedCmd(is_self_prompt, is_action) {
         // if a user messages and the bot responds with an action, stop the self-prompt loop
         if (!is_self_prompt && is_action) {
-            this.stopLoop();
+            void this.stopLoop();
             // this stops it from responding from the handlemessage loop and the self-prompt loop at the same time
         }
     }
