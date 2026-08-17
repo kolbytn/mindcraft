@@ -1,0 +1,60 @@
+name: Apply profile resolver refactor
+
+on:
+  push:
+    branches:
+      - refactor/profile-resolution
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/profile-resolution
+
+      - name: Refactor Prompter profile resolution
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/models/prompter.js')
+          text = path.read_text()
+
+          import_anchor = "import { selectAPI, createModel } from './_model_map.js';\n"
+          resolver_import = "import { resolveProfile } from './profile_resolver.js';\n"
+          if resolver_import not in text:
+              if import_anchor not in text:
+                  raise SystemExit('model map import anchor not found')
+              text = text.replace(import_anchor, import_anchor + resolver_import, 1)
+
+          start_marker = "        this.agent = agent;\n        this.profile = profile;\n        const defaults_dir"
+          end_marker = "        // base overrides default, individual overrides base\n"
+          start = text.find(start_marker)
+          end = text.find(end_marker, start)
+          if start == -1 or end == -1:
+              raise SystemExit('profile resolution block not found')
+          end += len(end_marker)
+
+          replacement = (
+              "        this.agent = agent;\n"
+              "        const defaults_dir = path.join(__dirname, '../../profiles/defaults');\n"
+              "        this.profile = resolveProfile(profile, settings.base_profile, defaults_dir);\n"
+          )
+          text = text[:start] + replacement + text[end:]
+          path.write_text(text)
+
+      - name: Commit refactor
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/apply-profile-refactor.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/models/prompter.js
+          git commit -m 'refactor: use shared profile resolver in Prompter'
+          git push origin HEAD:refactor/profile-resolution
