@@ -1,0 +1,136 @@
+name: Apply data paths refactor
+
+on:
+  push:
+    branches:
+      - refactor/data-paths
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/data-paths
+
+      - name: Migrate bot data paths
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def add_import(text, anchor, new_import):
+              if new_import not in text:
+                  if anchor not in text:
+                      raise SystemExit(f'import anchor not found: {anchor!r}')
+                  text = text.replace(anchor, anchor + new_import, 1)
+              return text
+
+          # History
+          p = Path('src/agent/history.js')
+          text = p.read_text()
+          text = add_import(
+              text,
+              "import settings from './settings.js';\n",
+              "import { botDataPath } from '../utils/data_paths.js';\n"
+          )
+          text = text.replace(
+              "        this.memory_fp = `./bots/${this.name}/memory.json`;\n",
+              "        this.memory_fp = botDataPath(this.name, 'memory.json');\n",
+              1
+          )
+          text = text.replace(
+              "        mkdirSync(`./bots/${this.name}/histories`, { recursive: true });\n",
+              "        mkdirSync(botDataPath(this.name, 'histories'), { recursive: true });\n",
+              1
+          )
+          text = text.replace(
+              "            this.full_history_fp = `./bots/${this.name}/histories/${string_timestamp}.json`;\n",
+              "            this.full_history_fp = botDataPath(this.name, 'histories', `${string_timestamp}.json`);\n",
+              1
+          )
+          p.write_text(text)
+
+          # Generated code
+          p = Path('src/agent/coder.js')
+          text = p.read_text()
+          text = add_import(
+              text,
+              "import {ESLint} from \"eslint\";\n",
+              "import { botDataPath } from '../utils/data_paths.js';\n"
+          )
+          text = text.replace(
+              "        this.fp = '/bots/'+agent.name+'/action-code/';\n",
+              "        this.fp = botDataPath(agent.name, 'action-code');\n",
+              1
+          )
+          text = text.replace(
+              "        mkdirSync('.' + this.fp, { recursive: true });\n",
+              "        mkdirSync(this.fp, { recursive: true });\n",
+              1
+          )
+          text = text.replace(
+              "        let write_result = await this._writeFilePromise('.' + this.fp + filename, src);\n",
+              "        let write_result = await this._writeFilePromise(path.join(this.fp, filename), src);\n",
+              1
+          )
+          p.write_text(text)
+
+          # Vision screenshots
+          p = Path('src/agent/vision/vision_interpreter.js')
+          text = p.read_text()
+          text = add_import(
+              text,
+              "import fs from 'fs';\n",
+              "import { botDataPath } from '../../utils/data_paths.js';\n"
+          )
+          text = text.replace(
+              "        this.fp = './bots/'+agent.name+'/screenshots/';\n",
+              "        this.fp = botDataPath(agent.name, 'screenshots');\n",
+              1
+          )
+          p.write_text(text)
+
+          # Profile snapshots and prompt logs
+          p = Path('src/models/prompter.js')
+          text = p.read_text()
+          text = add_import(
+              text,
+              "import { selectAPI, createModel } from './_model_map.js';\n",
+              "import { botDataPath } from '../utils/data_paths.js';\n"
+          )
+          text = text.replace(
+              "        mkdirSync(`./bots/${name}`, { recursive: true });\n",
+              "        mkdirSync(botDataPath(name), { recursive: true });\n",
+              1
+          )
+          text = text.replace(
+              "        writeFileSync(`./bots/${name}/last_profile.json`, JSON.stringify(this.profile, null, 4), (err) => {\n",
+              "        writeFileSync(botDataPath(name, 'last_profile.json'), JSON.stringify(this.profile, null, 4), (err) => {\n",
+              1
+          )
+          text = text.replace(
+              "            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs`);\n",
+              "            logDir = botDataPath(this.agent.name, 'logs');\n",
+              1
+          )
+          text = text.replace(
+              "            logDir = path.join(__dirname, `../../bots/${this.agent.name}/logs/${task_id}`);\n",
+              "            logDir = botDataPath(this.agent.name, 'logs', String(task_id));\n",
+              1
+          )
+          p.write_text(text)
+
+      - name: Commit refactor
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/apply-data-paths-refactor.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/agent/history.js src/agent/coder.js src/agent/vision/vision_interpreter.js src/models/prompter.js
+          git commit -m 'refactor: use centralized bot data paths'
+          git push origin HEAD:refactor/data-paths
