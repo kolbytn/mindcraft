@@ -9,13 +9,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Mindserver is:
 // - central hub for communication between all agent processes
-// - api to control from other languages and remote users 
+// - api to control from other languages and remote users
 // - host for webapp
 
 let io;
 let server;
 const agent_connections = {};
-const agent_listeners = [];
+const agent_listeners = new Set();
 
 const settings_spec = JSON.parse(readFileSync(path.join(__dirname, 'public/settings_spec.json'), 'utf8'));
 
@@ -192,7 +192,7 @@ export function createMindServer(host_public = false, port = 8080) {
                 agent_connections[curAgentName].socket = null;
                 agentsStatusUpdate();
             }
-            if (agent_listeners.includes(socket)) {
+            if (agent_listeners.has(socket)) {
                 removeListener(socket);
             }
         });
@@ -252,20 +252,19 @@ export function createMindServer(host_public = false, port = 8080) {
                 console.log('Exiting MindServer');
                 globalThis.process.exit(0);
             }, 2000);
-            
         });
 
-		socket.on('send-message', (agentName, data) => {
-			if (!agent_connections[agentName]) {
-				console.warn(`Agent ${agentName} not in game, cannot send message via MindServer.`);
+        socket.on('send-message', (agentName, data) => {
+            if (!agent_connections[agentName]) {
+                console.warn(`Agent ${agentName} not in game, cannot send message via MindServer.`);
                 return;
-			}
-			try {
+            }
+            try {
                 agent_connections[agentName].socket.emit('send-message', data);
-			} catch (error) {
-				console.error('Error: ', error);
-			}
-		});
+            } catch (error) {
+                console.error('Error: ', error);
+            }
+        });
 
         socket.on('bot-output', (agentName, message) => {
             io.emit('bot-output', agentName, message);
@@ -295,45 +294,82 @@ function agentsStatusUpdate(socket) {
     for (let agentName in agent_connections) {
         const conn = agent_connections[agentName];
         agents.push({
-            name: agentName, 
+            name: agentName,
             in_game: conn.in_game,
             viewerPort: conn.viewer_port,
             socket_connected: !!conn.socket
         });
-    };
+    }
     socket.emit('agents-status', agents);
 }
 
-
+const STATE_POLL_INTERVAL_MS = 1000;
+const STATE_REQUEST_TIMEOUT_MS = 2000;
 let listenerInterval = null;
+let statePollInFlight = false;
+
+function requestAgentState(agentName, agent) {
+    return new Promise((resolve, reject) => {
+        if (!agent.socket) {
+            reject(new Error(`Agent ${agentName} has no connected socket`));
+            return;
+        }
+
+        let settled = false;
+        const timeout = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            reject(new Error(`Timed out waiting for ${agentName} state`));
+        }, STATE_REQUEST_TIMEOUT_MS);
+
+        agent.socket.emit('get-full-state', (state) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            resolve(state);
+        });
+    });
+}
+
+async function pollAgentStates() {
+    if (statePollInFlight) return;
+    statePollInFlight = true;
+
+    try {
+        const states = {};
+        const entries = Object.entries(agent_connections)
+            .filter(([, agent]) => agent.in_game);
+
+        await Promise.all(entries.map(async ([agentName, agent]) => {
+            try {
+                states[agentName] = await requestAgentState(agentName, agent);
+            } catch (error) {
+                states[agentName] = { error: String(error) };
+            }
+        }));
+
+        for (let listener of agent_listeners) {
+            listener.emit('state-update', states);
+        }
+    } finally {
+        statePollInFlight = false;
+    }
+}
+
 function addListener(listener_socket) {
-    agent_listeners.push(listener_socket);
-    if (agent_listeners.length === 1) {
-        listenerInterval = setInterval(async () => {
-            const states = {};
-            for (let agentName in agent_connections) {
-                let agent = agent_connections[agentName];
-                if (agent.in_game) {
-                    try {
-                        const state = await new Promise((resolve) => {
-                            agent.socket.emit('get-full-state', (s) => resolve(s));
-                        });
-                        states[agentName] = state;
-                    } catch (e) {
-                        states[agentName] = { error: String(e) };
-                    }
-                }
-            }
-            for (let listener of agent_listeners) {
-                listener.emit('state-update', states);
-            }
-        }, 1000);
+    if (agent_listeners.has(listener_socket)) return;
+    agent_listeners.add(listener_socket);
+
+    if (agent_listeners.size === 1) {
+        listenerInterval = setInterval(() => {
+            void pollAgentStates();
+        }, STATE_POLL_INTERVAL_MS);
     }
 }
 
 function removeListener(listener_socket) {
-    agent_listeners.splice(agent_listeners.indexOf(listener_socket), 1);
-    if (agent_listeners.length === 0) {
+    agent_listeners.delete(listener_socket);
+    if (agent_listeners.size === 0) {
         clearInterval(listenerInterval);
         listenerInterval = null;
     }
@@ -342,4 +378,4 @@ function removeListener(listener_socket) {
 // Optional: export these if you need access to them from other files
 export const getIO = () => io;
 export const getServer = () => server;
-export const numStateListeners = () => agent_listeners.length;
+export const numStateListeners = () => agent_listeners.size;
